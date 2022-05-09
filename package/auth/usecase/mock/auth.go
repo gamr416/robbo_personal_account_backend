@@ -9,16 +9,16 @@ type AuthUseCaseMock struct {
 	mock.Mock
 }
 
-func (m *AuthUseCaseMock) SignUp(username, password string) error {
-	args := m.Called(username, password)
-
-	return args.Error(0)
-}
-
-func (m *AuthUseCaseMock) SignIn(username, password string) (string, error) {
-	args := m.Called(username, password)
+func (m *AuthUseCaseMock) SignIn(email, password string) (string, error) {
+	args := m.Called(email, password)
 
 	return args.Get(0).(string), args.Error(1)
+}
+
+func (m *AuthUseCaseMock) SignUp(email, password string) error {
+	args := m.Called(email, password)
+
+	return args.Error(0)
 }
 
 func (m *AuthUseCaseMock) ParseToken(accessToken string) (*models.UserCore, error) {

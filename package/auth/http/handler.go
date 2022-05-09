@@ -17,6 +17,11 @@ func NewAuthHandler(authDelegate auth.Delegate) Handler {
 	}
 }
 
+type signInput struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 func (h *Handler) InitAuthRoutes(router *gin.Engine) {
 	auth := router.Group("/auth")
 	{
@@ -25,23 +30,45 @@ func (h *Handler) InitAuthRoutes(router *gin.Engine) {
 	}
 }
 
-type signInput struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+type signInResponse struct {
+	Token string `json:"token"`
 }
 
 func (h *Handler) SignIn(c *gin.Context) {
-	fmt.Println("SignIn")
-	c.Status(http.StatusOK)
-}
+	inp := new(signInput)
 
-type SignUpResponse struct {
-	Succes bool `json:"succes"`
+	if err := c.BindJSON(inp); err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	token, err := h.delegate.SignIn(inp.Email, inp.Password)
+	if err != nil {
+		if err == auth.ErrUserNotFound {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, signInResponse{Token: token})
 }
 
 func (h *Handler) SignUp(c *gin.Context) {
 	fmt.Println("SignUp")
-	c.JSON(http.StatusOK, &SignUpResponse{
-		Succes: true,
-	})
+	inp := new(signInput)
+
+	if err := c.BindJSON(inp); err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	if err := h.delegate.SignUp(inp.Email, inp.Password); err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.Status(http.StatusOK)
 }

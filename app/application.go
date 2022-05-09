@@ -10,12 +10,15 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/logger"
 	"github.com/skinnykaen/robbo_student_personal_account.git/server"
 	"go.uber.org/fx"
+	"log"
 )
 
-func AppInvokeWith(options ...fx.Option) *fx.App {
+func InvokeWith(options ...fx.Option) *fx.App {
+	if err := config.Init(); err != nil {
+		log.Fatalf("%s", err.Error())
+	}
 	var di = []fx.Option{
 		fx.Provide(logger.NewLogger),
-		fx.Provide(config.NewConfig),
 		fx.Provide(db_client.NewPostgresClient),
 		fx.Provide(gateway.SetupAuthGateway),
 		fx.Provide(usecase.SetupAuthUseCase),
@@ -29,5 +32,5 @@ func AppInvokeWith(options ...fx.Option) *fx.App {
 }
 
 func RunApp() {
-	AppInvokeWith(fx.Invoke(server.NewServer)).Run()
+	InvokeWith(fx.Invoke(server.NewServer)).Run()
 }

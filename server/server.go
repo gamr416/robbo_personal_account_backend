@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	authhttp "github.com/skinnykaen/robbo_student_personal_account.git/package/auth/http"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/config"
+	"github.com/spf13/viper"
 	"go.uber.org/fx"
 	"log"
 	"net/http"
@@ -15,7 +15,7 @@ type Server struct {
 	httpServer *http.Server
 }
 
-func NewServer(lifecycle fx.Lifecycle, config config.Config, handler authhttp.Handler) {
+func NewServer(lifecycle fx.Lifecycle, handler authhttp.Handler) {
 	lifecycle.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) (err error) {
@@ -26,7 +26,7 @@ func NewServer(lifecycle fx.Lifecycle, config config.Config, handler authhttp.Ha
 				)
 				handler.InitAuthRoutes(router)
 				server := &http.Server{
-					Addr:           config.Port,
+					Addr:           viper.GetString("server.address"),
 					Handler:        router,
 					ReadTimeout:    10 * time.Second,
 					WriteTimeout:   10 * time.Second,

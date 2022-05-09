@@ -19,14 +19,14 @@ func TestSignUp(t *testing.T) {
 	handler.InitAuthRoutes(r)
 
 	signUpBody := &signInput{
-		Username: "testuser",
+		Email:    "testuser",
 		Password: "testpass",
 	}
 
 	body, err := json.Marshal(signUpBody)
 	assert.NoError(t, err)
 
-	delegate.On("SignUp", signUpBody.Username, signUpBody.Password).Return(nil)
+	delegate.On("SignUp", signUpBody.Email, signUpBody.Password).Return(nil)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/auth/sign-up", bytes.NewBuffer(body))
@@ -43,14 +43,14 @@ func TestSignIn(t *testing.T) {
 	handler.InitAuthRoutes(r)
 
 	signUpBody := &signInput{
-		Username: "testuser",
+		Email:    "testemail",
 		Password: "testpass",
 	}
 
 	body, err := json.Marshal(signUpBody)
 	assert.NoError(t, err)
 
-	delegate.On("SignIn", signUpBody.Username, signUpBody.Password).Return("jwt", nil)
+	delegate.On("SignIn", signUpBody.Email, signUpBody.Password).Return("jwt", nil)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/auth/sign-in", bytes.NewBuffer(body))

@@ -14,8 +14,8 @@ func (m *AuthDelegateMock) SignUp(email, password string) error {
 	return args.Error(0)
 }
 
-func (m *AuthDelegateMock) SignIn(email, password string) error {
+func (m *AuthDelegateMock) SignIn(email, password string) (string, error) {
 	args := m.Called(email, password)
 
-	return args.Error(1)
+	return args.Get(0).(string), args.Error(1)
 }

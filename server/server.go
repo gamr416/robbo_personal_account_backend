@@ -2,9 +2,9 @@ package server
 
 import (
 	"context"
+	"github.com/gin-gonic/gin"
+	authhttp "github.com/skinnykaen/robbo_student_personal_account.git/package/auth/http"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/config"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/handlers"
-
 	"go.uber.org/fx"
 	"log"
 	"net/http"
@@ -15,13 +15,19 @@ type Server struct {
 	httpServer *http.Server
 }
 
-func NewServer(lifecycle fx.Lifecycle, config config.Config, handler handlers.RequestHandler) {
+func NewServer(lifecycle fx.Lifecycle, config config.Config, handler authhttp.Handler) {
 	lifecycle.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) (err error) {
+				router := gin.Default()
+				router.Use(
+					gin.Recovery(),
+					gin.Logger(),
+				)
+				handler.InitAuthRoutes(router)
 				server := &http.Server{
 					Addr:           config.Port,
-					Handler:        handler.InitRoutes(),
+					Handler:        router,
 					ReadTimeout:    10 * time.Second,
 					WriteTimeout:   10 * time.Second,
 					MaxHeaderBytes: 1 << 20,

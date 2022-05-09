@@ -1,4 +1,4 @@
-package gateway
+package db_client
 
 import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/config"

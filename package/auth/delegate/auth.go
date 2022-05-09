@@ -23,3 +23,7 @@ func SetupAuthDelegate(usecase auth.UseCase) AuthDelegateModule {
 func (s *AuthDelegateImpl) SignIn(email, password string) (err error) {
 	return nil
 }
+
+func (s *AuthDelegateImpl) SignUp(email, password string) error {
+	return nil
+}

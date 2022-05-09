@@ -3,6 +3,7 @@ package gateway
 import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"go.uber.org/fx"
 )
 
@@ -22,6 +23,11 @@ func SetupAuthGateway(postgresClient db_client.PostgresClient) AuthGatewayModule
 }
 
 func (r *AuthGatewayImpl) GetUser(email, password string) (err error) {
+	// TODO implement me
+	return nil
+}
+
+func (r *AuthGatewayImpl) CreateUser(user *models.UserCore) (err error) {
 	// TODO implement me
 	return nil
 }

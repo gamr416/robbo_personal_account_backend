@@ -20,10 +20,12 @@ func SetupAuthDelegate(usecase auth.UseCase) AuthDelegateModule {
 	}
 }
 
-func (s *AuthDelegateImpl) SignIn(email, password string) (err error) {
-	return nil
+func (s *AuthDelegateImpl) SignIn(email, password string) (token string, err error) {
+	token, err = s.UseCase.SignIn(email, password)
+	return
 }
 
-func (s *AuthDelegateImpl) SignUp(email, password string) error {
-	return nil
+func (s *AuthDelegateImpl) SignUp(email, password string) (err error) {
+	err = s.UseCase.SignUp(email, password)
+	return
 }

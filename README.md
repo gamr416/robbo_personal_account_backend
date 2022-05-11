@@ -1,4 +1,4 @@
-# robbo_student_personal_accounr
+# robbo_student_personal_account
 
 Setup postgres
 docker-compose up -d

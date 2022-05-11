@@ -1,0 +1,10 @@
+server:
+  address: "localhost:8000"
+
+auth:
+  hash_salt: "hash_salt"
+  signing_key: "signing_key"
+  token_ttl: 86400
+
+postgres:
+  postgresDsn: "host=localhost port=5432 user=robbo password=robbo_pwd dbname=robbo_db"

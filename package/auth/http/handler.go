@@ -17,17 +17,17 @@ func NewAuthHandler(authDelegate auth.Delegate) Handler {
 	}
 }
 
-type signInput struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
 func (h *Handler) InitAuthRoutes(router *gin.Engine) {
 	auth := router.Group("/auth")
 	{
 		auth.POST("/sign-up", h.SignUp)
 		auth.POST("/sign-in", h.SignIn)
 	}
+}
+
+type signInput struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type signInResponse struct {

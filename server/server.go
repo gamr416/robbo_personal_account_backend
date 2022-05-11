@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/cors"
 	authhttp "github.com/skinnykaen/robbo_student_personal_account.git/package/auth/http"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
@@ -27,7 +28,7 @@ func NewServer(lifecycle fx.Lifecycle, handler authhttp.Handler) {
 				handler.InitAuthRoutes(router)
 				server := &http.Server{
 					Addr:           viper.GetString("server.address"),
-					Handler:        router,
+					Handler:        cors.New(cors.Options{AllowedOrigins: []string{"*"}, AllowCredentials: true}).Handler(router),
 					ReadTimeout:    10 * time.Second,
 					WriteTimeout:   10 * time.Second,
 					MaxHeaderBytes: 1 << 20,

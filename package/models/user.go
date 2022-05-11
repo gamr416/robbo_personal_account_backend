@@ -20,7 +20,7 @@ type UserDB struct {
 
 func (em *UserDB) ToCore() *UserCore {
 	return &UserCore{
-		ID:       strconv.FormatUint(uint64(em.ID), 64),
+		ID:       strconv.FormatUint(uint64(em.ID), 10),
 		Email:    em.Email,
 		Password: em.Password,
 	}

@@ -26,7 +26,7 @@ func SetupAuthGateway(postgresClient db_client.PostgresClient) AuthGatewayModule
 func (r *AuthGatewayImpl) GetUser(email, password string) (user *models.UserCore, err error) {
 	var userDb models.UserDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Where("email = ? AND  = ?", email, password).First(&userDb).Error; err != nil {
+		if err = tx.Where("email = ? AND  password = ?", email, password).First(&userDb).Error; err != nil {
 			return
 		}
 		return

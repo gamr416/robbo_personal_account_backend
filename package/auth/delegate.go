@@ -1,6 +1,8 @@
 package auth
 
 type Delegate interface {
-	SignIn(email, password string) (token string, err error)
-	SignUp(email, password string) (err error)
+	SignIn(email, password string) (string, string, error)
+	SignUp(email, password string) (string, string, error)
+	ParseToken(token string) (id string, err error)
+	RefreshToken(token string) (newAccessToken, newRefreshToken string, err error)
 }

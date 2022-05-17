@@ -20,12 +20,17 @@ func SetupAuthDelegate(usecase auth.UseCase) AuthDelegateModule {
 	}
 }
 
-func (s *AuthDelegateImpl) SignIn(email, password string) (token string, err error) {
-	token, err = s.UseCase.SignIn(email, password)
-	return
+func (s *AuthDelegateImpl) SignIn(email, password string) (accessToken, refreshToken string, err error) {
+	return s.UseCase.SignIn(email, password)
 }
 
-func (s *AuthDelegateImpl) SignUp(email, password string) (err error) {
-	err = s.UseCase.SignUp(email, password)
-	return
+func (s *AuthDelegateImpl) SignUp(email, password string) (accessToken, refreshToken string, err error) {
+	return s.UseCase.SignUp(email, password)
+}
+
+func (s *AuthDelegateImpl) ParseToken(token string) (id string, err error) {
+	return s.UseCase.ParseToken(token)
+}
+func (s *AuthDelegateImpl) RefreshToken(token string) (newAccessToken, newRefreshToken string, err error) {
+	return s.UseCase.RefreshToken(token)
 }

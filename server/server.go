@@ -27,8 +27,17 @@ func NewServer(lifecycle fx.Lifecycle, handler authhttp.Handler) {
 				)
 				handler.InitAuthRoutes(router)
 				server := &http.Server{
-					Addr:           viper.GetString("server.address"),
-					Handler:        cors.New(cors.Options{AllowedOrigins: []string{"*"}, AllowCredentials: true}).Handler(router),
+					Addr: viper.GetString("server.address"),
+					Handler: cors.New(
+						// TODO make config
+						cors.Options{
+							AllowedOrigins:   []string{"localhost:3030"},
+							AllowCredentials: true,
+							AllowedMethods: []string{
+								"PUT", "POST", "DELETE", "GET", "OPTIONS",
+							},
+						},
+					).Handler(router),
 					ReadTimeout:    10 * time.Second,
 					WriteTimeout:   10 * time.Second,
 					MaxHeaderBytes: 1 << 20,

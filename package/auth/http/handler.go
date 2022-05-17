@@ -22,6 +22,8 @@ func (h *Handler) InitAuthRoutes(router *gin.Engine) {
 	{
 		auth.POST("/sign-up", h.SignUp)
 		auth.POST("/sign-in", h.SignIn)
+		auth.GET("/refresh", h.Refresh)
+		auth.POST("/sign-out", h.SignOut)
 	}
 }
 
@@ -31,7 +33,7 @@ type signInput struct {
 }
 
 type signInResponse struct {
-	Token string `json:"token"`
+	AccessToken string `json:"accessToken"`
 }
 
 func (h *Handler) SignIn(c *gin.Context) {
@@ -42,7 +44,7 @@ func (h *Handler) SignIn(c *gin.Context) {
 		return
 	}
 
-	token, err := h.delegate.SignIn(inp.Email, inp.Password)
+	accessToken, refreshToken, err := h.delegate.SignIn(inp.Email, inp.Password)
 	if err != nil {
 		if err == auth.ErrUserNotFound {
 			c.AbortWithStatus(http.StatusUnauthorized)
@@ -53,7 +55,15 @@ func (h *Handler) SignIn(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, signInResponse{Token: token})
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "token",
+		Value:    refreshToken,
+		MaxAge:   30 * 24 * 60 * 60,
+		HttpOnly: true,
+	})
+	c.JSON(http.StatusOK, signInResponse{
+		AccessToken: accessToken,
+	})
 }
 
 func (h *Handler) SignUp(c *gin.Context) {
@@ -65,10 +75,62 @@ func (h *Handler) SignUp(c *gin.Context) {
 		return
 	}
 
-	if err := h.delegate.SignUp(inp.Email, inp.Password); err != nil {
+	accessToken, refreshToken, err := h.delegate.SignUp(inp.Email, inp.Password)
+	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	c.Status(http.StatusOK)
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "token",
+		Value:    refreshToken,
+		MaxAge:   30 * 24 * 60 * 60,
+		HttpOnly: true,
+	})
+
+	c.JSON(http.StatusOK, signInResponse{
+		AccessToken: accessToken,
+	})
+}
+
+func (h *Handler) Refresh(c *gin.Context) {
+	fmt.Println("Refresh")
+	tokenStr, err := c.Cookie("token")
+
+	if err != nil {
+		if err == http.ErrNoCookie {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	newAccessToken, newRefreshToken, err := h.delegate.RefreshToken(tokenStr)
+	if err != nil {
+		fmt.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "token",
+		Value:    newRefreshToken,
+		MaxAge:   30 * 24 * 60 * 60,
+		HttpOnly: true,
+	})
+
+	c.JSON(http.StatusOK, signInResponse{
+		AccessToken: newAccessToken,
+	})
+}
+
+func (h *Handler) SignOut(c *gin.Context) {
+	fmt.Println("SignOut")
+
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "token",
+		Value:    "",
+		MaxAge:   -1,
+		HttpOnly: true,
+	})
 }

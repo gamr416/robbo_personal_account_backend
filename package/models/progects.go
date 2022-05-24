@@ -6,7 +6,7 @@ import (
 )
 
 type ProjectCore struct {
-	ID     uint
+	ID     string
 	Name   string
 	Author string
 	Date   time.Time

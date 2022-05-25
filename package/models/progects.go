@@ -38,3 +38,18 @@ type ProgectPageDB struct {
 	Preview     string    `gorm:"size:256;not null"`
 	LinkScratch string    `gorm:"size:256;not null"`
 }
+
+type ProjectHTTP struct {
+	ID     string    `json:"id"`
+	Name   string    `json:"name"`
+	Author string    `json:"author"`
+	Date   time.Time `json:"date"`
+	Json   string    `json:"json"`
+}
+
+type ProjectPageHTTP struct {
+	ProjectsHTTP []*ProjectHTTP `json:"projects"`
+	Description  string		`json:"description"`
+	Preview      string		`json:"preview"`
+	LinkScratch  string		`json:"link"`
+}

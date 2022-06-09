@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
-	"io/ioutil"
 	"net/http"
 )
 
@@ -25,7 +24,6 @@ func (h *Handler) InitAuthRoutes(router *gin.Engine) {
 		auth.POST("/sign-in", h.SignIn)
 		auth.GET("/refresh", h.Refresh)
 		auth.POST("/sign-out", h.SignOut)
-		auth.POST("/test", h.Test)
 	}
 }
 
@@ -134,38 +132,5 @@ func (h *Handler) SignOut(c *gin.Context) {
 		Value:    "",
 		MaxAge:   -1,
 		HttpOnly: true,
-	})
-}
-
-type testResponse struct {
-	Id uint `json:"id"`
-}
-
-type testRequest struct {
-	Body string `json:"body"`
-}
-
-func (h *Handler) Test(c *gin.Context) {
-	//inp := new(testRequest)
-	jsonDataBytes, err := ioutil.ReadAll(c.Request.Body)
-
-	if err != nil {
-		fmt.Println(err)
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-
-	fmt.Println(string(jsonDataBytes))
-
-	//if err := c.BindJSON(inp); err != nil {
-	//	fmt.Println(err)
-	//	c.AbortWithStatus(http.StatusBadRequest)
-	//	return
-	//}
-	//
-	//fmt.Println(inp)
-
-	c.JSON(http.StatusOK, testResponse{
-		Id: '1',
 	})
 }

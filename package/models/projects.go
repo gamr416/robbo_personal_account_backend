@@ -2,7 +2,6 @@ package models
 
 import (
 	"gorm.io/gorm"
-	"strconv"
 	"time"
 )
 
@@ -31,23 +30,23 @@ type ProjectHTTP struct {
 	Json   string    `json:"json"`
 }
 
-func (em *ProjectDB) ToCore() *ProjectCore {
-	return &ProjectCore{
-		ID:     strconv.FormatUint(uint64(em.ID), 10),
-		Name:   em.Name,
-		Author: em.Author,
-		Date:   em.Date,
-		Json:   em.Json,
-	}
-}
-
-func (em *ProjectDB) FromCore(project *ProjectCore) {
-	id, _ := strconv.ParseUint(project.ID, 10, 64)
-	em.ID = uint(id)
-	em.Name = project.Name
-	em.Author = project.Author
-	em.Date = project.Date
-	em.Json = project.Json
-}
+//func (em *ProjectDB) ToCore() *ProjectCore {
+//	return &ProjectCore{
+//		ID:     strconv.FormatUint(uint64(em.ID), 10),
+//		Name:   em.Name,
+//		Author: em.Author,
+//		Date:   em.Date,
+//		Json:   em.Json,
+//	}
+//}
+//
+//func (em *ProjectDB) FromCore(project *ProjectCore) {
+//	id, _ := strconv.ParseUint(project.ID, 10, 64)
+//	em.ID = uint(id)
+//	em.Name = project.Name
+//	em.Author = project.Author
+//	em.Date = project.Date
+//	em.Json = project.Json
+//}
 
 // TODO mapping Http

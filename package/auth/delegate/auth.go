@@ -28,8 +28,8 @@ func (s *AuthDelegateImpl) SignUp(email, password string) (accessToken, refreshT
 	return s.UseCase.SignUp(email, password)
 }
 
-func (s *AuthDelegateImpl) ParseToken(token string) (id string, err error) {
-	return s.UseCase.ParseToken(token)
+func (s *AuthDelegateImpl) ParseToken(token string, key []byte) (id string, err error) {
+	return s.UseCase.ParseToken(token, key)
 }
 func (s *AuthDelegateImpl) RefreshToken(token string) (newAccessToken, newRefreshToken string, err error) {
 	return s.UseCase.RefreshToken(token)

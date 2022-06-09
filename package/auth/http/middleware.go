@@ -1,47 +1,41 @@
 package http
 
 import (
+	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
+	"github.com/spf13/viper"
+	"net/http"
+	"strings"
 )
 
 type AuthMiddleware struct {
-	delegate auth.Delegate
+	authDelegate auth.Delegate
 }
 
-//func NewAuthMiddleware(delegate auth.Delegate) gin.HandlerFunc {
-//	return (&AuthMiddleware{
-//		delegate: delegate,
-//	}).Handle
-//}
+const (
+	authorizationHeader = "Authorization"
+	userCtx             = "userId"
+)
 
-//func (m *AuthMiddleware) Handle(c *gin.Context) {
-//	authHeader := c.GetHeader("Authorization")
-//	if authHeader == "" {
-//		c.AbortWithStatus(http.StatusUnauthorized)
-//		return
-//	}
-//
-//	headerParts := strings.Split(authHeader, " ")
-//	if len(headerParts) != 2 {
-//		c.AbortWithStatus(http.StatusUnauthorized)
-//		return
-//	}
-//
-//	if headerParts[0] != "Bearer" {
-//		c.AbortWithStatus(http.StatusUnauthorized)
-//		return
-//	}
-//
-//	user, err := m.delegate.ParseToken(c.Request.Context(), headerParts[1])
-//	if err != nil {
-//		status := http.StatusInternalServerError
-//		if err == auth.ErrInvalidAccessToken {
-//			status = http.StatusUnauthorized
-//		}
-//
-//		c.AbortWithStatus(status)
-//		return
-//	}
-//
-//	c.Set(auth.CtxUserKey, user)
-//}
+func (h *Handler) userIdentity(c *gin.Context) (id string) {
+	header := c.GetHeader(authorizationHeader)
+	if header == "" {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	headerParts := strings.Split(header, " ")
+	if len(headerParts) != 2 {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	id, err := h.delegate.ParseToken(headerParts[1], []byte(viper.GetString("auth.access_signing_key")))
+	if err != nil {
+		fmt.Println(err)
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+	return
+}

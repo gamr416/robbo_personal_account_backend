@@ -4,17 +4,20 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/projects"
 	"io/ioutil"
 	"net/http"
 )
 
 type Handler struct {
-	authDelegate auth.Delegate
+	authDelegate     auth.Delegate
+	projectsDelegate projects.Delegate
 }
 
-func NewProjectsHandler(authDelegate auth.Delegate) Handler {
+func NewProjectsHandler(authDelegate auth.Delegate, projectsDelegate projects.Delegate) Handler {
 	return Handler{
-		authDelegate: authDelegate,
+		authDelegate:     authDelegate,
+		projectsDelegate: projectsDelegate,
 	}
 }
 

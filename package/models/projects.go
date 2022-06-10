@@ -46,4 +46,18 @@ func (em *ProjectDB) FromCore(project *ProjectCore) {
 	em.Json = project.Json
 }
 
-// TODO mapping Http
+func (ht *ProjectHTTP) ToCore() *ProjectCore {
+	return &ProjectCore{
+		ID:     ht.ID,
+		Name:   ht.Name,
+		Author: ht.Author,
+		Json:   ht.Json,
+	}
+}
+
+func (ht *ProjectHTTP) FromCore(project *ProjectCore) {
+	ht.ID = project.ID
+	ht.Name = project.Name
+	ht.Author = project.Author
+	ht.Json = project.Json
+}

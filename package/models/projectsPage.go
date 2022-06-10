@@ -45,22 +45,6 @@ func (em *ProjectPageDB) FromCore(pp *ProjectPageCore) {
 	em.LinkScratch = pp.LinkScratch
 }
 
-func (ht *ProjectHTTP) ToCore() *ProjectCore {
-	return &ProjectCore{
-		ID:     ht.ID,
-		Name:   ht.Name,
-		Author: ht.Author,
-		Json:   ht.Json,
-	}
-}
-
-func (ht *ProjectHTTP) FromCore(project *ProjectCore) {
-	ht.ID = project.ID
-	ht.Name = project.Name
-	ht.Author = project.Author
-	ht.Json = project.Json
-}
-
 func (ht *ProjectPageHTTP) ToCore(projects []*ProjectDB) ProjectPageCore {
 	var coreProjects []*ProjectCore
 	for _, projectDB := range projects {

@@ -92,10 +92,10 @@ func (a *AuthUseCaseImpl) SignUp(email, password string) (accessToken, refreshTo
 	return
 }
 
-func (a *AuthUseCaseImpl) ParseToken(token string) (id string, err error) {
+func (a *AuthUseCaseImpl) ParseToken(token string, key []byte) (id string, err error) {
 	data, err := jwt.ParseWithClaims(token, &jwt.StandardClaims{},
 		func(token *jwt.Token) (interface{}, error) {
-			return []byte(a.refreshSigningKey), nil
+			return []byte(key), nil
 		})
 	if err != nil {
 		return "0", err
@@ -110,7 +110,7 @@ func (a *AuthUseCaseImpl) ParseToken(token string) (id string, err error) {
 }
 
 func (a *AuthUseCaseImpl) RefreshToken(token string) (newAccessToken, newRefreshToken string, err error) {
-	id, err := a.ParseToken(token)
+	id, err := a.ParseToken(token, a.refreshSigningKey)
 
 	if err != nil {
 		fmt.Println(err)

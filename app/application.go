@@ -1,13 +1,17 @@
 package app
 
 import (
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth/delegate"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth/gateway"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth/http"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth/usecase"
+	authdelegate "github.com/skinnykaen/robbo_student_personal_account.git/package/auth/delegate"
+	authgateway "github.com/skinnykaen/robbo_student_personal_account.git/package/auth/gateway"
+	authhttp "github.com/skinnykaen/robbo_student_personal_account.git/package/auth/http"
+	authusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/auth/usecase"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/config"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/logger"
+	prjdelegate "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/delegate"
+	prjgateway "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/gateway"
+	prjhttp "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/http"
+	prjusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/usecase"
 	"github.com/skinnykaen/robbo_student_personal_account.git/server"
 	"go.uber.org/fx"
 	"log"
@@ -20,10 +24,14 @@ func InvokeWith(options ...fx.Option) *fx.App {
 	var di = []fx.Option{
 		fx.Provide(logger.NewLogger),
 		fx.Provide(db_client.NewPostgresClient),
-		fx.Provide(gateway.SetupAuthGateway),
-		fx.Provide(usecase.SetupAuthUseCase),
-		fx.Provide(delegate.SetupAuthDelegate),
-		fx.Provide(http.NewAuthHandler),
+		fx.Provide(authgateway.SetupAuthGateway),
+		fx.Provide(prjgateway.SetupProjectsGateway),
+		fx.Provide(authusecase.SetupAuthUseCase),
+		fx.Provide(prjusecase.SetupProjectUseCase),
+		fx.Provide(authdelegate.SetupAuthDelegate),
+		fx.Provide(prjdelegate.SetupProjectDelegate),
+		fx.Provide(prjhttp.NewProjectsHandler),
+		fx.Provide(authhttp.NewAuthHandler),
 	}
 	for _, option := range options {
 		di = append(di, option)

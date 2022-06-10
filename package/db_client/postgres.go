@@ -41,6 +41,8 @@ func NewPostgresClient(_logger *log.Logger) (postgresClient PostgresClient, err 
 func (c *PostgresClient) Migrate() (err error) {
 	err = c.Db.AutoMigrate(
 		&models.UserDB{},
+		&models.ProjectDB{},
+		&models.ProjectPageDB{},
 	)
 	return
 }

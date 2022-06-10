@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/projects"
 	"go.uber.org/fx"
 )
@@ -22,12 +23,12 @@ func SetupProjectUseCase(gateway projects.Gateway) ProjectUseCaseModule {
 	}
 }
 
-func (p *ProjectUseCaseImpl) CreateProject() {
-
+func (p *ProjectUseCaseImpl) CreateProject(project *models.ProjectCore) (id string, err error) {
+	return p.Gateway.CreateProject(project)
 }
 
-func (p *ProjectUseCaseImpl) UpdateProject() {
-
+func (p *ProjectUseCaseImpl) UpdateProject(project *models.ProjectCore) (err error) {
+	return p.Gateway.UpdateProject(project)
 }
 
 func (p *ProjectUseCaseImpl) DeleteProject() {

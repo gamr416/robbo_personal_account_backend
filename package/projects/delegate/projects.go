@@ -1,6 +1,7 @@
 package delegate
 
 import (
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/projects"
 	"go.uber.org/fx"
 )
@@ -20,16 +21,18 @@ func SetupProjectDelegate(usecase projects.UseCase) ProjectDelegateModule {
 	}
 }
 
-func (p *ProjectDelegateImpl) CreateProject() {
-
+func (p *ProjectDelegateImpl) CreateProject(project *models.ProjectHTTP) (id string, err error) {
+	projectCore := project.ToCore()
+	return p.UseCase.CreateProject(projectCore)
 }
 
 func (p *ProjectDelegateImpl) DeleteProject() {
 
 }
 
-func (p *ProjectDelegateImpl) UpdateProject() {
-
+func (p *ProjectDelegateImpl) UpdateProject(project *models.ProjectHTTP) (err error) {
+	projectCore := project.ToCore()
+	return p.UseCase.UpdateProject(projectCore)
 }
 
 func (p *ProjectDelegateImpl) GetProject() {

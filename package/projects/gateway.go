@@ -1,8 +1,10 @@
 package projects
 
+import "github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+
 type Gateway interface {
-	CreateProject()
+	CreateProject(project *models.ProjectCore) (id string, err error)
 	DeleteProject()
 	GetProject()
-	UpdateProject()
+	UpdateProject(project *models.ProjectCore) (err error)
 }

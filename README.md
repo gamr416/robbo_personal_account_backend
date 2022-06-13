@@ -1,7 +1,13 @@
 # robbo_student_personal_account
 
-Setup postgres
+### cloning repository
+git clone https://github.com/skinnykaen/robbo_student_personal_account.git
+### open folder
+cd robbo_student_personal_account
+### download dependency and libraries 
+go mod download
+### setup postgres
 docker-compose up -d
-
-Run server
-cd cmd go run main.go
+### Run app
+cd cmd
+go run main.go

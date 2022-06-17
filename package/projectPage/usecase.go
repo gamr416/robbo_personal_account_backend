@@ -1,0 +1,10 @@
+package projectPage
+
+import "github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+
+type UseCase interface {
+	CreateProjectPage(projectPage *models.ProjectPageCore) (id string, err error)
+	DeleteProjectPage()
+	GetProjectPage()
+	UpdateProjectPage(project *models.ProjectPageCore) (err error)
+}

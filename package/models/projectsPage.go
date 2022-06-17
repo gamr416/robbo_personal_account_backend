@@ -45,10 +45,10 @@ func (em *ProjectPageDB) FromCore(pp *ProjectPageCore) {
 	em.LinkScratch = pp.LinkScratch
 }
 
-func (ht *ProjectPageHTTP) ToCore(projects []*ProjectDB) ProjectPageCore {
+func (ht *ProjectPageHTTP) ToCore(projects []*ProjectHTTP) ProjectPageCore {
 	var coreProjects []*ProjectCore
-	for _, projectDB := range projects {
-		coreProjects = append(coreProjects, projectDB.ToCore())
+	for _, projectHTTP := range projects {
+		coreProjects = append(coreProjects, projectHTTP.ToCore())
 	}
 	return ProjectPageCore{
 		Description:  ht.Description,

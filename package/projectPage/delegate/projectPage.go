@@ -15,7 +15,7 @@ type ProjectPageDelegateModule struct {
 	projectPage.Delegate
 }
 
-func SetupProjectDelegate(usecase projectPage.UseCase) ProjectPageDelegateModule {
+func SetupProjectPageDelegate(usecase projectPage.UseCase) ProjectPageDelegateModule {
 	return ProjectPageDelegateModule{
 		Delegate: &ProjectPageDelegateImpl{usecase},
 	}

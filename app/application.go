@@ -8,6 +8,10 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/config"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/logger"
+	ppagedelegate "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/delegate"
+	ppagegateway "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/gateway"
+	ppagehttp "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/http"
+	ppageusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/usecase"
 	prjdelegate "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/delegate"
 	prjgateway "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/gateway"
 	prjhttp "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/http"
@@ -26,11 +30,15 @@ func InvokeWith(options ...fx.Option) *fx.App {
 		fx.Provide(db_client.NewPostgresClient),
 		fx.Provide(authgateway.SetupAuthGateway),
 		fx.Provide(prjgateway.SetupProjectsGateway),
+		fx.Provide(ppagegateway.SetupProjectPageGateway),
 		fx.Provide(authusecase.SetupAuthUseCase),
 		fx.Provide(prjusecase.SetupProjectUseCase),
+		fx.Provide(ppageusecase.SetupProjectPageUseCase),
 		fx.Provide(authdelegate.SetupAuthDelegate),
 		fx.Provide(prjdelegate.SetupProjectDelegate),
+		fx.Provide(ppagedelegate.SetupProjectPageDelegate),
 		fx.Provide(prjhttp.NewProjectsHandler),
+		fx.Provide(ppagehttp.NewProjectPageHandler),
 		fx.Provide(authhttp.NewAuthHandler),
 	}
 	for _, option := range options {

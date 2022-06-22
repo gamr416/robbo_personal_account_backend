@@ -17,12 +17,14 @@ type ProjectPageDelegateModule struct {
 
 func SetupProjectPageDelegate(usecase projectPage.UseCase) ProjectPageDelegateModule {
 	return ProjectPageDelegateModule{
-		Delegate: &ProjectPageDelegateImpl{usecase},
+		Delegate: &ProjectPageDelegateImpl{
+			UseCase: usecase,
+		},
 	}
 }
 
-func (p *ProjectPageDelegateImpl) CreateProjectPage(projectPage *models.ProjectPageHTTP, projects []*models.ProjectHTTP) (id string, err error) {
-	projectPageCore := projectPage.ToCore(projects)
+func (p *ProjectPageDelegateImpl) CreateProjectPage(projectPage *models.ProjectPageHTTP) (id string, err error) {
+	projectPageCore := projectPage.ToCore()
 	return p.UseCase.CreateProjectPage(&projectPageCore)
 }
 
@@ -30,8 +32,8 @@ func (p *ProjectPageDelegateImpl) DeleteProjectPage() {
 
 }
 
-func (p *ProjectPageDelegateImpl) UpdateProjectPage(projectPage *models.ProjectPageHTTP, projects []*models.ProjectHTTP) (err error) {
-	projectPageCore := projectPage.ToCore(projects)
+func (p *ProjectPageDelegateImpl) UpdateProjectPage(projectPage *models.ProjectPageHTTP) (err error) {
+	projectPageCore := projectPage.ToCore()
 	return p.UseCase.UpdateProjectPage(&projectPageCore)
 }
 

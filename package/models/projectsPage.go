@@ -3,7 +3,7 @@ package models
 import "gorm.io/gorm"
 
 type ProjectPageCore struct {
-	ProjectsCore []*ProjectCore
+	ProjectsCore ProjectCore
 	Description  string
 	Preview      string
 	LinkScratch  string
@@ -20,17 +20,14 @@ type ProjectPageDB struct {
 }
 
 type ProjectPageHTTP struct {
-	ProjectsHTTP []*ProjectHTTP `json:"projects"`
-	Description  string         `json:"description"`
-	Preview      string         `json:"preview"`
-	LinkScratch  string         `json:"link"`
+	ProjectsHTTP ProjectHTTP `json:"projects"`
+	Description  string      `json:"description"`
+	Preview      string      `json:"preview"`
+	LinkScratch  string      `json:"link"`
 }
 
-func (em *ProjectPageDB) ToCore(projects []*ProjectDB) ProjectPageCore {
-	var coreProjects []*ProjectCore
-	for _, projectDB := range projects {
-		coreProjects = append(coreProjects, projectDB.ToCore())
-	}
+func (em *ProjectPageDB) ToCore() ProjectPageCore {
+	var coreProjects ProjectCore
 	return ProjectPageCore{
 		Description:  em.Description,
 		Preview:      em.Preview,
@@ -45,11 +42,8 @@ func (em *ProjectPageDB) FromCore(pp *ProjectPageCore) {
 	em.LinkScratch = pp.LinkScratch
 }
 
-func (ht *ProjectPageHTTP) ToCore(projects []*ProjectHTTP) ProjectPageCore {
-	var coreProjects []*ProjectCore
-	for _, projectHTTP := range projects {
-		coreProjects = append(coreProjects, projectHTTP.ToCore())
-	}
+func (ht *ProjectPageHTTP) ToCore() ProjectPageCore {
+	var coreProjects ProjectCore
 	return ProjectPageCore{
 		Description:  ht.Description,
 		Preview:      ht.Preview,

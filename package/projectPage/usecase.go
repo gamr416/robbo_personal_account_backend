@@ -6,5 +6,5 @@ type UseCase interface {
 	CreateProjectPage(projectPage *models.ProjectPageCore) (id string, err error)
 	DeleteProjectPage()
 	GetProjectPage()
-	UpdateProjectPage(project *models.ProjectPageCore) (err error)
+	UpdateProjectPage(projectPage *models.ProjectPageCore) (err error)
 }

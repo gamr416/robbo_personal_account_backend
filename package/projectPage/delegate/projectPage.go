@@ -23,9 +23,8 @@ func SetupProjectPageDelegate(usecase projectPage.UseCase) ProjectPageDelegateMo
 	}
 }
 
-func (p *ProjectPageDelegateImpl) CreateProjectPage(projectPage *models.ProjectPageHTTP) (id string, err error) {
-	projectPageCore := projectPage.ToCore()
-	return p.UseCase.CreateProjectPage(&projectPageCore)
+func (p *ProjectPageDelegateImpl) CreateProjectPage() {
+
 }
 
 func (p *ProjectPageDelegateImpl) DeleteProjectPage() {

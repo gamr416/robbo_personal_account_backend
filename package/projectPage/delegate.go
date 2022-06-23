@@ -3,8 +3,8 @@ package projectPage
 import "github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 
 type Delegate interface {
-	CreateProjectPage(projectPage *models.ProjectPageHTTP, projects []*models.ProjectHTTP) (id string, err error)
+	CreateProjectPage()
 	DeleteProjectPage()
 	GetProjectPage()
-	UpdateProjectPage(projectPage *models.ProjectPageHTTP, projects []*models.ProjectHTTP) (err error)
+	UpdateProjectPage(projectPage *models.ProjectPageHTTP) (err error)
 }

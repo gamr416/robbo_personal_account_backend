@@ -1,9 +1,12 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"time"
+)
 
 type ProjectPageCore struct {
-	LastModified string
+	LastModified time.Time
 	ProjectsCore ProjectCore
 	Information  string
 	Notes        string
@@ -34,7 +37,7 @@ type ProjectPageHTTP struct {
 func (em *ProjectPageDB) ToCore() ProjectPageCore {
 	var coreProjects ProjectCore
 	return ProjectPageCore{
-		LastModified: em.LastModified,
+		LastModified: em.UpdatedAt,
 		Information:  em.Information,
 		Notes:        em.Notes,
 		Preview:      em.Preview,
@@ -44,7 +47,7 @@ func (em *ProjectPageDB) ToCore() ProjectPageCore {
 }
 
 func (em *ProjectPageDB) FromCore(pp *ProjectPageCore) {
-	em.LastModified = pp.LastModified
+	em.UpdatedAt = pp.LastModified
 	em.Information = pp.Information
 	em.Notes = pp.Notes
 	em.Preview = pp.Preview
@@ -54,7 +57,7 @@ func (em *ProjectPageDB) FromCore(pp *ProjectPageCore) {
 func (ht *ProjectPageHTTP) ToCore() ProjectPageCore {
 	var coreProjects ProjectCore
 	return ProjectPageCore{
-		LastModified: ht.LastModified,
+		LastModified: time.Parse("20-10-2006", ht.LastModified),
 		Information:  ht.Information,
 		Notes:        ht.Notes,
 		Preview:      ht.Preview,
@@ -64,7 +67,7 @@ func (ht *ProjectPageHTTP) ToCore() ProjectPageCore {
 }
 
 func (ht *ProjectPageHTTP) FromCore(pp *ProjectPageCore) {
-	ht.LastModified = pp.LastModified
+	ht.LastModified = pp.LastModified.String()
 	ht.Information = pp.Information
 	ht.Notes = pp.Notes
 	ht.Preview = pp.Preview

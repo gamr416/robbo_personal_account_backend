@@ -3,8 +3,10 @@ package models
 import "gorm.io/gorm"
 
 type ProjectPageCore struct {
+	LastModified string
 	ProjectsCore ProjectCore
-	Description  string
+	Information  string
+	Notes        string
 	Preview      string
 	LinkScratch  string
 }
@@ -14,14 +16,17 @@ type ProjectPageDB struct {
 
 	PPId        uint
 	PP          ProjectDB `gorm:"foreignKey:PPId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Description string    `gorm:"size:256;not null"`
+	Information string    `gorm:"size:256;not null"`
+	Notes       string    `gorm:"size:256;not null"`
 	Preview     string    `gorm:"size:256;not null"`
 	LinkScratch string    `gorm:"size:256;not null"`
 }
 
 type ProjectPageHTTP struct {
+	LastModified string      `json:"last_modified"`
 	ProjectsHTTP ProjectHTTP `json:"projects"`
-	Description  string      `json:"description"`
+	Information  string      `json:"information"`
+	Notes        string      `json:"notes"`
 	Preview      string      `json:"preview"`
 	LinkScratch  string      `json:"link"`
 }
@@ -29,7 +34,9 @@ type ProjectPageHTTP struct {
 func (em *ProjectPageDB) ToCore() ProjectPageCore {
 	var coreProjects ProjectCore
 	return ProjectPageCore{
-		Description:  em.Description,
+		LastModified: em.LastModified,
+		Information:  em.Information,
+		Notes:        em.Notes,
 		Preview:      em.Preview,
 		LinkScratch:  em.LinkScratch,
 		ProjectsCore: coreProjects,
@@ -37,7 +44,9 @@ func (em *ProjectPageDB) ToCore() ProjectPageCore {
 }
 
 func (em *ProjectPageDB) FromCore(pp *ProjectPageCore) {
-	em.Description = pp.Description
+	em.LastModified = pp.LastModified
+	em.Information = pp.Information
+	em.Notes = pp.Notes
 	em.Preview = pp.Preview
 	em.LinkScratch = pp.LinkScratch
 }
@@ -45,7 +54,9 @@ func (em *ProjectPageDB) FromCore(pp *ProjectPageCore) {
 func (ht *ProjectPageHTTP) ToCore() ProjectPageCore {
 	var coreProjects ProjectCore
 	return ProjectPageCore{
-		Description:  ht.Description,
+		LastModified: ht.LastModified,
+		Information:  ht.Information,
+		Notes:        ht.Notes,
 		Preview:      ht.Preview,
 		LinkScratch:  ht.LinkScratch,
 		ProjectsCore: coreProjects,
@@ -53,7 +64,9 @@ func (ht *ProjectPageHTTP) ToCore() ProjectPageCore {
 }
 
 func (ht *ProjectPageHTTP) FromCore(pp *ProjectPageCore) {
-	ht.Description = pp.Description
+	ht.LastModified = pp.LastModified
+	ht.Information = pp.Information
+	ht.Notes = pp.Notes
 	ht.Preview = pp.Preview
 	ht.LinkScratch = pp.LinkScratch
 }

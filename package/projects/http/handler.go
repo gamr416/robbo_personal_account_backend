@@ -63,7 +63,12 @@ func (h *Handler) CreateProject(c *gin.Context) {
 }
 
 func (h *Handler) GetProject(c *gin.Context) {
-	project, err := h.projectsDelegate.GetProjectById("1")
+	projectId := c.Param("projectId")
+	if projectId == "" {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+	project, err := h.projectsDelegate.GetProjectById(projectId)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -72,7 +77,7 @@ func (h *Handler) GetProject(c *gin.Context) {
 	var jsonMap map[string]interface{}
 	json.Unmarshal([]byte(project.Json), &jsonMap)
 
-	c.JSON(http.StatusOK, jsonMap)
+	c.JSON(http.StatusOK, project.Json)
 }
 
 func (h *Handler) UpdateProject(c *gin.Context) {

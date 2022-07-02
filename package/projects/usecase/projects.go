@@ -35,6 +35,6 @@ func (p *ProjectUseCaseImpl) DeleteProject() {
 
 }
 
-func (p *ProjectUseCaseImpl) GetProject() {
-
+func (p *ProjectUseCaseImpl) GetProjectById(projectId string) (project *models.ProjectCore, err error) {
+	return p.Gateway.GetProjectById(projectId)
 }

@@ -1,6 +1,7 @@
 package http
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
@@ -36,23 +37,18 @@ type testResponse struct {
 	Id string `json:"id"`
 }
 
-type testRequest struct {
-	Body string `json:"body"`
-}
-
 func (h *Handler) CreateProject(c *gin.Context) {
 	fmt.Println("Create Project")
 	jsonDataBytes, err := ioutil.ReadAll(c.Request.Body)
 
 	if err != nil {
 		fmt.Println(err)
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	projectHTTP := models.ProjectHTTP{}
 	projectHTTP.Json = string(jsonDataBytes)
-
 	projectId, err := h.projectsDelegate.CreateProject(&projectHTTP)
 	fmt.Println(projectId)
 
@@ -67,7 +63,16 @@ func (h *Handler) CreateProject(c *gin.Context) {
 }
 
 func (h *Handler) GetProject(c *gin.Context) {
+	project, err := h.projectsDelegate.GetProjectById("1")
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 
+	var jsonMap map[string]interface{}
+	json.Unmarshal([]byte(project.Json), &jsonMap)
+
+	c.JSON(http.StatusOK, jsonMap)
 }
 
 func (h *Handler) UpdateProject(c *gin.Context) {

@@ -3,16 +3,21 @@ package models
 import "gorm.io/gorm"
 
 type ProjectPageCore struct {
-	ProjectsCore []*ProjectCore
-	Description  string
-	Preview      string
-	LinkScratch  string
+	ProjectCore ProjectCore
+	//LastModified string
+	//IsShares     bool
+	//Instructions  string
+	//Notes        string
+	Description string
+	Preview     string
+	LinkScratch string
 }
 
 type ProjectPageDB struct {
 	gorm.Model
 
-	PPId        uint
+	PPId uint
+	//Project     ProjectDB
 	PP          ProjectDB `gorm:"foreignKey:PPId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Description string    `gorm:"size:256;not null"`
 	Preview     string    `gorm:"size:256;not null"`
@@ -20,10 +25,10 @@ type ProjectPageDB struct {
 }
 
 type ProjectPageHTTP struct {
-	ProjectsHTTP []*ProjectHTTP `json:"projects"`
-	Description  string         `json:"description"`
-	Preview      string         `json:"preview"`
-	LinkScratch  string         `json:"link"`
+	ProjectHTTP *ProjectHTTP `json:"project"`
+	Description string       `json:"description"`
+	Preview     string       `json:"preview"`
+	LinkScratch string       `json:"link"`
 }
 
 func (em *ProjectPageDB) ToCore(projects []*ProjectDB) ProjectPageCore {
@@ -32,10 +37,10 @@ func (em *ProjectPageDB) ToCore(projects []*ProjectDB) ProjectPageCore {
 		coreProjects = append(coreProjects, projectDB.ToCore())
 	}
 	return ProjectPageCore{
-		Description:  em.Description,
-		Preview:      em.Preview,
-		LinkScratch:  em.LinkScratch,
-		ProjectsCore: coreProjects,
+		Description: em.Description,
+		Preview:     em.Preview,
+		LinkScratch: em.LinkScratch,
+		//ProjectsCore: coreProjects,
 	}
 }
 
@@ -51,10 +56,10 @@ func (ht *ProjectPageHTTP) ToCore(projects []*ProjectDB) ProjectPageCore {
 		coreProjects = append(coreProjects, projectDB.ToCore())
 	}
 	return ProjectPageCore{
-		Description:  ht.Description,
-		Preview:      ht.Preview,
-		LinkScratch:  ht.LinkScratch,
-		ProjectsCore: coreProjects,
+		Description: ht.Description,
+		Preview:     ht.Preview,
+		LinkScratch: ht.LinkScratch,
+		//ProjectsCore: coreProjects,
 	}
 }
 

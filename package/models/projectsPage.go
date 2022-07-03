@@ -5,7 +5,6 @@ import (
 )
 
 type ProjectPageCore struct {
-
 	LastModified string
 	ProjectsCore ProjectCore
 	Information  string
@@ -13,7 +12,6 @@ type ProjectPageCore struct {
 	Preview      string
 	LinkScratch  string
 	IsShares     bool
-
 }
 
 type ProjectPageDB struct {
@@ -30,7 +28,6 @@ type ProjectPageDB struct {
 }
 
 type ProjectPageHTTP struct {
-
 	LastModified string      `json:"last_modified"`
 	ProjectsHTTP ProjectHTTP `json:"projects"`
 	Information  string      `json:"information"`
@@ -38,12 +35,11 @@ type ProjectPageHTTP struct {
 	Preview      string      `json:"preview"`
 	LinkScratch  string      `json:"link"`
 	IsShares     bool        `json:"isShares"`
-
 }
 
 func (em *ProjectPageDB) ToCore() ProjectPageCore {
 	var coreProjects ProjectCore
-
+	return ProjectPageCore{
 		LastModified: em.UpdatedAt.String(),
 		Information:  em.Information,
 		Notes:        em.Notes,
@@ -51,7 +47,6 @@ func (em *ProjectPageDB) ToCore() ProjectPageCore {
 		LinkScratch:  em.LinkScratch,
 		ProjectsCore: coreProjects,
 		IsShares:     em.IsShares,
-
 	}
 }
 
@@ -73,7 +68,6 @@ func (ht *ProjectPageHTTP) ToCore() ProjectPageCore {
 		LinkScratch:  ht.LinkScratch,
 		ProjectsCore: coreProjects,
 		IsShares:     ht.IsShares,
-
 	}
 }
 

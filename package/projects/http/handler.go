@@ -1,7 +1,6 @@
 package http
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
@@ -74,8 +73,8 @@ func (h *Handler) GetProject(c *gin.Context) {
 		return
 	}
 
-	var jsonMap map[string]interface{}
-	json.Unmarshal([]byte(project.Json), &jsonMap)
+	//var jsonMap map[string]interface{}
+	//json.Unmarshal([]byte(project.Json), &jsonMap)
 
 	c.JSON(http.StatusOK, project.Json)
 }
@@ -104,7 +103,7 @@ func (h *Handler) UpdateProject(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, testResponse{
-		Id: "1",
+		Id: projectId,
 	})
 }
 

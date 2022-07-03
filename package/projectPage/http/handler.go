@@ -16,7 +16,7 @@ type Handler struct {
 	projectPageDelegate projectPage.Delegate
 }
 
-type updateInput struct {
+type updateProjectPageInput struct {
 	ProjectPage models.ProjectPageHTTP `json:"project_page"`
 }
 
@@ -32,30 +32,44 @@ func (h *Handler) InitProjectRoutes(router *gin.Engine) {
 	project := router.Group("/projectPage")
 	{
 		project.POST("/", h.CreateProjectPage)
-		project.GET("/:projectPageId", h.GetProjectPage)
+		project.GET("/:projectPageId", h.GetProjectPageById)
+		project.GET("/", h.GetAllProjectPageByUserId)
 		project.PUT("/:projectPageId", h.UpdateProjectPage)
 		project.DELETE("/", h.DeleteProjectPage)
 	}
 }
 
-type testResponse struct {
-	Id string `json:"id"`
-}
-
-type testRequest struct {
-	Body string `json:"body"`
+type createProjectPageResponse struct {
+	ProjectId string `json:"projectId"`
 }
 
 func (h *Handler) CreateProjectPage(c *gin.Context) {
+	fmt.Println("CreateProjectPage")
+	userId := h.userIdentity(c)
+
+	projectId, err := h.projectPageDelegate.CreateProjectPage(userId)
+
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, createProjectPageResponse{
+		projectId,
+	})
 }
 
-func (h *Handler) GetProjectPage(c *gin.Context) {
+func (h *Handler) GetProjectPageById(c *gin.Context) {
+
+}
+
+func (h *Handler) GetAllProjectPageByUserId(c *gin.Context) {
 
 }
 
 func (h *Handler) UpdateProjectPage(c *gin.Context) {
 	fmt.Println("Update Project")
-	var inp updateInput
+	var inp updateProjectPageInput
 	if err := c.BindJSON(&inp); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return

@@ -41,7 +41,6 @@ func NewServer(lifecycle fx.Lifecycle, authhandler authhttp.Handler, projecthttp
 								"PUT", "DELETE", "GET", "OPTIONS", "POST", "HEAD",
 							},
 							AllowedHeaders: []string{"Origin", "X-Requested-With", "Content-Type", "Accept"},
-							//AllowedMethods: []string{"*"},
 						},
 					).Handler(router),
 					ReadTimeout:    10 * time.Second,

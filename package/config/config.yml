@@ -8,5 +8,8 @@ auth:
   access_token_ttl: 300 # 5 min
   refresh_token_ttl: 1296000 # 15 day
 
+projectPage:
+  scratchLink: "0.0.0.0:8601/"
+
 postgres:
   postgresDsn: "host=localhost port=5432 user=robbo password=robbo_pwd dbname=robbo_db"

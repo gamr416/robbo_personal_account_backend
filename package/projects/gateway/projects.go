@@ -37,8 +37,18 @@ func (r *ProjectsGatewayImpl) CreateProject(project *models.ProjectCore) (id str
 	return
 }
 
-func (r *ProjectsGatewayImpl) GetProject() {
+func (r *ProjectsGatewayImpl) GetProjectById(projectId string) (project *models.ProjectCore, err error) {
+	var projectDb models.ProjectDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("id = ?", projectId).First(&projectDb).Error; err != nil {
+			return
+		}
+		return
+	})
 
+	project = projectDb.ToCore()
+
+	return
 }
 
 func (r *ProjectsGatewayImpl) DeleteProject() {

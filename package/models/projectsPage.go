@@ -1,16 +1,19 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type ProjectPageCore struct {
-	ProjectCore ProjectCore
-	//LastModified string
-	//IsShares     bool
-	//Instructions  string
-	//Notes        string
-	Description string
-	Preview     string
-	LinkScratch string
+
+	LastModified string
+	ProjectsCore ProjectCore
+	Information  string
+	Notes        string
+	Preview      string
+	LinkScratch  string
+	IsShares     bool
+
 }
 
 type ProjectPageDB struct {
@@ -19,52 +22,66 @@ type ProjectPageDB struct {
 	PPId uint
 	//Project     ProjectDB
 	PP          ProjectDB `gorm:"foreignKey:PPId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Description string    `gorm:"size:256;not null"`
+	Information string    `gorm:"size:256;not null"`
+	Notes       string    `gorm:"size:256;not null"`
 	Preview     string    `gorm:"size:256;not null"`
 	LinkScratch string    `gorm:"size:256;not null"`
+	IsShares    bool
 }
 
 type ProjectPageHTTP struct {
-	ProjectHTTP *ProjectHTTP `json:"project"`
-	Description string       `json:"description"`
-	Preview     string       `json:"preview"`
-	LinkScratch string       `json:"link"`
+
+	LastModified string      `json:"last_modified"`
+	ProjectsHTTP ProjectHTTP `json:"projects"`
+	Information  string      `json:"information"`
+	Notes        string      `json:"notes"`
+	Preview      string      `json:"preview"`
+	LinkScratch  string      `json:"link"`
+	IsShares     bool        `json:"isShares"`
+
 }
 
-func (em *ProjectPageDB) ToCore(projects []*ProjectDB) ProjectPageCore {
-	var coreProjects []*ProjectCore
-	for _, projectDB := range projects {
-		coreProjects = append(coreProjects, projectDB.ToCore())
-	}
-	return ProjectPageCore{
-		Description: em.Description,
-		Preview:     em.Preview,
-		LinkScratch: em.LinkScratch,
-		//ProjectsCore: coreProjects,
+func (em *ProjectPageDB) ToCore() ProjectPageCore {
+	var coreProjects ProjectCore
+
+		LastModified: em.UpdatedAt.String(),
+		Information:  em.Information,
+		Notes:        em.Notes,
+		Preview:      em.Preview,
+		LinkScratch:  em.LinkScratch,
+		ProjectsCore: coreProjects,
+		IsShares:     em.IsShares,
+
 	}
 }
 
 func (em *ProjectPageDB) FromCore(pp *ProjectPageCore) {
-	em.Description = pp.Description
+	em.Information = pp.Information
+	em.Notes = pp.Notes
 	em.Preview = pp.Preview
 	em.LinkScratch = pp.LinkScratch
+	em.IsShares = pp.IsShares
 }
 
-func (ht *ProjectPageHTTP) ToCore(projects []*ProjectDB) ProjectPageCore {
-	var coreProjects []*ProjectCore
-	for _, projectDB := range projects {
-		coreProjects = append(coreProjects, projectDB.ToCore())
-	}
+func (ht *ProjectPageHTTP) ToCore() ProjectPageCore {
+	var coreProjects ProjectCore
 	return ProjectPageCore{
-		Description: ht.Description,
-		Preview:     ht.Preview,
-		LinkScratch: ht.LinkScratch,
-		//ProjectsCore: coreProjects,
+		LastModified: ht.LastModified,
+		Information:  ht.Information,
+		Notes:        ht.Notes,
+		Preview:      ht.Preview,
+		LinkScratch:  ht.LinkScratch,
+		ProjectsCore: coreProjects,
+		IsShares:     ht.IsShares,
+
 	}
 }
 
 func (ht *ProjectPageHTTP) FromCore(pp *ProjectPageCore) {
-	ht.Description = pp.Description
+	ht.LastModified = pp.LastModified
+	ht.Information = pp.Information
+	ht.Notes = pp.Notes
 	ht.Preview = pp.Preview
 	ht.LinkScratch = pp.LinkScratch
+	ht.IsShares = pp.IsShares
 }

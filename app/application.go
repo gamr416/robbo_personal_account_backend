@@ -6,6 +6,10 @@ import (
 	authhttp "github.com/skinnykaen/robbo_student_personal_account.git/package/auth/http"
 	authusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/auth/usecase"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/config"
+	crsdelegate "github.com/skinnykaen/robbo_student_personal_account.git/package/courses/delegate"
+	crsgateway "github.com/skinnykaen/robbo_student_personal_account.git/package/courses/gateway"
+	crshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/courses/http"
+	crsusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/courses/usecase"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/logger"
 	ppagedelegate "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/delegate"
@@ -40,6 +44,10 @@ func InvokeWith(options ...fx.Option) *fx.App {
 		fx.Provide(prjhttp.NewProjectsHandler),
 		fx.Provide(ppagehttp.NewProjectPageHandler),
 		fx.Provide(authhttp.NewAuthHandler),
+		fx.Provide(crsdelegate.SetupCourseDelegate),
+		fx.Provide(crsgateway.SetupCoursesGateway),
+		fx.Provide(crshttp.NewCoursesHandler),
+		fx.Provide(crsusecase.SetupCourseUseCase),
 	}
 	for _, option := range options {
 		di = append(di, option)

@@ -13,3 +13,19 @@ projectPage:
 
 postgres:
   postgresDsn: "host=localhost port=5432 user=robbo password=robbo_pwd dbname=robbo_db"
+
+api_urls:
+  refreshToken: "https://edx-test.ru/oauth2/access_token"
+  getUser: "https://edx-test.ru/api/user/v1/me"
+  getCourse: "https://edx-test.ru/api/courses/v1/courses/"
+  getEnrollment: "https://edx-test.ru/api/enrollment/v1/enrollments?username="
+  getCourses: "https://edx-test.ru/api/courses/v1/courses/"
+  getAllPublicCourses: "https://courses.edx.org/api/courses/v1/courses/?page="
+  postEnrollment: "https://edx-test.ru/api/enrollment/v1/enrollment"
+  postRegistration: "https://edx-test.ru/api/user/v1/account/registration/"
+
+
+api:
+  token: "GiafmKI2tyt9pyXDpEVYto0Ar2qmOS"
+  client_id: "uYSlyzAlmR2dEuukRWkqjcYjK6BplIYyXo8SawJl"
+  client_secret: "vWXLUQf9KsOFtl5RhxkNozjIVV3gWZDcUERpLXd8ypAtrHmiCo1tLG0N9TV4ryIgnOcZZt3Cnc4oUXLUpfacXB3ocSBJCIJAK5cax6xm9ElhBjHlc6dKPE8rd72lZWQM"

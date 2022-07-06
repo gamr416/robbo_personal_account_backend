@@ -7,6 +7,8 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
+	"log"
+	"net/http"
 	"strconv"
 )
 
@@ -25,7 +27,7 @@ func SetupCoursesGateway(postgresClient db_client.PostgresClient) CoursesGateway
 	}
 }
 
-func (r *CoursesGatewayImpl) CreateCourse(course *models.CourseCore, courseId string) (id string, err error) {
+func (r *CoursesGatewayImpl) CreateCourse(course *models.CourseCore) (id string, statusCode int, err error) {
 	courseDb := models.CourseDB{}
 	courseDb.FromCore(course)
 
@@ -33,9 +35,12 @@ func (r *CoursesGatewayImpl) CreateCourse(course *models.CourseCore, courseId st
 		err = tx.Create(&courseDb).Error
 		return
 	})
-
+	if err != nil {
+		log.Println(err)
+		return "", http.StatusBadGateway, err
+	}
 	id = strconv.FormatUint(uint64(courseDb.ID), 10)
-	return
+	return id, http.StatusOK, nil
 }
 
 func (r *CoursesGatewayImpl) DeleteCourse(course *models.CourseCore) (err error) {

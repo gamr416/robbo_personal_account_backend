@@ -7,6 +7,7 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -30,9 +31,9 @@ type createCourseResponse struct {
 func (h *Handler) InitCourseRoutes(router *gin.Engine) {
 	course := router.Group("/course")
 	{
-		course.POST("/createCourse/:courseId", h.CreateCourse)
+		course.GET("/createCourse/:courseId", h.CreateCourse)
 		course.GET("/getCourseContent/:courseId", h.GetCourseContent)
-		course.GET("/getCoursesByUser/:user", h.GetCoursesByUser)
+		course.GET("/getCoursesForUser", h.GetCoursesForUser)
 		course.GET("/getAllPublicCourses/:pageNumber", h.GetAllPublicCourses)
 		course.PUT("/updateCourse/:courseId", h.UpdateCourse)
 		//course.GET("/deleteCourse/:courseId", h.DeleteCourse)
@@ -46,10 +47,11 @@ func (h *Handler) CreateCourse(c *gin.Context) {
 
 	courseHTTP := models.CourseHTTP{}
 
-	courseId, err := h.coursesDelegate.CreateCourse(&courseHTTP, courseId)
+	courseId, statusCode, err := h.coursesDelegate.CreateCourse(&courseHTTP, courseId)
 
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		log.Println(err)
+		c.AbortWithStatus(statusCode)
 		return
 	}
 
@@ -60,38 +62,64 @@ func (h *Handler) CreateCourse(c *gin.Context) {
 }
 
 func (h *Handler) GetAllPublicCourses(c *gin.Context) {
+	fmt.Println("Get all public courses")
 	pageNumber, err := strconv.Atoi(c.Param("pageNumber"))
-	body, err := h.coursesDelegate.GetAllPublicCourses(pageNumber)
-	s2, _ := json.Marshal(body)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	c.JSON(http.StatusOK, s2)
+	body, statusCode, err := h.coursesDelegate.GetAllPublicCourses(pageNumber)
+	fmt.Println(body)
+	//log.Println(body)
+	if err != nil {
+		fmt.Println("check")
+		c.AbortWithStatus(statusCode)
+		return
+	}
+
+	respBody, err := json.Marshal(body)
+	if err != nil {
+		c.AbortWithStatus(statusCode)
+		return
+	}
+	c.JSON(http.StatusOK, respBody)
 }
 
 func (h *Handler) GetCourseContent(c *gin.Context) {
 	fmt.Println("Get Course Content")
 	courseId := c.Param("courseId")
-	body, err := h.coursesDelegate.GetCourseContent(courseId)
-	s2, _ := json.Marshal(body)
+	body, statusCode, err := h.coursesDelegate.GetCourseContent(courseId)
+	if err != nil {
+		c.AbortWithStatus(statusCode)
+		return
+	}
+	log.Println(body)
+	respBody, err := json.Marshal(body)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, s2)
+	if err != nil {
+		c.AbortWithStatus(statusCode)
+		return
+	}
+	c.JSON(http.StatusOK, respBody)
 }
 
-func (h *Handler) GetCoursesByUser(c *gin.Context) {
-	fmt.Println("Get Courses By User")
-	username := c.Param("user")
-	body, err := h.coursesDelegate.GetCoursesByUser(username)
-	s2, _ := json.Marshal(body)
+func (h *Handler) GetCoursesForUser(c *gin.Context) {
+	fmt.Println("Get Courses For User")
+	body, statusCode, err := h.coursesDelegate.GetCoursesForUser()
+	if err != nil {
+		c.AbortWithStatus(statusCode)
+		return
+	}
+	log.Println(body)
+	respBody, err := json.Marshal(body)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, s2)
+	c.JSON(http.StatusOK, respBody)
 }
 
 func (h *Handler) UpdateCourse(c *gin.Context) {

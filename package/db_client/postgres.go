@@ -43,6 +43,7 @@ func (c *PostgresClient) Migrate() (err error) {
 		&models.UserDB{},
 		&models.ProjectDB{},
 		&models.ProjectPageDB{},
+		&models.CourseDB{},
 	)
 	return
 }

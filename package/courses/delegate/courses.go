@@ -21,7 +21,7 @@ func SetupCourseDelegate(usecase courses.UseCase) CourseDelegateModule {
 	}
 }
 
-func (p *CourseDelegateImpl) CreateCourse(course *models.CourseHTTP, courseId string) (id string, err error) {
+func (p *CourseDelegateImpl) CreateCourse(course *models.CourseHTTP, courseId string) (id string, statusCode int, err error) {
 	return p.UseCase.CreateCourse(course, courseId)
 }
 
@@ -30,15 +30,15 @@ func (p *CourseDelegateImpl) DeleteCourse(course *models.CourseHTTP) (err error)
 	return p.UseCase.DeleteCourse(courseCore)
 }
 
-func (p *CourseDelegateImpl) GetCoursesByUser(username string) (body string, err error) {
-	return p.UseCase.GetCoursesByUser(username)
+func (p *CourseDelegateImpl) GetCoursesForUser() (respBody string, statusCode int, err error) {
+	return p.UseCase.GetCoursesForUser()
 }
 
-func (p *CourseDelegateImpl) GetCourseContent(courseId string) (body string, err error) {
+func (p *CourseDelegateImpl) GetCourseContent(courseId string) (respBody string, statusCode int, err error) {
 	return p.UseCase.GetCourseContent(courseId)
 }
 
-func (p *CourseDelegateImpl) GetAllPublicCourses(pageNumber int) (body string, err error) {
+func (p *CourseDelegateImpl) GetAllPublicCourses(pageNumber int) (respBody string, statusCode int, err error) {
 	return p.UseCase.GetAllPublicCourses(pageNumber)
 }
 

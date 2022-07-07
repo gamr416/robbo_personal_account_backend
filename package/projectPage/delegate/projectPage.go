@@ -27,8 +27,8 @@ func (p *ProjectPageDelegateImpl) CreateProjectPage(authorId string) (projectId 
 	return p.UseCase.CreateProjectPage(authorId)
 }
 
-func (p *ProjectPageDelegateImpl) DeleteProjectPage(projectPage *models.ProjectPageCore) (err error) {
-	return p.UseCase.UpdateProjectPage(projectPage)
+func (p *ProjectPageDelegateImpl) DeleteProjectPage(projectId string) (err error) {
+	return p.UseCase.DeleteProjectPage(projectId)
 }
 
 func (p *ProjectPageDelegateImpl) UpdateProjectPage(projectPage *models.ProjectPageHTTP) (err error) {

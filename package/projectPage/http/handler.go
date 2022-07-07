@@ -74,6 +74,11 @@ func (h *Handler) UpdateProjectPage(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
+	err := h.projectPageDelegate.UpdateProjectPage(&inp.ProjectPage)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+	}
+	c.Status(http.StatusOK)
 }
 
 func (h *Handler) DeleteProjectPage(c *gin.Context) {
@@ -81,7 +86,9 @@ func (h *Handler) DeleteProjectPage(c *gin.Context) {
 
 	projectId := c.Param("projectId")
 
-	projectHTTP := models.ProjectHTTP{}
-	projectHTTP.ID = projectId
-
+	err := h.projectPageDelegate.DeleteProjectPage(projectId)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+	}
+	c.Status(http.StatusOK)
 }

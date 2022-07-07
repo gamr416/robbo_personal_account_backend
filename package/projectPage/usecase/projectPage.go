@@ -77,8 +77,8 @@ func (p *ProjectPageUseCaseImpl) UpdateProjectPage(projectPage *models.ProjectPa
 	return p.projectPageGateway.UpdateProjectPage(projectPage)
 }
 
-func (p *ProjectPageUseCaseImpl) DeleteProjectPage() {
-
+func (p *ProjectPageUseCaseImpl) DeleteProjectPage(projectPage *models.ProjectPageCore) (err error) {
+	return p.Gateway.UpdateProjectPage(projectPage)
 }
 
 func (p *ProjectPageUseCaseImpl) GetProjectPageById() {

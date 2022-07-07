@@ -29,13 +29,13 @@ func NewProjectPageHandler(authDelegate auth.Delegate, projectsDelegate projects
 }
 
 func (h *Handler) InitProjectRoutes(router *gin.Engine) {
-	project := router.Group("/projectPage")
+	projectPage := router.Group("/projectPage")
 	{
-		project.POST("/", h.CreateProjectPage)
-		project.GET("/:projectPageId", h.GetProjectPageById)
-		project.GET("/", h.GetAllProjectPageByUserId)
-		project.PUT("/:projectPageId", h.UpdateProjectPage)
-		project.DELETE("/", h.DeleteProjectPage)
+		projectPage.POST("/", h.CreateProjectPage)
+		projectPage.GET("/:projectPageId", h.GetProjectPageByID)
+    projectPage.GET("/", h.GetAllProjectPageByUserId)
+		projectPage.PUT("/", h.UpdateProjectPage)
+		projectPage.DELETE("/:projectPageID", h.DeleteProjectPage)
 	}
 }
 
@@ -63,13 +63,14 @@ func (h *Handler) GetProjectPageById(c *gin.Context) {
 
 }
 
+
 func (h *Handler) GetAllProjectPageByUserId(c *gin.Context) {
 
 }
 
 func (h *Handler) UpdateProjectPage(c *gin.Context) {
-	fmt.Println("Update Project")
-	var inp updateProjectPageInput
+	fmt.Println("Update Project Page")
+	inp := new(updateInput)
 	if err := c.BindJSON(&inp); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
@@ -77,5 +78,11 @@ func (h *Handler) UpdateProjectPage(c *gin.Context) {
 }
 
 func (h *Handler) DeleteProjectPage(c *gin.Context) {
+	fmt.Println("Delete Project Page")
+
+	projectId := c.Param("projectId")
+
+	projectHTTP := models.ProjectHTTP{}
+	projectHTTP.ID = projectId
 
 }

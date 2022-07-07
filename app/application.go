@@ -11,7 +11,7 @@ import (
 	crshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/courses/http"
 	crsusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/courses/usecase"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
-	edxapiusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/edx_api"
+	edxapiusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi/usecase"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/logger"
 	ppagedelegate "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/delegate"
 	ppagegateway "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/gateway"

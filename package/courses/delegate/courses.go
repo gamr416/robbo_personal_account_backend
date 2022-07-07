@@ -3,14 +3,14 @@ package delegate
 import (
 	"encoding/json"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/edx_api"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"go.uber.org/fx"
 )
 
 type CourseDelegateImpl struct {
 	courses.UseCase
-	edx_api.EdxApiUseCase
+	edxApi.EdxApiUseCase
 }
 
 type CourseDelegateModule struct {
@@ -18,7 +18,7 @@ type CourseDelegateModule struct {
 	courses.Delegate
 }
 
-func SetupCourseDelegate(usecase courses.UseCase, edx edx_api.EdxApiUseCase) CourseDelegateModule {
+func SetupCourseDelegate(usecase courses.UseCase, edx edxApi.EdxApiUseCase) CourseDelegateModule {
 	return CourseDelegateModule{
 		Delegate: &CourseDelegateImpl{
 			usecase,

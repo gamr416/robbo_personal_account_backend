@@ -1,9 +1,10 @@
-package edx_api
+package usecase
 
 import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
 	"io/ioutil"
@@ -17,7 +18,7 @@ type EdxApiUseCaseImpl struct {
 }
 type EdxApiUseCaseModule struct {
 	fx.Out
-	EdxApiUseCase
+	edxApi.EdxApiUseCase
 }
 
 func SetupEdxApiUseCase() EdxApiUseCaseModule {
@@ -136,14 +137,14 @@ func (p *EdxApiUseCaseImpl) PostEnrollment(message map[string]interface{}) (resp
 	return string(body), nil
 }
 
-func (p *EdxApiUseCaseImpl) PostRegistration(registrationMessage registrationForm) (respBody string, err error) {
+func (p *EdxApiUseCaseImpl) PostRegistration(registrationMessage edxApi.RegistrationForm) (respBody string, err error) {
 	urlAddr := viper.GetString("api_urls.postRegistration")
 	response, err := http.PostForm(urlAddr, url.Values{
-		"email":            {registrationMessage.email},
-		"username":         {registrationMessage.username},
-		"name":             {registrationMessage.name},
-		"password":         {registrationMessage.password},
-		"terms_of_service": {registrationMessage.terms_of_service}})
+		"email":            {registrationMessage.Email},
+		"username":         {registrationMessage.Username},
+		"name":             {registrationMessage.Name},
+		"password":         {registrationMessage.Password},
+		"terms_of_service": {registrationMessage.Terms_of_service}})
 
 	if err != nil {
 		log.Println(err)
@@ -179,7 +180,7 @@ func (p *EdxApiUseCaseImpl) RefreshToken() (err error) {
 		return errors.New("Error while reading the response bytes")
 	}
 
-	newtkn := &NewToken{}
+	newtkn := &edxApi.NewToken{}
 	err = json.Unmarshal(body, newtkn)
 	if err != nil {
 		log.Println(err)

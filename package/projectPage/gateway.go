@@ -4,7 +4,7 @@ import "github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 
 type Gateway interface {
 	CreateProjectPage(projectPage *models.ProjectPageCore) (id string, err error)
-	DeleteProjectPage()
-	GetProjectPage()
+	DeleteProjectPage(id int) (err error)
+	GetProjectPageByID()
 	UpdateProjectPage(projectPage *models.ProjectPageCore) (err error)
 }

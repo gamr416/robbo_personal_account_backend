@@ -28,7 +28,7 @@ type ProjectPageDB struct {
 
 type ProjectPageHTTP struct {
 	LastModified string      `json:"last_modified"`
-	ProjectsHTTP ProjectHTTP `json:"projects"`
+	ProjectHTTP  ProjectHTTP `json:"project"`
 	Information  string      `json:"information"`
 	Notes        string      `json:"notes"`
 	Preview      string      `json:"preview"`

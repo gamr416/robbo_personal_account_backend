@@ -17,7 +17,7 @@ type Handler struct {
 }
 
 type updateInput struct {
-	ProjectPage models.ProjectPageHTTP `json:"project_page"`
+	ProjectPage *models.ProjectPageHTTP `json:"project_page"`
 }
 
 func NewProjectPageHandler(authDelegate auth.Delegate, projectsDelegate projects.Delegate, projectPageDelegate projectPage.Delegate) Handler {
@@ -29,12 +29,12 @@ func NewProjectPageHandler(authDelegate auth.Delegate, projectsDelegate projects
 }
 
 func (h *Handler) InitProjectRoutes(router *gin.Engine) {
-	project := router.Group("/projectPage")
+	projectPage := router.Group("/projectPage")
 	{
-		project.POST("/", h.CreateProjectPage)
-		project.GET("/:projectPageId", h.GetProjectPage)
-		project.PUT("/:projectPageId", h.UpdateProjectPage)
-		project.DELETE("/", h.DeleteProjectPage)
+		projectPage.POST("/", h.CreateProjectPage)
+		projectPage.GET("/:projectPageId", h.GetProjectPageByID)
+		projectPage.PUT("/", h.UpdateProjectPage)
+		projectPage.DELETE("/:projectPageID", h.DeleteProjectPage)
 	}
 }
 
@@ -49,13 +49,13 @@ type testRequest struct {
 func (h *Handler) CreateProjectPage(c *gin.Context) {
 }
 
-func (h *Handler) GetProjectPage(c *gin.Context) {
+func (h *Handler) GetProjectPageByID(c *gin.Context) {
 
 }
 
 func (h *Handler) UpdateProjectPage(c *gin.Context) {
-	fmt.Println("Update Project")
-	var inp updateInput
+	fmt.Println("Update Project Page")
+	inp := new(updateInput)
 	if err := c.BindJSON(&inp); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
@@ -63,5 +63,11 @@ func (h *Handler) UpdateProjectPage(c *gin.Context) {
 }
 
 func (h *Handler) DeleteProjectPage(c *gin.Context) {
+	fmt.Println("Delete Project Page")
+
+	projectId := c.Param("projectId")
+
+	projectHTTP := models.ProjectHTTP{}
+	projectHTTP.ID = projectId
 
 }

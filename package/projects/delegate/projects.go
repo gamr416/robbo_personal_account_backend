@@ -35,6 +35,8 @@ func (p *ProjectDelegateImpl) UpdateProject(project *models.ProjectHTTP) (err er
 	return p.UseCase.UpdateProject(projectCore)
 }
 
-func (p *ProjectDelegateImpl) GetProject() {
-
+func (p *ProjectDelegateImpl) GetProjectById(projectId string) (project models.ProjectHTTP, err error) {
+	projectCore, err := p.UseCase.GetProjectById(projectId)
+	project.FromCore(projectCore)
+	return
 }

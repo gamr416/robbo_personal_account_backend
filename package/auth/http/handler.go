@@ -59,7 +59,7 @@ func (h *Handler) SignIn(c *gin.Context) {
 		Name:     "token",
 		Value:    refreshToken,
 		MaxAge:   30 * 24 * 60 * 60,
-		HttpOnly: true,
+		HttpOnly: false,
 	})
 	c.JSON(http.StatusOK, signInResponse{
 		AccessToken: accessToken,
@@ -85,7 +85,7 @@ func (h *Handler) SignUp(c *gin.Context) {
 		Name:     "token",
 		Value:    refreshToken,
 		MaxAge:   30 * 24 * 60 * 60,
-		HttpOnly: true,
+		HttpOnly: false,
 	})
 
 	c.JSON(http.StatusOK, signInResponse{
@@ -97,6 +97,7 @@ func (h *Handler) Refresh(c *gin.Context) {
 	fmt.Println("Refresh")
 	tokenStr, err := c.Cookie("token")
 
+	fmt.Println(tokenStr)
 	if err != nil {
 		if err == http.ErrNoCookie {
 			c.AbortWithStatus(http.StatusUnauthorized)
@@ -105,6 +106,7 @@ func (h *Handler) Refresh(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
+
 	newAccessToken, newRefreshToken, err := h.delegate.RefreshToken(tokenStr)
 	if err != nil {
 		fmt.Println(err)
@@ -116,7 +118,7 @@ func (h *Handler) Refresh(c *gin.Context) {
 		Name:     "token",
 		Value:    newRefreshToken,
 		MaxAge:   30 * 24 * 60 * 60,
-		HttpOnly: true,
+		HttpOnly: false,
 	})
 
 	c.JSON(http.StatusOK, signInResponse{
@@ -127,10 +129,11 @@ func (h *Handler) Refresh(c *gin.Context) {
 func (h *Handler) SignOut(c *gin.Context) {
 	fmt.Println("SignOut")
 
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     "token",
-		Value:    "",
-		MaxAge:   -1,
-		HttpOnly: true,
-	})
+	c.SetCookie("token", "", -1, ":3030/", "localhost", false, false)
+
+	tokenStr, _ := c.Cookie("token")
+	fmt.Println("выход")
+	fmt.Println(tokenStr)
+
+	c.Status(http.StatusOK)
 }

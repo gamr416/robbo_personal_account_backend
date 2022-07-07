@@ -24,7 +24,7 @@ func SetupProjectPageGateway(postgresClient db_client.PostgresClient) ProjectPag
 	}
 }
 
-func (r *ProjectPageGatewayImpl) CreateProjectPage(projectPage *models.ProjectPageCore) (id string, err error) {
+func (r *ProjectPageGatewayImpl) CreateProjectPage(projectPage *models.ProjectPageCore) (projectPageId string, err error) {
 	projectPageDb := models.ProjectPageDB{}
 	projectPageDb.FromCore(projectPage)
 
@@ -33,7 +33,7 @@ func (r *ProjectPageGatewayImpl) CreateProjectPage(projectPage *models.ProjectPa
 		return
 	})
 
-	id = strconv.FormatUint(uint64(projectPageDb.ID), 10)
+	projectPageId = strconv.FormatUint(uint64(projectPageDb.ID), 10)
 	return
 }
 

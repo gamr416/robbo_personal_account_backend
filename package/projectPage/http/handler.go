@@ -16,8 +16,8 @@ type Handler struct {
 	projectPageDelegate projectPage.Delegate
 }
 
-type updateInput struct {
-	ProjectPage *models.ProjectPageHTTP `json:"project_page"`
+type updateProjectPageInput struct {
+	ProjectPage models.ProjectPageHTTP `json:"project_page"`
 }
 
 func NewProjectPageHandler(authDelegate auth.Delegate, projectsDelegate projects.Delegate, projectPageDelegate projectPage.Delegate) Handler {
@@ -33,23 +33,38 @@ func (h *Handler) InitProjectRoutes(router *gin.Engine) {
 	{
 		projectPage.POST("/", h.CreateProjectPage)
 		projectPage.GET("/:projectPageId", h.GetProjectPageByID)
+    projectPage.GET("/", h.GetAllProjectPageByUserId)
 		projectPage.PUT("/", h.UpdateProjectPage)
 		projectPage.DELETE("/:projectPageID", h.DeleteProjectPage)
 	}
 }
 
-type testResponse struct {
-	Id string `json:"id"`
-}
-
-type testRequest struct {
-	Body string `json:"body"`
+type createProjectPageResponse struct {
+	ProjectId string `json:"projectId"`
 }
 
 func (h *Handler) CreateProjectPage(c *gin.Context) {
+	fmt.Println("CreateProjectPage")
+	userId := h.userIdentity(c)
+
+	projectId, err := h.projectPageDelegate.CreateProjectPage(userId)
+
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, createProjectPageResponse{
+		projectId,
+	})
 }
 
-func (h *Handler) GetProjectPageByID(c *gin.Context) {
+func (h *Handler) GetProjectPageById(c *gin.Context) {
+
+}
+
+
+func (h *Handler) GetAllProjectPageByUserId(c *gin.Context) {
 
 }
 

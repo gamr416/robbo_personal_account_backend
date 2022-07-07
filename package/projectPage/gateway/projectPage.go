@@ -37,14 +37,14 @@ func (r *ProjectPageGatewayImpl) CreateProjectPage(projectPage *models.ProjectPa
 	return
 }
 
-func (r *ProjectPageGatewayImpl) GetProjectPageByID() {
+func (r *ProjectPageGatewayImpl) GetProjectPageById() {
 
 }
 
-func (r *ProjectPageGatewayImpl) DeleteProjectPage(id int) (err error) {
+func (r *ProjectPageGatewayImpl) DeleteProjectPage(projectId string) (err error) {
 	projectPageDb := models.ProjectPageDB{}
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Model(&projectPageDb).Delete(projectPageDb, id).Error
+		err = tx.Model(&projectPageDb).Delete(projectPageDb, projectId).Error
 		return
 	})
 	return

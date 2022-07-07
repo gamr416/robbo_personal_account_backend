@@ -32,8 +32,8 @@ func (h *Handler) InitProjectRoutes(router *gin.Engine) {
 	projectPage := router.Group("/projectPage")
 	{
 		projectPage.POST("/", h.CreateProjectPage)
-		projectPage.GET("/:projectPageId", h.GetProjectPageByID)
-    projectPage.GET("/", h.GetAllProjectPageByUserId)
+		projectPage.GET("/:projectPageId", h.GetProjectPageById)
+		projectPage.GET("/", h.GetAllProjectPageByUserId)
 		projectPage.PUT("/", h.UpdateProjectPage)
 		projectPage.DELETE("/:projectPageID", h.DeleteProjectPage)
 	}
@@ -63,14 +63,13 @@ func (h *Handler) GetProjectPageById(c *gin.Context) {
 
 }
 
-
 func (h *Handler) GetAllProjectPageByUserId(c *gin.Context) {
 
 }
 
 func (h *Handler) UpdateProjectPage(c *gin.Context) {
 	fmt.Println("Update Project Page")
-	inp := new(updateInput)
+	inp := new(updateProjectPageInput)
 	if err := c.BindJSON(&inp); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return

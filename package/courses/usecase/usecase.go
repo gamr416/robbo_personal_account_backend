@@ -34,7 +34,3 @@ func (p *CourseUseCaseImpl) UpdateCourse(course *models.CourseCore) (err error) 
 func (p *CourseUseCaseImpl) DeleteCourse(course *models.CourseCore) (err error) {
 	return p.Gateway.DeleteCourse(course)
 }
-
-func (p *CourseUseCaseImpl) GetAllPublicCourses(body string) (respBody string, err error) {
-	return
-}

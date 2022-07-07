@@ -7,7 +7,7 @@ type Delegate interface {
 	DeleteCourse(course *models.CourseHTTP) (err error)
 	UpdateCourse(course *models.CourseHTTP) (err error)
 	GetCourseContent(courseId string) (respBody string, err error)
-	/*GetCoursesByUser() (respBody string,  err error)
-	GetAllPublicCourses(pageNumber int) (respBody string,  err error)
-	*/
+	GetCoursesByUser() (respBody string, err error)
+	GetAllPublicCourses(pageNumber int) (respBody string, err error)
+	GetEnrollments(username string) (respBody string, err error)
 }

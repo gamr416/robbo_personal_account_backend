@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/spf13/viper"
+	"go.uber.org/fx"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,7 +13,19 @@ import (
 	"strconv"
 )
 
-func GetAllPublicCourses(pageNumber int) (respBody string, err error) {
+type EdxApiUseCaseImpl struct {
+}
+type EdxApiUseCaseModule struct {
+	fx.Out
+	EdxApiUseCase
+}
+
+func SetupEdxApiUseCase() EdxApiUseCaseModule {
+
+	return EdxApiUseCaseModule{EdxApiUseCase: &EdxApiUseCaseImpl{}}
+}
+
+func (p *EdxApiUseCaseImpl) GetAllPublicCourses(pageNumber int) (respBody string, err error) {
 	resp, err := http.Get(viper.GetString("api_urls.getAllPublicCourses") + strconv.Itoa(pageNumber) + "&page_size=10")
 	if err != nil {
 		log.Println(err)
@@ -26,7 +39,7 @@ func GetAllPublicCourses(pageNumber int) (respBody string, err error) {
 	return string(body), nil
 }
 
-func GetCoursesByUser() (respBody string, err error) {
+func (p *EdxApiUseCaseImpl) GetCoursesByUser() (respBody string, err error) {
 	response, err := http.Get(viper.GetString("api_urls.getCourses"))
 	if err != nil {
 		log.Println(err)
@@ -40,8 +53,8 @@ func GetCoursesByUser() (respBody string, err error) {
 	return string(body), nil
 }
 
-func GetWithAuth(url string) (respBody string, err error) {
-	err = RefreshToken()
+func (p *EdxApiUseCaseImpl) GetWithAuth(url string) (respBody string, err error) {
+	err = p.RefreshToken()
 
 	if err != nil {
 		log.Println("Token not refresh.\n[ERROR] -", err)
@@ -74,20 +87,20 @@ func GetWithAuth(url string) (respBody string, err error) {
 	return string(body), nil
 }
 
-func GetEnrollments(username string) (respBody string, err error) {
-	return GetWithAuth(viper.GetString("api_urls.getEnrollment") + username)
+func (p *EdxApiUseCaseImpl) GetEnrollments(username string) (respBody string, err error) {
+	return p.GetWithAuth(viper.GetString("api_urls.getEnrollment") + username)
 }
-func GetUser() (respBody string, err error) {
+func (p *EdxApiUseCaseImpl) GetUser() (respBody string, err error) {
 
-	return GetWithAuth(viper.GetString("api_urls.getUser"))
-}
-
-func GetCourseContent(courseId string) (respBody string, err error) {
-
-	return GetWithAuth(viper.GetString("api_urls.getCourse") + courseId)
+	return p.GetWithAuth(viper.GetString("api_urls.getUser"))
 }
 
-func PostEnrollment(message map[string]interface{}) (respBody string, err error) {
+func (p *EdxApiUseCaseImpl) GetCourseContent(courseId string) (respBody string, err error) {
+
+	return p.GetWithAuth(viper.GetString("api_urls.getCourse") + courseId)
+}
+
+func (p *EdxApiUseCaseImpl) PostEnrollment(message map[string]interface{}) (respBody string, err error) {
 	urlAddr := viper.GetString("api_urls.postEnrollment")
 	data, err := json.Marshal(message)
 
@@ -123,7 +136,7 @@ func PostEnrollment(message map[string]interface{}) (respBody string, err error)
 	return string(body), nil
 }
 
-func PostRegistration(registrationMessage registrationForm) (respBody string, err error) {
+func (p *EdxApiUseCaseImpl) PostRegistration(registrationMessage registrationForm) (respBody string, err error) {
 	urlAddr := viper.GetString("api_urls.postRegistration")
 	response, err := http.PostForm(urlAddr, url.Values{
 		"email":            {registrationMessage.email},
@@ -147,7 +160,7 @@ func PostRegistration(registrationMessage registrationForm) (respBody string, er
 
 	return string(body), nil
 }
-func RefreshToken() (err error) {
+func (p *EdxApiUseCaseImpl) RefreshToken() (err error) {
 	urlAddr := viper.GetString("api_urls.refreshToken")
 	response, err := http.PostForm(urlAddr, url.Values{
 		"grant_type":    {"client_credentials"},
@@ -176,8 +189,8 @@ func RefreshToken() (err error) {
 	return nil
 }
 
-func Login(email, password string) (respBody string, err error) {
-	err = RefreshToken()
+func (p *EdxApiUseCaseImpl) Login(email, password string) (respBody string, err error) {
+	err = p.RefreshToken()
 	if err != nil {
 		log.Println("Token not refresh.\n[ERROR] -", err)
 		return "", errors.New("Token not refresh")

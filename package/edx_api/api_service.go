@@ -17,13 +17,13 @@ type registrationForm struct {
 	terms_of_service string
 }
 
-type EdxApi interface {
+type EdxApiUseCase interface {
 	GetCoursesByUser() (respBody string, err error)
 	GetAllPublicCourses(pageNumber int) (respBody string, err error)
 	GetEnrollments(username string) (respBody string, err error)
 	GetUser() (respBody string, err error)
 	GetCourseContent(courseId string) (respBody string, err error)
 	PostEnrollment(message map[string]interface{}) (respBody string, err error)
-	PostRegistration() (respBody string, err error)
+	PostRegistration(postMessage registrationForm) (respBody string, err error)
 	Login(email, password string) (respBody string, err error)
 }

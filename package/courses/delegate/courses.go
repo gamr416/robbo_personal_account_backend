@@ -10,6 +10,7 @@ import (
 
 type CourseDelegateImpl struct {
 	courses.UseCase
+	edx_api.EdxApiUseCase
 }
 
 type CourseDelegateModule struct {
@@ -17,16 +18,25 @@ type CourseDelegateModule struct {
 	courses.Delegate
 }
 
-func SetupCourseDelegate(usecase courses.UseCase) CourseDelegateModule {
+func SetupCourseDelegate(usecase courses.UseCase, edx edx_api.EdxApiUseCase) CourseDelegateModule {
 	return CourseDelegateModule{
 		Delegate: &CourseDelegateImpl{
-			usecase},
+			usecase,
+			edx,
+		},
 	}
 }
 
 func (p *CourseDelegateImpl) CreateCourse(course *models.CourseHTTP, courseId string) (id string, err error) {
-	body, err := edx_api.GetCourseContent(courseId)
+	body, err := p.EdxApiUseCase.GetCourseContent(courseId)
+	if err != nil {
+		return "", err
+	}
+
 	err = json.Unmarshal([]byte(body), course)
+	if err != nil {
+		return "", err
+	}
 	courseCore := course.ToCore()
 	return p.UseCase.CreateCourse(courseCore, courseId)
 }
@@ -40,25 +50,33 @@ func (p *CourseDelegateImpl) UpdateCourse(course *models.CourseHTTP) (err error)
 	//TODO implement me
 	panic("implement me")
 }
-func (p *CourseDelegateImpl) GetAllPublicCourses(pageNumber int) (respBody string, err error) {
-	body, err := edx_api.GetAllPublicCourses(pageNumber)
-
-	return p.UseCase.GetAllPublicCourses(pageNumber)
+func (p *CourseDelegateImpl) GetCourseContent(courseId string) (respBody string, err error) {
+	body, err := p.EdxApiUseCase.GetCourseContent(courseId)
+	if err != nil {
+		return "", err
+	}
+	return body, nil
 }
-
-/*
 func (p *CourseDelegateImpl) GetCoursesByUser() (respBody string, err error) {
-	return p.UseCase.GetCoursesForUser()
+	body, err := p.EdxApiUseCase.GetCoursesByUser()
+	if err != nil {
+		return "", err
+	}
+	return body, nil
 }
 
-func (p *CourseDelegateImpl) GetCourseContent(courseId string) (respBody string, statusCode int, err error) {
-	return p.UseCase.GetCourseContent(courseId)
+func (p *CourseDelegateImpl) GetEnrollments(username string) (respBody string, err error) {
+	body, err := p.EdxApiUseCase.GetEnrollments(username)
+	if err != nil {
+		return "", err
+	}
+	return body, nil
 }
 
-
-
-func (p *CourseDelegateImpl) UpdateCourse(course *models.CourseHTTP) (err error) {
-	courseCore := course.ToCore()
-	return p.UseCase.UpdateCourse(courseCore)
+func (p *CourseDelegateImpl) GetAllPublicCourses(pageNumber int) (respBody string, err error) {
+	body, err := p.EdxApiUseCase.GetAllPublicCourses(pageNumber)
+	if err != nil {
+		return "", err
+	}
+	return body, nil
 }
-*/

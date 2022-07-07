@@ -33,9 +33,9 @@ func (h *Handler) InitCourseRoutes(router *gin.Engine) {
 	{
 		course.GET("/createCourse/:courseId", h.CreateCourse)
 		course.GET("/getCourseContent/:courseId", h.GetCourseContent)
-		course.GET("/getCoursesForUser", h.GetCoursesForUser)
+		/*course.GET("/getCoursesForUser", h.GetCoursesForUser)
 		course.GET("/getAllPublicCourses/:pageNumber", h.GetAllPublicCourses)
-		course.PUT("/updateCourse/:courseId", h.UpdateCourse)
+		course.PUT("/updateCourse/:courseId", h.UpdateCourse)*/
 		//course.GET("/deleteCourse/:courseId", h.DeleteCourse)
 	}
 }
@@ -47,11 +47,11 @@ func (h *Handler) CreateCourse(c *gin.Context) {
 
 	courseHTTP := models.CourseHTTP{}
 
-	courseId, statusCode, err := h.coursesDelegate.CreateCourse(&courseHTTP, courseId)
+	courseId, err := h.coursesDelegate.CreateCourse(&courseHTTP, courseId)
 
 	if err != nil {
 		log.Println(err)
-		c.AbortWithStatus(statusCode)
+		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
@@ -61,18 +61,18 @@ func (h *Handler) CreateCourse(c *gin.Context) {
 
 }
 
-func (h *Handler) GetAllPublicCourses(c *gin.Context) {
+func (h *Handler) GetCourseContent(c *gin.Context) {
 	fmt.Println("Get all public courses")
 	pageNumber, err := strconv.Atoi(c.Param("pageNumber"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	body, statusCode, err := h.coursesDelegate.GetAllPublicCourses(pageNumber)
+	body, statusCode, err := h.coursesDelegate.GetCo
 	fmt.Println(body)
 	//log.Println(body)
 	if err != nil {
-		fmt.Println("check")
+
 		c.AbortWithStatus(statusCode)
 		return
 	}
@@ -85,6 +85,7 @@ func (h *Handler) GetAllPublicCourses(c *gin.Context) {
 	c.JSON(http.StatusOK, respBody)
 }
 
+/*
 func (h *Handler) GetCourseContent(c *gin.Context) {
 	fmt.Println("Get Course Content")
 	courseId := c.Param("courseId")
@@ -140,4 +141,4 @@ func (h *Handler) DeleteCourse(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-}
+}*/

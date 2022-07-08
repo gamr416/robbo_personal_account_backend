@@ -19,11 +19,11 @@ type RegistrationForm struct {
 
 type EdxApiUseCase interface {
 	GetCoursesByUser() (respBody []byte, err error)
-	GetAllPublicCourses(pageNumber int) (respBody []byte, err error)
-	GetEnrollments(username string) (respBody []byte, err error)
+	GetAllPublicCourses(pageNumber int) (respBody []byte, err error) //+
+	GetEnrollments(username string) (respBody []byte, err error)     //+
 	GetUser() (respBody []byte, err error)
-	GetCourseContent(courseId string) (respBody []byte, err error)
-	PostEnrollment(message map[string]interface{}) (respBody []byte, err error)
+	GetCourseContent(courseId string) (respBody []byte, err error)              //+
+	PostEnrollment(message map[string]interface{}) (respBody []byte, err error) //+
 	PostRegistration(postMessage RegistrationForm) (respBody []byte, err error)
-	Login(email, password string) (respBody []byte, err error)
+	Login(email, password string) (respBody []byte, err error) //+
 }

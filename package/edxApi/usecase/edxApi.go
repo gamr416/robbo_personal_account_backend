@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
@@ -28,6 +29,9 @@ func SetupEdxApiUseCase() EdxApiUseCaseModule {
 }
 
 func (p *EdxApiUseCaseImpl) GetAllPublicCourses(pageNumber int) (respBody []byte, err error) {
+	if pageNumber <= 0 && pageNumber >= 5000 {
+		return nil, errors.New("Page number is zero or more then page count")
+	}
 	resp, err := http.Get(viper.GetString("api_urls.getAllPublicCourses") + strconv.Itoa(pageNumber) + "&page_size=5")
 	if err != nil {
 		log.Println(err)
@@ -85,7 +89,7 @@ func (p *EdxApiUseCaseImpl) GetWithAuth(url string) (respBody []byte, err error)
 		log.Println("Error while reading the response bytes:", err)
 		return nil, errors.New("Error while reading the response bytes")
 	}
-
+	fmt.Println(string(body))
 	return body, nil
 }
 

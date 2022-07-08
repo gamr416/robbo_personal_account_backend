@@ -51,6 +51,22 @@ func (r *ProjectsGatewayImpl) GetProjectById(projectId string) (project *models.
 	return
 }
 
+func (r *ProjectsGatewayImpl) GetProjectsByAuthorId(authorId string) (projects []*models.ProjectCore, err error) {
+	var projectsDb []*models.ProjectDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("author_id = ?", authorId).Find(&projectsDb).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, projectDb := range projectsDb {
+		projects = append(projects, projectDb.ToCore())
+	}
+
+	return
+}
+
 func (r *ProjectsGatewayImpl) DeleteProject() {
 
 }

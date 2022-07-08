@@ -12,6 +12,7 @@ type CourseCore struct {
 	Effort           string
 	EnrollmentStart  time.Time
 	EnrollmentEnd    time.Time
+	End              time.Time
 	Name             string
 	Number           string
 	Org              string
@@ -33,6 +34,7 @@ type CourseDB struct {
 	Effort           string
 	EnrollmentStart  time.Time
 	EnrollmentEnd    time.Time
+	End              time.Time
 	Name             string
 	Number           string
 	Org              string
@@ -50,7 +52,7 @@ type CourseDB struct {
 type CourseHTTP struct {
 	BlocksUrl        string      `json:"blocks_url"`
 	Effort           string      `json:"effort"`
-	End              interface{} `json:"end"`
+	End              time.Time   `json:"end"`
 	EnrollmentStart  time.Time   `json:"enrollment_start"`
 	EnrollmentEnd    time.Time   `json:"enrollment_end"`
 	ID               string      `json:"id"`
@@ -111,6 +113,7 @@ func (em *CourseDB) FromCore(course *CourseCore) {
 	em.Hidden = course.Hidden
 	em.InvitationOnly = course.InvitationOnly
 	em.CourseID = course.CourseID
+	em.End = course.End
 }
 
 func (ht *CourseHTTP) FromCore(course *CourseCore) {
@@ -131,6 +134,7 @@ func (ht *CourseHTTP) FromCore(course *CourseCore) {
 	ht.Hidden = course.Hidden
 	ht.InvitationOnly = course.InvitationOnly
 	ht.CourseID = course.CourseID
+	ht.End = course.End
 }
 
 func (ht *CourseHTTP) ToCore() *CourseCore {
@@ -152,5 +156,6 @@ func (ht *CourseHTTP) ToCore() *CourseCore {
 		Hidden:           ht.Hidden,
 		InvitationOnly:   ht.InvitationOnly,
 		CourseID:         ht.CourseID,
+		End:              ht.End,
 	}
 }

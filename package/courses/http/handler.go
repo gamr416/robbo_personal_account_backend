@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type Handler struct {
@@ -28,6 +29,28 @@ type createCourseResponse struct {
 	courseId string `json:"courseId"`
 }
 
+type getCoursesListResponse struct {
+	Results    []models.CourseHTTP `json:"results"`
+	Pagination struct {
+		Next     string      `json:"next"`
+		Previous interface{} `json:"previous"`
+		Count    int         `json:"count"`
+		NumPages int         `json:"num_pages"`
+	} `json:"pagination"`
+}
+
+type getEnrollmentsResponse struct {
+	Next     interface{} `json:"next"`
+	Previous interface{} `json:"previous"`
+	Results  []struct {
+		Created  time.Time `json:"created"`
+		Mode     string    `json:"mode"`
+		IsActive bool      `json:"is_active"`
+		User     string    `json:"user"`
+		CourseID string    `json:"course_id"`
+	} `json:"results"`
+}
+
 func (h *Handler) InitCourseRoutes(router *gin.Engine) {
 	course := router.Group("/course")
 	{
@@ -36,7 +59,7 @@ func (h *Handler) InitCourseRoutes(router *gin.Engine) {
 		course.GET("/getCoursesByUser", h.GetCoursesByUser)
 		course.GET("/getAllPublicCourses/:pageNumber", h.GetAllPublicCourses)
 		course.GET("/getEnrollments/:username", h.GetEnrollments)
-		//	course.PUT("/updateCourse/:courseId", h.UpdateCourse)*/
+		//course.PUT("/updateCourse/:courseId", h.UpdateCourse)*/
 		course.DELETE("/deleteCourse/:courseId", h.DeleteCourse)
 	}
 }
@@ -45,9 +68,7 @@ func (h *Handler) CreateCourse(c *gin.Context) {
 	fmt.Println("Create Course")
 
 	courseId := c.Param("courseId")
-
 	courseHTTP := models.CourseHTTP{}
-
 	courseId, err := h.coursesDelegate.CreateCourse(&courseHTTP, courseId)
 
 	if err != nil {
@@ -70,23 +91,16 @@ func (h *Handler) GetCourseContent(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-
-	courseHt := &models.CourseHTTP{}
-	err = json.Unmarshal(body, courseHt)
-
-	if err != nil {
-		log.Println(err)
-	}
+	courseHTTP := &models.CourseHTTP{}
+	log.Println(courseHTTP)
+	err = json.Unmarshal(body, courseHTTP)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-	c.JSON(http.StatusOK, courseHt)
+	c.JSON(http.StatusOK, courseHTTP)
 }
+
 func (h *Handler) GetCoursesByUser(c *gin.Context) {
 	fmt.Println("Get Courses For User")
 	body, err := h.coursesDelegate.GetCoursesByUser()
@@ -94,13 +108,14 @@ func (h *Handler) GetCoursesByUser(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	log.Println(body)
-	respBody, err := json.Marshal(body)
+	var coursesHTTP getCoursesListResponse
+	err = json.Unmarshal(body, &coursesHTTP)
+	log.Println(coursesHTTP)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, respBody)
+	c.JSON(http.StatusOK, coursesHTTP)
 }
 
 func (h *Handler) GetAllPublicCourses(c *gin.Context) {
@@ -117,13 +132,14 @@ func (h *Handler) GetAllPublicCourses(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	log.Println(body)
-	respBody, err := json.Marshal(body)
+	var coursesHTTP getCoursesListResponse
+	err = json.Unmarshal(body, &coursesHTTP)
+	log.Println(coursesHTTP)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, respBody)
+	c.JSON(http.StatusOK, coursesHTTP)
 }
 
 func (h *Handler) GetEnrollments(c *gin.Context) {
@@ -135,14 +151,14 @@ func (h *Handler) GetEnrollments(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	log.Println(body)
-	respBody, err := json.Marshal(body)
-
+	var enrollmentsHTTP getEnrollmentsResponse
+	err = json.Unmarshal(body, &enrollmentsHTTP)
+	log.Println(enrollmentsHTTP)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, respBody)
+	c.JSON(http.StatusOK, enrollmentsHTTP)
 }
 
 func (h *Handler) DeleteCourse(c *gin.Context) {

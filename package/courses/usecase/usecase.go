@@ -31,6 +31,6 @@ func (p *CourseUseCaseImpl) UpdateCourse(course *models.CourseCore) (err error) 
 	return p.Gateway.UpdateCourse(course)
 }
 
-func (p *CourseUseCaseImpl) DeleteCourse(course *models.CourseCore) (err error) {
-	return p.Gateway.DeleteCourse(course)
+func (p *CourseUseCaseImpl) DeleteCourse(courseId string) (err error) {
+	return p.Gateway.DeleteCourse(courseId)
 }

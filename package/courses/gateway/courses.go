@@ -42,21 +42,15 @@ func (r *CoursesGatewayImpl) CreateCourse(course *models.CourseCore) (id string,
 	return id, nil
 }
 
-func (r *CoursesGatewayImpl) DeleteCourse(course *models.CourseCore) (err error) {
+func (r CoursesGatewayImpl) DeleteCourse(courseId string) (err error) {
 	courseDb := models.CourseDB{}
-	courseDb.FromCore(course)
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Model(&courseDb).Where("course_id = ?", courseDb.CourseID).Select(&courseDb).Error
+		err = tx.Model(&courseDb).Where("course_id = ?", courseId).Delete(&courseDb).Error
 		fmt.Println(err)
 		return
 	})
 
-	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Model(&courseDb).Where("course_id = ?", courseDb.CourseID).Delete(&courseDb).Error
-		fmt.Println(err)
-		return
-	})
 	return
 }
 

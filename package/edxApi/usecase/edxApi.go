@@ -14,6 +14,8 @@ import (
 	"strconv"
 )
 
+//go:generate mockgen -source=edxApi.go -destination=mocks/mock.go
+
 type EdxApiUseCaseImpl struct {
 }
 type EdxApiUseCaseModule struct {
@@ -22,51 +24,50 @@ type EdxApiUseCaseModule struct {
 }
 
 func SetupEdxApiUseCase() EdxApiUseCaseModule {
-
 	return EdxApiUseCaseModule{EdxApiUseCase: &EdxApiUseCaseImpl{}}
 }
 
-func (p *EdxApiUseCaseImpl) GetAllPublicCourses(pageNumber int) (respBody string, err error) {
-	resp, err := http.Get(viper.GetString("api_urls.getAllPublicCourses") + strconv.Itoa(pageNumber) + "&page_size=10")
+func (p *EdxApiUseCaseImpl) GetAllPublicCourses(pageNumber int) (respBody []byte, err error) {
+	resp, err := http.Get(viper.GetString("api_urls.getAllPublicCourses") + strconv.Itoa(pageNumber) + "&page_size=5")
 	if err != nil {
 		log.Println(err)
-		return "", errors.New("Error on request")
+		return nil, errors.New("Error on request")
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Println(err)
-		return "", errors.New("Error while reading the response bytes")
+		return nil, errors.New("Error while reading the response bytes")
 	}
-	return string(body), nil
+	return body, nil
 }
 
-func (p *EdxApiUseCaseImpl) GetCoursesByUser() (respBody string, err error) {
+func (p *EdxApiUseCaseImpl) GetCoursesByUser() (respBody []byte, err error) {
 	response, err := http.Get(viper.GetString("api_urls.getCourses"))
 	if err != nil {
 		log.Println(err)
-		return "", errors.New("Error on request")
+		return nil, errors.New("Error on request")
 	}
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Println(err)
-		return "", errors.New("Error while reading the response bytes")
+		return nil, errors.New("Error while reading the response bytes")
 	}
-	return string(body), nil
+	return body, nil
 }
 
-func (p *EdxApiUseCaseImpl) GetWithAuth(url string) (respBody string, err error) {
+func (p *EdxApiUseCaseImpl) GetWithAuth(url string) (respBody []byte, err error) {
 	err = p.RefreshToken()
 
 	if err != nil {
 		log.Println("Token not refresh.\n[ERROR] -", err)
-		return "", errors.New("Token not refresh")
+		return nil, errors.New("Token not refresh")
 	}
 	var bearer = "Bearer " + viper.GetString("api.token")
 
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Println("Error on request.\n[ERROR] -", err)
-		return "", errors.New("Error on request")
+		return nil, errors.New("Error on request")
 	}
 
 	request.Header.Add("Authorization", bearer)
@@ -75,39 +76,39 @@ func (p *EdxApiUseCaseImpl) GetWithAuth(url string) (respBody string, err error)
 	response, err := client.Do(request)
 	if err != nil {
 		log.Println("Error on response.\n[ERROR] -", err)
-		return "", errors.New("Error on response")
+		return nil, errors.New("Error on response")
 	}
 	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Println("Error while reading the response bytes:", err)
-		return "", errors.New("Error while reading the response bytes")
+		return nil, errors.New("Error while reading the response bytes")
 	}
 
-	return string(body), nil
+	return body, nil
 }
 
-func (p *EdxApiUseCaseImpl) GetEnrollments(username string) (respBody string, err error) {
+func (p *EdxApiUseCaseImpl) GetEnrollments(username string) (respBody []byte, err error) {
 	return p.GetWithAuth(viper.GetString("api_urls.getEnrollment") + username)
 }
-func (p *EdxApiUseCaseImpl) GetUser() (respBody string, err error) {
+func (p *EdxApiUseCaseImpl) GetUser() (respBody []byte, err error) {
 
 	return p.GetWithAuth(viper.GetString("api_urls.getUser"))
 }
 
-func (p *EdxApiUseCaseImpl) GetCourseContent(courseId string) (respBody string, err error) {
+func (p *EdxApiUseCaseImpl) GetCourseContent(courseId string) (respBody []byte, err error) {
 
 	return p.GetWithAuth(viper.GetString("api_urls.getCourse") + courseId)
 }
 
-func (p *EdxApiUseCaseImpl) PostEnrollment(message map[string]interface{}) (respBody string, err error) {
+func (p *EdxApiUseCaseImpl) PostEnrollment(message map[string]interface{}) (respBody []byte, err error) {
 	urlAddr := viper.GetString("api_urls.postEnrollment")
 	data, err := json.Marshal(message)
 
 	if err != nil {
 		log.Println(err)
-		return "", errors.New("Error on json Marshal")
+		return nil, errors.New("Error on json Marshal")
 	}
 
 	var bearer = "Bearer " + viper.GetString("api.token")
@@ -115,7 +116,7 @@ func (p *EdxApiUseCaseImpl) PostEnrollment(message map[string]interface{}) (resp
 	request, err := http.NewRequest("POST", urlAddr, bytes.NewBuffer(data))
 	if err != nil {
 		log.Println(err)
-		return "", errors.New("Error on request")
+		return nil, errors.New("Error on request")
 	}
 
 	request.Header.Add("Authorization", bearer)
@@ -125,19 +126,19 @@ func (p *EdxApiUseCaseImpl) PostEnrollment(message map[string]interface{}) (resp
 	response, err := client.Do(request)
 	if err != nil {
 		log.Println(err)
-		return "", errors.New("Error on response")
+		return nil, errors.New("Error on response")
 	}
 	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Println(err)
-		return "", errors.New("Error while reading the response bytes")
+		return nil, errors.New("Error while reading the response bytes")
 	}
-	return string(body), nil
+	return body, nil
 }
 
-func (p *EdxApiUseCaseImpl) PostRegistration(registrationMessage edxApi.RegistrationForm) (respBody string, err error) {
+func (p *EdxApiUseCaseImpl) PostRegistration(registrationMessage edxApi.RegistrationForm) (respBody []byte, err error) {
 	urlAddr := viper.GetString("api_urls.postRegistration")
 	response, err := http.PostForm(urlAddr, url.Values{
 		"email":            {registrationMessage.Email},
@@ -148,7 +149,7 @@ func (p *EdxApiUseCaseImpl) PostRegistration(registrationMessage edxApi.Registra
 
 	if err != nil {
 		log.Println(err)
-		return "", errors.New("Error on request")
+		return nil, errors.New("Error on request")
 	}
 
 	defer response.Body.Close()
@@ -156,10 +157,10 @@ func (p *EdxApiUseCaseImpl) PostRegistration(registrationMessage edxApi.Registra
 
 	if err != nil {
 		log.Println(err)
-		return "", errors.New("Error while reading the response bytes")
+		return nil, errors.New("Error while reading the response bytes")
 	}
 
-	return string(body), nil
+	return body, nil
 }
 func (p *EdxApiUseCaseImpl) RefreshToken() (err error) {
 	urlAddr := viper.GetString("api_urls.refreshToken")
@@ -190,11 +191,11 @@ func (p *EdxApiUseCaseImpl) RefreshToken() (err error) {
 	return nil
 }
 
-func (p *EdxApiUseCaseImpl) Login(email, password string) (respBody string, err error) {
+func (p *EdxApiUseCaseImpl) Login(email, password string) (respBody []byte, err error) {
 	err = p.RefreshToken()
 	if err != nil {
 		log.Println("Token not refresh.\n[ERROR] -", err)
-		return "", errors.New("Token not refresh")
+		return nil, errors.New("Token not refresh")
 	}
 
 	urlAddr := viper.GetString("api_urls.login")
@@ -203,14 +204,14 @@ func (p *EdxApiUseCaseImpl) Login(email, password string) (respBody string, err 
 		"password": {password},
 	})
 	if err != nil {
-		return "", errors.New("Error on request")
+		return nil, errors.New("Error on request")
 	}
 
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return "", errors.New("Error while reading the response bytes")
+		return nil, errors.New("Error while reading the response bytes")
 	}
 
-	return string(body), nil
+	return body, nil
 }

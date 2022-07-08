@@ -48,23 +48,26 @@ type CourseDB struct {
 }
 
 type CourseHTTP struct {
-	ID               string    `json:"id"`
-	BlocksUrl        string    `json:"blocks_url"`
-	Effort           string    `json:"effort"`
-	EnrollmentStart  time.Time `json:"enrollment_start"`
-	EnrollmentEnd    time.Time `json:"enrollment_end"`
-	Name             string    `json:"name"`
-	Number           string    `json:"number"`
-	Org              string    `json:"org"`
-	ShortDescription string    `json:"short_description"`
-	Start            time.Time `json:"start"`
-	StartDisplay     string    `json:"start_display"`
-	StartType        string    `json:"start_type"`
-	Pacing           string    `json:"pacing"`
-	MobileAvailable  bool      `json:"mobile_available"`
-	Hidden           bool      `json:"hidden"`
-	InvitationOnly   bool      `json:"invitation_only"`
-	CourseID         string    `json:"course_id"`
+	BlocksUrl        string      `json:"blocks_url"`
+	Effort           string      `json:"effort"`
+	End              interface{} `json:"end"`
+	EnrollmentStart  time.Time   `json:"enrollment_start"`
+	EnrollmentEnd    time.Time   `json:"enrollment_end"`
+	ID               string      `json:"id"`
+	Media            interface{} `json:"media"`
+	Name             string      `json:"name"`
+	Number           string      `json:"number"`
+	Org              string      `json:"org"`
+	ShortDescription string      `json:"short_description"`
+	Start            time.Time   `json:"start"`
+	StartDisplay     string      `json:"start_display"`
+	StartType        string      `json:"start_type"`
+	Pacing           string      `json:"pacing"`
+	MobileAvailable  bool        `json:"mobile_available"`
+	Hidden           bool        `json:"hidden"`
+	InvitationOnly   bool        `json:"invitation_only"`
+	CourseID         string      `json:"course_id"`
+	Overview         interface{} `json:"overview"`
 }
 
 func (em *CourseDB) ToCore() *CourseCore {

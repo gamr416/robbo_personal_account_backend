@@ -1,6 +1,6 @@
 package edxApi
 
-//go:generate mockgen -source=api_service.go -destination=mocks/mock.go
+//go:generate mockgen -source=usecase.go -destination=mocks/mock.go
 
 type NewToken struct {
 	AccessToken string `json:"access_token"`
@@ -18,12 +18,12 @@ type RegistrationForm struct {
 }
 
 type EdxApiUseCase interface {
-	GetCoursesByUser() (respBody string, err error)
-	GetAllPublicCourses(pageNumber int) (respBody string, err error)
-	GetEnrollments(username string) (respBody string, err error)
-	GetUser() (respBody string, err error)
-	GetCourseContent(courseId string) (respBody string, err error)
-	PostEnrollment(message map[string]interface{}) (respBody string, err error)
-	PostRegistration(postMessage RegistrationForm) (respBody string, err error)
-	Login(email, password string) (respBody string, err error)
+	GetCoursesByUser() (respBody []byte, err error)
+	GetAllPublicCourses(pageNumber int) (respBody []byte, err error) //+
+	GetEnrollments(username string) (respBody []byte, err error)     //+
+	GetUser() (respBody []byte, err error)
+	GetCourseContent(courseId string) (respBody []byte, err error)              //+
+	PostEnrollment(message map[string]interface{}) (respBody []byte, err error) //+
+	PostRegistration(postMessage RegistrationForm) (respBody []byte, err error)
+	Login(email, password string) (respBody []byte, err error) //+
 }

@@ -67,8 +67,12 @@ func (r *ProjectsGatewayImpl) GetProjectsByAuthorId(authorId string) (projects [
 	return
 }
 
-func (r *ProjectsGatewayImpl) DeleteProject() {
-
+func (r *ProjectsGatewayImpl) DeleteProject(projectId string) (err error) {
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Delete(&models.ProjectDB{}, projectId).Error
+		return
+	})
+	return
 }
 
 func (r *ProjectsGatewayImpl) UpdateProject(project *models.ProjectCore) (err error) {

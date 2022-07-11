@@ -16,10 +16,6 @@ type Handler struct {
 	projectPageDelegate projectPage.Delegate
 }
 
-type updateProjectPageInput struct {
-	ProjectPage models.ProjectPageHTTP `json:"project_page"`
-}
-
 func NewProjectPageHandler(authDelegate auth.Delegate, projectsDelegate projects.Delegate, projectPageDelegate projectPage.Delegate) Handler {
 	return Handler{
 		authDelegate:        authDelegate,
@@ -35,7 +31,7 @@ func (h *Handler) InitProjectRoutes(router *gin.Engine) {
 		projectPage.GET("/:projectPageId", h.GetProjectPageById)
 		projectPage.GET("/", h.GetAllProjectPageByUserId)
 		projectPage.PUT("/", h.UpdateProjectPage)
-		projectPage.DELETE("/:projectPageID", h.DeleteProjectPage)
+		projectPage.DELETE("/:projectPageId", h.DeleteProjectPage)
 	}
 }
 
@@ -45,8 +41,12 @@ type createProjectPageResponse struct {
 
 func (h *Handler) CreateProjectPage(c *gin.Context) {
 	fmt.Println("CreateProjectPage")
-	userId := h.userIdentity(c)
 
+	userId, userIdentityErr := h.userIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
 	projectId, err := h.projectPageDelegate.CreateProjectPage(userId)
 
 	if err != nil {
@@ -59,12 +59,55 @@ func (h *Handler) CreateProjectPage(c *gin.Context) {
 	})
 }
 
-func (h *Handler) GetProjectPageById(c *gin.Context) {
+type getProjectPageResponse struct {
+	ProjectPage *models.ProjectPageHTTP `json:"projectPage"`
+}
 
+func (h *Handler) GetProjectPageById(c *gin.Context) {
+	fmt.Println("Get Project Page By ID")
+	projectId := c.Param("projectPageId")
+	project_page, err := h.projectPageDelegate.GetProjectPageById(projectId)
+	switch err {
+	case projectPage.ErrPageNotFound:
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	case projectPage.ErrInternalServerLevel:
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	case projectPage.ErrBadRequest:
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	c.JSON(http.StatusOK, getProjectPageResponse{
+		&project_page,
+	})
+}
+
+type getAllProjectPageResponse struct {
+	ProjectPages []*models.ProjectPageHTTP `json:"projectPages"`
 }
 
 func (h *Handler) GetAllProjectPageByUserId(c *gin.Context) {
+	fmt.Println("GetAllProjectPageByUserId")
 
+	userId, userIdentityErr := h.userIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	projectPages, err := h.projectPageDelegate.GetAllProjectPages(userId)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+	}
+	c.JSON(http.StatusOK, getAllProjectPageResponse{
+		ProjectPages: projectPages,
+	})
+}
+
+type updateProjectPageInput struct {
+	ProjectPage *models.ProjectPageHTTP `json:"projectPage"`
 }
 
 func (h *Handler) UpdateProjectPage(c *gin.Context) {
@@ -74,7 +117,7 @@ func (h *Handler) UpdateProjectPage(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	err := h.projectPageDelegate.UpdateProjectPage(&inp.ProjectPage)
+	err := h.projectPageDelegate.UpdateProjectPage(inp.ProjectPage)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 	}
@@ -84,7 +127,7 @@ func (h *Handler) UpdateProjectPage(c *gin.Context) {
 func (h *Handler) DeleteProjectPage(c *gin.Context) {
 	fmt.Println("Delete Project Page")
 
-	projectId := c.Param("projectId")
+	projectId := c.Param("projectPageId")
 
 	err := h.projectPageDelegate.DeleteProjectPage(projectId)
 	if err != nil {

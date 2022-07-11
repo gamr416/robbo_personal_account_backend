@@ -37,7 +37,7 @@ func NewServer(lifecycle fx.Lifecycle, authhandler authhttp.Handler, projecthttp
 					Handler: cors.New(
 						// TODO make config
 						cors.Options{
-							AllowedOrigins:   []string{"localhost:3030", "http://0.0.0.0:8601"},
+							AllowedOrigins:   []string{"http://0.0.0.0:3030", "http://0.0.0.0:8601", "localhost:3030"},
 							AllowCredentials: true,
 							AllowedMethods: []string{
 								"PUT", "DELETE", "GET", "OPTIONS", "POST", "HEAD",

@@ -33,9 +33,27 @@ func (p *ProjectPageDelegateImpl) DeleteProjectPage(projectId string) (err error
 
 func (p *ProjectPageDelegateImpl) UpdateProjectPage(projectPage *models.ProjectPageHTTP) (err error) {
 	projectPageCore := projectPage.ToCore()
-	return p.UseCase.UpdateProjectPage(&projectPageCore)
+	return p.UseCase.UpdateProjectPage(projectPageCore)
 }
 
-func (p *ProjectPageDelegateImpl) GetProjectPageByID() {
+func (p *ProjectPageDelegateImpl) GetProjectPageById(projectId string) (projectPage models.ProjectPageHTTP, err error) {
+	projectPageCore, err := p.UseCase.GetProjectPageById(projectId)
+	if err != nil {
+		return
+	}
+	projectPage.FromCore(projectPageCore)
+	return
+}
 
+func (p *ProjectPageDelegateImpl) GetAllProjectPages(authorId string) (projectPages []*models.ProjectPageHTTP, err error) {
+	projectPagesCore, err := p.UseCase.GetAllProjectPage(authorId)
+	if err != nil {
+		return
+	}
+	for _, projectPageCore := range projectPagesCore {
+		var projectPageHttp models.ProjectPageHTTP
+		projectPageHttp.FromCore(projectPageCore)
+		projectPages = append(projectPages, &projectPageHttp)
+	}
+	return
 }

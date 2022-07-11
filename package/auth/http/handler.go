@@ -24,6 +24,7 @@ func (h *Handler) InitAuthRoutes(router *gin.Engine) {
 		auth.POST("/sign-in", h.SignIn)
 		auth.GET("/refresh", h.Refresh)
 		auth.POST("/sign-out", h.SignOut)
+		auth.GET("/check-auth", h.CheckAuth)
 	}
 }
 
@@ -55,12 +56,15 @@ func (h *Handler) SignIn(c *gin.Context) {
 		return
 	}
 
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     "token",
+	cookie := &http.Cookie{
+		Name:     "refreshToken",
 		Value:    refreshToken,
-		MaxAge:   30 * 24 * 60 * 60,
-		HttpOnly: false,
-	})
+		MaxAge:   60 * 60 * 24 * 15,
+		HttpOnly: true,
+	}
+
+	http.SetCookie(c.Writer, cookie)
+
 	c.JSON(http.StatusOK, signInResponse{
 		AccessToken: accessToken,
 	})
@@ -84,7 +88,7 @@ func (h *Handler) SignUp(c *gin.Context) {
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     "token",
 		Value:    refreshToken,
-		MaxAge:   30 * 24 * 60 * 60,
+		MaxAge:   60 * 60 * 24 * 15,
 		HttpOnly: false,
 	})
 
@@ -95,9 +99,9 @@ func (h *Handler) SignUp(c *gin.Context) {
 
 func (h *Handler) Refresh(c *gin.Context) {
 	fmt.Println("Refresh")
-	tokenStr, err := c.Cookie("token")
 
-	fmt.Println(tokenStr)
+	tokenStr, err := c.Cookie("refreshToken")
+
 	if err != nil {
 		if err == http.ErrNoCookie {
 			c.AbortWithStatus(http.StatusUnauthorized)
@@ -107,19 +111,12 @@ func (h *Handler) Refresh(c *gin.Context) {
 		return
 	}
 
-	newAccessToken, newRefreshToken, err := h.delegate.RefreshToken(tokenStr)
+	newAccessToken, err := h.delegate.RefreshToken(tokenStr)
 	if err != nil {
 		fmt.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     "token",
-		Value:    newRefreshToken,
-		MaxAge:   30 * 24 * 60 * 60,
-		HttpOnly: false,
-	})
 
 	c.JSON(http.StatusOK, signInResponse{
 		AccessToken: newAccessToken,
@@ -129,11 +126,23 @@ func (h *Handler) Refresh(c *gin.Context) {
 func (h *Handler) SignOut(c *gin.Context) {
 	fmt.Println("SignOut")
 
-	c.SetCookie("token", "", -1, ":3030/", "localhost", false, false)
-
-	tokenStr, _ := c.Cookie("token")
-	fmt.Println("выход")
-	fmt.Println(tokenStr)
+	cookie := &http.Cookie{
+		Name:     "refreshToken",
+		Value:    "",
+		MaxAge:   -1,
+		HttpOnly: false,
+	}
+	http.SetCookie(c.Writer, cookie)
 
 	c.Status(http.StatusOK)
+}
+
+func (h *Handler) CheckAuth(c *gin.Context) {
+	fmt.Println("CheckAuth")
+	userId, err := h.userIdentity(c)
+	if err != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+	c.JSON(http.StatusOK, userId)
 }

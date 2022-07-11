@@ -64,7 +64,7 @@ func (p *ProjectPageUseCaseImpl) CreateProjectPage(authorId string) (projectId s
 		Notes:       "",
 		Preview:     "",
 		LinkScratch: viper.GetString("projectPage.scratchLink") + "?#" + projectId,
-		IsShares:    false,
+		IsShared:    false,
 	}
 	_, err = p.projectPageGateway.CreateProjectPage(projectPage)
 	if err != nil {
@@ -78,9 +78,28 @@ func (p *ProjectPageUseCaseImpl) UpdateProjectPage(projectPage *models.ProjectPa
 }
 
 func (p *ProjectPageUseCaseImpl) DeleteProjectPage(projectId string) (err error) {
+	err = p.projectGateway.DeleteProject(projectId)
+	if err != nil {
+		return
+	}
 	return p.projectPageGateway.DeleteProjectPage(projectId)
 }
 
-func (p *ProjectPageUseCaseImpl) GetProjectPageById() {
+func (p *ProjectPageUseCaseImpl) GetAllProjectPage(authorId string) (projectPages []*models.ProjectPageCore, err error) {
+	projects, err := p.projectGateway.GetProjectsByAuthorId(authorId)
+	if err != nil {
+		return
+	}
+	for _, project := range projects {
+		projectPage, errGetProjectPageById := p.projectPageGateway.GetProjectPageById(project.ID)
+		if errGetProjectPageById != nil {
+			return []*models.ProjectPageCore{}, errGetProjectPageById
+		}
+		projectPages = append(projectPages, projectPage)
+	}
+	return
+}
 
+func (p *ProjectPageUseCaseImpl) GetProjectPageById(projectId string) (projectPage *models.ProjectPageCore, err error) {
+	return p.projectPageGateway.GetProjectPageById(projectId)
 }

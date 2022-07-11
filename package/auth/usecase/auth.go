@@ -109,21 +109,17 @@ func (a *AuthUseCaseImpl) ParseToken(token string, key []byte) (id string, err e
 	return claims.Subject, nil
 }
 
-func (a *AuthUseCaseImpl) RefreshToken(token string) (newAccessToken, newRefreshToken string, err error) {
+func (a *AuthUseCaseImpl) RefreshToken(token string) (newAccessToken string, err error) {
 	id, err := a.ParseToken(token, a.refreshSigningKey)
 
 	if err != nil {
 		fmt.Println(err)
-		return "", "", err
+		return "", err
 	}
 
 	newAccessToken, err = a.GenerateToken(id, a.accessExpireDuration, a.accessSigningKey)
 	if err != nil {
-		return "", "", err
-	}
-	newRefreshToken, err = a.GenerateToken(id, a.refreshExpireDuration, a.refreshSigningKey)
-	if err != nil {
-		return "", "", err
+		return "", err
 	}
 
 	return

@@ -25,51 +25,53 @@ type CourseCore struct {
 	Hidden           bool
 	InvitationOnly   bool
 	CourseID         string
+	MediaID          string
+	Media            CourseApiMediaCollectionCore
 }
 
 type CourseDB struct {
 	gorm.Model
 
-	BlocksUrl        string
-	Effort           string
+	BlocksUrl        string `gorm:"size:256"`
+	Effort           string `gorm:"size:256"`
 	EnrollmentStart  time.Time
 	EnrollmentEnd    time.Time
 	End              time.Time
-	Name             string
-	Number           string
-	Org              string
-	ShortDescription string
+	Name             string `gorm:"size:256"`
+	Number           string `gorm:"size:256"`
+	Org              string `gorm:"size:256"`
+	ShortDescription string `gorm:"size:256"`
 	Start            time.Time
-	StartDisplay     string
-	StartType        string
-	Pacing           string
+	StartDisplay     string `gorm:"size:256"`
+	StartType        string `gorm:"size:256"`
+	Pacing           string `gorm:"size:256"`
 	MobileAvailable  bool
 	Hidden           bool
 	InvitationOnly   bool
-	CourseID         string
+	StrCourseID      string
 }
 
 type CourseHTTP struct {
-	BlocksUrl        string      `json:"blocks_url"`
-	Effort           string      `json:"effort"`
-	End              time.Time   `json:"end"`
-	EnrollmentStart  time.Time   `json:"enrollment_start"`
-	EnrollmentEnd    time.Time   `json:"enrollment_end"`
-	ID               string      `json:"id"`
-	Media            interface{} `json:"media"`
-	Name             string      `json:"name"`
-	Number           string      `json:"number"`
-	Org              string      `json:"org"`
-	ShortDescription string      `json:"short_description"`
-	Start            time.Time   `json:"start"`
-	StartDisplay     string      `json:"start_display"`
-	StartType        string      `json:"start_type"`
-	Pacing           string      `json:"pacing"`
-	MobileAvailable  bool        `json:"mobile_available"`
-	Hidden           bool        `json:"hidden"`
-	InvitationOnly   bool        `json:"invitation_only"`
-	CourseID         string      `json:"course_id"`
-	Overview         interface{} `json:"overview"`
+	BlocksUrl        string                       `json:"blocks_url"`
+	Effort           string                       `json:"effort"`
+	End              time.Time                    `json:"end"`
+	EnrollmentStart  time.Time                    `json:"enrollment_start"`
+	EnrollmentEnd    time.Time                    `json:"enrollment_end"`
+	ID               string                       `json:"id"`
+	Media            CourseApiMediaCollectionHTTP `json:"media"`
+	Name             string                       `json:"name"`
+	Number           string                       `json:"number"`
+	Org              string                       `json:"org"`
+	ShortDescription string                       `json:"short_description"`
+	Start            time.Time                    `json:"start"`
+	StartDisplay     string                       `json:"start_display"`
+	StartType        string                       `json:"start_type"`
+	Pacing           string                       `json:"pacing"`
+	MobileAvailable  bool                         `json:"mobile_available"`
+	Hidden           bool                         `json:"hidden"`
+	InvitationOnly   bool                         `json:"invitation_only"`
+	CourseID         string                       `json:"course_id"`
+	Overview         interface{}                  `json:"overview"`
 }
 
 func (em *CourseDB) ToCore() *CourseCore {
@@ -90,7 +92,7 @@ func (em *CourseDB) ToCore() *CourseCore {
 		MobileAvailable:  em.MobileAvailable,
 		Hidden:           em.Hidden,
 		InvitationOnly:   em.InvitationOnly,
-		CourseID:         em.CourseID,
+		CourseID:         em.StrCourseID,
 	}
 }
 
@@ -112,7 +114,7 @@ func (em *CourseDB) FromCore(course *CourseCore) {
 	em.MobileAvailable = course.MobileAvailable
 	em.Hidden = course.Hidden
 	em.InvitationOnly = course.InvitationOnly
-	em.CourseID = course.CourseID
+	em.StrCourseID = course.CourseID
 	em.End = course.End
 }
 
@@ -135,9 +137,12 @@ func (ht *CourseHTTP) FromCore(course *CourseCore) {
 	ht.InvitationOnly = course.InvitationOnly
 	ht.CourseID = course.CourseID
 	ht.End = course.End
+	ht.Media.FromCore(&course.Media)
 }
 
 func (ht *CourseHTTP) ToCore() *CourseCore {
+	mediaCore := &CourseApiMediaCollectionCore{}
+	mediaCore = ht.Media.ToCore()
 	return &CourseCore{
 		ID:               ht.ID,
 		BlocksUrl:        ht.BlocksUrl,
@@ -157,5 +162,6 @@ func (ht *CourseHTTP) ToCore() *CourseCore {
 		InvitationOnly:   ht.InvitationOnly,
 		CourseID:         ht.CourseID,
 		End:              ht.End,
+		Media:            *mediaCore,
 	}
 }

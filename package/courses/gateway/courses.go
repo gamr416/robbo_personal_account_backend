@@ -42,11 +42,74 @@ func (r *CoursesGatewayImpl) CreateCourse(course *models.CourseCore) (id string,
 	return id, nil
 }
 
-func (r CoursesGatewayImpl) DeleteCourse(courseId string) (err error) {
-	courseDb := models.CourseDB{}
+func (r *CoursesGatewayImpl) CreateAbsoluteMedia(absoluteMedia *models.AbsoluteMediaCore) (id string, err error) {
+	absoluteMediaDb := models.AbsoluteMediaDB{}
+	absoluteMediaDb.FromCore(absoluteMedia)
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Model(&courseDb).Where("course_id = ?", courseId).Delete(&courseDb).Error
+		err = tx.Create(&absoluteMediaDb).Error
+		return
+	})
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+	id = strconv.FormatUint(uint64(absoluteMediaDb.ID), 10)
+	return id, nil
+}
+
+func (r *CoursesGatewayImpl) CreateMedia(media *models.MediaCore) (id string, err error) {
+	mediaDb := models.MediaDB{}
+	mediaDb.FromCore(media)
+
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Create(&mediaDb).Error
+		return
+	})
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+	id = strconv.FormatUint(uint64(mediaDb.ID), 10)
+	return id, nil
+}
+
+func (r *CoursesGatewayImpl) CreateImage(image *models.ImageCore) (id string, err error) {
+	imageDb := models.ImageDB{}
+	imageDb.FromCore(image)
+
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Create(&imageDb).Error
+		return
+	})
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+	id = strconv.FormatUint(uint64(imageDb.ID), 10)
+	return id, nil
+}
+
+func (r *CoursesGatewayImpl) CreateCourseApiMediaCollection(courseApiMediaCollection *models.CourseApiMediaCollectionCore) (id string, err error) {
+	courseApiMediaCollectionDb := models.CourseApiMediaCollectionDB{}
+	courseApiMediaCollectionDb.FromCore(courseApiMediaCollection)
+
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Create(&courseApiMediaCollectionDb).Error
+		return
+	})
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+	id = strconv.FormatUint(uint64(courseApiMediaCollectionDb.ID), 10)
+	return id, nil
+}
+
+func (r CoursesGatewayImpl) DeleteCourse(courseId string) (err error) {
+
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Where("str_course_id = ?", courseId).Delete(&models.CourseDB{}).Error
 		fmt.Println(err)
 		return
 	})

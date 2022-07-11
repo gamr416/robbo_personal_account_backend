@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"time"
 )
 
 //go:generate mockgen -source=edxApi.go -destination=mocks/mock.go
@@ -37,6 +38,9 @@ func (p *EdxApiUseCaseImpl) GetAllPublicCourses(pageNumber int) (respBody []byte
 		log.Println(err)
 		return nil, edxApi.ErrOnReq
 	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, edxApi.ErrIncorrectInputParam
+	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Println(err)
@@ -57,9 +61,7 @@ func (p *EdxApiUseCaseImpl) GetCoursesByUser() (respBody []byte, err error) {
 		log.Println(err)
 		return nil, edxApi.ErrReadRespBody
 	}
-	if response.StatusCode != http.StatusOK {
-		return nil, edxApi.ErrIncorrectInputParam
-	}
+
 	return body, nil
 }
 
@@ -96,7 +98,7 @@ func (p *EdxApiUseCaseImpl) GetWithAuth(url string) (respBody []byte, err error)
 		log.Println("Error while reading the response bytes:", err)
 		return nil, edxApi.ErrReadRespBody
 	}
-	fmt.Println(string(body))
+	fmt.Println(body)
 	return body, nil
 }
 
@@ -114,6 +116,12 @@ func (p *EdxApiUseCaseImpl) GetCourseContent(courseId string) (respBody []byte, 
 }
 
 func (p *EdxApiUseCaseImpl) PostEnrollment(message map[string]interface{}) (respBody []byte, err error) {
+	err = p.RefreshToken()
+	if err != nil {
+		log.Println("token not refresh")
+		return nil, edxApi.ErrTknNotRefresh
+
+	}
 	urlAddr := viper.GetString("api_urls.postEnrollment")
 	data, err := json.Marshal(message)
 
@@ -163,55 +171,24 @@ func (p *EdxApiUseCaseImpl) PostRegistration(registrationMessage edxApi.Registra
 
 	if err != nil {
 		log.Println(err)
-		return nil, edxApi.ErrOnReq
+		return nil, errors.New("Error on request")
 	}
-	if response.StatusCode != http.StatusOK {
-		return nil, edxApi.ErrIncorrectInputParam
-	}
+
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 
 	if err != nil {
 		log.Println(err)
-		return nil, edxApi.ErrReadRespBody
+		return nil, errors.New("Error while reading the response bytes")
 	}
 
 	return body, nil
 }
-func (p *EdxApiUseCaseImpl) RefreshToken() (err error) {
-	urlAddr := viper.GetString("api_urls.refreshToken")
-	response, err := http.PostForm(urlAddr, url.Values{
-		"grant_type":    {"client_credentials"},
-		"client_id":     {viper.GetString("api.client_id")},
-		"client_secret": {viper.GetString("api.client_secret")},
-	})
-	if err != nil {
-		log.Println(err)
-		return edxApi.ErrOnReq
-	}
-
-	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Println(err)
-		return edxApi.ErrIncorrectInputParam
-	}
-
-	newtkn := &edxApi.NewToken{}
-	err = json.Unmarshal(body, newtkn)
-	if err != nil {
-		log.Println(err)
-		return errors.New("Error on json unmarshal")
-	}
-	viper.Set("api.token", newtkn.AccessToken)
-	return nil
-}
-
 func (p *EdxApiUseCaseImpl) Login(email, password string) (respBody []byte, err error) {
 	err = p.RefreshToken()
 	if err != nil {
 		log.Println("Token not refresh.\n[ERROR] -", err)
-		return nil, edxApi.ErrTknNotRefresh
+		return nil, errors.New("Token not refresh")
 	}
 
 	urlAddr := viper.GetString("api_urls.login")
@@ -220,16 +197,53 @@ func (p *EdxApiUseCaseImpl) Login(email, password string) (respBody []byte, err 
 		"password": {password},
 	})
 	if err != nil {
-		return nil, edxApi.ErrOnReq
+		return nil, errors.New("Error on request")
 	}
-	if response.StatusCode != http.StatusOK {
-		return nil, edxApi.ErrIncorrectInputParam
-	}
+
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return nil, edxApi.ErrReadRespBody
+		return nil, errors.New("Error while reading the response bytes")
 	}
 
 	return body, nil
+}
+
+func (p *EdxApiUseCaseImpl) RefreshToken() (err error) {
+	if viper.GetInt64("api.token_expiration_time") < time.Now().Unix() {
+		urlAddr := viper.GetString("api_urls.refreshToken")
+		response, err := http.PostForm(urlAddr, url.Values{
+			"grant_type":    {"client_credentials"},
+			"client_id":     {viper.GetString("api.client_id")},
+			"client_secret": {viper.GetString("api.client_secret")},
+		})
+		if err != nil {
+			log.Println(err)
+			return edxApi.ErrOnReq
+		}
+		if response.StatusCode != http.StatusOK {
+			return edxApi.ErrIncorrectInputParam
+		}
+
+		defer response.Body.Close()
+		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			log.Println(err)
+			return edxApi.ErrIncorrectInputParam
+		}
+
+		newtkn := &edxApi.NewToken{}
+		err = json.Unmarshal(body, newtkn)
+		if err != nil {
+			log.Println(err)
+			return errors.New("Error on json unmarshal")
+		}
+
+		expirationTime := time.Now().Unix() + int64(newtkn.ExpiresIn)
+		viper.Set("api.token_expiration_time", expirationTime)
+		viper.Set("api.token", newtkn.AccessToken)
+		return nil
+	} else {
+		return nil
+	}
 }

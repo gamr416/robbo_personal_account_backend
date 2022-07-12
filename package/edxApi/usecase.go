@@ -1,7 +1,5 @@
 package edxApi
 
-import "net/http"
-
 //go:generate mockgen -source=usecase.go -destination=mocks/mock.go
 
 type NewToken struct {
@@ -17,10 +15,6 @@ type RegistrationForm struct {
 	Name             string
 	Password         string
 	Terms_of_service string
-}
-
-type myjar struct {
-	jar map[string][]*http.Cookie
 }
 
 type EdxApiUseCase interface {

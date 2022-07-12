@@ -52,12 +52,12 @@ type CourseDB struct {
 }
 
 type CourseHTTP struct {
+	ID               string                       `json:"id"`
 	BlocksUrl        string                       `json:"blocks_url"`
 	Effort           string                       `json:"effort"`
 	End              time.Time                    `json:"end"`
 	EnrollmentStart  time.Time                    `json:"enrollment_start"`
 	EnrollmentEnd    time.Time                    `json:"enrollment_end"`
-	ID               string                       `json:"id"`
 	Media            CourseApiMediaCollectionHTTP `json:"media"`
 	Name             string                       `json:"name"`
 	Number           string                       `json:"number"`

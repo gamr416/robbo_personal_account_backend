@@ -142,12 +142,12 @@ func TestEdxApiUseCaseImpl_Login2(t *testing.T) {
 		password      string
 		expectedError error
 	}{
-		/*{
+		{
 			name:          "Ok",
 			email:         "edxsom@test.com",
 			password:      "123456",
 			expectedError: nil,
-		},*/
+		},
 
 		{
 			name:          "Email or password incorrect",
@@ -167,6 +167,7 @@ func TestEdxApiUseCaseImpl_Login2(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			expect := testCase.expectedError
 			_, correct := edx.Login(testCase.email, testCase.password)
+
 			assert.Equal(t, expect, correct)
 		})
 	}
@@ -246,17 +247,17 @@ func TestEdxApiUseCaseImpl_PostRegistration2(t *testing.T) {
 		registrationMessage edxApi.RegistrationForm
 		expectedError       error
 	}{
-		/*{
+		{
 			name: "Ok",
 			registrationMessage: edxApi.RegistrationForm{
-				Email:            "insomnia_testrrw323fsd22fdsf3@fake.email",
-				Username:         "InsomniaTest3fsd122fsdfsda3",
-				Name:             "SomeTestNafdsme12ds3",
+				Email:            "insomnia_testrrw323fsd22dasf3@fake.email",
+				Username:         "InsomniaTest3fsd122fsdfda3",
+				Name:             "SomeTestNafdsme12ddsds3",
 				Password:         "123456",
 				Terms_of_service: "true",
 			},
 			expectedError: nil,
-		},*/
+		},
 
 		{
 			name: "Password is empty",

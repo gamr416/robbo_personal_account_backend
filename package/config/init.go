@@ -17,7 +17,7 @@ func Init() error {
 func InitForTests() error {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yml")
-	viper.AddConfigPath(`C:\Users\danby\GolandProjects\robbo_student_personal_account\package\config\`)
+	viper.AddConfigPath("../../../package/config/")
 	fmt.Println()
 	err := viper.ReadInConfig()
 	return err

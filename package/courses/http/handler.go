@@ -7,6 +7,7 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -39,10 +40,6 @@ type getCoursesListResponse struct {
 	} `json:"pagination"`
 }
 
-type updateCourseInput struct {
-	Course models.CourseHTTP `json:"course"'`
-}
-
 type getEnrollmentsResponse struct {
 	Next     interface{} `json:"next"`
 	Previous interface{} `json:"previous"`
@@ -63,21 +60,31 @@ func (h *Handler) InitCourseRoutes(router *gin.Engine) {
 		course.GET("/getCoursesByUser", h.GetCoursesByUser)
 		course.GET("/getAllPublicCourses/:pageNumber", h.GetAllPublicCourses)
 		course.GET("/getEnrollments/:username", h.GetEnrollments)
-		course.GET("/updateCourse/:courseId", h.UpdateCourse)
-		course.GET("/deleteCourse/:courseId", h.DeleteCourse)
+		course.PUT("/updateCourse", h.UpdateCourse)
+		course.DELETE("/deleteCourse/:courseId", h.DeleteCourse)
 	}
 }
 
 func (h *Handler) UpdateCourse(c *gin.Context) {
 	fmt.Println("Update Course")
 
-	inp := new(updateCourseInput)
-	if err := c.BindJSON(&inp); err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+	courseHTTP := models.CourseHTTP{}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	err := h.coursesDelegate.UpdateCourse(&inp.Course)
 
+	err = json.Unmarshal(body, &courseHTTP)
+	fmt.Println(courseHTTP)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+
+	err = h.coursesDelegate.UpdateCourse(&courseHTTP)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -99,7 +106,9 @@ func (h *Handler) CreateCourse(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, testCourseResponse{
+		courseId,
+	})
 }
 
 func (h *Handler) GetCourseContent(c *gin.Context) {
@@ -184,7 +193,6 @@ func (h *Handler) DeleteCourse(c *gin.Context) {
 	fmt.Println("Delete Course")
 
 	courseId := c.Param("courseId")
-
 	err := h.coursesDelegate.DeleteCourse(courseId)
 
 	if err != nil {

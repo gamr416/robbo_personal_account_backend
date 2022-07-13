@@ -44,13 +44,13 @@ func SetupAuthUseCase(gateway auth.Gateway) AuthUseCaseModule {
 	}
 }
 
-func (a *AuthUseCaseImpl) SignIn(email, password string) (accessToken, refreshToken string, err error) {
+func (a *AuthUseCaseImpl) SignIn(userCore *models.UserCore) (accessToken, refreshToken string, err error) {
 	pwd := sha1.New()
-	pwd.Write([]byte(password))
+	pwd.Write([]byte(userCore.Password))
 	pwd.Write([]byte(a.hashSalt))
-	password = fmt.Sprintf("%x", pwd.Sum(nil))
+	password := fmt.Sprintf("%x", pwd.Sum(nil))
 
-	user, err := a.Gateway.GetUser(email, password)
+	user, err := a.Gateway.GetUser(userCore.Email, password)
 	if err != nil {
 		return "", "", auth.ErrUserNotFound
 	}
@@ -67,27 +67,24 @@ func (a *AuthUseCaseImpl) SignIn(email, password string) (accessToken, refreshTo
 	return
 }
 
-func (a *AuthUseCaseImpl) SignUp(email, password string) (accessToken, refreshToken string, err error) {
+func (a *AuthUseCaseImpl) SignUp(userCore *models.UserCore) (accessToken, refreshToken string, err error) {
 	pwd := sha1.New()
-	pwd.Write([]byte(password))
+	pwd.Write([]byte(userCore.Password))
 	pwd.Write([]byte(a.hashSalt))
 
-	user := &models.UserCore{
-		Email:    email,
-		Password: fmt.Sprintf("%x", pwd.Sum(nil)),
-	}
+	userCore.Password = fmt.Sprintf("%x", pwd.Sum(nil))
 
-	id, err := a.Gateway.CreateUser(user)
+	id, err := a.Gateway.CreateUser(userCore)
 	if err != nil {
 		return "", "", err
 	}
-	user.ID = id
+	userCore.ID = id
 
-	accessToken, err = a.GenerateToken(user, a.accessExpireDuration, a.accessSigningKey)
+	accessToken, err = a.GenerateToken(userCore, a.accessExpireDuration, a.accessSigningKey)
 	if err != nil {
 		return "", "", err
 	}
-	refreshToken, err = a.GenerateToken(user, a.refreshExpireDuration, a.refreshSigningKey)
+	refreshToken, err = a.GenerateToken(userCore, a.refreshExpireDuration, a.refreshSigningKey)
 
 	return
 }

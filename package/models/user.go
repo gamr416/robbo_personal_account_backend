@@ -11,6 +11,7 @@ type Role int
 const (
 	student Role = iota
 	teacher
+	parent
 	freeListener
 	unitAdmin
 	superAdmin
@@ -24,7 +25,6 @@ type UserClaims struct {
 }
 
 type UserHttp struct {
-	ID       string `json:"id"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	Role     uint   `json:"role"`
@@ -64,7 +64,6 @@ func (em *UserDB) FromCore(user *UserCore) {
 
 func (em *UserHttp) ToCore() *UserCore {
 	return &UserCore{
-		ID:       em.ID,
 		Email:    em.Email,
 		Password: em.Password,
 		Role:     Role(em.Role),
@@ -72,7 +71,6 @@ func (em *UserHttp) ToCore() *UserCore {
 }
 
 func (em *UserHttp) FromCore(user *UserCore) {
-	em.ID = user.ID
 	em.Email = user.Email
 	em.Password = user.Password
 	em.Role = uint(user.Role)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"net/http"
 )
 
@@ -31,6 +32,7 @@ func (h *Handler) InitAuthRoutes(router *gin.Engine) {
 type signInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	Role     uint   `json:"role"`
 }
 
 type signInResponse struct {
@@ -38,14 +40,16 @@ type signInResponse struct {
 }
 
 func (h *Handler) SignIn(c *gin.Context) {
-	inp := new(signInput)
+	fmt.Println("SignIn")
 
-	if err := c.BindJSON(inp); err != nil {
+	userHttp := &models.UserHttp{}
+
+	if err := c.BindJSON(userHttp); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	accessToken, refreshToken, err := h.delegate.SignIn(inp.Email, inp.Password)
+	accessToken, refreshToken, err := h.delegate.SignIn(userHttp)
 	if err != nil {
 		if err == auth.ErrUserNotFound {
 			c.AbortWithStatus(http.StatusUnauthorized)
@@ -72,14 +76,15 @@ func (h *Handler) SignIn(c *gin.Context) {
 
 func (h *Handler) SignUp(c *gin.Context) {
 	fmt.Println("SignUp")
-	inp := new(signInput)
 
-	if err := c.BindJSON(inp); err != nil {
+	userHttp := &models.UserHttp{}
+
+	if err := c.BindJSON(userHttp); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	accessToken, refreshToken, err := h.delegate.SignUp(inp.Email, inp.Password)
+	accessToken, refreshToken, err := h.delegate.SignUp(userHttp)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return

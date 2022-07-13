@@ -2,6 +2,7 @@ package delegate
 
 import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"go.uber.org/fx"
 )
 
@@ -28,7 +29,7 @@ func (s *AuthDelegateImpl) SignUp(email, password string) (accessToken, refreshT
 	return s.UseCase.SignUp(email, password)
 }
 
-func (s *AuthDelegateImpl) ParseToken(token string, key []byte) (id string, err error) {
+func (s *AuthDelegateImpl) ParseToken(token string, key []byte) (claims *models.UserClaims, err error) {
 	return s.UseCase.ParseToken(token, key)
 }
 func (s *AuthDelegateImpl) RefreshToken(token string) (newAccessToken string, err error) {

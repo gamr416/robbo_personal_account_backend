@@ -137,12 +137,20 @@ func (h *Handler) SignOut(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+type userIdentity struct {
+	Id   string `json:"id"`
+	Role uint   `json:"role"`
+}
+
 func (h *Handler) CheckAuth(c *gin.Context) {
 	fmt.Println("CheckAuth")
-	userId, err := h.userIdentity(c)
+	userId, role, err := h.userIdentity(c)
 	if err != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
-	c.JSON(http.StatusOK, userId)
+	c.JSON(http.StatusOK, &userIdentity{
+		userId,
+		uint(role),
+	})
 }

@@ -1,14 +1,40 @@
 package models
 
 import (
+	"github.com/dgrijalva/jwt-go/v4"
 	"gorm.io/gorm"
 	"strconv"
 )
+
+type Role int
+
+const (
+	student Role = iota
+	teacher
+	freeListener
+	unitAdmin
+	superAdmin
+)
+
+type UserClaims struct {
+	jwt.StandardClaims
+
+	Id   string
+	Role Role
+}
+
+type UserHttp struct {
+	ID       string `json:"id"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Role     uint   `json:"role"`
+}
 
 type UserCore struct {
 	ID       string
 	Email    string
 	Password string
+	Role     Role
 }
 
 type UserDB struct {
@@ -16,6 +42,7 @@ type UserDB struct {
 
 	Email    string `gorm:"not null;size:256"`
 	Password string `gorm:"not null;size:256"`
+	Role     uint   `gorm:"not null"`
 }
 
 func (em *UserDB) ToCore() *UserCore {
@@ -23,6 +50,7 @@ func (em *UserDB) ToCore() *UserCore {
 		ID:       strconv.FormatUint(uint64(em.ID), 10),
 		Email:    em.Email,
 		Password: em.Password,
+		Role:     Role(em.Role),
 	}
 }
 
@@ -31,4 +59,21 @@ func (em *UserDB) FromCore(user *UserCore) {
 	em.ID = uint(id)
 	em.Email = user.Email
 	em.Password = user.Password
+	em.Role = uint(user.Role)
+}
+
+func (em *UserHttp) ToCore() *UserCore {
+	return &UserCore{
+		ID:       em.ID,
+		Email:    em.Email,
+		Password: em.Password,
+		Role:     Role(em.Role),
+	}
+}
+
+func (em *UserHttp) FromCore(user *UserCore) {
+	em.ID = user.ID
+	em.Email = user.Email
+	em.Password = user.Password
+	em.Role = uint(user.Role)
 }

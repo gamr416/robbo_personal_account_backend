@@ -42,7 +42,7 @@ type createProjectPageResponse struct {
 func (h *Handler) CreateProjectPage(c *gin.Context) {
 	fmt.Println("CreateProjectPage")
 
-	userId, userIdentityErr := h.userIdentity(c)
+	userId, _, userIdentityErr := h.userIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -91,7 +91,7 @@ type getAllProjectPageResponse struct {
 func (h *Handler) GetAllProjectPageByUserId(c *gin.Context) {
 	fmt.Println("GetAllProjectPageByUserId")
 
-	userId, userIdentityErr := h.userIdentity(c)
+	userId, _, userIdentityErr := h.userIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return

@@ -26,6 +26,7 @@ api_urls:
   login: "https://edx-test.ru/api/user/v1/account/login_session/"
   getLogin: "https://edx-test.ru/login"
   getRegistration: "https://edx-test.ru/register?next=%2F"
+  postCohort: "https://edx-test.ru/api/cohorts/v1/courses/"
 
 
 api:

@@ -11,7 +11,9 @@ import (
 	crshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/courses/http"
 	crsusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/courses/usecase"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
-	edxapiusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi/usecase"
+	edxapicourseusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi/edxApiCoursesUseCase"
+	edxapiuserusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi/edxApiUsersUseCase"
+	//edxapicohortusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi/edxApiCohortsUseCase"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/logger"
 	ppagedelegate "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/delegate"
 	ppagegateway "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/gateway"
@@ -39,7 +41,9 @@ func InvokeWith(options ...fx.Option) *fx.App {
 		fx.Provide(authusecase.SetupAuthUseCase),
 		fx.Provide(prjusecase.SetupProjectUseCase),
 		fx.Provide(ppageusecase.SetupProjectPageUseCase),
-		fx.Provide(edxapiusecase.SetupEdxApiUseCase),
+		fx.Provide(edxapicourseusecase.SetupEdxApiCourse),
+		fx.Provide(edxapiuserusecase.SetupEdxApiUser),
+		//fx.Provide(edxapicohortusecase),
 		fx.Provide(authdelegate.SetupAuthDelegate),
 		fx.Provide(prjdelegate.SetupProjectDelegate),
 		fx.Provide(ppagedelegate.SetupProjectPageDelegate),

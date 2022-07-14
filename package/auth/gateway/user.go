@@ -1,7 +1,6 @@
 package gateway
 
 import (
-	"fmt"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
@@ -29,6 +28,7 @@ func (r *AuthGatewayImpl) GetUser(email, password string) (user *models.UserCore
 	var userDb models.UserDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Where("email = ? AND  password = ?", email, password).First(&userDb).Error; err != nil {
+			err = auth.ErrUserNotFound
 			return
 		}
 		return
@@ -41,8 +41,9 @@ func (r *AuthGatewayImpl) CreateUser(user *models.UserCore) (id string, err erro
 	userDb := models.UserDB{}
 	userDb.FromCore(user)
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if tx.Where(models.UserDB{Email: user.Email}).Take(&models.UserDB{}).Error == nil {
-			return fmt.Errorf("A user already exists with the given email address: %v", user.Email)
+		if err = tx.Where(models.UserDB{Email: user.Email}).Take(&models.UserDB{}).Error; err == nil {
+			err = auth.ErrUserAlreadyExist
+			return
 		}
 		err = tx.Create(&userDb).Error
 		return

@@ -22,11 +22,16 @@ type EdxApiUseCaseImpl struct {
 }
 type EdxApiUseCaseModule struct {
 	fx.Out
-	edxApi.EdxApiUseCase
+	ApiCourse  edxApi.EdxApiCourse
+	ApiUser    edxApi.EdxApiUser
+	ApiCohort  edxApi.EdxApiCohort
+	ApiUseCase edxApi.EdxApiUseCase
 }
 
 func SetupEdxApiUseCase() EdxApiUseCaseModule {
-	return EdxApiUseCaseModule{EdxApiUseCase: &EdxApiUseCaseImpl{}}
+	return EdxApiUseCaseModule{
+		ApiCourse: &EdxApiUseCaseImpl{},
+	}
 }
 
 type myjar struct {

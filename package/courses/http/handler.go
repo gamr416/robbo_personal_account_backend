@@ -55,7 +55,7 @@ type getEnrollmentsResponse struct {
 func (h *Handler) InitCourseRoutes(router *gin.Engine) {
 	course := router.Group("/course")
 	{
-		course.GET("/createCourse/:courseId", h.CreateCourse)
+		course.POST("/createCourse/:courseId", h.CreateCourse)
 		course.GET("/getCourseContent/:courseId", h.GetCourseContent)
 		course.GET("/getCoursesByUser", h.GetCoursesByUser)
 		course.GET("/getAllPublicCourses/:pageNumber", h.GetAllPublicCourses)

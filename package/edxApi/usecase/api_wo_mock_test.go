@@ -16,7 +16,8 @@ func TestGetUser2(t *testing.T) {
 	edx := SetupEdxApiUseCase()
 
 	expect := []byte("{\"username\":\"edxsom\"}")
-	correct, _ := edx.GetUser()
+	//correct, _ := edx.GetUser()
+	correct, _ := edx.ApiUser.GetUser()
 	assert.Equal(t, expect, correct)
 
 }
@@ -47,7 +48,7 @@ func TestEdxApiUseCaseImpl_GetCourseContent2(t *testing.T) {
 	for _, testCase := range testTable {
 		t.Run(testCase.name, func(t *testing.T) {
 			expect := testCase.expectedError
-			_, correct := edx.GetCourseContent(testCase.courseId)
+			_, correct := edx.ApiCourse.GetCourseContent(testCase.courseId)
 			assert.Equal(t, expect, correct)
 		})
 	}
@@ -86,7 +87,7 @@ func TestEdxApiUseCaseImpl_GetEnrollments2(t *testing.T) {
 
 			expect := testCase.expectedBody
 
-			correct, _ := edx.GetEnrollments(testCase.username)
+			correct, _ := edx.ApiCourse.GetEnrollments(testCase.username)
 			assert.Equal(t, expect, string(correct))
 		})
 	}
@@ -125,7 +126,7 @@ func TestEdxApiUseCaseImpl_GetAllPublicCourses2(t *testing.T) {
 
 			expect := testCase.expectedError
 
-			_, correct := edx.GetAllPublicCourses(testCase.pageNumber)
+			_, correct := edx.ApiCourse.GetAllPublicCourses(testCase.pageNumber)
 			assert.Equal(t, expect, correct)
 		})
 	}
@@ -166,7 +167,7 @@ func TestEdxApiUseCaseImpl_Login2(t *testing.T) {
 	for _, testCase := range testTable {
 		t.Run(testCase.name, func(t *testing.T) {
 			expect := testCase.expectedError
-			_, correct := edx.Login(testCase.email, testCase.password)
+			_, correct := edx.ApiUser.Login(testCase.email, testCase.password)
 
 			assert.Equal(t, expect, correct)
 		})
@@ -231,7 +232,7 @@ func TestEdxApiUseCaseImpl_PostEnrollment2(t *testing.T) {
 
 			expect := testCase.expectedError
 
-			_, correct := edx.PostEnrollment(testCase.message)
+			_, correct := edx.ApiCourse.PostEnrollment(testCase.message)
 			assert.Equal(t, expect, correct)
 		})
 	}
@@ -332,7 +333,7 @@ func TestEdxApiUseCaseImpl_PostRegistration2(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 
 			expect := testCase.expectedError
-			_, correct := edx.PostRegistration(testCase.registrationMessage)
+			_, correct := edx.ApiUser.PostRegistration(testCase.registrationMessage)
 			assert.Equal(t, expect, correct)
 		})
 	}

@@ -7,4 +7,5 @@ var (
 	ErrInvalidAccessToken = errors.New("invalid access token")
 	ErrInvalidTypeClaims  = errors.New("token claims are not of type *StandardClaims")
 	ErrTokenNotFound      = errors.New("token not found")
+	ErrUserAlreadyExist   = errors.New("user already exist")
 )

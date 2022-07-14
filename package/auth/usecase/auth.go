@@ -52,7 +52,7 @@ func (a *AuthUseCaseImpl) SignIn(userCore *models.UserCore) (accessToken, refres
 
 	user, err := a.Gateway.GetUser(userCore.Email, password)
 	if err != nil {
-		return "", "", auth.ErrUserNotFound
+		return
 	}
 
 	accessToken, err = a.GenerateToken(user, a.accessExpireDuration, a.accessSigningKey)

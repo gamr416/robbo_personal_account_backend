@@ -39,6 +39,10 @@ type signInResponse struct {
 	AccessToken string `json:"accessToken"`
 }
 
+type errorResponse struct {
+	Error string `json:"error"`
+}
+
 func (h *Handler) SignIn(c *gin.Context) {
 	fmt.Println("SignIn")
 
@@ -50,14 +54,24 @@ func (h *Handler) SignIn(c *gin.Context) {
 	}
 
 	accessToken, refreshToken, err := h.delegate.SignIn(userHttp)
-	if err != nil {
-		if err == auth.ErrUserNotFound {
-			c.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
-
-		c.AbortWithStatus(http.StatusInternalServerError)
+	switch err {
+	case auth.ErrUserAlreadyExist:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 		return
+	case auth.ErrInvalidAccessToken:
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+		return
+	case auth.ErrInvalidTypeClaims:
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+		return
+	case auth.ErrUserNotFound:
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+		return
+	case auth.ErrTokenNotFound:
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+		return
+	default:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	}
 
 	cookie := &http.Cookie{
@@ -85,9 +99,18 @@ func (h *Handler) SignUp(c *gin.Context) {
 	}
 
 	accessToken, refreshToken, err := h.delegate.SignUp(userHttp)
-	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+	switch err {
+	case auth.ErrUserAlreadyExist:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 		return
+	case auth.ErrInvalidAccessToken:
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+		return
+	case auth.ErrInvalidTypeClaims:
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+		return
+	default:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	}
 
 	http.SetCookie(c.Writer, &http.Cookie{

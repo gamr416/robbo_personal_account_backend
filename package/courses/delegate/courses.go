@@ -11,7 +11,7 @@ import (
 
 type CourseDelegateImpl struct {
 	courses.UseCase
-	edxApi.EdxApiUseCase
+	edxApi.EdxApiCourse
 }
 
 type CourseDelegateModule struct {
@@ -19,7 +19,7 @@ type CourseDelegateModule struct {
 	courses.Delegate
 }
 
-func SetupCourseDelegate(usecase courses.UseCase, edx edxApi.EdxApiUseCase) CourseDelegateModule {
+func SetupCourseDelegate(usecase courses.UseCase, edx edxApi.EdxApiCourse) CourseDelegateModule {
 	return CourseDelegateModule{
 		Delegate: &CourseDelegateImpl{
 			usecase,
@@ -29,7 +29,7 @@ func SetupCourseDelegate(usecase courses.UseCase, edx edxApi.EdxApiUseCase) Cour
 }
 
 func (p *CourseDelegateImpl) CreateCourse(course *models.CourseHTTP, courseId string) (id string, err error) {
-	body, err := p.EdxApiUseCase.GetCourseContent(courseId)
+	body, err := p.EdxApiCourse.GetCourseContent(courseId)
 	if err != nil {
 		return "", err
 	}
@@ -52,14 +52,14 @@ func (p *CourseDelegateImpl) UpdateCourse(course *models.CourseHTTP) (err error)
 }
 
 func (p *CourseDelegateImpl) GetCourseContent(courseId string) (respBody []byte, err error) {
-	body, err := p.EdxApiUseCase.GetCourseContent(courseId)
+	body, err := p.EdxApiCourse.GetCourseContent(courseId)
 	if err != nil {
 		return nil, err
 	}
 	return body, nil
 }
 func (p *CourseDelegateImpl) GetCoursesByUser() (respBody []byte, err error) {
-	body, err := p.EdxApiUseCase.GetCoursesByUser()
+	body, err := p.EdxApiCourse.GetCoursesByUser()
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (p *CourseDelegateImpl) GetCoursesByUser() (respBody []byte, err error) {
 }
 
 func (p *CourseDelegateImpl) GetEnrollments(username string) (respBody []byte, err error) {
-	body, err := p.EdxApiUseCase.GetEnrollments(username)
+	body, err := p.EdxApiCourse.GetEnrollments(username)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (p *CourseDelegateImpl) GetEnrollments(username string) (respBody []byte, e
 }
 
 func (p *CourseDelegateImpl) GetAllPublicCourses(pageNumber int) (respBody []byte, err error) {
-	body, err := p.EdxApiUseCase.GetAllPublicCourses(pageNumber)
+	body, err := p.EdxApiCourse.GetAllPublicCourses(pageNumber)
 	if err != nil {
 		return nil, err
 	}

@@ -39,10 +39,6 @@ type signInResponse struct {
 	AccessToken string `json:"accessToken"`
 }
 
-type errorResponse struct {
-	Error string `json:"error"`
-}
-
 func (h *Handler) SignIn(c *gin.Context) {
 	fmt.Println("SignIn")
 
@@ -54,24 +50,9 @@ func (h *Handler) SignIn(c *gin.Context) {
 	}
 
 	accessToken, refreshToken, err := h.delegate.SignIn(userHttp)
-	switch err {
-	case auth.ErrUserAlreadyExist:
-		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+	if err != nil {
+		ErrorHandling(err, c)
 		return
-	case auth.ErrInvalidAccessToken:
-		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
-		return
-	case auth.ErrInvalidTypeClaims:
-		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
-		return
-	case auth.ErrUserNotFound:
-		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
-		return
-	case auth.ErrTokenNotFound:
-		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
-		return
-	default:
-		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	}
 
 	cookie := &http.Cookie{
@@ -99,18 +80,9 @@ func (h *Handler) SignUp(c *gin.Context) {
 	}
 
 	accessToken, refreshToken, err := h.delegate.SignUp(userHttp)
-	switch err {
-	case auth.ErrUserAlreadyExist:
-		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+	if err != nil {
+		ErrorHandling(err, c)
 		return
-	case auth.ErrInvalidAccessToken:
-		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
-		return
-	case auth.ErrInvalidTypeClaims:
-		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
-		return
-	default:
-		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	}
 
 	http.SetCookie(c.Writer, &http.Cookie{
@@ -181,4 +153,26 @@ func (h *Handler) CheckAuth(c *gin.Context) {
 		userId,
 		uint(role),
 	})
+}
+
+func ErrorHandling(err error, c *gin.Context) {
+	switch err {
+	case auth.ErrUserAlreadyExist:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+		return
+	case auth.ErrInvalidAccessToken:
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+		return
+	case auth.ErrInvalidTypeClaims:
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+		return
+	case auth.ErrUserNotFound:
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+		return
+	case auth.ErrTokenNotFound:
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+		return
+	default:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+	}
 }

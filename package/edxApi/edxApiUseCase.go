@@ -12,4 +12,5 @@ type NewToken struct {
 type EdxApiUseCase interface {
 	RefreshToken() (err error)
 	GetWithAuth(url string) (resBody []byte, err error)
+	PostWithAuth(url string, params map[string]interface{}) (respBody []byte, err error)
 }

@@ -11,9 +11,7 @@ import (
 	crshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/courses/http"
 	crsusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/courses/usecase"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
-	edxapicourseusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi/edxApiCoursesUseCase"
-	edxapiuserusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi/edxApiUsersUseCase"
-	//edxapicohortusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi/edxApiCohortsUseCase"
+	edxapiusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi/usecase"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/logger"
 	ppagedelegate "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/delegate"
 	ppagegateway "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/gateway"
@@ -23,6 +21,10 @@ import (
 	prjgateway "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/gateway"
 	prjhttp "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/http"
 	prjusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/usecase"
+	usrdelegate "github.com/skinnykaen/robbo_student_personal_account.git/package/users/delegate"
+	usrgateway "github.com/skinnykaen/robbo_student_personal_account.git/package/users/gateway"
+	usrhttp "github.com/skinnykaen/robbo_student_personal_account.git/package/users/http"
+	usrusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/users/usecase"
 	"github.com/skinnykaen/robbo_student_personal_account.git/server"
 	"go.uber.org/fx"
 	"log"
@@ -41,9 +43,7 @@ func InvokeWith(options ...fx.Option) *fx.App {
 		fx.Provide(authusecase.SetupAuthUseCase),
 		fx.Provide(prjusecase.SetupProjectUseCase),
 		fx.Provide(ppageusecase.SetupProjectPageUseCase),
-		fx.Provide(edxapicourseusecase.SetupEdxApiCourse),
-		fx.Provide(edxapiuserusecase.SetupEdxApiUser),
-		//fx.Provide(edxapicohortusecase),
+		fx.Provide(edxapiusecase.SetupEdxApiUseCase),
 		fx.Provide(authdelegate.SetupAuthDelegate),
 		fx.Provide(prjdelegate.SetupProjectDelegate),
 		fx.Provide(ppagedelegate.SetupProjectPageDelegate),
@@ -54,6 +54,10 @@ func InvokeWith(options ...fx.Option) *fx.App {
 		fx.Provide(crsgateway.SetupCoursesGateway),
 		fx.Provide(crshttp.NewCoursesHandler),
 		fx.Provide(crsusecase.SetupCourseUseCase),
+		fx.Provide(usrdelegate.SetupUsersDelegate),
+		fx.Provide(usrgateway.SetupUsersGateway),
+		fx.Provide(usrhttp.NewUsersHandler),
+		fx.Provide(usrusecase.SetupUsersUseCase),
 	}
 	for _, option := range options {
 		di = append(di, option)

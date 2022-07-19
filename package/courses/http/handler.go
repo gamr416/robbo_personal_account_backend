@@ -55,7 +55,7 @@ type getEnrollmentsResponse struct {
 func (h *Handler) InitCourseRoutes(router *gin.Engine) {
 	course := router.Group("/course")
 	{
-		course.GET("/createCourse/:courseId", h.CreateCourse)
+		course.POST("/createCourse/:courseId", h.CreateCourse)
 		course.GET("/getCourseContent/:courseId", h.GetCourseContent)
 		course.GET("/getCoursesByUser", h.GetCoursesByUser)
 		course.GET("/getAllPublicCourses/:pageNumber", h.GetAllPublicCourses)
@@ -72,21 +72,22 @@ func (h *Handler) UpdateCourse(c *gin.Context) {
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
 	err = json.Unmarshal(body, &courseHTTP)
 	fmt.Println(courseHTTP)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
 		log.Println(err)
+		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
 	err = h.coursesDelegate.UpdateCourse(&courseHTTP)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		log.Println(err)
+		ErrorHandling(err, c)
 		return
 	}
 
@@ -102,7 +103,7 @@ func (h *Handler) CreateCourse(c *gin.Context) {
 
 	if err != nil {
 		log.Println(err)
-		c.AbortWithStatus(http.StatusBadRequest)
+		ErrorHandling(err, c)
 		return
 	}
 
@@ -116,13 +117,15 @@ func (h *Handler) GetCourseContent(c *gin.Context) {
 	courseId := c.Param("courseId")
 	body, err := h.coursesDelegate.GetCourseContent(courseId)
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		log.Println(err)
+		ErrorHandling(err, c)
 		return
 	}
 	courseHTTP := &models.CourseHTTP{}
 	log.Println(courseHTTP)
 	err = json.Unmarshal(body, courseHTTP)
 	if err != nil {
+		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -133,13 +136,15 @@ func (h *Handler) GetCoursesByUser(c *gin.Context) {
 	fmt.Println("Get Courses For User")
 	body, err := h.coursesDelegate.GetCoursesByUser()
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		log.Println(err)
+		ErrorHandling(err, c)
 		return
 	}
 	var coursesHTTP getCoursesListResponse
 	err = json.Unmarshal(body, &coursesHTTP)
 	log.Println(coursesHTTP)
 	if err != nil {
+		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -151,19 +156,21 @@ func (h *Handler) GetAllPublicCourses(c *gin.Context) {
 	pN := c.Param("pageNumber")
 	pageNumber, err := strconv.Atoi(pN)
 	if err != nil {
-		log.Println("Nit number in url")
+		log.Println("error: not number in url")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 	body, err := h.coursesDelegate.GetAllPublicCourses(pageNumber)
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		log.Println(err)
+		ErrorHandling(err, c)
 		return
 	}
 	var coursesHTTP getCoursesListResponse
 	err = json.Unmarshal(body, &coursesHTTP)
 	log.Println(coursesHTTP)
 	if err != nil {
+		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -176,13 +183,15 @@ func (h *Handler) GetEnrollments(c *gin.Context) {
 
 	body, err := h.coursesDelegate.GetEnrollments(username)
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		log.Println(err)
+		ErrorHandling(err, c)
 		return
 	}
 	var enrollmentsHTTP getEnrollmentsResponse
 	err = json.Unmarshal(body, &enrollmentsHTTP)
 	log.Println(enrollmentsHTTP)
 	if err != nil {
+		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -196,7 +205,33 @@ func (h *Handler) DeleteCourse(c *gin.Context) {
 	err := h.coursesDelegate.DeleteCourse(courseId)
 
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		log.Println(err)
+		ErrorHandling(err, c)
 		return
+	}
+}
+
+func ErrorHandling(err error, c *gin.Context) {
+	switch err {
+	case courses.ErrReadRespBody:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+		return
+	case courses.ErrJsonMarshal:
+		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+		return
+	case courses.ErrIncorrectInputParam:
+		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+		return
+	case courses.ErrOnReq:
+		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+		return
+	case courses.ErrTknNotRefresh:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+		return
+	case courses.ErrOnResp:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+		return
+	default:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	}
 }

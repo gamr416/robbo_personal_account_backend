@@ -1,7 +1,6 @@
 package gateway
 
 import (
-	"fmt"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
@@ -205,7 +204,6 @@ func (r CoursesGatewayImpl) DeleteCourse(courseId string) (id string, err error)
 			log.Println(err)
 			return
 		}
-		fmt.Println(course)
 		err = tx.Model(&course).Where("id = ?", courseId).Delete(&models.CourseDB{}).Error
 		if err != nil {
 			log.Println(err)
@@ -224,8 +222,13 @@ func (r CoursesGatewayImpl) DeleteCourse(courseId string) (id string, err error)
 func (r *CoursesGatewayImpl) UpdateCourse(course *models.CourseCore) (err error) {
 	courseDb := models.CourseDB{}
 	courseDb.FromCore(course)
-	fmt.Println(courseDb)
+
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Where("id = ?", courseDb.ID).First(&courseDb).Error
+		if err != nil {
+			log.Println(err)
+			return
+		}
 		err = tx.Model(&courseDb).Where("ID = ?", courseDb.ID).Updates(courseDb).Error
 		if err != nil {
 			log.Println(err)

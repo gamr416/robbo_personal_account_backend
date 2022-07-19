@@ -120,6 +120,7 @@ func (p *CourseUseCaseImpl) UpdateCourse(course *models.CourseCore) (err error) 
 	err = p.Gateway.UpdateCourse(course)
 	if err != nil {
 		log.Println("Error update Course")
+		err = courses.ErrCourseNotFound
 		return
 	}
 
@@ -130,6 +131,7 @@ func (p *CourseUseCaseImpl) DeleteCourse(courseId string) (err error) {
 	id, err := p.Gateway.DeleteCourse(courseId)
 	if err != nil {
 		log.Println("Error delete Course")
+		err = courses.ErrCourseNotFound
 		return
 	}
 

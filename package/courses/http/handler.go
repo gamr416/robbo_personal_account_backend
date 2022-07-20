@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"io/ioutil"
 	"log"
@@ -28,6 +29,11 @@ func NewCoursesHandler(authDelegate auth.Delegate, coursesDelegate courses.Deleg
 
 type testCourseResponse struct {
 	CourseId string `json:"courseId"`
+}
+
+type loginUser struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type getCoursesListResponse struct {
@@ -64,6 +70,8 @@ func (h *Handler) InitCourseRoutes(router *gin.Engine) {
 		course.DELETE("/deleteCourse/:courseId", h.DeleteCourse)
 		course.POST("/postEnrollment", h.PostEnrollment)
 		course.POST("/postUnenroll", h.PostUnenroll)
+		course.POST("/registration", h.Registration)
+		course.POST("/login", h.Login)
 	}
 }
 
@@ -262,6 +270,61 @@ func (h *Handler) PostUnenroll(c *gin.Context) {
 	}
 
 	err = h.coursesDelegate.PostUnenroll(&postUnenrollHTTP)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+func (h *Handler) Login(c *gin.Context) {
+	fmt.Println("Login User")
+	user := loginUser{}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	err = json.Unmarshal(body, &user)
+	fmt.Println(user)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	err = h.coursesDelegate.Login(user.Email, user.Password)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+func (h *Handler) Registration(c *gin.Context) {
+	fmt.Println("Registration User")
+	userForm := edxApi.RegistrationForm{}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	err = json.Unmarshal(body, &userForm)
+	fmt.Println(userForm)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	err = h.coursesDelegate.Registration(&userForm)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)

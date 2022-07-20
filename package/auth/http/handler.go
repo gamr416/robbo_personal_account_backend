@@ -1,14 +1,10 @@
 package http
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
-	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -30,8 +26,6 @@ func (h *Handler) InitAuthRoutes(router *gin.Engine) {
 		auth.GET("/refresh", h.Refresh)
 		auth.POST("/sign-out", h.SignOut)
 		auth.GET("/check-auth", h.CheckAuth)
-		auth.POST("/registration", h.Registration)
-		auth.POST("/login", h.Login)
 	}
 }
 
@@ -39,10 +33,6 @@ type signInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	Role     uint   `json:"role"`
-}
-type loginUser struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
 }
 
 type signInResponse struct {
@@ -163,61 +153,6 @@ func (h *Handler) CheckAuth(c *gin.Context) {
 		userId,
 		uint(role),
 	})
-}
-
-func (h *Handler) Login(c *gin.Context) {
-	fmt.Println("Login User")
-	user := loginUser{}
-	body, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
-		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	err = json.Unmarshal(body, &user)
-	fmt.Println(user)
-	if err != nil {
-		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	err = h.delegate.Login(user.Email, user.Password)
-	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	c.Status(http.StatusOK)
-}
-
-func (h *Handler) Registration(c *gin.Context) {
-	fmt.Println("Registration User")
-	userForm := edxApi.RegistrationForm{}
-	body, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
-		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	err = json.Unmarshal(body, &userForm)
-	fmt.Println(userForm)
-	if err != nil {
-		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	err = h.delegate.Registration(&userForm)
-	if err != nil {
-		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	c.Status(http.StatusOK)
 }
 
 func ErrorHandling(err error, c *gin.Context) {

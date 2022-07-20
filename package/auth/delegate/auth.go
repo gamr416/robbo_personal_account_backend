@@ -2,15 +2,12 @@ package delegate
 
 import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"go.uber.org/fx"
-	"log"
 )
 
 type AuthDelegateImpl struct {
 	auth.UseCase
-	edxApi.EdxApiUseCase
 }
 
 type AuthDelegateModule struct {
@@ -18,11 +15,10 @@ type AuthDelegateModule struct {
 	auth.Delegate
 }
 
-func SetupAuthDelegate(usecase auth.UseCase, edxApi edxApi.EdxApiUseCase) AuthDelegateModule {
+func SetupAuthDelegate(usecase auth.UseCase) AuthDelegateModule {
 	return AuthDelegateModule{
 		Delegate: &AuthDelegateImpl{
 			usecase,
-			edxApi,
 		},
 	}
 }
@@ -40,22 +36,4 @@ func (s *AuthDelegateImpl) ParseToken(token string, key []byte) (claims *models.
 }
 func (s *AuthDelegateImpl) RefreshToken(token string) (newAccessToken string, err error) {
 	return s.UseCase.RefreshToken(token)
-}
-
-func (p *AuthDelegateImpl) Login(email, password string) (err error) {
-	_, err = p.EdxApiUseCase.Login(email, password)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	return
-}
-
-func (p *AuthDelegateImpl) Registration(userForm *edxApi.RegistrationForm) (err error) {
-	_, err = p.EdxApiUseCase.PostRegistration(userForm)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	return
 }

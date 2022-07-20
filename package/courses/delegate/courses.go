@@ -100,3 +100,21 @@ func (p *CourseDelegateImpl) PostUnenroll(postUnenrollHTTP *models.PostEnrollmen
 	}
 	return
 }
+
+func (p *CourseDelegateImpl) Login(email, password string) (err error) {
+	_, err = p.EdxApiUseCase.Login(email, password)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return
+}
+
+func (p *CourseDelegateImpl) Registration(userForm *edxApi.RegistrationForm) (err error) {
+	_, err = p.EdxApiUseCase.PostRegistration(userForm)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return
+}

@@ -7,6 +7,7 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"go.uber.org/fx"
+	"log"
 )
 
 type CourseDelegateImpl struct {
@@ -80,4 +81,22 @@ func (p *CourseDelegateImpl) GetAllPublicCourses(pageNumber int) (respBody []byt
 		return nil, err
 	}
 	return body, nil
+}
+
+func (p *CourseDelegateImpl) PostEnrollment(postEnrollmentHTTP *models.PostEnrollmentHTTP) (err error) {
+	_, err = p.EdxApiUseCase.PostEnrollment(postEnrollmentHTTP.Message)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return
+}
+
+func (p *CourseDelegateImpl) PostUnenroll(postUnenrollHTTP *models.PostEnrollmentHTTP) (err error) {
+	_, err = p.EdxApiUseCase.PostEnrollment(postUnenrollHTTP.Message)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return
 }

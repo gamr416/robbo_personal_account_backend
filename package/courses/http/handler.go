@@ -62,6 +62,8 @@ func (h *Handler) InitCourseRoutes(router *gin.Engine) {
 		course.GET("/getEnrollments/:username", h.GetEnrollments)
 		course.PUT("/updateCourse", h.UpdateCourse)
 		course.DELETE("/deleteCourse/:courseId", h.DeleteCourse)
+		course.POST("/postEnrollment", h.PostEnrollment)
+		course.POST("/postUnenroll", h.PostUnenroll)
 	}
 }
 
@@ -211,6 +213,64 @@ func (h *Handler) DeleteCourse(c *gin.Context) {
 	}
 }
 
+func (h *Handler) PostEnrollment(c *gin.Context) {
+	fmt.Println("Post Enrollment")
+
+	postEnrollmentHTTP := models.PostEnrollmentHTTP{}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	err = json.Unmarshal(body, &postEnrollmentHTTP)
+	fmt.Println(postEnrollmentHTTP)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	err = h.coursesDelegate.PostEnrollment(&postEnrollmentHTTP)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+func (h *Handler) PostUnenroll(c *gin.Context) {
+	fmt.Println("Post Unenroll")
+
+	postUnenrollHTTP := models.PostEnrollmentHTTP{}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	err = json.Unmarshal(body, &postUnenrollHTTP)
+
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	err = h.coursesDelegate.PostUnenroll(&postUnenrollHTTP)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
 func ErrorHandling(err error, c *gin.Context) {
 	switch err {
 	case courses.ErrReadRespBody:
@@ -226,7 +286,7 @@ func ErrorHandling(err error, c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
 		return
 	case courses.ErrTknNotRefresh:
-		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
 		return
 	case courses.ErrOnResp:
 		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())

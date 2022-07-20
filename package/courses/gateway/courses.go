@@ -224,7 +224,7 @@ func (r *CoursesGatewayImpl) UpdateCourse(course *models.CourseCore) (err error)
 	courseDb.FromCore(course)
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Where("id = ?", courseDb.ID).First(&courseDb).Error
+		err = tx.Where("id = ?", courseDb.ID).First(&models.CourseDB{}).Error
 		if err != nil {
 			log.Println(err)
 			return

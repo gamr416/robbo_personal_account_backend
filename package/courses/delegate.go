@@ -10,4 +10,6 @@ type Delegate interface {
 	GetCoursesByUser() (respBody []byte, err error)
 	GetAllPublicCourses(pageNumber int) (respBody []byte, err error)
 	GetEnrollments(username string) (respBody []byte, err error)
+	PostUnenroll(postUnenrollHTTP *models.PostEnrollmentHTTP) (err error)
+	PostEnrollment(postEnrollmentHTTP *models.PostEnrollmentHTTP) (err error)
 }

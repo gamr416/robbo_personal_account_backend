@@ -48,6 +48,11 @@ func (r *UsersGatewayImpl) UpdateUser(user *models.UserCore) (err error) {
 	userDb.FromCore(user)
 	fmt.Println(userDb)
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Where("id = ?", userDb.ID).First(&models.UserDB{}).Error
+		if err != nil {
+			log.Println(err)
+			return auth.ErrUserNotFound
+		}
 		err = tx.Model(&userDb).Where("id = ?", userDb.ID).Updates(userDb).Error
 		if err != nil {
 			log.Println(err)

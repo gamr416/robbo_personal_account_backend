@@ -6,6 +6,7 @@ import (
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
 	"time"
@@ -18,6 +19,7 @@ type AuthUseCaseImpl struct {
 	refreshSigningKey     []byte
 	accessExpireDuration  time.Duration
 	refreshExpireDuration time.Duration
+	usersUseCase          users.UseCase
 }
 
 type AuthUseCaseModule struct {
@@ -25,7 +27,7 @@ type AuthUseCaseModule struct {
 	auth.UseCase
 }
 
-func SetupAuthUseCase(gateway auth.Gateway) AuthUseCaseModule {
+func SetupAuthUseCase(gateway auth.Gateway, usersUC users.UseCase) AuthUseCaseModule {
 	hashSalt := viper.GetString("auth.hash_salt")
 	accessSigningKey := []byte(viper.GetString("auth.access_signing_key"))
 	refreshSigningKey := []byte(viper.GetString("auth.refresh_signing_key"))
@@ -40,6 +42,7 @@ func SetupAuthUseCase(gateway auth.Gateway) AuthUseCaseModule {
 			refreshSigningKey:     refreshSigningKey,
 			accessExpireDuration:  accessTokenTTLTime,
 			refreshExpireDuration: refreshTokenTTLTime,
+			usersUseCase:          usersUC,
 		},
 	}
 }
@@ -74,7 +77,7 @@ func (a *AuthUseCaseImpl) SignUp(userCore *models.UserCore) (accessToken, refres
 
 	userCore.Password = fmt.Sprintf("%x", pwd.Sum(nil))
 
-	id, err := a.Gateway.CreateUser(userCore)
+	id, err := a.usersUseCase.CreateUser(userCore)
 	if err != nil {
 		return "", "", err
 	}

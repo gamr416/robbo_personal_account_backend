@@ -2,6 +2,7 @@ package delegate
 
 import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
+	//"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
@@ -56,47 +57,11 @@ func (p *UsersDelegateImpl) GetUsersByRole(role *models.Role) (users *[]models.U
 	return &usersToHttp, err
 }
 
-func (p *UsersDelegateImpl) LoginUser(email, password string) (err error) {
-	_, err = p.EdxApiUseCase.Login(email, password)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	return
-}
-
 func (p *UsersDelegateImpl) UpdateUser(userHTTP *models.UserHttp) (err error) {
 	userCore := userHTTP.ToCore()
 	return p.UseCase.UpdateUser(userCore)
 }
 
-func (p *UsersDelegateImpl) PostEnrollment(postEnrollmentHTTP *models.PostEnrollmentHTTP) (err error) {
-	_, err = p.EdxApiUseCase.PostEnrollment(postEnrollmentHTTP.Message)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	return
-}
-
-func (p *UsersDelegateImpl) PostUnenroll(postUnenrollHTTP *models.PostEnrollmentHTTP) (err error) {
-	_, err = p.EdxApiUseCase.PostEnrollment(postUnenrollHTTP.Message)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	return
-}
-
 func (p *UsersDelegateImpl) DeleteUser(userId int) (err error) {
 	return p.UseCase.DeleteUser(userId)
-}
-
-func (p *UsersDelegateImpl) RegistrationUser(userForm *edxApi.RegistrationForm) (err error) {
-	_, err = p.EdxApiUseCase.PostRegistration(userForm)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	return
 }

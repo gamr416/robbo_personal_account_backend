@@ -59,35 +59,34 @@ func TestEdxApiUseCaseImpl_GetEnrollments2(t *testing.T) {
 	}
 	edx := SetupEdxApiUseCase()
 	testTable := []struct {
-		name         string
-		username     string
-		expectedBody string
+		name          string
+		username      string
+		expectedError error
 	}{
 		{
-			name:         "Ok",
-			username:     "edxsom",
-			expectedBody: "{\"next\":null,\"previous\":null,\"results\":[{\"created\":\"2022-06-13T03:00:12.571664Z\",\"mode\":\"honor\",\"is_active\":true,\"user\":\"edxsom\",\"course_id\":\"course-v1:TestOrg+02+2022\"},{\"created\":\"2022-06-13T01:16:45.374794Z\",\"mode\":\"honor\",\"is_active\":true,\"user\":\"edxsom\",\"course_id\":\"course-v1:Test_org+01+2022\"}]}",
+			name:          "Ok",
+			username:      "edxsom",
+			expectedError: nil,
 		},
 
 		{
-			name:         "Bad username",
-			username:     "dsad",
-			expectedBody: "{\"next\":null,\"previous\":null,\"results\":[]}",
+			name:          "Bad username",
+			username:      "dsad",
+			expectedError: nil,
 		},
 		{
-			name:         "Empty username",
-			username:     "",
-			expectedBody: "{\"next\":null,\"previous\":null,\"results\":[{\"created\":\"2022-06-18T21:59:34.558581Z\",\"mode\":\"audit\",\"is_active\":true,\"user\":\"tesr_user\",\"course_id\":\"course-v1:Test_org+01+2022\"},{\"created\":\"2022-06-13T03:00:12.571664Z\",\"mode\":\"honor\",\"is_active\":true,\"user\":\"edxsom\",\"course_id\":\"course-v1:TestOrg+02+2022\"},{\"created\":\"2022-06-13T01:16:45.374794Z\",\"mode\":\"honor\",\"is_active\":true,\"user\":\"edxsom\",\"course_id\":\"course-v1:Test_org+01+2022\"}]}",
-		},
+			name:          "Empty username",
+			username:      "",
+			expectedError: nil},
 	}
 
 	for _, testCase := range testTable {
 		t.Run(testCase.name, func(t *testing.T) {
 
-			expect := testCase.expectedBody
+			expect := testCase.expectedError
 
-			correct, _ := edx.GetEnrollments(testCase.username)
-			assert.Equal(t, expect, string(correct))
+			_, correct := edx.GetEnrollments(testCase.username)
+			assert.Equal(t, expect, correct)
 		})
 	}
 }
@@ -250,11 +249,11 @@ func TestEdxApiUseCaseImpl_PostRegistration2(t *testing.T) {
 		{
 			name: "Ok",
 			registrationMessage: edxApi.RegistrationForm{
-				Email:            "insomnia_testrrw323fsd22dasf3@fake.email",
-				Username:         "InsomniaTest3fsd122fsdfda3",
-				Name:             "SomeTestNafdsme12ddsds3",
-				Password:         "123456",
-				Terms_of_service: "true",
+				Email:          "ins23f2dasf3@fake.email",
+				Username:       "Inwewfsda3",
+				Name:           "SomeTestNafe12ddsds3",
+				Password:       "123456",
+				TermsOfService: "true",
 			},
 			expectedError: nil,
 		},
@@ -262,55 +261,55 @@ func TestEdxApiUseCaseImpl_PostRegistration2(t *testing.T) {
 		{
 			name: "Password is empty",
 			registrationMessage: edxApi.RegistrationForm{
-				Email:            "insomnia_testrrw223@fake.email",
-				Username:         "InsomniaTest31223",
-				Name:             "SomeTestName123",
-				Password:         "",
-				Terms_of_service: "true",
+				Email:          "insomnia_testrrw223@fake.email",
+				Username:       "InsomniaTest31223",
+				Name:           "SomeTestName123",
+				Password:       "",
+				TermsOfService: "true",
 			},
 			expectedError: edxApi.ErrIncorrectInputParam,
 		},
 		{
 			name: "Email is empty",
 			registrationMessage: edxApi.RegistrationForm{
-				Email:            "",
-				Username:         "InsomniaTest31223",
-				Name:             "SomeTestName123",
-				Password:         "123456",
-				Terms_of_service: "true",
+				Email:          "",
+				Username:       "InsomniaTest31223",
+				Name:           "SomeTestName123",
+				Password:       "123456",
+				TermsOfService: "true",
 			},
 			expectedError: edxApi.ErrIncorrectInputParam,
 		},
 		{
 			name: "Username is empty",
 			registrationMessage: edxApi.RegistrationForm{
-				Email:            "nsomnia_testrrw223@fake.email",
-				Username:         "",
-				Name:             "SomeTestName123",
-				Password:         "123456",
-				Terms_of_service: "true",
+				Email:          "nsomnia_testrrw223@fake.email",
+				Username:       "",
+				Name:           "SomeTestName123",
+				Password:       "123456",
+				TermsOfService: "true",
 			},
 			expectedError: edxApi.ErrIncorrectInputParam,
 		},
 		{
 			name: "Name is empty",
 			registrationMessage: edxApi.RegistrationForm{
-				Email:            "nsomnia_testrrw223@fake.email",
-				Username:         "dsadasd",
-				Name:             "",
-				Password:         "123456",
-				Terms_of_service: "true",
+				Email:          "nsomnia_testrrw223@fake.email",
+				Username:       "dsadasd",
+				Name:           "",
+				Password:       "123456",
+				TermsOfService: "true",
 			},
 			expectedError: edxApi.ErrIncorrectInputParam,
 		},
 		{
 			name: "Terms_of_service is empty",
 			registrationMessage: edxApi.RegistrationForm{
-				Email:            "nsomnia_testrrw223@fake.email",
-				Username:         "dsadasd",
-				Name:             "gdgsdfsfs",
-				Password:         "123456",
-				Terms_of_service: "",
+				Email:          "nsomnia_testrrw223@fake.email",
+				Username:       "dsadasd",
+				Name:           "gdgsdfsfs",
+				Password:       "123456",
+				TermsOfService: "",
 			},
 			expectedError: edxApi.ErrIncorrectInputParam,
 		},
@@ -318,11 +317,11 @@ func TestEdxApiUseCaseImpl_PostRegistration2(t *testing.T) {
 		{
 			name: "All params is empty",
 			registrationMessage: edxApi.RegistrationForm{
-				Email:            "",
-				Username:         "",
-				Name:             "",
-				Password:         "",
-				Terms_of_service: "",
+				Email:          "",
+				Username:       "",
+				Name:           "",
+				Password:       "",
+				TermsOfService: "",
 			},
 			expectedError: edxApi.ErrIncorrectInputParam,
 		},
@@ -332,7 +331,7 @@ func TestEdxApiUseCaseImpl_PostRegistration2(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 
 			expect := testCase.expectedError
-			_, correct := edx.PostRegistration(testCase.registrationMessage)
+			_, correct := edx.PostRegistration(&testCase.registrationMessage)
 			assert.Equal(t, expect, correct)
 		})
 	}

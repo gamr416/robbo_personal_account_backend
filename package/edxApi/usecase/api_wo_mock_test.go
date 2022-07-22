@@ -110,12 +110,12 @@ func TestEdxApiUseCaseImpl_GetAllPublicCourses2(t *testing.T) {
 		{
 			name:          "Page number is 0",
 			pageNumber:    0,
-			expectedError: edxApi.ErrIncorrectInputParam,
+			expectedError: edxApi.ErrOnReq,
 		},
 		{
 			name:          "Page number more then page count",
 			pageNumber:    423423423,
-			expectedError: edxApi.ErrIncorrectInputParam,
+			expectedError: edxApi.ErrOnReq,
 		},
 	}
 
@@ -249,8 +249,8 @@ func TestEdxApiUseCaseImpl_PostRegistration2(t *testing.T) {
 		{
 			name: "Ok",
 			registrationMessage: edxApi.RegistrationForm{
-				Email:          "iasdfaddfasd2dasasf3@fake.email",
-				Username:       "Inasdadasfsdewfsda3",
+				Email:          "iasdjfaddfasd2dasasf3@fake.email",
+				Username:       "Inajsdadasfsdewfsda3",
 				Name:           "SomdaeTestNafe12ddsds3",
 				Password:       "123456",
 				TermsOfService: "true",

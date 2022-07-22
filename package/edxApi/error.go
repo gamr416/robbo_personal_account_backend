@@ -3,7 +3,7 @@ package edxApi
 import "errors"
 
 var (
-	ErrIncorrectInputParam = errors.New("user not found")
+	ErrIncorrectInputParam = errors.New("error incorrect input params")
 	ErrOnReq               = errors.New("error on request")
 	ErrReadRespBody        = errors.New("error while reading the response bytes")
 	ErrTknNotRefresh       = errors.New("token not refresh")

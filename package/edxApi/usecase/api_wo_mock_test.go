@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"errors"
 	"github.com/go-playground/assert/v2"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/config"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi"
@@ -77,7 +76,8 @@ func TestEdxApiUseCaseImpl_GetEnrollments2(t *testing.T) {
 		{
 			name:          "Empty username",
 			username:      "",
-			expectedError: nil},
+			expectedError: edxApi.ErrIncorrectInputParam,
+		},
 	}
 
 	for _, testCase := range testTable {
@@ -110,12 +110,12 @@ func TestEdxApiUseCaseImpl_GetAllPublicCourses2(t *testing.T) {
 		{
 			name:          "Page number is 0",
 			pageNumber:    0,
-			expectedError: errors.New("user not found"),
+			expectedError: edxApi.ErrIncorrectInputParam,
 		},
 		{
 			name:          "Page number more then page count",
 			pageNumber:    423423423,
-			expectedError: errors.New("user not found"),
+			expectedError: edxApi.ErrIncorrectInputParam,
 		},
 	}
 
@@ -249,9 +249,9 @@ func TestEdxApiUseCaseImpl_PostRegistration2(t *testing.T) {
 		{
 			name: "Ok",
 			registrationMessage: edxApi.RegistrationForm{
-				Email:          "ins23f2dasf3@fake.email",
-				Username:       "Inwewfsda3",
-				Name:           "SomeTestNafe12ddsds3",
+				Email:          "iasdfaddfasd2dasasf3@fake.email",
+				Username:       "Inasdadasfsdewfsda3",
+				Name:           "SomdaeTestNafe12ddsds3",
 				Password:       "123456",
 				TermsOfService: "true",
 			},

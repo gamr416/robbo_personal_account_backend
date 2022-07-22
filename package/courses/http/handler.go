@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
@@ -16,13 +15,12 @@ import (
 )
 
 type Handler struct {
-	authDelegate    auth.Delegate
 	coursesDelegate courses.Delegate
 }
 
-func NewCoursesHandler(authDelegate auth.Delegate, coursesDelegate courses.Delegate) Handler {
+func NewCoursesHandler(coursesDelegate courses.Delegate) Handler {
 	return Handler{
-		authDelegate:    authDelegate,
+
 		coursesDelegate: coursesDelegate,
 	}
 }
@@ -31,7 +29,7 @@ type testCourseResponse struct {
 	CourseId string `json:"courseId"`
 }
 
-type loginUser struct {
+type LoginUser struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
@@ -125,6 +123,10 @@ func (h *Handler) CreateCourse(c *gin.Context) {
 func (h *Handler) GetCourseContent(c *gin.Context) {
 	fmt.Println("Get Course Content")
 	courseId := c.Param("courseId")
+	if courseId == "" {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
 	body, err := h.coursesDelegate.GetCourseContent(courseId)
 	if err != nil {
 		log.Println(err)
@@ -233,7 +235,6 @@ func (h *Handler) PostEnrollment(c *gin.Context) {
 	}
 
 	err = json.Unmarshal(body, &postEnrollmentHTTP)
-	fmt.Println(postEnrollmentHTTP)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -262,7 +263,6 @@ func (h *Handler) PostUnenroll(c *gin.Context) {
 	}
 
 	err = json.Unmarshal(body, &postUnenrollHTTP)
-
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -281,7 +281,7 @@ func (h *Handler) PostUnenroll(c *gin.Context) {
 
 func (h *Handler) Login(c *gin.Context) {
 	fmt.Println("Login User")
-	user := loginUser{}
+	user := LoginUser{}
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		log.Println(err)
@@ -290,13 +290,11 @@ func (h *Handler) Login(c *gin.Context) {
 	}
 
 	err = json.Unmarshal(body, &user)
-	fmt.Println(user)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-
 	err = h.coursesDelegate.Login(user.Email, user.Password)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)

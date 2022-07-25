@@ -209,7 +209,7 @@ func (p *EdxApiUseCaseImpl) PostRegistration(registrationMessage *edxApi.Registr
 	params.Set("password", registrationMessage.Password)
 	params.Set("name", registrationMessage.Name)
 	params.Set("username", registrationMessage.Username)
-	params.Set("terms_of_service", registrationMessage.TermsOfService)
+	params.Set("terms_of_service", registrationMessage.Terms_of_service)
 	buffer.WriteString(params.Encode())
 
 	request, err := http.NewRequest("POST", urlAddr, buffer)

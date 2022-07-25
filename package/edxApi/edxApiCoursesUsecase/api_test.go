@@ -1,6 +1,7 @@
-package usecase
+package edxApiCoursesUsecase
 
 import (
+	"errors"
 	"github.com/go-playground/assert/v2"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/config"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi"
@@ -8,24 +9,11 @@ import (
 	"testing"
 )
 
-func TestGetUser2(t *testing.T) {
+func TestEdxApiUseCaseImpl_GetCourseContent(t *testing.T) {
 	if err := config.InitForTests(); err != nil {
 		log.Fatalf("%s", err.Error())
 	}
-	edx := SetupEdxApiUseCase()
-
-	expect := []byte("{\"username\":\"edxsom\"}")
-	//correct, _ := edx.GetUser()
-	correct, _ := edx.ApiUser.GetUser()
-	assert.Equal(t, expect, correct)
-
-}
-
-func TestEdxApiUseCaseImpl_GetCourseContent2(t *testing.T) {
-	if err := config.InitForTests(); err != nil {
-		log.Fatalf("%s", err.Error())
-	}
-	edx := SetupEdxApiUseCase()
+	edx := SetupEdxApiCourse()
 	testTable := []struct {
 		name          string
 		courseId      string
@@ -47,55 +35,56 @@ func TestEdxApiUseCaseImpl_GetCourseContent2(t *testing.T) {
 	for _, testCase := range testTable {
 		t.Run(testCase.name, func(t *testing.T) {
 			expect := testCase.expectedError
-			_, correct := edx.ApiCourse.GetCourseContent(testCase.courseId)
+			_, correct := edx.GetCourseContent(testCase.courseId)
 			assert.Equal(t, expect, correct)
 		})
 	}
 }
 
-func TestEdxApiUseCaseImpl_GetEnrollments2(t *testing.T) {
+func TestEdxApiUseCaseImpl_GetEnrollments(t *testing.T) {
 	if err := config.InitForTests(); err != nil {
 		log.Fatalf("%s", err.Error())
 	}
-	edx := SetupEdxApiUseCase()
+	edx := SetupEdxApiCourse()
 	testTable := []struct {
-		name          string
-		username      string
-		expectedError error
+		name         string
+		username     string
+		expectedBody string
 	}{
 		{
-			name:          "Ok",
-			username:      "edxsom",
-			expectedError: nil,
+			name:         "Ok",
+			username:     "edxsom",
+			expectedBody: "{\"next\":null,\"previous\":null,\"results\":[{\"created\":\"2022-06-13T03:00:12.571664Z\",\"mode\":\"honor\",\"is_active\":true,\"user\":\"edxsom\",\"course_id\":\"course-v1:TestOrg+02+2022\"},{\"created\":\"2022-06-13T01:16:45.374794Z\",\"mode\":\"honor\",\"is_active\":true,\"user\":\"edxsom\",\"course_id\":\"course-v1:Test_org+01+2022\"}]}",
 		},
 
 		{
-			name:          "Bad username",
-			username:      "dsad",
-			expectedError: nil,
+			name:         "Bad username",
+			username:     "dsad",
+			expectedBody: "{\"next\":null,\"previous\":null,\"results\":[]}",
 		},
 		{
-			name:          "Empty username",
-			username:      "",
-			expectedError: edxApi.ErrIncorrectInputParam,
+			name:         "Empty username",
+			username:     "",
+			expectedBody: "{\"next\":null,\"previous\":null,\"results\":[{\"created\":\"2022-07-12T14:21:28.212240Z\",\"mode\":\"audit\",\"is_active\":true,\"user\":\"vovantyarus\",\"course_id\":\"course-v1:edX+DemoX+Demo_Course\"},{\"created\":\"2022-06-18T21:59:34.558581Z\",\"mode\":\"audit\",\"is_active\":true,\"user\":\"tesr_user\",\"course_id\":\"course-v1:Test_org+01+2022\"},{\"created\":\"2022-06-13T03:00:12.571664Z\",\"mode\":\"honor\",\"is_active\":true,\"user\":\"edxsom\",\"course_id\":\"course-v1:TestOrg+02+2022\"},{\"created\":\"2022-06-13T01:16:45.374794Z\",\"mode\":\"honor\",\"is_active\":true,\"user\":\"edxsom\",\"course_id\":\"course-v1:Test_org+01+2022\"}]}",
 		},
 	}
 
 	for _, testCase := range testTable {
 		t.Run(testCase.name, func(t *testing.T) {
 
-			expect := testCase.expectedError
-			_, correct := edx.ApiCourse.GetEnrollments(testCase.username)
-			assert.Equal(t, expect, correct)
+			expect := testCase.expectedBody
+
+			correct, _ := edx.GetEnrollments(testCase.username)
+			assert.Equal(t, expect, string(correct))
 		})
 	}
 }
 
-func TestEdxApiUseCaseImpl_GetAllPublicCourses2(t *testing.T) {
+func TestEdxApiUseCaseImpl_GetAllPublicCourses(t *testing.T) {
 	if err := config.InitForTests(); err != nil {
 		log.Fatalf("%s", err.Error())
 	}
-	edx := SetupEdxApiUseCase()
+	edx := SetupEdxApiCourse()
 	testTable := []struct {
 		name          string
 		pageNumber    int
@@ -110,12 +99,12 @@ func TestEdxApiUseCaseImpl_GetAllPublicCourses2(t *testing.T) {
 		{
 			name:          "Page number is 0",
 			pageNumber:    0,
-			expectedError: edxApi.ErrOnReq,
+			expectedError: errors.New("user not found"),
 		},
 		{
 			name:          "Page number more then page count",
 			pageNumber:    423423423,
-			expectedError: edxApi.ErrOnReq,
+			expectedError: errors.New("user not found"),
 		},
 	}
 
@@ -124,17 +113,17 @@ func TestEdxApiUseCaseImpl_GetAllPublicCourses2(t *testing.T) {
 
 			expect := testCase.expectedError
 
-			_, correct := edx.ApiCourse.GetAllPublicCourses(testCase.pageNumber)
+			_, correct := edx.GetAllPublicCourses(testCase.pageNumber)
 			assert.Equal(t, expect, correct)
 		})
 	}
 }
 
-func TestEdxApiUseCaseImpl_PostEnrollment2(t *testing.T) {
+func TestEdxApiUseCaseImpl_PostEnrollment(t *testing.T) {
 	if err := config.InitForTests(); err != nil {
 		log.Fatalf("%s", err.Error())
 	}
-	edx := SetupEdxApiUseCase()
+	edx := SetupEdxApiCourse()
 	testTable := []struct {
 		name          string
 		message       map[string]interface{}
@@ -188,9 +177,8 @@ func TestEdxApiUseCaseImpl_PostEnrollment2(t *testing.T) {
 
 			expect := testCase.expectedError
 
-			_, correct := edx.ApiCourse.PostEnrollment(testCase.message)
+			_, correct := edx.PostEnrollment(testCase.message)
 			assert.Equal(t, expect, correct)
 		})
 	}
 }
-

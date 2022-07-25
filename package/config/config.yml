@@ -23,6 +23,7 @@ api_urls:
   getAllPublicCourses: "https://courses.edx.org/api/courses/v1/courses/?page="
   postEnrollment: "https://edx-test.ru/api/enrollment/v1/enrollment"
   postRegistration: "https://edx-test.ru/api/user/v1/account/registration/"
+  postCohort: "https://edx-test.ru/api/cohorts/v1/courses/"
   login: "https://edx-test.ru/api/user/v1/account/login_session/"
   getLogin: "https://edx-test.ru/login"
   getRegistration: "https://edx-test.ru/register?next=%2F"

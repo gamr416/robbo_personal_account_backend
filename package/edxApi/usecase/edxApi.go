@@ -51,7 +51,7 @@ func handleСookies(n []*http.Cookie) (csrfToken string, found bool) {
 
 func (p *EdxApiUseCaseImpl) GetAllPublicCourses(pageNumber int) (respBody []byte, err error) {
 	if pageNumber <= 0 && pageNumber >= 5000 {
-		return nil, errors.New("Page number is zero or more then page count")
+		return nil, edxApi.ErrIncorrectInputParam
 	}
 	resp, err := http.Get(viper.GetString("api_urls.getAllPublicCourses") + strconv.Itoa(pageNumber) + "&page_size=5")
 	if err != nil {
@@ -59,7 +59,7 @@ func (p *EdxApiUseCaseImpl) GetAllPublicCourses(pageNumber int) (respBody []byte
 		return nil, edxApi.ErrOnReq
 	}
 	if resp.StatusCode != http.StatusOK {
-		return nil, edxApi.ErrIncorrectInputParam
+		return nil, edxApi.ErrOnReq
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -123,6 +123,9 @@ func (p *EdxApiUseCaseImpl) GetWithAuth(url string) (respBody []byte, err error)
 }
 
 func (p *EdxApiUseCaseImpl) GetEnrollments(username string) (respBody []byte, err error) {
+	if username == "" {
+		return nil, edxApi.ErrIncorrectInputParam
+	}
 	return p.GetWithAuth(viper.GetString("api_urls.getEnrollment") + username)
 }
 func (p *EdxApiUseCaseImpl) GetUser() (respBody []byte, err error) {
@@ -180,7 +183,7 @@ func (p *EdxApiUseCaseImpl) PostEnrollment(message map[string]interface{}) (resp
 	return body, nil
 }
 
-func (p *EdxApiUseCaseImpl) PostRegistration(registrationMessage edxApi.RegistrationForm) (respBody []byte, err error) {
+func (p *EdxApiUseCaseImpl) PostRegistration(registrationMessage *edxApi.RegistrationForm) (respBody []byte, err error) {
 
 	urlAddr := viper.GetString("api_urls.postRegistration")
 
@@ -201,7 +204,7 @@ func (p *EdxApiUseCaseImpl) PostRegistration(registrationMessage edxApi.Registra
 	params.Set("password", registrationMessage.Password)
 	params.Set("name", registrationMessage.Name)
 	params.Set("username", registrationMessage.Username)
-	params.Set("terms_of_service", registrationMessage.Terms_of_service)
+	params.Set("terms_of_service", registrationMessage.TermsOfService)
 	buffer.WriteString(params.Encode())
 
 	request, err := http.NewRequest("POST", urlAddr, buffer)

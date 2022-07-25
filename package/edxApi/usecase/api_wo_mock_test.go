@@ -85,7 +85,6 @@ func TestEdxApiUseCaseImpl_GetEnrollments2(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 
 			expect := testCase.expectedError
-
 			_, correct := edx.ApiCourse.GetEnrollments(testCase.username)
 			assert.Equal(t, expect, correct)
 		})
@@ -194,3 +193,4 @@ func TestEdxApiUseCaseImpl_PostEnrollment2(t *testing.T) {
 		})
 	}
 }
+

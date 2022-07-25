@@ -17,7 +17,9 @@ type AuthDelegateModule struct {
 
 func SetupAuthDelegate(usecase auth.UseCase) AuthDelegateModule {
 	return AuthDelegateModule{
-		Delegate: &AuthDelegateImpl{usecase},
+		Delegate: &AuthDelegateImpl{
+			usecase,
+		},
 	}
 }
 

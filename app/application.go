@@ -27,6 +27,10 @@ import (
 	prjgateway "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/gateway"
 	prjhttp "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/http"
 	prjusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/usecase"
+	usrdelegate "github.com/skinnykaen/robbo_student_personal_account.git/package/users/delegate"
+	usrgateway "github.com/skinnykaen/robbo_student_personal_account.git/package/users/gateway"
+	usrhttp "github.com/skinnykaen/robbo_student_personal_account.git/package/users/http"
+	usrusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/users/usecase"
 	"github.com/skinnykaen/robbo_student_personal_account.git/server"
 	"go.uber.org/fx"
 	"log"
@@ -58,6 +62,10 @@ func InvokeWith(options ...fx.Option) *fx.App {
 		fx.Provide(crsgateway.SetupCoursesGateway),
 		fx.Provide(crshttp.NewCoursesHandler),
 		fx.Provide(crsusecase.SetupCourseUseCase),
+		fx.Provide(usrdelegate.SetupUsersDelegate),
+		fx.Provide(usrgateway.SetupUsersGateway),
+		fx.Provide(usrhttp.NewUsersHandler),
+		fx.Provide(usrusecase.SetupUsersUseCase),
 		fx.Provide(chrtdelegate.SetupCohortDelegate),
 		fx.Provide(chrtgateway.SetupCohortsGateway),
 		fx.Provide(chrthttp.NewCohortsHandler),

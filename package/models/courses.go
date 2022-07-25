@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+type PostEnrollmentHTTP struct {
+	Message map[string]interface{} `json:"message"`
+}
+
 type CourseCore struct {
 	ID               string
 	BlocksUrl        string

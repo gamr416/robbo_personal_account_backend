@@ -9,6 +9,7 @@ import (
 	courseshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/courses/http"
 	projectpagehttp "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/http"
 	projectshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/http"
+	usershttp "github.com/skinnykaen/robbo_student_personal_account.git/package/users/http"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
 	"log"
@@ -20,7 +21,8 @@ type Server struct {
 	httpServer *http.Server
 }
 
-func NewServer(lifecycle fx.Lifecycle, authhandler authhttp.Handler, projecthttp projectshttp.Handler, projectpagehttp projectpagehttp.Handler, coursehttp courseshttp.Handler, cohortshttp cohortshttp.Handler) {
+
+func NewServer(lifecycle fx.Lifecycle, authhandler authhttp.Handler, projecthttp projectshttp.Handler, projectpagehttp projectpagehttp.Handler, coursehttp courseshttp.Handler, cohortshttp cohortshttp.Handler, userhttp usershttp.Handler) {
 	lifecycle.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) (err error) {
@@ -33,6 +35,7 @@ func NewServer(lifecycle fx.Lifecycle, authhandler authhttp.Handler, projecthttp
 				projecthttp.InitProjectRoutes(router)
 				projectpagehttp.InitProjectRoutes(router)
 				coursehttp.InitCourseRoutes(router)
+				userhttp.InitUsersRoutes(router)
 				cohortshttp.InitCohortRoutes(router)
 				server := &http.Server{
 					Addr: viper.GetString("server.address"),

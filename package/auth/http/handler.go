@@ -70,11 +70,8 @@ func (h *Handler) SignIn(c *gin.Context) {
 
 func (h *Handler) SignUp(c *gin.Context) {
 	fmt.Println("SignUp")
-	_, role, err := h.userIdentity(c)
-	if err != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
+	_, role, _ := h.userIdentity(c)
+
 	userHttp := &models.User{}
 
 	if err := c.BindJSON(userHttp); err != nil {

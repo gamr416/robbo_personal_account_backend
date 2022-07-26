@@ -334,19 +334,19 @@ func (r *UsersGatewayImpl) UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (err
 	return
 }
 
-//func (r *UsersGatewayImpl) GetSuperAdminById(superAdminId uint) (superAdmin *models.SuperAdminCore, err error) {
-//	var superAdminDb models.SuperAdminDB
-//	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-//		if err = tx.Where("id = ?", superAdminId).First(&superAdminDb).Error; err != nil {
-//			err = auth.ErrUserNotFound
-//			log.Println(err)
-//			return
-//		}
-//		return
-//	})
-//	superAdmin = superAdminDb.ToCore()
-//	return
-//}
+func (r *UsersGatewayImpl) GetSuperAdminById(superAdminId uint) (superAdmin *models.SuperAdminCore, err error) {
+	var superAdminDb models.SuperAdminDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("id = ?", superAdminId).First(&superAdminDb).Error; err != nil {
+			err = auth.ErrUserNotFound
+			log.Println(err)
+			return
+		}
+		return
+	})
+	superAdmin = superAdminDb.ToCore()
+	return
+}
 
 func (r *UsersGatewayImpl) GetSuperAdmin(email, password string) (superAdmin *models.SuperAdminCore, err error) {
 	var superAdminDb models.SuperAdminDB

@@ -35,5 +35,5 @@ type Gateway interface { // TODO getAllByRole
 	UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (err error)
 
 	GetSuperAdmin(email, password string) (superAdmin *models.SuperAdminCore, err error)
-	//GetSuperAdminById(superAdminId uint) (superAdmin *models.SuperAdminCore, err error)
+	GetSuperAdminById(superAdminId uint) (superAdmin *models.SuperAdminCore, err error)
 }

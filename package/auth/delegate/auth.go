@@ -25,9 +25,9 @@ func (s *AuthDelegateImpl) SignIn(email, password string, role uint) (accessToke
 	return s.UseCase.SignIn(email, password, role)
 }
 
-func (s *AuthDelegateImpl) SignUp(userHttp *models.UserHttp, role models.Role) (accessToken, refreshToken string, err error) {
+func (s *AuthDelegateImpl) SignUp(userHttp *models.UserHttp) (accessToken, refreshToken string, err error) {
 	userCore := userHttp.ToCore()
-	return s.UseCase.SignUp(userCore, role)
+	return s.UseCase.SignUp(userCore)
 }
 
 func (s *AuthDelegateImpl) ParseToken(token string, key []byte) (claims *models.UserClaims, err error) {

@@ -25,10 +25,16 @@ type EdxApiUseCaseModule struct {
 
 func SetupEdxApiUseCase() EdxApiUseCaseModule {
 	return EdxApiUseCaseModule{
-		ApiCourse: &courses.EdxApiCourseImpl{},
-		ApiUser:   &users.EdxApiUserImpl{},
-		ApiCohort: &cohorts.EdxApiCohortImpl{},
-		ApiAuth:   &api.EdxApiAuthImpl{},
+		ApiCourse: &courses.EdxApiCourseImpl{
+			AuthUseCase: &api.EdxApiAuthImpl{},
+		},
+		ApiUser: &users.EdxApiUserImpl{
+			AuthUseCase: &api.EdxApiAuthImpl{},
+		},
+		ApiCohort: &cohorts.EdxApiCohortImpl{
+			AuthUseCase: &api.EdxApiAuthImpl{},
+		},
+		ApiAuth: &api.EdxApiAuthImpl{},
 	}
 }
 

@@ -66,7 +66,7 @@ func (p *EdxApiCourseImpl) GetUser() (respBody []byte, err error) {
 }
 
 func (p *EdxApiCourseImpl) GetCourseContent(courseId string) (respBody []byte, err error) {
-	return p.GetWithAuth(viper.GetString("api_urls.getCourse") + courseId)
+	return p.AuthUseCase.GetWithAuth(viper.GetString("api_urls.getCourse") + courseId)
 }
 
 func (p *EdxApiCourseImpl) PostEnrollment(message map[string]interface{}) (respBody []byte, err error) {

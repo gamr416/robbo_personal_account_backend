@@ -40,7 +40,7 @@ func NewPostgresClient(_logger *log.Logger) (postgresClient PostgresClient, err 
 
 func (c *PostgresClient) Migrate() (err error) {
 	err = c.Db.AutoMigrate(
-		&models.UserDB{},
+		//&models.UserDB{},
 		&models.ProjectDB{},
 		&models.ProjectPageDB{},
 		&models.CourseDB{},
@@ -48,6 +48,17 @@ func (c *PostgresClient) Migrate() (err error) {
 		&models.ImageDB{},
 		&models.CourseApiMediaCollectionDB{},
 		&models.MediaDB{},
+		&models.TeacherDB{},
+		&models.GroupDB{},
+		&models.StudentDB{},
+		&models.ParentDB{},
+		&models.SuperAdminDB{},
+		&models.UnitAdminDB{},
+		/*&models.TeacherGroup{},
+		&models.TeacherCourse{},
+		&models.StudentGroup{},
+		&models.StudentProject{},
+		&models.StudentTeacher{},*/
 	)
 	return
 }

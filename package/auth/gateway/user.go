@@ -3,9 +3,7 @@ package gateway
 import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"go.uber.org/fx"
-	"gorm.io/gorm"
 )
 
 type AuthGatewayImpl struct {
@@ -23,7 +21,8 @@ func SetupAuthGateway(postgresClient db_client.PostgresClient) AuthGatewayModule
 	}
 }
 
-func (r *AuthGatewayImpl) GetUser(email, password string) (user *models.UserCore, err error) {
+/*
+func (r *AuthGatewayImpl) GetUser(email, password string) (user *models.UserBase, err error) {
 	var userDb models.UserDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Where("email = ? AND  password = ?", email, password).First(&userDb).Error; err != nil {
@@ -35,3 +34,4 @@ func (r *AuthGatewayImpl) GetUser(email, password string) (user *models.UserCore
 	user = userDb.ToCore()
 	return
 }
+*/

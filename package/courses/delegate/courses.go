@@ -13,6 +13,7 @@ import (
 type CourseDelegateImpl struct {
 	courses.UseCase
 	edxApi.EdxApiCourse
+	edxApi.EdxApiUser
 }
 
 type CourseDelegateModule struct {
@@ -20,11 +21,12 @@ type CourseDelegateModule struct {
 	courses.Delegate
 }
 
-func SetupCourseDelegate(usecase courses.UseCase, edx edxApi.EdxApiCourse) CourseDelegateModule {
+func SetupCourseDelegate(usecase courses.UseCase, edxCourse edxApi.EdxApiCourse, edxUser edxApi.EdxApiUser) CourseDelegateModule {
 	return CourseDelegateModule{
 		Delegate: &CourseDelegateImpl{
 			usecase,
-			edx,
+			edxCourse,
+			edxUser,
 		},
 	}
 }
@@ -84,7 +86,7 @@ func (p *CourseDelegateImpl) GetAllPublicCourses(pageNumber int) (respBody []byt
 }
 
 func (p *CourseDelegateImpl) PostEnrollment(postEnrollmentHTTP *models.PostEnrollmentHTTP) (err error) {
-	_, err = p.EdxApiUseCase.PostEnrollment(postEnrollmentHTTP.Message)
+	_, err = p.EdxApiCourse.PostEnrollment(postEnrollmentHTTP.Message)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -93,7 +95,7 @@ func (p *CourseDelegateImpl) PostEnrollment(postEnrollmentHTTP *models.PostEnrol
 }
 
 func (p *CourseDelegateImpl) PostUnenroll(postUnenrollHTTP *models.PostEnrollmentHTTP) (err error) {
-	_, err = p.EdxApiUseCase.PostEnrollment(postUnenrollHTTP.Message)
+	_, err = p.EdxApiCourse.PostEnrollment(postUnenrollHTTP.Message)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -102,7 +104,7 @@ func (p *CourseDelegateImpl) PostUnenroll(postUnenrollHTTP *models.PostEnrollmen
 }
 
 func (p *CourseDelegateImpl) Login(email, password string) (err error) {
-	_, err = p.EdxApiUseCase.Login(email, password)
+	_, err = p.EdxApiUser.Login(email, password)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -111,7 +113,7 @@ func (p *CourseDelegateImpl) Login(email, password string) (err error) {
 }
 
 func (p *CourseDelegateImpl) Registration(userForm *edxApi.RegistrationForm) (err error) {
-	_, err = p.EdxApiUseCase.PostRegistration(userForm)
+	_, err = p.EdxApiUser.PostRegistration(*userForm)
 	if err != nil {
 		log.Println(err)
 		return err

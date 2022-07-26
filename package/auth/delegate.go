@@ -5,8 +5,8 @@ import (
 )
 
 type Delegate interface {
-	SignIn(userHttp *models.UserHttp) (accessToken string, refreshToken string, err error)
-	SignUp(userHttp *models.UserHttp) (accessToken string, refreshToken string, err error)
+	SignIn(email, password string, role uint) (accessToken string, refreshToken string, err error)
+	SignUp(userHttp *models.User, role models.Role) (accessToken string, refreshToken string, err error)
 	ParseToken(token string, key []byte) (claims *models.UserClaims, err error)
 	RefreshToken(token string) (newAccessToken string, err error)
 }

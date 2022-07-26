@@ -17,6 +17,11 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
 	edxusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/edx/usecase"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/logger"
+	usersdelegate "github.com/skinnykaen/robbo_student_personal_account.git/package/users/delegate"
+	usersgateway "github.com/skinnykaen/robbo_student_personal_account.git/package/users/gateway"
+	usershtpp "github.com/skinnykaen/robbo_student_personal_account.git/package/users/http"
+	usersusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/users/usecase"
+
 	ppagedelegate "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/delegate"
 	ppagegateway "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/gateway"
 	ppagehttp "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/http"
@@ -42,22 +47,26 @@ func InvokeWith(options ...fx.Option) *fx.App {
 		fx.Provide(ppagegateway.SetupProjectPageGateway),
 		fx.Provide(crsgateway.SetupCoursesGateway),
 		fx.Provide(chrtgateway.SetupCohortsGateway),
+		fx.Provide(usersgateway.SetupUsersGateway),
 		fx.Provide(authusecase.SetupAuthUseCase),
 		fx.Provide(prjusecase.SetupProjectUseCase),
 		fx.Provide(ppageusecase.SetupProjectPageUseCase),
 		fx.Provide(crsusecase.SetupCourseUseCase),
 		fx.Provide(chrtusecase.SetupCohortUseCase),
 		fx.Provide(edxusecase.SetupEdxApiUseCase),
+		fx.Provide(usersusecase.SetupUsersUseCase),
 		fx.Provide(authdelegate.SetupAuthDelegate),
 		fx.Provide(prjdelegate.SetupProjectDelegate),
 		fx.Provide(ppagedelegate.SetupProjectPageDelegate),
 		fx.Provide(crsdelegate.SetupCourseDelegate),
 		fx.Provide(chrtdelegate.SetupCohortDelegate),
+		fx.Provide(usersdelegate.SetupUsersDelegate),
 		fx.Provide(prjhttp.NewProjectsHandler),
 		fx.Provide(ppagehttp.NewProjectPageHandler),
 		fx.Provide(authhttp.NewAuthHandler),
 		fx.Provide(crshttp.NewCoursesHandler),
 		fx.Provide(chrthttp.NewCohortsHandler),
+		fx.Provide(usershtpp.NewUsersHandler),
 	}
 	for _, option := range options {
 		di = append(di, option)

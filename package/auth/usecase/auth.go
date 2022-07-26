@@ -2,18 +2,18 @@ package usecase
 
 import (
 	"crypto/sha1"
-	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
 	"time"
 )
 
 type AuthUseCaseImpl struct {
-	auth.Gateway
+	users.Gateway
 	hashSalt              string
 	accessSigningKey      []byte
 	refreshSigningKey     []byte
@@ -26,7 +26,7 @@ type AuthUseCaseModule struct {
 	auth.UseCase
 }
 
-func SetupAuthUseCase(gateway auth.Gateway) AuthUseCaseModule {
+func SetupAuthUseCase(gateway users.Gateway) AuthUseCaseModule {
 	hashSalt := viper.GetString("auth.hash_salt")
 	accessSigningKey := []byte(viper.GetString("auth.access_signing_key"))
 	refreshSigningKey := []byte(viper.GetString("auth.refresh_signing_key"))
@@ -50,58 +50,70 @@ func (a *AuthUseCaseImpl) SignIn(email, passwordIn string, role uint) (accessTok
 	pwd.Write([]byte(passwordIn))
 	pwd.Write([]byte(a.hashSalt))
 	password := fmt.Sprintf("%x", pwd.Sum(nil))
-	var userToken models.UserToken
 
-	switch role {
-	case 0:
-		user, err := a.usersUseCase.GetStudent(email, password)
-		if err != nil {
-			return "", "", err
-		}
-		userToken.ID = user.ID
-		userToken.Role = user.Role
-	case 1:
-		user, err := a.usersUseCase.GetTeacher(email, password)
-		if err != nil {
-			return "", "", err
-		}
-		userToken.ID = user.ID
-		userToken.Role = user.Role
-	case 2:
-		user, err := a.usersUseCase.GetParent(email, password)
-		if err != nil {
-			return "", "", err
-		}
-		userToken.ID = user.ID
-		userToken.Role = user.Role
-	case 3:
-		return "", "", errors.New("error no permissions")
-	case 4:
-		user, err := a.usersUseCase.GetUnitAdmin(email, password)
-		if err != nil {
-			return "", "", err
-		}
-		userToken.ID = user.ID
-		userToken.Role = user.Role
-	case 5:
-		user, err := a.usersUseCase.GetSuperAdmin(email, password)
-		if err != nil {
-			return "", "", err
-		}
-		userToken.ID = user.ID
-		userToken.Role = user.Role
-	default:
-		fmt.Println("error")
-	}
+	user := models.UserCore{}
 
-	if err != nil {
+	switch models.Role(role) {
+	case models.Student:
+		student, err := a.Gateway.GetStudent(email, password)
+		if err != nil {
+			return "", "", err
+		}
+		user.Id = student.Id
+		user.Role = models.Student
 		return
+	case models.Teacher:
+		teacher, err := a.Gateway.GetTeacher(email, password)
+		if err != nil {
+			return "", "", err
+		}
+		user.Id = teacher.Id
+		user.Role = models.Teacher
+		return
+	case models.Parent:
+		parent, err := a.Gateway.GetParent(email, password)
+		if err != nil {
+			return "", "", err
+		}
+		user.Id = parent.Id
+		user.Role = models.Parent
+		return
+	case models.FreeListener:
+		freeListener, err := a.Gateway.GetFreeListener(email, password)
+		if err != nil {
+			return "", "", err
+		}
+		user.Id = freeListener.Id
+		user.Role = models.FreeListener
+		return
+	case models.UnitAdmin:
+		unitAdmin, err := a.Gateway.GetUnitAdmin(email, password)
+		if err != nil {
+			return "", "", err
+		}
+		user.Id = unitAdmin.Id
+		user.Role = models.UnitAdmin
+		return
+	case models.SuperAdmin:
+		superAdmin, err := a.Gateway.GetSuperAdmin(email, password)
+		if err != nil {
+			return "", "", err
+		}
+		user.Id = superAdmin.Id
+		user.Role = models.SuperAdmin
+		return
+	default:
+		err = auth.ErrUserNotFound
 	}
-	accessToken, err = a.GenerateToken(&userToken, a.accessExpireDuration, a.accessSigningKey)
+
 	if err != nil {
 		return "", "", err
 	}
-	refreshToken, err = a.GenerateToken(&userToken, a.refreshExpireDuration, a.refreshSigningKey)
+	accessToken, err = a.GenerateToken(&user, a.accessExpireDuration, a.accessSigningKey)
+	if err != nil {
+		return "", "", err
+	}
+	refreshToken, err = a.GenerateToken(&user, a.refreshExpireDuration, a.refreshSigningKey)
 	if err != nil {
 		return "", "", err
 	}
@@ -109,78 +121,66 @@ func (a *AuthUseCaseImpl) SignIn(email, passwordIn string, role uint) (accessTok
 	return
 }
 
-func (a *AuthUseCaseImpl) SignUp(userCore *models.User, role models.Role) (accessToken, refreshToken string, err error) {
+func (a *AuthUseCaseImpl) SignUp(userCore *models.UserCore) (accessToken, refreshToken string, err error) {
 	pwd := sha1.New()
 	pwd.Write([]byte(userCore.Password))
 	pwd.Write([]byte(a.hashSalt))
-
 	userCore.Password = fmt.Sprintf("%x", pwd.Sum(nil))
-<<<<<<< HEAD
 
-	id, err := a.Gateway.CreateUser(userCore)
-=======
-	var userToken models.UserToken
 	switch userCore.Role {
-	case 0:
+	case models.Student:
 		student := &models.StudentCore{
-			User: *userCore,
+			UserCore: *userCore,
 		}
-		id, err := a.usersUseCase.CreateStudent(student)
+		id, err := a.Gateway.CreateStudent(student)
 		if err != nil {
 			return "", "", err
 		}
-		userToken.ID = id
-		userToken.Role = userCore.Role
-	case 1:
+		userCore.Id = id
+		return
+	case models.Teacher:
 		teacher := &models.TeacherCore{
-			User: *userCore,
+			UserCore: *userCore,
 		}
-		id, err := a.usersUseCase.CreateTeacher(teacher)
+		id, err := a.Gateway.CreateTeacher(teacher)
 		if err != nil {
 			return "", "", err
 		}
-		userToken.ID = id
-		userToken.Role = userCore.Role
-	case 2:
+		userCore.Id = id
+		return
+	case models.Parent:
 		parent := &models.ParentCore{
-			User: *userCore,
+			UserCore: *userCore,
 		}
-		id, err := a.usersUseCase.CreateParent(parent)
+		id, err := a.Gateway.CreateParent(parent)
 		if err != nil {
 			return "", "", err
 		}
-		userToken.ID = id
-		userToken.Role = userCore.Role
-	case 3:
-		return "", "", errors.New("error no permissions")
-	case 4:
-		roleAdmin := models.Role(5)
-		if role == roleAdmin {
-			unitAdmin := &models.UnitAdminCore{
-				User: *userCore,
-			}
-			id, err := a.usersUseCase.CreateUnitAdmin(unitAdmin)
-			if err != nil {
-				return "", "", err
-			}
-			userToken.ID = id
-			userToken.Role = userCore.Role
-		} else {
-			return "", "", errors.New("error no permissions")
+		userCore.Id = id
+		return
+	case models.FreeListener:
+		freeListener := &models.FreeListenerCore{
+			UserCore: *userCore,
 		}
+		id, err := a.Gateway.CreateFreeListener(freeListener)
+		if err != nil {
+			return "", "", err
+		}
+		userCore.Id = id
+		return
 	default:
-		fmt.Println("error")
+		err = auth.ErrUserNotFound
 	}
->>>>>>> b51413c19b53a2b40776b2746be8d694d6f8e40e
+
 	if err != nil {
 		return "", "", err
 	}
 
-	accessToken, err = a.GenerateToken(&userToken, a.accessExpireDuration, a.accessSigningKey)
+	accessToken, err = a.GenerateToken(userCore, a.accessExpireDuration, a.accessSigningKey)
 	if err != nil {
 		return "", "", err
 	}
-	refreshToken, err = a.GenerateToken(&userToken, a.refreshExpireDuration, a.refreshSigningKey)
+	refreshToken, err = a.GenerateToken(userCore, a.refreshExpireDuration, a.refreshSigningKey)
 
 	return
 }
@@ -210,8 +210,8 @@ func (a *AuthUseCaseImpl) RefreshToken(token string) (newAccessToken string, err
 		return "", err
 	}
 
-	user := &models.UserToken{
-		ID:   claims.Id,
+	user := &models.UserCore{
+		Id:   claims.Id,
 		Role: claims.Role,
 	}
 
@@ -223,12 +223,12 @@ func (a *AuthUseCaseImpl) RefreshToken(token string) (newAccessToken string, err
 	return
 }
 
-func (a *AuthUseCaseImpl) GenerateToken(user *models.UserToken, duration time.Duration, signingKey []byte) (token string, err error) {
+func (a *AuthUseCaseImpl) GenerateToken(user *models.UserCore, duration time.Duration, signingKey []byte) (token string, err error) {
 	claims := models.UserClaims{
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: jwt.At(time.Now().Add(duration * time.Second)),
 		},
-		Id:   user.ID,
+		Id:   user.Id,
 		Role: user.Role,
 	}
 	ss := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

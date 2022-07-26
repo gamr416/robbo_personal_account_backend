@@ -2,86 +2,102 @@ package models
 
 import (
 	"gorm.io/gorm"
-	"strconv"
 )
 
 type StudentCore struct {
-	ID string
-	User
-	ParentID   uint
-	GroupsID   []uint
-	TeachersID []uint
-	ProjectsID []uint
+	UserCore
+	ParentID uint
+	//GroupsID   []uint
+	//TeachersID []uint
+	//ProjectsID []uint
 }
 
 type StudentHTTP struct {
-	ID string `json:"id"`
-	User
-	ParentID   uint   `json:"parent_id"`
-	GroupsID   []uint `json:"groups_id"`
-	TeachersID []uint `json:"teachers_id"`
-	ProjectsID []uint `json:"projects_id"`
+	UserHttp
+	ParentID uint `json:"parent_id"`
+	//GroupsID   []uint `json:"groups_id"`
+	//TeachersID []uint `json:"teachers_id"`
+	//ProjectsID []uint `json:"projects_id"`
 }
 
 type StudentDB struct {
 	gorm.Model
-	User
-	//ParentID uint
-	//Parent   ParentDB `gorm:"foreignKey:ParentID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
+	UserDB
+	ParentID uint
+	Parent   ParentDB `gorm:"foreignKey:ParentID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
 }
 
-type StudentGroup struct {
-	StudentID uint
-	Student   StudentDB `gorm:"foreignKey:StudentID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
-	GroupID   uint
-	Group     GroupDB `gorm:"foreignKey:GroupID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
-}
-
-type StudentTeacher struct {
-	StudentID uint
-	Student   StudentDB `gorm:"foreignKey:StudentID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
-	TeacherID uint
-	Teacher   TeacherDB `gorm:"foreignKey:TeacherID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
-}
-
-type StudentProject struct {
-	StudentID uint
-	Student   StudentDB `gorm:"foreignKey:StudentID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
-	ProjectID uint
-	Project   ProjectDB `gorm:"foreignKey:ProjectID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
-}
+//type StudentGroup struct {
+//	StudentID uint
+//	Student   StudentDB `gorm:"foreignKey:StudentID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
+//	GroupID   uint
+//	Group     GroupDB `gorm:"foreignKey:GroupID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
+//}
+//
+//type StudentTeacher struct {
+//	StudentID uint
+//	Student   StudentDB `gorm:"foreignKey:StudentID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
+//	TeacherID uint
+//	Teacher   TeacherDB `gorm:"foreignKey:TeacherID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
+//}
+//
+//type StudentProject struct {
+//	StudentID uint
+//	Student   StudentDB `gorm:"foreignKey:StudentID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
+//	ProjectID uint
+//	Project   ProjectDB `gorm:"foreignKey:ProjectID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
+//}
 
 func (em *StudentDB) ToCore() *StudentCore {
 	return &StudentCore{
-		ID:   strconv.FormatUint(uint64(em.ID), 10),
-		User: em.User,
-		//ParentID: em.ParentID,
+		ParentID: em.ParentID,
+		UserCore: UserCore{
+			Email:      em.Email,
+			Password:   em.Password,
+			Role:       Role(em.Role),
+			Nickname:   em.Nickname,
+			Firstname:  em.Firstname,
+			Lastname:   em.Lastname,
+			Middlename: em.Middlename,
+			CreatedAt:  em.CreatedAt.String(),
+		},
 	}
 }
 
 func (em *StudentDB) FromCore(student *StudentCore) {
-	id, _ := strconv.ParseUint(student.ID, 10, 64)
-	em.ID = uint(id)
-	em.User = student.User
-	//	em.ParentID = student.ParentID
+	em.Email = student.Email
+	em.Password = student.Password
+	em.Role = uint(student.Role)
+	em.Nickname = student.Nickname
+	em.Firstname = student.Firstname
+	em.Lastname = student.Lastname
+	em.Middlename = student.Middlename
+	em.ParentID = student.ParentID
 }
 
 func (ht *StudentHTTP) ToCore() *StudentCore {
 	return &StudentCore{
-		ID:         ht.ID,
-		User:       ht.User,
-		ParentID:   ht.ParentID,
-		GroupsID:   ht.GroupsID,
-		ProjectsID: ht.ProjectsID,
-		TeachersID: ht.TeachersID,
+		ParentID: ht.ParentID,
+		UserCore: UserCore{
+			Email:      ht.Email,
+			Password:   ht.Password,
+			Role:       Role(ht.Role),
+			Nickname:   ht.Nickname,
+			Firstname:  ht.Firstname,
+			Lastname:   ht.Lastname,
+			Middlename: ht.Middlename,
+		},
 	}
 }
 
 func (ht *StudentHTTP) FromCore(student *StudentCore) {
-	ht.ID = student.ID
-	ht.User = student.User
+	ht.CreatedAt = student.CreatedAt
+	ht.Email = student.Email
+	ht.Password = student.Password
+	ht.Role = uint(student.Role)
+	ht.Nickname = student.Nickname
+	ht.Firstname = student.Firstname
+	ht.Lastname = student.Lastname
+	ht.Middlename = student.Middlename
 	ht.ParentID = student.ParentID
-	ht.GroupsID = student.GroupsID
-	ht.ProjectsID = student.ProjectsID
-	ht.TeachersID = student.TeachersID
 }

@@ -14,24 +14,23 @@ type AuthMiddleware struct {
 
 const (
 	authorizationHeader = "Authorization"
-	userCtx             = "userId"
 )
 
 func (h *Handler) userIdentity(c *gin.Context) (id string, role models.Role, err error) {
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {
-		return "", models.Role(0), auth.ErrTokenNotFound
+		return "", models.Anonymous, auth.ErrTokenNotFound
 	}
 
 	headerParts := strings.Split(header, " ")
 	if len(headerParts) != 2 {
-		return "", models.Role(0), auth.ErrTokenNotFound
+		return "", models.Anonymous, auth.ErrTokenNotFound
 		return
 	}
 
 	claims, err := h.delegate.ParseToken(headerParts[1], []byte(viper.GetString("auth.access_signing_key")))
 	if err != nil {
-		return "", models.Role(0), auth.ErrInvalidAccessToken
+		return "", models.Anonymous, auth.ErrInvalidAccessToken
 	}
 	return claims.Id, claims.Role, nil
 }

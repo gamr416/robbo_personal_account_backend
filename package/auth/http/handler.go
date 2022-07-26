@@ -42,13 +42,13 @@ type signInResponse struct {
 func (h *Handler) SignIn(c *gin.Context) {
 	fmt.Println("SignIn")
 
-	userHttp := &signInput{}
-	if err := c.BindJSON(userHttp); err != nil {
+	signInInput := &signInput{}
+	if err := c.BindJSON(signInInput); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	fmt.Println(userHttp)
-	accessToken, refreshToken, err := h.delegate.SignIn(userHttp.Email, userHttp.Password, userHttp.Role)
+
+	accessToken, refreshToken, err := h.delegate.SignIn(signInInput.Email, signInInput.Password, signInInput.Role)
 	if err != nil {
 		ErrorHandling(err, c)
 		return
@@ -72,7 +72,7 @@ func (h *Handler) SignUp(c *gin.Context) {
 	fmt.Println("SignUp")
 	_, role, _ := h.userIdentity(c)
 
-	userHttp := &models.User{}
+	userHttp := &models.UserHttp{}
 
 	if err := c.BindJSON(userHttp); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)

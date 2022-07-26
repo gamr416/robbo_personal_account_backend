@@ -58,7 +58,7 @@ func (h *Handler) SignIn(c *gin.Context) {
 	cookie := &http.Cookie{
 		Name:     "refreshToken",
 		Value:    refreshToken,
-		MaxAge:   60 * 60 * 24 * 15,
+		MaxAge:   60 * 60 * 24 * 7,
 		HttpOnly: true,
 	}
 
@@ -88,8 +88,8 @@ func (h *Handler) SignUp(c *gin.Context) {
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     "token",
 		Value:    refreshToken,
-		MaxAge:   60 * 60 * 24 * 15,
-		HttpOnly: false,
+		MaxAge:   60 * 60 * 24 * 7,
+		HttpOnly: true,
 	})
 
 	c.JSON(http.StatusOK, signInResponse{
@@ -129,8 +129,8 @@ func (h *Handler) SignOut(c *gin.Context) {
 	cookie := &http.Cookie{
 		Name:     "refreshToken",
 		Value:    "",
-		MaxAge:   -1,
-		HttpOnly: false,
+		MaxAge:   0,
+		HttpOnly: true,
 	}
 	http.SetCookie(c.Writer, cookie)
 
@@ -146,7 +146,7 @@ func (h *Handler) CheckAuth(c *gin.Context) {
 	fmt.Println("CheckAuth")
 	userId, role, err := h.userIdentity(c)
 	if err != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		ErrorHandling(err, c)
 		return
 	}
 	c.JSON(http.StatusOK, &userIdentity{

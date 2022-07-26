@@ -3,7 +3,7 @@ package delegate
 import (
 	"encoding/json"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/cohorts"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/edx"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"go.uber.org/fx"
 	"strconv"
@@ -11,7 +11,7 @@ import (
 
 type CohortDelegateImpl struct {
 	cohorts.UseCase
-	edxApi.EdxApiCohort
+	edx.CohortUseCase
 }
 
 type CohortDelegateModule struct {
@@ -19,7 +19,7 @@ type CohortDelegateModule struct {
 	cohorts.Delegate
 }
 
-func SetupCohortDelegate(usecase cohorts.UseCase, edx edxApi.EdxApiCohort) CohortDelegateModule {
+func SetupCohortDelegate(usecase cohorts.UseCase, edx edx.CohortUseCase) CohortDelegateModule {
 	return CohortDelegateModule{
 		Delegate: &CohortDelegateImpl{
 			usecase,
@@ -29,7 +29,7 @@ func SetupCohortDelegate(usecase cohorts.UseCase, edx edxApi.EdxApiCohort) Cohor
 }
 
 func (p *CohortDelegateImpl) CreateCohort(cohort *models.CohortHTTP, createCohort *models.CreateCohortHTTP, courseId string) (id string, err error) {
-	body, err := p.EdxApiCohort.CreateCohort(courseId, createCohort.Message)
+	body, err := p.CohortUseCase.CreateCohort(courseId, createCohort.Message)
 	if err != nil {
 		return "", err
 	}
@@ -42,7 +42,7 @@ func (p *CohortDelegateImpl) CreateCohort(cohort *models.CohortHTTP, createCohor
 }
 
 func (p *CohortDelegateImpl) AddStudent(username, courseId string, cohortId int) (err error) {
-	_, err = p.EdxApiCohort.AddStudent(username, courseId, cohortId)
+	_, err = p.CohortUseCase.AddStudent(username, courseId, cohortId)
 	if err != nil {
 		return err
 	}

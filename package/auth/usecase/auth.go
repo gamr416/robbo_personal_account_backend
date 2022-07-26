@@ -94,6 +94,7 @@ func (a *AuthUseCaseImpl) ParseToken(token string, key []byte) (claims *models.U
 		func(token *jwt.Token) (interface{}, error) {
 			return []byte(key), nil
 		})
+
 	if err != nil {
 		return &models.UserClaims{}, err
 	}

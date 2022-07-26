@@ -29,7 +29,7 @@ func TestSignUp(t *testing.T) {
 	delegate.On("SignUp", signUpBody.Email, signUpBody.Password).Return(nil)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/auth/sign-up", bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", "/api/sign-up", bytes.NewBuffer(body))
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, 200, w.Code)
@@ -53,7 +53,7 @@ func TestSignIn(t *testing.T) {
 	delegate.On("SignIn", signUpBody.Email, signUpBody.Password).Return("jwt", nil)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/auth/sign-in", bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", "/api/sign-in", bytes.NewBuffer(body))
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, 200, w.Code)

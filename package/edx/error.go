@@ -1,4 +1,4 @@
-package edxApi
+package edx
 
 import "errors"
 

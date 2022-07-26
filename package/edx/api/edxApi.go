@@ -1,11 +1,12 @@
-package edxApiUseCase
+package api
 
 import (
 	"bytes"
 	"encoding/json"
 	"github.com/pkg/errors"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/edx"
 	"github.com/spf13/viper"
+	"go.uber.org/fx"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -13,19 +14,27 @@ import (
 	"time"
 )
 
-func GetWithAuth(url string) (respBody []byte, err error) {
-	err = RefreshToken()
+type EdxApiAuthImpl struct {
+}
+
+type EdxApiAuthModule struct {
+	fx.Out
+	edx.AuthUseCase
+}
+
+func (p *EdxApiAuthImpl) GetWithAuth(url string) (respBody []byte, err error) {
+	err = p.RefreshToken()
 
 	if err != nil {
 		log.Println("Token not refresh.\n[ERROR] -", err)
-		return nil, edxApi.ErrTknNotRefresh
+		return nil, edx.ErrTknNotRefresh
 	}
 	var bearer = "Bearer " + viper.GetString("api.token")
 
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Println("Error on request.\n[ERROR] -", err)
-		return nil, edxApi.ErrOnReq
+		return nil, edx.ErrOnReq
 	}
 
 	request.Header.Add("Authorization", bearer)
@@ -34,26 +43,26 @@ func GetWithAuth(url string) (respBody []byte, err error) {
 	response, err := client.Do(request)
 	if err != nil {
 		log.Println("Error on response.\n[ERROR] -", err)
-		return nil, edxApi.ErrOnResp
+		return nil, edx.ErrOnResp
 	}
 	if response.StatusCode != http.StatusOK {
-		return nil, edxApi.ErrIncorrectInputParam
+		return nil, edx.ErrIncorrectInputParam
 	}
 	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Println("Error while reading the response bytes:", err)
-		return nil, edxApi.ErrReadRespBody
+		return nil, edx.ErrReadRespBody
 	}
 	return body, nil
 }
 
-func PostWithAuth(url string, params map[string]interface{}) (respBody []byte, err error) {
-	err = RefreshToken()
+func (p *EdxApiAuthImpl) PostWithAuth(url string, params map[string]interface{}) (respBody []byte, err error) {
+	err = p.RefreshToken()
 	if err != nil {
 		log.Println("token not refresh")
-		return nil, edxApi.ErrTknNotRefresh
+		return nil, edx.ErrTknNotRefresh
 
 	}
 
@@ -61,7 +70,7 @@ func PostWithAuth(url string, params map[string]interface{}) (respBody []byte, e
 
 	if err != nil {
 		log.Println(err)
-		return nil, edxApi.ErrJsonMarshal
+		return nil, edx.ErrJsonMarshal
 	}
 
 	var bearer = "Bearer " + viper.GetString("api.token")
@@ -69,7 +78,7 @@ func PostWithAuth(url string, params map[string]interface{}) (respBody []byte, e
 	request, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	if err != nil {
 		log.Println(err)
-		return nil, edxApi.ErrOnReq
+		return nil, edx.ErrOnReq
 	}
 
 	request.Header.Add("Authorization", bearer)
@@ -79,22 +88,22 @@ func PostWithAuth(url string, params map[string]interface{}) (respBody []byte, e
 	response, err := client.Do(request)
 	if err != nil {
 		log.Println(err)
-		return nil, edxApi.ErrOnResp
+		return nil, edx.ErrOnResp
 	}
 	if response.StatusCode != http.StatusOK {
-		return nil, edxApi.ErrIncorrectInputParam
+		return nil, edx.ErrIncorrectInputParam
 	}
 	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Println(err)
-		return nil, edxApi.ErrReadRespBody
+		return nil, edx.ErrReadRespBody
 	}
 	return body, nil
 }
 
-func RefreshToken() (err error) {
+func (p *EdxApiAuthImpl) RefreshToken() (err error) {
 	if viper.GetInt64("api.token_expiration_time") < time.Now().Unix() {
 		urlAddr := viper.GetString("api_urls.refreshToken")
 		response, err := http.PostForm(urlAddr, url.Values{
@@ -104,20 +113,20 @@ func RefreshToken() (err error) {
 		})
 		if err != nil {
 			log.Println(err)
-			return edxApi.ErrOnReq
+			return edx.ErrOnReq
 		}
 		if response.StatusCode != http.StatusOK {
-			return edxApi.ErrIncorrectInputParam
+			return edx.ErrIncorrectInputParam
 		}
 
 		defer response.Body.Close()
 		body, err := ioutil.ReadAll(response.Body)
 		if err != nil {
 			log.Println(err)
-			return edxApi.ErrIncorrectInputParam
+			return edx.ErrIncorrectInputParam
 		}
 
-		newtkn := &edxApi.NewToken{}
+		newtkn := &edx.NewToken{}
 		err = json.Unmarshal(body, newtkn)
 		if err != nil {
 			log.Println(err)

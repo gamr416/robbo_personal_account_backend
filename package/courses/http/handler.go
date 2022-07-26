@@ -130,7 +130,7 @@ func (h *Handler) GetCourseContent(c *gin.Context) {
 }
 
 func (h *Handler) GetCoursesByUser(c *gin.Context) {
-	fmt.Println("Get Courses For User")
+	fmt.Println("Get courses For User")
 	body, err := h.coursesDelegate.GetCoursesByUser()
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -147,7 +147,7 @@ func (h *Handler) GetCoursesByUser(c *gin.Context) {
 }
 
 func (h *Handler) GetAllPublicCourses(c *gin.Context) {
-	fmt.Println("Get All Public Courses")
+	fmt.Println("Get All Public courses")
 	pN := c.Param("pageNumber")
 	pageNumber, err := strconv.Atoi(pN)
 	if err != nil {

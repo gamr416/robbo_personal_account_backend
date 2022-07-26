@@ -1,4 +1,4 @@
-package edxApi
+package edx
 
 //go:generate mockgen -source=usecase.go -destination=mocks/mock.go
 
@@ -9,7 +9,7 @@ type NewToken struct {
 	Scope       string `json:"scope"`
 }
 
-type EdxApiUseCase interface {
+type AuthUseCase interface {
 	RefreshToken() (err error)
 	GetWithAuth(url string) (resBody []byte, err error)
 	PostWithAuth(url string, params map[string]interface{}) (respBody []byte, err error)

@@ -1,11 +1,10 @@
-package edxApiUsersUsecase
+package users
 
 import (
 	"bytes"
 	"fmt"
 	"github.com/pkg/errors"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi/edxApiUseCase"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/edx"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
 	"io/ioutil"
@@ -15,14 +14,11 @@ import (
 )
 
 type EdxApiUserImpl struct {
+	edx.AuthUseCase
 }
 type EdxApiUserModule struct {
 	fx.Out
-	edxApi.EdxApiUser
-}
-
-func SetupEdxApiUser() EdxApiUserModule {
-	return EdxApiUserModule{EdxApiUser: &EdxApiUserImpl{}}
+	edx.UserUseCase
 }
 
 type myjar struct {
@@ -45,7 +41,7 @@ func handleСookies(n []*http.Cookie) (csrfToken string, found bool) {
 	return "", false
 }
 
-func (p *EdxApiUserImpl) PostRegistration(registrationMessage edxApi.RegistrationForm) (respBody []byte, err error) {
+func (p *EdxApiUserImpl) PostRegistration(registrationMessage edx.RegistrationForm) (respBody []byte, err error) {
 
 	urlAddr := viper.GetString("api_urls.postRegistration")
 
@@ -66,7 +62,7 @@ func (p *EdxApiUserImpl) PostRegistration(registrationMessage edxApi.Registratio
 	params.Set("password", registrationMessage.Password)
 	params.Set("name", registrationMessage.Name)
 	params.Set("username", registrationMessage.Username)
-	params.Set("terms_of_service", registrationMessage.Terms_of_service)
+	params.Set("terms_of_service", registrationMessage.TermsOfService)
 	buffer.WriteString(params.Encode())
 
 	request, err := http.NewRequest("POST", urlAddr, buffer)
@@ -83,7 +79,7 @@ func (p *EdxApiUserImpl) PostRegistration(registrationMessage edxApi.Registratio
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, edxApi.ErrIncorrectInputParam
+		return nil, edx.ErrIncorrectInputParam
 	}
 	return body, nil
 }
@@ -122,11 +118,11 @@ func (p *EdxApiUserImpl) Login(email, password string) (respBody []byte, err err
 	}
 	fmt.Println(string(body))
 	if resp.StatusCode != http.StatusOK {
-		return nil, edxApi.ErrIncorrectInputParam
+		return nil, edx.ErrIncorrectInputParam
 	}
 	return body, nil
 
 }
 func (p *EdxApiUserImpl) GetUser() (respBody []byte, err error) {
-	return edxApiUseCase.GetWithAuth(viper.GetString("api_urls.getUser"))
+	return p.GetWithAuth(viper.GetString("api_urls.getUser"))
 }

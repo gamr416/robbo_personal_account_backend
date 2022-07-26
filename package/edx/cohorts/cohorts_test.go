@@ -1,9 +1,12 @@
-package edxApiCohortsUsecase
+package cohorts
 
 import (
 	"github.com/go-playground/assert/v2"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/config"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/edx"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/edx/usecase"
+
+	//"github.com/skinnykaen/robbo_student_personal_account.git/package/edx/usecase"
 	"log"
 	"testing"
 )
@@ -12,7 +15,7 @@ func TestEdxApiCohortImpl_CreateCohort(t *testing.T) {
 	if err := config.InitForTests(); err != nil {
 		log.Fatalf("%s", err.Error())
 	}
-	edx := SetupEdxApiCohort()
+	edxUseCase := usecase.SetupEdxApiUseCase()
 	testTable := []struct {
 		name          string
 		message       map[string]interface{}
@@ -35,7 +38,7 @@ func TestEdxApiCohortImpl_CreateCohort(t *testing.T) {
 				"name":            "",
 				"assignment_type": "Manual",
 			},
-			expectedError: edxApi.ErrIncorrectInputParam,
+			expectedError: edx.ErrIncorrectInputParam,
 		},
 		{
 			name:     "Assignment type is empty",
@@ -44,7 +47,7 @@ func TestEdxApiCohortImpl_CreateCohort(t *testing.T) {
 				"name":            "cohorTestName2323",
 				"assignment_type": "",
 			},
-			expectedError: edxApi.ErrIncorrectInputParam,
+			expectedError: edx.ErrIncorrectInputParam,
 		},
 		{
 			name:     "Name is taken",
@@ -53,14 +56,14 @@ func TestEdxApiCohortImpl_CreateCohort(t *testing.T) {
 				"name":            "cohorTestName",
 				"assignment_type": "Manual",
 			},
-			expectedError: edxApi.ErrIncorrectInputParam,
+			expectedError: edx.ErrIncorrectInputParam,
 		},
 	}
 
 	for _, testCase := range testTable {
 		t.Run(testCase.name, func(t *testing.T) {
 			expect := testCase.expectedError
-			_, correct := edx.CreateCohort(testCase.courseId, testCase.message)
+			_, correct := edxUseCase.ApiCohort.CreateCohort(testCase.courseId, testCase.message)
 			assert.Equal(t, expect, correct)
 		})
 	}
@@ -70,7 +73,7 @@ func TestEdxApiCohortImpl_AddStudent(t *testing.T) {
 	if err := config.InitForTests(); err != nil {
 		log.Fatalf("%s", err.Error())
 	}
-	edx := SetupEdxApiCohort()
+	edxUseCase := usecase.SetupEdxApiUseCase()
 	testTable := []struct {
 		name          string
 		courseId      string
@@ -90,21 +93,21 @@ func TestEdxApiCohortImpl_AddStudent(t *testing.T) {
 			courseId:      "course-v1:TestOrg+02+2022",
 			username:      "edxsom",
 			cohortId:      100,
-			expectedError: edxApi.ErrIncorrectInputParam,
+			expectedError: edx.ErrIncorrectInputParam,
 		},
 		{
 			name:          "Invalid courseId",
 			courseId:      "course-v1:T+02+2022",
 			username:      "edxsom",
 			cohortId:      1,
-			expectedError: edxApi.ErrIncorrectInputParam,
+			expectedError: edx.ErrIncorrectInputParam,
 		},
 	}
 
 	for _, testCase := range testTable {
 		t.Run(testCase.name, func(t *testing.T) {
 			expect := testCase.expectedError
-			_, correct := edx.AddStudent(testCase.username, testCase.courseId, testCase.cohortId)
+			_, correct := edxUseCase.ApiCohort.AddStudent(testCase.username, testCase.courseId, testCase.cohortId)
 			assert.Equal(t, expect, correct)
 		})
 	}

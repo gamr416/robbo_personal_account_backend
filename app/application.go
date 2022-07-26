@@ -15,9 +15,7 @@ import (
 	crshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/courses/http"
 	crsusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/courses/usecase"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
-	chrtedxapi "github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi/edxApiCohortsUsecase"
-	crsedxapi "github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi/edxApiCoursesUsecase"
-	usredxapi "github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi/edxApiUsersUsecase"
+	edxusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/edx/usecase"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/logger"
 	ppagedelegate "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/delegate"
 	ppagegateway "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/gateway"
@@ -42,26 +40,24 @@ func InvokeWith(options ...fx.Option) *fx.App {
 		fx.Provide(authgateway.SetupAuthGateway),
 		fx.Provide(prjgateway.SetupProjectsGateway),
 		fx.Provide(ppagegateway.SetupProjectPageGateway),
+		fx.Provide(crsgateway.SetupCoursesGateway),
+		fx.Provide(chrtgateway.SetupCohortsGateway),
 		fx.Provide(authusecase.SetupAuthUseCase),
 		fx.Provide(prjusecase.SetupProjectUseCase),
 		fx.Provide(ppageusecase.SetupProjectPageUseCase),
-		fx.Provide(crsedxapi.SetupEdxApiCourse),
-		fx.Provide(usredxapi.SetupEdxApiUser),
-		fx.Provide(chrtedxapi.SetupEdxApiCohort),
+		fx.Provide(crsusecase.SetupCourseUseCase),
+		fx.Provide(chrtusecase.SetupCohortUseCase),
+		fx.Provide(edxusecase.SetupEdxApiUseCase),
 		fx.Provide(authdelegate.SetupAuthDelegate),
 		fx.Provide(prjdelegate.SetupProjectDelegate),
 		fx.Provide(ppagedelegate.SetupProjectPageDelegate),
+		fx.Provide(crsdelegate.SetupCourseDelegate),
+		fx.Provide(chrtdelegate.SetupCohortDelegate),
 		fx.Provide(prjhttp.NewProjectsHandler),
 		fx.Provide(ppagehttp.NewProjectPageHandler),
 		fx.Provide(authhttp.NewAuthHandler),
-		fx.Provide(crsdelegate.SetupCourseDelegate),
-		fx.Provide(crsgateway.SetupCoursesGateway),
 		fx.Provide(crshttp.NewCoursesHandler),
-		fx.Provide(crsusecase.SetupCourseUseCase),
-		fx.Provide(chrtdelegate.SetupCohortDelegate),
-		fx.Provide(chrtgateway.SetupCohortsGateway),
 		fx.Provide(chrthttp.NewCohortsHandler),
-		fx.Provide(chrtusecase.SetupCohortUseCase),
 	}
 	for _, option := range options {
 		di = append(di, option)

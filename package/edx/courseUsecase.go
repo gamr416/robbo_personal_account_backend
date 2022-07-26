@@ -1,8 +1,8 @@
-package edxApi
+package edx
 
 //go:generate mockgen -source=usecase.go -destination=mocks/mock.go
 
-type EdxApiCourse interface {
+type CourseUseCase interface {
 	GetCoursesByUser() (respBody []byte, err error)
 	GetAllPublicCourses(pageNumber int) (respBody []byte, err error)
 	GetEnrollments(username string) (respBody []byte, err error)

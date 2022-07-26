@@ -3,10 +3,12 @@ package gateway
 import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"go.uber.org/fx"
+<<<<<<< HEAD
 	"gorm.io/gorm"
 	"strconv"
+=======
+>>>>>>> b51413c19b53a2b40776b2746be8d694d6f8e40e
 )
 
 type AuthGatewayImpl struct {
@@ -24,7 +26,8 @@ func SetupAuthGateway(postgresClient db_client.PostgresClient) AuthGatewayModule
 	}
 }
 
-func (r *AuthGatewayImpl) GetUser(email, password string) (user *models.UserCore, err error) {
+/*
+func (r *AuthGatewayImpl) GetUser(email, password string) (user *models.UserBase, err error) {
 	var userDb models.UserDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Where("email = ? AND  password = ?", email, password).First(&userDb).Error; err != nil {
@@ -36,6 +39,7 @@ func (r *AuthGatewayImpl) GetUser(email, password string) (user *models.UserCore
 	user = userDb.ToCore()
 	return
 }
+<<<<<<< HEAD
 
 func (r *AuthGatewayImpl) CreateUser(user *models.UserCore) (id string, err error) {
 	userDb := models.UserDB{}
@@ -52,3 +56,6 @@ func (r *AuthGatewayImpl) CreateUser(user *models.UserCore) (id string, err erro
 	id = strconv.FormatUint(uint64(userDb.ID), 10)
 	return
 }
+=======
+*/
+>>>>>>> b51413c19b53a2b40776b2746be8d694d6f8e40e

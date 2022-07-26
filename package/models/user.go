@@ -2,8 +2,6 @@ package models
 
 import (
 	"github.com/dgrijalva/jwt-go/v4"
-	"gorm.io/gorm"
-	"strconv"
 )
 
 type Role int
@@ -23,6 +21,7 @@ type UserClaims struct {
 	Id   string
 	Role Role
 }
+<<<<<<< HEAD
 
 type UserHttp struct {
 	Email    string `json:"email"`
@@ -74,4 +73,19 @@ func (em *UserHttp) FromCore(user *UserCore) {
 	em.Email = user.Email
 	em.Password = user.Password
 	em.Role = uint(user.Role)
+=======
+type UserToken struct {
+	ID   string
+	Role Role
+}
+
+type User struct {
+	Email      string `json:"email"`
+	Username   string `json:"username"`
+	FirstName  string `json:"first_name"`
+	MiddleName string `json:"middle_name"`
+	LastName   string `json:"last_name"`
+	Password   string `json:"password"`
+	Role       Role   `json:"role"`
+>>>>>>> b51413c19b53a2b40776b2746be8d694d6f8e40e
 }

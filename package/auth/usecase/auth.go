@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"crypto/sha1"
+	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
@@ -44,22 +45,63 @@ func SetupAuthUseCase(gateway auth.Gateway) AuthUseCaseModule {
 	}
 }
 
-func (a *AuthUseCaseImpl) SignIn(userCore *models.UserCore) (accessToken, refreshToken string, err error) {
+func (a *AuthUseCaseImpl) SignIn(email, passwordIn string, role uint) (accessToken, refreshToken string, err error) {
 	pwd := sha1.New()
-	pwd.Write([]byte(userCore.Password))
+	pwd.Write([]byte(passwordIn))
 	pwd.Write([]byte(a.hashSalt))
 	password := fmt.Sprintf("%x", pwd.Sum(nil))
+	var userToken models.UserToken
 
-	user, err := a.Gateway.GetUser(userCore.Email, password)
+	switch role {
+	case 0:
+		user, err := a.usersUseCase.GetStudent(email, password)
+		if err != nil {
+			return "", "", err
+		}
+		userToken.ID = user.ID
+		userToken.Role = user.Role
+	case 1:
+		user, err := a.usersUseCase.GetTeacher(email, password)
+		if err != nil {
+			return "", "", err
+		}
+		userToken.ID = user.ID
+		userToken.Role = user.Role
+	case 2:
+		user, err := a.usersUseCase.GetParent(email, password)
+		if err != nil {
+			return "", "", err
+		}
+		userToken.ID = user.ID
+		userToken.Role = user.Role
+	case 3:
+		return "", "", errors.New("error no permissions")
+	case 4:
+		user, err := a.usersUseCase.GetUnitAdmin(email, password)
+		if err != nil {
+			return "", "", err
+		}
+		userToken.ID = user.ID
+		userToken.Role = user.Role
+	case 5:
+		user, err := a.usersUseCase.GetSuperAdmin(email, password)
+		if err != nil {
+			return "", "", err
+		}
+		userToken.ID = user.ID
+		userToken.Role = user.Role
+	default:
+		fmt.Println("error")
+	}
+
 	if err != nil {
 		return
 	}
-
-	accessToken, err = a.GenerateToken(user, a.accessExpireDuration, a.accessSigningKey)
+	accessToken, err = a.GenerateToken(&userToken, a.accessExpireDuration, a.accessSigningKey)
 	if err != nil {
 		return "", "", err
 	}
-	refreshToken, err = a.GenerateToken(user, a.refreshExpireDuration, a.refreshSigningKey)
+	refreshToken, err = a.GenerateToken(&userToken, a.refreshExpireDuration, a.refreshSigningKey)
 	if err != nil {
 		return "", "", err
 	}
@@ -67,24 +109,78 @@ func (a *AuthUseCaseImpl) SignIn(userCore *models.UserCore) (accessToken, refres
 	return
 }
 
-func (a *AuthUseCaseImpl) SignUp(userCore *models.UserCore) (accessToken, refreshToken string, err error) {
+func (a *AuthUseCaseImpl) SignUp(userCore *models.User, role models.Role) (accessToken, refreshToken string, err error) {
 	pwd := sha1.New()
 	pwd.Write([]byte(userCore.Password))
 	pwd.Write([]byte(a.hashSalt))
 
 	userCore.Password = fmt.Sprintf("%x", pwd.Sum(nil))
+<<<<<<< HEAD
 
 	id, err := a.Gateway.CreateUser(userCore)
+=======
+	var userToken models.UserToken
+	switch userCore.Role {
+	case 0:
+		student := &models.StudentCore{
+			User: *userCore,
+		}
+		id, err := a.usersUseCase.CreateStudent(student)
+		if err != nil {
+			return "", "", err
+		}
+		userToken.ID = id
+		userToken.Role = userCore.Role
+	case 1:
+		teacher := &models.TeacherCore{
+			User: *userCore,
+		}
+		id, err := a.usersUseCase.CreateTeacher(teacher)
+		if err != nil {
+			return "", "", err
+		}
+		userToken.ID = id
+		userToken.Role = userCore.Role
+	case 2:
+		parent := &models.ParentCore{
+			User: *userCore,
+		}
+		id, err := a.usersUseCase.CreateParent(parent)
+		if err != nil {
+			return "", "", err
+		}
+		userToken.ID = id
+		userToken.Role = userCore.Role
+	case 3:
+		return "", "", errors.New("error no permissions")
+	case 4:
+		roleAdmin := models.Role(5)
+		if role == roleAdmin {
+			unitAdmin := &models.UnitAdminCore{
+				User: *userCore,
+			}
+			id, err := a.usersUseCase.CreateUnitAdmin(unitAdmin)
+			if err != nil {
+				return "", "", err
+			}
+			userToken.ID = id
+			userToken.Role = userCore.Role
+		} else {
+			return "", "", errors.New("error no permissions")
+		}
+	default:
+		fmt.Println("error")
+	}
+>>>>>>> b51413c19b53a2b40776b2746be8d694d6f8e40e
 	if err != nil {
 		return "", "", err
 	}
-	userCore.ID = id
 
-	accessToken, err = a.GenerateToken(userCore, a.accessExpireDuration, a.accessSigningKey)
+	accessToken, err = a.GenerateToken(&userToken, a.accessExpireDuration, a.accessSigningKey)
 	if err != nil {
 		return "", "", err
 	}
-	refreshToken, err = a.GenerateToken(userCore, a.refreshExpireDuration, a.refreshSigningKey)
+	refreshToken, err = a.GenerateToken(&userToken, a.refreshExpireDuration, a.refreshSigningKey)
 
 	return
 }
@@ -114,7 +210,7 @@ func (a *AuthUseCaseImpl) RefreshToken(token string) (newAccessToken string, err
 		return "", err
 	}
 
-	user := &models.UserCore{
+	user := &models.UserToken{
 		ID:   claims.Id,
 		Role: claims.Role,
 	}
@@ -127,7 +223,7 @@ func (a *AuthUseCaseImpl) RefreshToken(token string) (newAccessToken string, err
 	return
 }
 
-func (a *AuthUseCaseImpl) GenerateToken(user *models.UserCore, duration time.Duration, signingKey []byte) (token string, err error) {
+func (a *AuthUseCaseImpl) GenerateToken(user *models.UserToken, duration time.Duration, signingKey []byte) (token string, err error) {
 	claims := models.UserClaims{
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: jwt.At(time.Now().Add(duration * time.Second)),

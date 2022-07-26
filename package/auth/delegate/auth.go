@@ -21,12 +21,12 @@ func SetupAuthDelegate(usecase auth.UseCase) AuthDelegateModule {
 	}
 }
 
-func (s *AuthDelegateImpl) SignIn(userHttp *models.UserHttp) (accessToken, refreshToken string, err error) {
-	return s.UseCase.SignIn(userHttp.ToCore())
+func (s *AuthDelegateImpl) SignIn(email, password string, role uint) (accessToken, refreshToken string, err error) {
+	return s.UseCase.SignIn(email, password, role)
 }
 
-func (s *AuthDelegateImpl) SignUp(userHttp *models.UserHttp) (accessToken, refreshToken string, err error) {
-	return s.UseCase.SignUp(userHttp.ToCore())
+func (s *AuthDelegateImpl) SignUp(userHttp *models.User, role models.Role) (accessToken, refreshToken string, err error) {
+	return s.UseCase.SignUp(userHttp, role)
 }
 
 func (s *AuthDelegateImpl) ParseToken(token string, key []byte) (claims *models.UserClaims, err error) {

@@ -11,7 +11,12 @@ import (
 
 type CourseDelegateImpl struct {
 	courses.UseCase
+<<<<<<< HEAD
 	edx.CourseUseCase
+=======
+	edxApi.EdxApiCourse
+	edxApi.EdxApiUser
+>>>>>>> b51413c19b53a2b40776b2746be8d694d6f8e40e
 }
 
 type CourseDelegateModule struct {
@@ -19,11 +24,16 @@ type CourseDelegateModule struct {
 	courses.Delegate
 }
 
+<<<<<<< HEAD
 func SetupCourseDelegate(usecase courses.UseCase, edx edx.CourseUseCase) CourseDelegateModule {
+=======
+func SetupCourseDelegate(usecase courses.UseCase, edxCourse edxApi.EdxApiCourse, edxUser edxApi.EdxApiUser) CourseDelegateModule {
+>>>>>>> b51413c19b53a2b40776b2746be8d694d6f8e40e
 	return CourseDelegateModule{
 		Delegate: &CourseDelegateImpl{
 			usecase,
-			edx,
+			edxCourse,
+			edxUser,
 		},
 	}
 }
@@ -81,3 +91,42 @@ func (p *CourseDelegateImpl) GetAllPublicCourses(pageNumber int) (respBody []byt
 	}
 	return body, nil
 }
+<<<<<<< HEAD
+=======
+
+func (p *CourseDelegateImpl) PostEnrollment(postEnrollmentHTTP *models.PostEnrollmentHTTP) (err error) {
+	_, err = p.EdxApiCourse.PostEnrollment(postEnrollmentHTTP.Message)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return
+}
+
+func (p *CourseDelegateImpl) PostUnenroll(postUnenrollHTTP *models.PostEnrollmentHTTP) (err error) {
+	_, err = p.EdxApiCourse.PostEnrollment(postUnenrollHTTP.Message)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return
+}
+
+func (p *CourseDelegateImpl) Login(email, password string) (err error) {
+	_, err = p.EdxApiUser.Login(email, password)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return
+}
+
+func (p *CourseDelegateImpl) Registration(userForm *edxApi.RegistrationForm) (err error) {
+	_, err = p.EdxApiUser.PostRegistration(*userForm)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return
+}
+>>>>>>> b51413c19b53a2b40776b2746be8d694d6f8e40e

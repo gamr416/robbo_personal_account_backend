@@ -57,6 +57,8 @@ type loginUser struct {
 func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 	users := router.Group("/users")
 	{
+		users.GET("/", h.GetUser)
+
 		users.POST("/student", h.CreateStudent)
 		users.DELETE("/student/:studentId", h.DeleteStudent)
 		users.GET("/student/:studentId", h.GetStudentById)
@@ -83,6 +85,65 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 		users.GET("/unitAdmin/:unitAdminId", h.GetUnitAdminByID)
 
 		users.GET("/superAdmin/:superAdminId", h.GetSuperAdminById)
+	}
+}
+
+func (h *Handler) GetUser(c *gin.Context) {
+	fmt.Println("GetUser")
+	id, role, err := h.userIdentity(c)
+	userId, err := strconv.Atoi(id)
+
+	if err != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
+
+	switch role {
+	case models.Student:
+		student, getStudentErr := h.usersDelegate.GetStudentById(uint(userId))
+		if getStudentErr != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		c.JSON(http.StatusOK, student)
+	case models.Teacher:
+		teacher, getTeacherErr := h.usersDelegate.GetTeacherById(uint(userId))
+		if getTeacherErr != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		c.JSON(http.StatusOK, teacher)
+		return
+	case models.Parent:
+		parent, getParentErr := h.usersDelegate.GetParentById(uint(userId))
+		if getParentErr != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		c.JSON(http.StatusOK, parent)
+		return
+	case models.FreeListener:
+		freeListener, getFreeListenerErr := h.usersDelegate.GetFreeListenerById(uint(userId))
+		if getFreeListenerErr != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		c.JSON(http.StatusOK, freeListener)
+	case models.UnitAdmin:
+		unitAdmin, getUnitAdminErr := h.usersDelegate.GetUnitAdminById(uint(userId))
+		if getUnitAdminErr != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		c.JSON(http.StatusOK, unitAdmin)
+		return
+	case models.SuperAdmin:
+		superAdmin, getSuperAdminErr := h.usersDelegate.GetSuperAdminById(uint(userId))
+		if getSuperAdminErr != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		c.JSON(http.StatusOK, superAdmin)
+		return
 	}
 }
 

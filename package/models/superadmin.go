@@ -2,6 +2,7 @@ package models
 
 import (
 	"gorm.io/gorm"
+	"strconv"
 )
 
 type SuperAdminHTTP struct {
@@ -20,6 +21,7 @@ type SuperAdminCore struct {
 func (em *SuperAdminDB) ToCore() *SuperAdminCore {
 	return &SuperAdminCore{
 		UserCore{
+			Id:         strconv.FormatUint(uint64(em.ID), 10),
 			Email:      em.Email,
 			Password:   em.Password,
 			Role:       Role(em.Role),
@@ -33,6 +35,8 @@ func (em *SuperAdminDB) ToCore() *SuperAdminCore {
 }
 
 func (em *SuperAdminDB) FromCore(superAdmin *SuperAdminCore) {
+	id, _ := strconv.ParseUint(superAdmin.Id, 10, 64)
+	em.ID = uint(id)
 	em.Email = superAdmin.Email
 	em.Password = superAdmin.Password
 	em.Role = uint(superAdmin.Role)
@@ -45,6 +49,7 @@ func (em *SuperAdminDB) FromCore(superAdmin *SuperAdminCore) {
 func (ht *SuperAdminHTTP) ToCore() *SuperAdminCore {
 	return &SuperAdminCore{
 		UserCore{
+			Id:         ht.Id,
 			Email:      ht.Email,
 			Password:   ht.Password,
 			Role:       Role(ht.Role),
@@ -57,6 +62,7 @@ func (ht *SuperAdminHTTP) ToCore() *SuperAdminCore {
 }
 
 func (ht *SuperAdminHTTP) FromCore(superAdmin *SuperAdminCore) {
+	ht.Id = superAdmin.Id
 	ht.CreatedAt = superAdmin.CreatedAt
 	ht.Email = superAdmin.Email
 	ht.Password = superAdmin.Password

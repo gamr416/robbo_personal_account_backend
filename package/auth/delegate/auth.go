@@ -33,6 +33,6 @@ func (s *AuthDelegateImpl) SignUp(userHttp *models.UserHttp) (accessToken, refre
 func (s *AuthDelegateImpl) ParseToken(token string, key []byte) (claims *models.UserClaims, err error) {
 	return s.UseCase.ParseToken(token, key)
 }
-func (s *AuthDelegateImpl) RefreshToken(token string) (newAccessToken string, err error) {
-	return s.UseCase.RefreshToken(token)
+func (s *AuthDelegateImpl) RefreshToken(refreshToken string) (newAccessToken string, err error) {
+	return s.UseCase.RefreshToken(refreshToken)
 }

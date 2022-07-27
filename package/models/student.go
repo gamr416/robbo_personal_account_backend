@@ -2,6 +2,7 @@ package models
 
 import (
 	"gorm.io/gorm"
+	"strconv"
 )
 
 type StudentCore struct {
@@ -15,43 +16,19 @@ type StudentCore struct {
 type StudentHTTP struct {
 	UserHttp
 	ParentID uint `json:"parent_id"`
-	//GroupsID   []uint `json:"groups_id"`
-	//TeachersID []uint `json:"teachers_id"`
-	//ProjectsID []uint `json:"projects_id"`
 }
 
 type StudentDB struct {
 	gorm.Model
 	UserDB
 	ParentID uint
-	Parent   ParentDB `gorm:"foreignKey:ParentID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
 }
-
-//type StudentGroup struct {
-//	StudentID uint
-//	Student   StudentDB `gorm:"foreignKey:StudentID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
-//	GroupID   uint
-//	Group     GroupDB `gorm:"foreignKey:GroupID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
-//}
-//
-//type StudentTeacher struct {
-//	StudentID uint
-//	Student   StudentDB `gorm:"foreignKey:StudentID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
-//	TeacherID uint
-//	Teacher   TeacherDB `gorm:"foreignKey:TeacherID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
-//}
-//
-//type StudentProject struct {
-//	StudentID uint
-//	Student   StudentDB `gorm:"foreignKey:StudentID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
-//	ProjectID uint
-//	Project   ProjectDB `gorm:"foreignKey:ProjectID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
-//}
 
 func (em *StudentDB) ToCore() *StudentCore {
 	return &StudentCore{
 		ParentID: em.ParentID,
 		UserCore: UserCore{
+			Id:         strconv.FormatUint(uint64(em.ID), 10),
 			Email:      em.Email,
 			Password:   em.Password,
 			Role:       Role(em.Role),
@@ -65,6 +42,8 @@ func (em *StudentDB) ToCore() *StudentCore {
 }
 
 func (em *StudentDB) FromCore(student *StudentCore) {
+	id, _ := strconv.ParseUint(student.Id, 10, 64)
+	em.ID = uint(id)
 	em.Email = student.Email
 	em.Password = student.Password
 	em.Role = uint(student.Role)
@@ -79,6 +58,7 @@ func (ht *StudentHTTP) ToCore() *StudentCore {
 	return &StudentCore{
 		ParentID: ht.ParentID,
 		UserCore: UserCore{
+			Id:         ht.Id,
 			Email:      ht.Email,
 			Password:   ht.Password,
 			Role:       Role(ht.Role),
@@ -91,6 +71,7 @@ func (ht *StudentHTTP) ToCore() *StudentCore {
 }
 
 func (ht *StudentHTTP) FromCore(student *StudentCore) {
+	ht.Id = student.Id
 	ht.CreatedAt = student.CreatedAt
 	ht.Email = student.Email
 	ht.Password = student.Password

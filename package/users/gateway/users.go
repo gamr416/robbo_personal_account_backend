@@ -1,6 +1,7 @@
 package gateway
 
 import (
+	"fmt"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
@@ -37,7 +38,8 @@ func (r *UsersGatewayImpl) GetStudent(email, password string) (student *models.S
 		return
 	})
 	student = studentDb.ToCore()
-	return student, err
+	fmt.Println(student)
+	return
 }
 
 func (r *UsersGatewayImpl) CreateStudent(student *models.StudentCore) (id string, err error) {

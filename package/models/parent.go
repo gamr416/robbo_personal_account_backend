@@ -2,11 +2,11 @@ package models
 
 import (
 	"gorm.io/gorm"
+	"strconv"
 )
 
 type ParentCore struct {
 	UserCore
-	//StudentsID []uint
 }
 
 type ParentDB struct {
@@ -16,19 +16,12 @@ type ParentDB struct {
 
 type ParentHTTP struct {
 	UserHttp
-	//StudentsID []uint `json:"students_id"`
 }
-
-//type ParentStudent struct {
-//	ParentID  uint
-//	Parent    ParentDB `gorm:"foreignKey:ParentID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
-//	StudentID uint
-//	Student   StudentDB `gorm:"foreignKey:StudentID;references:ID;constraint:onUpdate:CASCADE;onDELETE:CASCADE"`
-//}
 
 func (em *ParentDB) ToCore() *ParentCore {
 	return &ParentCore{
 		UserCore: UserCore{
+			Id:         strconv.FormatUint(uint64(em.ID), 10),
 			Email:      em.Email,
 			Password:   em.Password,
 			Role:       Role(em.Role),
@@ -38,11 +31,12 @@ func (em *ParentDB) ToCore() *ParentCore {
 			Middlename: em.Middlename,
 			CreatedAt:  em.CreatedAt.String(),
 		},
-		//StudentsID: students,
 	}
 }
 
 func (em *ParentDB) FromCore(parent *ParentCore) {
+	id, _ := strconv.ParseUint(parent.Id, 10, 64)
+	em.ID = uint(id)
 	em.Email = parent.Email
 	em.Password = parent.Password
 	em.Role = uint(parent.Role)
@@ -55,6 +49,7 @@ func (em *ParentDB) FromCore(parent *ParentCore) {
 func (ht *ParentHTTP) ToCore() *ParentCore {
 	return &ParentCore{
 		UserCore: UserCore{
+			Id:         ht.Id,
 			Email:      ht.Email,
 			Password:   ht.Password,
 			Role:       Role(ht.Role),
@@ -68,6 +63,7 @@ func (ht *ParentHTTP) ToCore() *ParentCore {
 }
 
 func (ht *ParentHTTP) FromCore(parent *ParentCore) {
+	ht.Id = parent.Id
 	ht.CreatedAt = parent.CreatedAt
 	ht.Email = parent.Email
 	ht.Password = parent.Password

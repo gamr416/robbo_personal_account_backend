@@ -2,6 +2,7 @@ package models
 
 import (
 	"gorm.io/gorm"
+	"strconv"
 )
 
 type TeacherCore struct {
@@ -55,6 +56,7 @@ type TeacherHTTP struct {
 func (em *TeacherDB) ToCore() *TeacherCore {
 	return &TeacherCore{
 		UserCore{
+			Id:         strconv.FormatUint(uint64(em.ID), 10),
 			Email:      em.Email,
 			Password:   em.Password,
 			Role:       Role(em.Role),
@@ -68,6 +70,8 @@ func (em *TeacherDB) ToCore() *TeacherCore {
 }
 
 func (em *TeacherDB) FromCore(teacher *TeacherCore) {
+	id, _ := strconv.ParseUint(teacher.Id, 10, 64)
+	em.ID = uint(id)
 	em.Email = teacher.Email
 	em.Password = teacher.Password
 	em.Role = uint(teacher.Role)
@@ -80,6 +84,7 @@ func (em *TeacherDB) FromCore(teacher *TeacherCore) {
 func (ht *TeacherHTTP) ToCore() *TeacherCore {
 	return &TeacherCore{
 		UserCore{
+			Id:         ht.Id,
 			Email:      ht.Email,
 			Password:   ht.Password,
 			Role:       Role(ht.Role),
@@ -92,6 +97,7 @@ func (ht *TeacherHTTP) ToCore() *TeacherCore {
 }
 
 func (ht *TeacherHTTP) FromCore(teacher *TeacherCore) {
+	ht.Id = teacher.Id
 	ht.CreatedAt = teacher.CreatedAt
 	ht.Email = teacher.Email
 	ht.Password = teacher.Password

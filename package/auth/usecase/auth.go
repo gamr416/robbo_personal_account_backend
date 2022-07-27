@@ -50,9 +50,7 @@ func (a *AuthUseCaseImpl) SignIn(email, passwordIn string, role uint) (accessTok
 	pwd.Write([]byte(passwordIn))
 	pwd.Write([]byte(a.hashSalt))
 	password := fmt.Sprintf("%x", pwd.Sum(nil))
-
-	user := models.UserCore{}
-
+	var user = new(models.UserCore)
 	switch models.Role(role) {
 	case models.Student:
 		student, getStudentErr := a.Gateway.GetStudent(email, password)
@@ -61,7 +59,6 @@ func (a *AuthUseCaseImpl) SignIn(email, passwordIn string, role uint) (accessTok
 		}
 		user.Id = student.Id
 		user.Role = models.Student
-		return
 	case models.Teacher:
 		teacher, getTeacherErr := a.Gateway.GetTeacher(email, password)
 		if getTeacherErr != nil {
@@ -69,7 +66,6 @@ func (a *AuthUseCaseImpl) SignIn(email, passwordIn string, role uint) (accessTok
 		}
 		user.Id = teacher.Id
 		user.Role = models.Teacher
-		return
 	case models.Parent:
 		parent, getParentErr := a.Gateway.GetParent(email, password)
 		if getParentErr != nil {
@@ -77,7 +73,6 @@ func (a *AuthUseCaseImpl) SignIn(email, passwordIn string, role uint) (accessTok
 		}
 		user.Id = parent.Id
 		user.Role = models.Parent
-		return
 	case models.FreeListener:
 		freeListener, getFreeListenerErr := a.Gateway.GetFreeListener(email, password)
 		if getFreeListenerErr != nil {
@@ -85,7 +80,6 @@ func (a *AuthUseCaseImpl) SignIn(email, passwordIn string, role uint) (accessTok
 		}
 		user.Id = freeListener.Id
 		user.Role = models.FreeListener
-		return
 	case models.UnitAdmin:
 		unitAdmin, getUnitAdminErr := a.Gateway.GetUnitAdmin(email, password)
 		if getUnitAdminErr != nil {
@@ -93,7 +87,6 @@ func (a *AuthUseCaseImpl) SignIn(email, passwordIn string, role uint) (accessTok
 		}
 		user.Id = unitAdmin.Id
 		user.Role = models.UnitAdmin
-		return
 	case models.SuperAdmin:
 		superAdmin, getSuperAdminErr := a.Gateway.GetSuperAdmin(email, password)
 		if err != nil {
@@ -101,7 +94,6 @@ func (a *AuthUseCaseImpl) SignIn(email, passwordIn string, role uint) (accessTok
 		}
 		user.Id = superAdmin.Id
 		user.Role = models.SuperAdmin
-		return
 	default:
 		err = auth.ErrUserNotFound
 	}
@@ -109,11 +101,12 @@ func (a *AuthUseCaseImpl) SignIn(email, passwordIn string, role uint) (accessTok
 	if err != nil {
 		return "", "", err
 	}
-	accessToken, err = a.GenerateToken(&user, a.accessExpireDuration, a.accessSigningKey)
+
+	accessToken, err = a.GenerateToken(user, a.accessExpireDuration, a.accessSigningKey)
 	if err != nil {
 		return "", "", err
 	}
-	refreshToken, err = a.GenerateToken(&user, a.refreshExpireDuration, a.refreshSigningKey)
+	refreshToken, err = a.GenerateToken(user, a.refreshExpireDuration, a.refreshSigningKey)
 	if err != nil {
 		return "", "", err
 	}
@@ -137,7 +130,6 @@ func (a *AuthUseCaseImpl) SignUp(userCore *models.UserCore) (accessToken, refres
 			return "", "", createStudentErr
 		}
 		userCore.Id = id
-		return
 	case models.Teacher:
 		teacher := &models.TeacherCore{
 			UserCore: *userCore,
@@ -147,7 +139,6 @@ func (a *AuthUseCaseImpl) SignUp(userCore *models.UserCore) (accessToken, refres
 			return "", "", createTeacherErr
 		}
 		userCore.Id = id
-		return
 	case models.Parent:
 		parent := &models.ParentCore{
 			UserCore: *userCore,
@@ -157,7 +148,6 @@ func (a *AuthUseCaseImpl) SignUp(userCore *models.UserCore) (accessToken, refres
 			return "", "", createParentErr
 		}
 		userCore.Id = id
-		return
 	case models.FreeListener:
 		freeListener := &models.FreeListenerCore{
 			UserCore: *userCore,
@@ -167,7 +157,6 @@ func (a *AuthUseCaseImpl) SignUp(userCore *models.UserCore) (accessToken, refres
 			return "", "", createFreeListenerErr
 		}
 		userCore.Id = id
-		return
 	default:
 		err = auth.ErrUserNotFound
 	}

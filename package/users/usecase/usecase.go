@@ -24,9 +24,9 @@ func SetupUsersUseCase(gateway users.Gateway) UsersUseCaseModule {
 	}
 }
 
-func (p *UsersUseCaseImpl) GetStudent(email, password string) (student *models.StudentCore, err error) {
-	return p.Gateway.GetStudent(email, password)
-}
+//func (p *UsersUseCaseImpl) GetStudent(email, password string) (student *models.StudentCore, err error) {
+//	return p.Gateway.GetStudent(email, password)
+//}
 
 func (p *UsersUseCaseImpl) GetStudentById(studentId uint) (student *models.StudentCore, err error) {
 	return p.Gateway.GetStudentById(studentId)
@@ -53,9 +53,9 @@ func (p *UsersUseCaseImpl) GetTeacherByID(teacherId uint) (teacher *models.Teach
 	return p.Gateway.GetTeacherById(teacherId)
 }
 
-func (p *UsersUseCaseImpl) GetTeacher(email, password string) (teacher *models.TeacherCore, err error) {
-	return p.Gateway.GetTeacher(email, password)
-}
+//func (p *UsersUseCaseImpl) GetTeacher(email, password string) (teacher *models.TeacherCore, err error) {
+//	return p.Gateway.GetTeacher(email, password)
+//}
 
 func (p *UsersUseCaseImpl) UpdateTeacher(teacher *models.TeacherCore) (err error) {
 	err = p.Gateway.UpdateTeacher(teacher)
@@ -74,9 +74,9 @@ func (p *UsersUseCaseImpl) DeleteTeacher(teacherId uint) (err error) {
 	return p.Gateway.DeleteTeacher(teacherId)
 }
 
-func (p *UsersUseCaseImpl) GetParent(email, password string) (parent *models.ParentCore, err error) {
-	return p.Gateway.GetParent(email, password)
-}
+//func (p *UsersUseCaseImpl) GetParent(email, password string) (parent *models.ParentCore, err error) {
+//	return p.Gateway.GetParent(email, password)
+//}
 
 func (p *UsersUseCaseImpl) GetParentById(parentId uint) (parent *models.ParentCore, err error) {
 	return p.Gateway.GetParentById(parentId)
@@ -99,9 +99,9 @@ func (p *UsersUseCaseImpl) UpdateParent(parent *models.ParentCore) (err error) {
 	return
 }
 
-func (p *UsersUseCaseImpl) GetFreeListener(email, password string) (freeListener *models.FreeListenerCore, err error) {
-	return p.Gateway.GetFreeListener(email, password)
-}
+//func (p *UsersUseCaseImpl) GetFreeListener(email, password string) (freeListener *models.FreeListenerCore, err error) {
+//	return p.Gateway.GetFreeListener(email, password)
+//}
 
 func (p *UsersUseCaseImpl) GetFreeListenerById(freeListenerId uint) (freeListener *models.FreeListenerCore, err error) {
 	return p.Gateway.GetFreeListenerById(freeListenerId)
@@ -128,9 +128,9 @@ func (p *UsersUseCaseImpl) GetUnitAdminById(unitAdminId uint) (unitAdmin *models
 	return p.Gateway.GetUnitAdminById(unitAdminId)
 }
 
-func (p *UsersUseCaseImpl) GetUnitAdmin(email, password string) (unitAdmin *models.UnitAdminCore, err error) {
-	return p.Gateway.GetUnitAdmin(email, password)
-}
+//func (p *UsersUseCaseImpl) GetUnitAdmin(email, password string) (unitAdmin *models.UnitAdminCore, err error) {
+//	return p.Gateway.GetUnitAdmin(email, password)
+//}
 
 func (p *UsersUseCaseImpl) UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (err error) {
 	err = p.Gateway.UpdateUnitAdmin(unitAdmin)
@@ -149,9 +149,9 @@ func (p *UsersUseCaseImpl) DeleteUnitAdmin(unitAdminId uint) (err error) {
 	return p.Gateway.DeleteUnitAdmin(unitAdminId)
 }
 
-func (p *UsersUseCaseImpl) GetSuperAdmin(email, password string) (superAdmin *models.SuperAdminCore, err error) {
-	return p.Gateway.GetSuperAdmin(email, password)
-}
+//func (p *UsersUseCaseImpl) GetSuperAdmin(email, password string) (superAdmin *models.SuperAdminCore, err error) {
+//	return p.Gateway.GetSuperAdmin(email, password)
+//}
 
 func (p *UsersUseCaseImpl) GetSuperAdminById(superAdminId uint) (superAdmin *models.SuperAdminCore, err error) {
 	return p.Gateway.GetSuperAdminById(superAdminId)

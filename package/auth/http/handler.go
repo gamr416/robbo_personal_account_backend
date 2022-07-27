@@ -70,7 +70,6 @@ func (h *Handler) SignIn(c *gin.Context) {
 
 func (h *Handler) SignUp(c *gin.Context) {
 	fmt.Println("SignUp")
-	_, role, _ := h.userIdentity(c)
 
 	userHttp := &models.UserHttp{}
 
@@ -79,7 +78,7 @@ func (h *Handler) SignUp(c *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, err := h.delegate.SignUp(userHttp, role)
+	accessToken, refreshToken, err := h.delegate.SignUp(userHttp)
 	if err != nil {
 		ErrorHandling(err, c)
 		return

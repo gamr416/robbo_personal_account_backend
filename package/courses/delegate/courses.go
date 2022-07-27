@@ -7,16 +7,13 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/edx"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"go.uber.org/fx"
+	"log"
 )
 
 type CourseDelegateImpl struct {
 	courses.UseCase
-<<<<<<< HEAD
 	edx.CourseUseCase
-=======
-	edxApi.EdxApiCourse
-	edxApi.EdxApiUser
->>>>>>> b51413c19b53a2b40776b2746be8d694d6f8e40e
+	edx.UserUseCase
 }
 
 type CourseDelegateModule struct {
@@ -24,11 +21,7 @@ type CourseDelegateModule struct {
 	courses.Delegate
 }
 
-<<<<<<< HEAD
-func SetupCourseDelegate(usecase courses.UseCase, edx edx.CourseUseCase) CourseDelegateModule {
-=======
-func SetupCourseDelegate(usecase courses.UseCase, edxCourse edxApi.EdxApiCourse, edxUser edxApi.EdxApiUser) CourseDelegateModule {
->>>>>>> b51413c19b53a2b40776b2746be8d694d6f8e40e
+func SetupCourseDelegate(usecase courses.UseCase, edxCourse edx.CourseUseCase, edxUser edx.UserUseCase) CourseDelegateModule {
 	return CourseDelegateModule{
 		Delegate: &CourseDelegateImpl{
 			usecase,
@@ -91,11 +84,9 @@ func (p *CourseDelegateImpl) GetAllPublicCourses(pageNumber int) (respBody []byt
 	}
 	return body, nil
 }
-<<<<<<< HEAD
-=======
 
 func (p *CourseDelegateImpl) PostEnrollment(postEnrollmentHTTP *models.PostEnrollmentHTTP) (err error) {
-	_, err = p.EdxApiCourse.PostEnrollment(postEnrollmentHTTP.Message)
+	_, err = p.CourseUseCase.PostEnrollment(postEnrollmentHTTP.Message)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -104,7 +95,7 @@ func (p *CourseDelegateImpl) PostEnrollment(postEnrollmentHTTP *models.PostEnrol
 }
 
 func (p *CourseDelegateImpl) PostUnenroll(postUnenrollHTTP *models.PostEnrollmentHTTP) (err error) {
-	_, err = p.EdxApiCourse.PostEnrollment(postUnenrollHTTP.Message)
+	_, err = p.CourseUseCase.PostEnrollment(postUnenrollHTTP.Message)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -113,7 +104,7 @@ func (p *CourseDelegateImpl) PostUnenroll(postUnenrollHTTP *models.PostEnrollmen
 }
 
 func (p *CourseDelegateImpl) Login(email, password string) (err error) {
-	_, err = p.EdxApiUser.Login(email, password)
+	_, err = p.UserUseCase.Login(email, password)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -121,12 +112,11 @@ func (p *CourseDelegateImpl) Login(email, password string) (err error) {
 	return
 }
 
-func (p *CourseDelegateImpl) Registration(userForm *edxApi.RegistrationForm) (err error) {
-	_, err = p.EdxApiUser.PostRegistration(*userForm)
+func (p *CourseDelegateImpl) Registration(userForm *edx.RegistrationForm) (err error) {
+	_, err = p.UserUseCase.PostRegistration(*userForm)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 	return
 }
->>>>>>> b51413c19b53a2b40776b2746be8d694d6f8e40e

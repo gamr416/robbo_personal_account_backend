@@ -37,4 +37,6 @@ type Delegate interface {
 
 	//GetSuperAdmin(email, password string) (superAdmin models.SuperAdminHTTP, err error)
 	GetSuperAdminById(superAdminId uint) (superAdmin models.SuperAdminHTTP, err error)
+	UpdateSuperAdmin(superAdminHTTP *models.SuperAdminHTTP) (err error)
+	DeleteSuperAdmin(superAdminId uint) (err error)
 }

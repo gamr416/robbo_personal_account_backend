@@ -156,3 +156,10 @@ func (p *UsersUseCaseImpl) DeleteUnitAdmin(unitAdminId uint) (err error) {
 func (p *UsersUseCaseImpl) GetSuperAdminById(superAdminId uint) (superAdmin *models.SuperAdminCore, err error) {
 	return p.Gateway.GetSuperAdminById(superAdminId)
 }
+
+func (p *UsersUseCaseImpl) UpdateSuperAdmin(superAdmin *models.SuperAdminCore) (err error) {
+	return p.Gateway.UpdateSuperAdmin(superAdmin)
+}
+func (p *UsersUseCaseImpl) DeleteSuperAdmin(superAdminId uint) (err error) {
+	return p.Gateway.DeleteSuperAdmin(superAdminId)
+}

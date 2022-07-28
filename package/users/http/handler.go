@@ -1,13 +1,11 @@
 package http
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -49,11 +47,6 @@ type getFreeListener struct {
 	FreeListener models.FreeListenerHttp `json:"freeListener"`
 }
 
-type loginUser struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
 func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 	users := router.Group("/users")
 	{
@@ -85,6 +78,8 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 		users.GET("/unitAdmin/:unitAdminId", h.GetUnitAdminByID)
 
 		users.GET("/superAdmin/:superAdminId", h.GetSuperAdminById)
+		users.PUT("/superAdmin", h.UpdateSuperAdmin)
+		users.DELETE("/superAdmin", h.DeleteSuperAdmin)
 	}
 }
 
@@ -188,15 +183,20 @@ func (h *Handler) CreateStudent(c *gin.Context) {
 	})
 }
 
+type updateStudentInput struct {
+	Student *models.StudentHTTP `json:"student"`
+}
+
 func (h *Handler) UpdateStudent(c *gin.Context) {
 	fmt.Println("Update Student")
-	studentHTTP := models.StudentHTTP{}
-	if err := c.BindJSON(studentHTTP); err != nil {
+	updateInput := new(updateStudentInput)
+
+	if err := c.BindJSON(updateInput); err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	err := h.usersDelegate.UpdateStudent(&studentHTTP)
+	err := h.usersDelegate.UpdateStudent(updateInput.Student)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -279,17 +279,20 @@ func (h *Handler) GetTeacherById(c *gin.Context) {
 	})
 }
 
+type updateTeacherInput struct {
+	Teacher *models.TeacherHTTP `json:"teacher"`
+}
+
 func (h *Handler) UpdateTeacher(c *gin.Context) {
 	fmt.Println("Update Teacher")
-	teacherHTTP := models.TeacherHTTP{}
-
-	if err := c.BindJSON(teacherHTTP); err != nil {
+	updateInput := new(updateTeacherInput)
+	if err := c.BindJSON(updateInput); err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	err := h.usersDelegate.UpdateTeacher(&teacherHTTP)
+	err := h.usersDelegate.UpdateTeacher(updateInput.Teacher)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -357,24 +360,20 @@ func (h *Handler) DeleteParent(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+type updateParentInput struct {
+	Parent *models.ParentHTTP `json:"parent"`
+}
+
 func (h *Handler) UpdateParent(c *gin.Context) {
 	fmt.Println("Update Parent")
-	parentHTTP := models.ParentHTTP{}
-	body, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
+	updateInput := new(updateParentInput)
+	if err := c.BindJSON(updateInput); err != nil {
 		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	err = json.Unmarshal(body, &parentHTTP)
-	fmt.Println(parentHTTP)
-	if err != nil {
-		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	err = h.usersDelegate.UpdateParent(&parentHTTP)
+	err := h.usersDelegate.UpdateParent(updateInput.Parent)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -442,17 +441,20 @@ func (h *Handler) DeleteFreeListener(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+type updateFreeListenerInput struct {
+	FreeListener *models.FreeListenerHttp `json:"freeListener"`
+}
+
 func (h *Handler) UpdateFreeListener(c *gin.Context) {
 	fmt.Println("Update Free Listener")
-	freeListenerHTTP := models.FreeListenerHttp{}
-
-	if err := c.BindJSON(freeListenerHTTP); err != nil {
+	updateInput := new(updateFreeListenerInput)
+	if err := c.BindJSON(updateInput); err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	err := h.usersDelegate.UpdateFreeListener(&freeListenerHTTP)
+	err := h.usersDelegate.UpdateFreeListener(updateInput.FreeListener)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -480,17 +482,20 @@ func (h *Handler) GetUnitAdminByID(c *gin.Context) {
 	})
 }
 
+type updateUnitAdminInput struct {
+	UnitAdmin *models.UnitAdminHTTP `json:"unitAdmin"`
+}
+
 func (h *Handler) UpdateUnitAdmin(c *gin.Context) {
 	fmt.Println("Update Unit Admin")
-	unitAdminHTTP := models.UnitAdminHTTP{}
-
-	if err := c.BindJSON(unitAdminHTTP); err != nil {
+	updateInput := new(updateUnitAdminInput)
+	if err := c.BindJSON(updateInput); err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	err := h.usersDelegate.UpdateUnitAdmin(&unitAdminHTTP)
+	err := h.usersDelegate.UpdateUnitAdmin(updateInput.UnitAdmin)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -553,4 +558,41 @@ func (h *Handler) GetSuperAdminById(c *gin.Context) {
 	c.JSON(http.StatusOK, getSuperAdminResponse{
 		superAdmin,
 	})
+}
+
+type updateSuperAdminInput struct {
+	SuperAdmin *models.SuperAdminHTTP `json:"superAdmin"`
+}
+
+func (h *Handler) UpdateSuperAdmin(c *gin.Context) {
+	fmt.Println("Update Super Admin")
+	updateInput := new(updateSuperAdminInput)
+	if err := c.BindJSON(updateInput); err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	err := h.usersDelegate.UpdateSuperAdmin(updateInput.SuperAdmin)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+func (h *Handler) DeleteSuperAdmin(c *gin.Context) {
+	fmt.Println("Delete Super Admin")
+	superAdminId := c.Param("AdminId")
+	id, _ := strconv.Atoi(superAdminId)
+	err := h.usersDelegate.DeleteSuperAdmin(uint(id))
+
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+	c.Status(http.StatusOK)
 }

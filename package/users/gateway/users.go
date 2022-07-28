@@ -363,3 +363,24 @@ func (r *UsersGatewayImpl) GetSuperAdmin(email, password string) (superAdmin *mo
 	superAdmin = superAdminDb.ToCore()
 	return superAdmin, err
 }
+
+func (r *UsersGatewayImpl) UpdateSuperAdmin(superAdmin *models.SuperAdminCore) (err error) {
+	superAdminDb := models.SuperAdminDB{}
+	superAdminDb.FromCore(superAdmin)
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+			err = tx.Model(&superAdminDb).Where("id = ?", superAdminDb.ID).Updates(superAdminDb).Error
+			return
+		})
+		return
+	})
+	return
+}
+
+func (r *UsersGatewayImpl) DeleteSuperAdmin(superAdminId uint) (err error) {
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Delete(&models.SuperAdminDB{}, superAdminId).Error
+		return
+	})
+	return
+}

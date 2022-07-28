@@ -42,27 +42,29 @@ type signInResponse struct {
 func (h *Handler) SignIn(c *gin.Context) {
 	fmt.Println("SignIn")
 
-	userHttp := &models.UserHttp{}
-
-	if err := c.BindJSON(userHttp); err != nil {
+	signInInput := &signInput{}
+	if err := c.BindJSON(signInInput); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	accessToken, refreshToken, err := h.delegate.SignIn(userHttp)
+	accessToken, refreshToken, err := h.delegate.SignIn(signInInput.Email, signInInput.Password, signInInput.Role)
 	if err != nil {
 		ErrorHandling(err, c)
 		return
 	}
 
-	cookie := &http.Cookie{
-		Name:     "refreshToken",
-		Value:    refreshToken,
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:  "token2",
+		Value: refreshToken,
+		Path:  "/auth",
+		//Domain: "0.0.0.0",
 		MaxAge:   60 * 60 * 24 * 7,
 		HttpOnly: true,
-	}
+	})
 
-	http.SetCookie(c.Writer, cookie)
+	refreshToken2, _ := c.Request.Cookie("token")
+	fmt.Println(refreshToken2)
 
 	c.JSON(http.StatusOK, signInResponse{
 		AccessToken: accessToken,
@@ -86,8 +88,9 @@ func (h *Handler) SignUp(c *gin.Context) {
 	}
 
 	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     "token",
+		Name:     "token2",
 		Value:    refreshToken,
+		Path:     "/auth",
 		MaxAge:   60 * 60 * 24 * 7,
 		HttpOnly: true,
 	})
@@ -100,21 +103,18 @@ func (h *Handler) SignUp(c *gin.Context) {
 func (h *Handler) Refresh(c *gin.Context) {
 	fmt.Println("Refresh")
 
-	tokenStr, err := c.Cookie("refreshToken")
-
+	refreshToken, err := c.Request.Cookie("token2")
+	fmt.Println(refreshToken.Value)
 	if err != nil {
-		if err == http.ErrNoCookie {
-			c.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
-		c.AbortWithStatus(http.StatusBadRequest)
+		fmt.Println(err)
+		ErrorHandling(err, c)
 		return
 	}
 
-	newAccessToken, err := h.delegate.RefreshToken(tokenStr)
+	newAccessToken, err := h.delegate.RefreshToken(refreshToken.Value)
 	if err != nil {
 		fmt.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		ErrorHandling(err, c)
 		return
 	}
 
@@ -127,8 +127,9 @@ func (h *Handler) SignOut(c *gin.Context) {
 	fmt.Println("SignOut")
 
 	cookie := &http.Cookie{
-		Name:     "refreshToken",
-		Value:    "",
+		Name:  "token2",
+		Value: "",
+		//Path:     "/",
 		MaxAge:   0,
 		HttpOnly: true,
 	}
@@ -172,6 +173,8 @@ func ErrorHandling(err error, c *gin.Context) {
 	case auth.ErrTokenNotFound:
 		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
 		return
+	case http.ErrNoCookie:
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
 	default:
 		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	}

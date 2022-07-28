@@ -1,7 +1,6 @@
 package courses
 
 import (
-	"errors"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/edx"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
@@ -22,8 +21,8 @@ type EdxApiCourseModule struct {
 }
 
 func (p *EdxApiCourseImpl) GetAllPublicCourses(pageNumber int) (respBody []byte, err error) {
-	if pageNumber <= 0 && pageNumber >= 5000 {
-		return nil, errors.New("Page number is zero or more then page count")
+	if pageNumber <= 0 || pageNumber >= 5000 {
+		return nil, edx.ErrOnReq
 	}
 	resp, err := http.Get(viper.GetString("api_urls.getAllPublicCourses") + strconv.Itoa(pageNumber) + "&page_size=5")
 	if err != nil {

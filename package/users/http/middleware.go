@@ -28,7 +28,7 @@ func (h *Handler) userIdentity(c *gin.Context) (id string, role models.Role, err
 		return
 	}
 
-	claims, err := h.delegate.ParseToken(headerParts[1], []byte(viper.GetString("auth.access_signing_key")))
+	claims, err := h.authDelegate.ParseToken(headerParts[1], []byte(viper.GetString("auth.access_signing_key")))
 	if err != nil {
 		return "", models.Anonymous, auth.ErrInvalidAccessToken
 	}

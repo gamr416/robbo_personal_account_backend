@@ -3,7 +3,7 @@ package usecase
 import (
 	"github.com/go-playground/assert/v2"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/config"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/edx"
+	edxpackage "github.com/skinnykaen/robbo_student_personal_account.git/package/edx"
 	"log"
 	"testing"
 )
@@ -15,7 +15,6 @@ func TestGetUser2(t *testing.T) {
 	edx := SetupEdxApiUseCase()
 
 	expect := []byte("{\"username\":\"edxsom\"}")
-	//correct, _ := edx.GetUser()
 	correct, _ := edx.ApiUser.GetUser()
 	assert.Equal(t, expect, correct)
 
@@ -33,14 +32,14 @@ func TestEdxApiUseCaseImpl_GetCourseContent2(t *testing.T) {
 	}{
 		{
 			name:          "Ok",
-			courseId:      "course-v1:Test_org+01+2022",
+			courseId:      "course-v1:TestOrg+02+2022",
 			expectedError: nil,
 		},
 
 		{
 			name:          "Bad courseId",
 			courseId:      "Ddssadad",
-			expectedError: edx.ErrIncorrectInputParam,
+			expectedError: edxpackage.ErrIncorrectInputParam,
 		},
 	}
 
@@ -68,17 +67,16 @@ func TestEdxApiUseCaseImpl_GetEnrollments2(t *testing.T) {
 			username:      "edxsom",
 			expectedError: nil,
 		},
-
 		{
 			name:          "Bad username",
-			username:      "dsad",
-			expectedError: nil,
+			username:      ".d#42sad",
+			expectedError: edxpackage.ErrIncorrectInputParam,
 		},
-		{
-			name:          "Empty username",
-			username:      "",
-			expectedError: edx.ErrIncorrectInputParam,
-		},
+		//{
+		//	name:          "Empty username",
+		//	username:      "",
+		//	expectedError: edxpackage.ErrIncorrectInputParam,
+		//},
 	}
 
 	for _, testCase := range testTable {
@@ -107,16 +105,15 @@ func TestEdxApiUseCaseImpl_GetAllPublicCourses2(t *testing.T) {
 			pageNumber:    1,
 			expectedError: nil,
 		},
-
 		{
 			name:          "Page number is 0",
 			pageNumber:    0,
-			expectedError: edx.ErrOnReq,
+			expectedError: edxpackage.ErrOnReq,
 		},
 		{
 			name:          "Page number more then page count",
-			pageNumber:    423423423,
-			expectedError: edx.ErrOnReq,
+			pageNumber:    423423,
+			expectedError: edxpackage.ErrOnReq,
 		},
 	}
 
@@ -160,7 +157,7 @@ func TestEdxApiUseCaseImpl_PostEnrollment2(t *testing.T) {
 				},
 				"user": "edxsom",
 			},
-			expectedError: edx.ErrIncorrectInputParam,
+			expectedError: edxpackage.ErrIncorrectInputParam,
 		},
 		{
 			name: "Username incorrect",
@@ -170,7 +167,7 @@ func TestEdxApiUseCaseImpl_PostEnrollment2(t *testing.T) {
 				},
 				"user": "edm",
 			},
-			expectedError: edx.ErrIncorrectInputParam,
+			expectedError: edxpackage.ErrIncorrectInputParam,
 		},
 		{
 			name: "Empty field courseId",
@@ -180,7 +177,7 @@ func TestEdxApiUseCaseImpl_PostEnrollment2(t *testing.T) {
 				},
 				"user": "edxsom",
 			},
-			expectedError: edx.ErrIncorrectInputParam,
+			expectedError: edxpackage.ErrIncorrectInputParam,
 		},
 	}
 

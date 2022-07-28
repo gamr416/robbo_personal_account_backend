@@ -31,6 +31,6 @@ jobs:
 
       - name: Run tests
         run: |
-          cd package/edxApi/usecase
+          cd package/edx/usecase
           
           go test -v

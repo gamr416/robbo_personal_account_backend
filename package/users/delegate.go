@@ -21,6 +21,7 @@ type Delegate interface {
 	UpdateParent(parentHTTP *models.ParentHTTP) (err error)
 	DeleteParent(parentId uint) (err error)
 	GetParentById(parentId uint) (parent models.ParentHTTP, err error)
+	GetAllParent() (parents []*models.ParentHTTP, err error)
 	//GetParent(email, password string) (parent models.ParentHTTP, err error)
 
 	CreateFreeListener(freeListenerHTTP *models.FreeListenerHttp) (id string, err error)

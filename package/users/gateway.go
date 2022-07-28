@@ -17,6 +17,7 @@ type Gateway interface { // TODO getAllByRole
 	UpdateTeacher(teacher *models.TeacherCore) (err error)
 
 	GetParent(email, password string) (parent *models.ParentCore, err error)
+	GetAllParent() (parents []*models.ParentCore, err error)
 	GetParentById(parentId uint) (parent *models.ParentCore, err error)
 	CreateParent(parent *models.ParentCore) (id string, err error)
 	UpdateParent(parent *models.ParentCore) (err error)

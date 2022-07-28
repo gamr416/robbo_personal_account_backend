@@ -17,6 +17,7 @@ type UseCase interface {
 
 	//GetParent(email, password string) (parent *models.ParentCore, err error)
 	GetParentById(parentId uint) (parent *models.ParentCore, err error)
+	GetAllParent() (parents []*models.ParentCore, err error)
 	CreateParent(parent *models.ParentCore) (id string, err error)
 	UpdateParent(parent *models.ParentCore) (err error)
 	DeleteParent(parentId uint) (err error)

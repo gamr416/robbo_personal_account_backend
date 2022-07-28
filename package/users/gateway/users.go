@@ -167,6 +167,22 @@ func (r *UsersGatewayImpl) GetParent(email, password string) (parent *models.Par
 	return parent, err
 }
 
+func (r *UsersGatewayImpl) GetAllParent() (parents []*models.ParentCore, err error) {
+	var parentsDB []*models.ParentDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Find(&parentsDB).Error; err != nil {
+			return
+		}
+		return
+	})
+	fmt.Println(parentsDB)
+
+	for _, parentDb := range parentsDB {
+		parents = append(parents, parentDb.ToCore())
+	}
+	return
+}
+
 func (r *UsersGatewayImpl) GetParentById(parentId uint) (parent *models.ParentCore, err error) {
 	var parentDb models.ParentDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {

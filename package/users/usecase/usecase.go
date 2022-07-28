@@ -82,6 +82,10 @@ func (p *UsersUseCaseImpl) GetParentById(parentId uint) (parent *models.ParentCo
 	return p.Gateway.GetParentById(parentId)
 }
 
+func (p *UsersUseCaseImpl) GetAllParent() (parents []*models.ParentCore, err error) {
+	return p.Gateway.GetAllParent()
+}
+
 func (p *UsersUseCaseImpl) CreateParent(parent *models.ParentCore) (id string, err error) {
 	return p.Gateway.CreateParent(parent)
 }

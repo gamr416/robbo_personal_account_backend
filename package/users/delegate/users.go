@@ -83,6 +83,19 @@ func (p *UsersDelegateImpl) GetParentById(parentId uint) (parent models.ParentHT
 	return
 }
 
+func (p *UsersDelegateImpl) GetAllParent() (parents []*models.ParentHTTP, err error) {
+	parentsCore, err := p.UseCase.GetAllParent()
+	if err != nil {
+		return
+	}
+	for _, parentCore := range parentsCore {
+		var parentTemp models.ParentHTTP
+		parentTemp.FromCore(parentCore)
+		parents = append(parents, &parentTemp)
+	}
+	return
+}
+
 func (p *UsersDelegateImpl) CreateParent(parentHTTP *models.ParentHTTP) (id string, err error) {
 	parentCore := parentHTTP.ToCore()
 	return p.UseCase.CreateParent(parentCore)

@@ -64,6 +64,7 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 
 		users.POST("/parent", h.CreateParent)
 		users.GET("/parent/:parentId", h.GetParentById)
+		users.GET("/parent", h.GetAllParent)
 		users.PUT("/parent", h.UpdateParent)
 		users.DELETE("/parent/:parentId", h.DeleteParent)
 
@@ -318,6 +319,17 @@ func (h *Handler) GetParentById(c *gin.Context) {
 	c.JSON(http.StatusOK, getParentResponse{
 		parent,
 	})
+}
+
+func (h *Handler) GetAllParent(c *gin.Context) {
+	fmt.Println("Get All Parents")
+	parents, err := h.usersDelegate.GetAllParent()
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, parents)
 }
 
 func (h *Handler) CreateParent(c *gin.Context) {

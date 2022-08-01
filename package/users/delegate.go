@@ -13,6 +13,7 @@ type Delegate interface {
 
 	//GetTeacher(email, password string) (teacher models.TeacherHTTP, err error)
 	GetTeacherById(teacherId uint) (teacher models.TeacherHTTP, err error)
+	GetAllTeachers() (teachers []*models.TeacherHTTP, err error)
 	CreateTeacher(teacher *models.TeacherHTTP) (id string, err error)
 	UpdateTeacher(teacherHTTP *models.TeacherHTTP) (err error)
 	DeleteTeacher(teacherId uint) (err error)

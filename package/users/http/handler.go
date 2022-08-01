@@ -58,13 +58,14 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 		users.PUT("/student", h.UpdateStudent)
 
 		users.POST("/teacher", h.CreateTeacher)
+		users.GET("/teachers", h.GetAllTeachers)
 		users.DELETE("/teacher/:teacherId", h.DeleteTeacher)
 		users.PUT("/teacher", h.UpdateTeacher)
 		users.GET("/teacher/:teacherId", h.GetTeacherById)
 
 		users.POST("/parent", h.CreateParent)
 		users.GET("/parent/:parentId", h.GetParentById)
-		users.GET("/parent", h.GetAllParent)
+		users.GET("/parents", h.GetAllParent)
 		users.PUT("/parent", h.UpdateParent)
 		users.DELETE("/parent/:parentId", h.DeleteParent)
 
@@ -280,6 +281,17 @@ func (h *Handler) GetTeacherById(c *gin.Context) {
 	})
 }
 
+func (h *Handler) GetAllTeachers(c *gin.Context) {
+	fmt.Println("Get All Teachers")
+	teachers, err := h.usersDelegate.GetAllTeachers()
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, teachers)
+}
+
 type updateTeacherInput struct {
 	Teacher *models.TeacherHTTP `json:"teacher"`
 }
@@ -334,13 +346,20 @@ func (h *Handler) GetAllParent(c *gin.Context) {
 
 func (h *Handler) CreateParent(c *gin.Context) {
 	fmt.Println("Create Parent")
+	_, role, userIdentityErr := h.userIdentity(c)
+	if role != models.SuperAdmin || userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+	userHttp := models.UserHttp{}
 
-	parentHttp := &models.ParentHTTP{}
-
-	if err := c.BindJSON(parentHttp); err != nil {
+	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
+	}
+	parentHttp := &models.ParentHTTP{
+		UserHttp: userHttp,
 	}
 
 	parentId, err := h.usersDelegate.CreateParent(parentHttp)
@@ -351,7 +370,7 @@ func (h *Handler) CreateParent(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"parent": parentId,
+		"parentId": parentId,
 	})
 
 }

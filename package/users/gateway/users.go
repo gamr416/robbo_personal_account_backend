@@ -38,7 +38,6 @@ func (r *UsersGatewayImpl) GetStudent(email, password string) (student *models.S
 		return
 	})
 	student = studentDb.ToCore()
-	fmt.Println(student)
 	return
 }
 
@@ -103,6 +102,21 @@ func (r *UsersGatewayImpl) GetTeacher(email, password string) (teacher *models.T
 	})
 	teacher = teacherDb.ToCore()
 	return teacher, err
+}
+
+func (r *UsersGatewayImpl) GetAllTeachers() (teachers []*models.TeacherCore, err error) {
+	var teachersDB []*models.TeacherDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Find(&teachersDB).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, teacherDb := range teachersDB {
+		teachers = append(teachers, teacherDb.ToCore())
+	}
+	return
 }
 
 func (r *UsersGatewayImpl) GetTeacherById(userId uint) (teacher *models.TeacherCore, err error) {
@@ -371,13 +385,12 @@ func (r *UsersGatewayImpl) GetSuperAdmin(email, password string) (superAdmin *mo
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Where("email = ? AND  password = ?", email, password).First(&superAdminDb).Error; err != nil {
 			err = auth.ErrUserNotFound
-			log.Println(err)
 			return
 		}
 		return
 	})
 	superAdmin = superAdminDb.ToCore()
-	return superAdmin, err
+	return
 }
 
 func (r *UsersGatewayImpl) UpdateSuperAdmin(superAdmin *models.SuperAdminCore) (err error) {

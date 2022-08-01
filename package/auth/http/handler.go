@@ -50,6 +50,7 @@ func (h *Handler) SignIn(c *gin.Context) {
 
 	accessToken, refreshToken, err := h.delegate.SignIn(signInInput.Email, signInInput.Password, signInInput.Role)
 	if err != nil {
+		fmt.Println(err)
 		ErrorHandling(err, c)
 		return
 	}
@@ -57,13 +58,13 @@ func (h *Handler) SignIn(c *gin.Context) {
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:  "token2",
 		Value: refreshToken,
-		Path:  "/auth",
+		//Path:  "/auth",
 		//Domain: "0.0.0.0",
-		MaxAge:   60 * 60 * 24 * 7,
+		MaxAge:   60 * 60 * 24 * 30,
 		HttpOnly: true,
 	})
 
-	refreshToken2, _ := c.Request.Cookie("token")
+	refreshToken2, _ := c.Request.Cookie("token2")
 	fmt.Println(refreshToken2)
 
 	c.JSON(http.StatusOK, signInResponse{
@@ -160,19 +161,14 @@ func ErrorHandling(err error, c *gin.Context) {
 	switch err {
 	case auth.ErrUserAlreadyExist:
 		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
-		return
 	case auth.ErrInvalidAccessToken:
 		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
-		return
 	case auth.ErrInvalidTypeClaims:
 		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
-		return
 	case auth.ErrUserNotFound:
 		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
-		return
 	case auth.ErrTokenNotFound:
 		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
-		return
 	case http.ErrNoCookie:
 		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
 	default:

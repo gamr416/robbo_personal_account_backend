@@ -59,6 +59,19 @@ func (p *UsersDelegateImpl) GetTeacherById(teacherId uint) (teacher models.Teach
 	return
 }
 
+func (p *UsersDelegateImpl) GetAllTeachers() (teachers []*models.TeacherHTTP, err error) {
+	teachersCore, err := p.UseCase.GetAllTeachers()
+	if err != nil {
+		return
+	}
+	for _, teacherCore := range teachersCore {
+		var teacherTemp models.TeacherHTTP
+		teacherTemp.FromCore(teacherCore)
+		teachers = append(teachers, &teacherTemp)
+	}
+	return
+}
+
 func (p *UsersDelegateImpl) UpdateTeacher(teacherHTTP *models.TeacherHTTP) (err error) {
 	teacherCore := teacherHTTP.ToCore()
 	return p.UseCase.UpdateTeacher(teacherCore)

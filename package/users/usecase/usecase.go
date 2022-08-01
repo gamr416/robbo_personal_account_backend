@@ -1,8 +1,11 @@
 package usecase
 
 import (
+	"crypto/sha1"
+	"fmt"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
+	"github.com/spf13/viper"
 	"go.uber.org/fx"
 	"log"
 )
@@ -57,6 +60,10 @@ func (p *UsersUseCaseImpl) GetTeacherByID(teacherId uint) (teacher *models.Teach
 //	return p.Gateway.GetTeacher(email, password)
 //}
 
+func (p *UsersUseCaseImpl) GetAllTeachers() (teachers []*models.TeacherCore, err error) {
+	return p.Gateway.GetAllTeachers()
+}
+
 func (p *UsersUseCaseImpl) UpdateTeacher(teacher *models.TeacherCore) (err error) {
 	err = p.Gateway.UpdateTeacher(teacher)
 	if err != nil {
@@ -87,6 +94,11 @@ func (p *UsersUseCaseImpl) GetAllParent() (parents []*models.ParentCore, err err
 }
 
 func (p *UsersUseCaseImpl) CreateParent(parent *models.ParentCore) (id string, err error) {
+	pwd := sha1.New()
+	pwd.Write([]byte(parent.Password))
+	pwd.Write([]byte(viper.GetString("auth.hash_salt")))
+	passwordHash := fmt.Sprintf("%x", pwd.Sum(nil))
+	parent.Password = passwordHash
 	return p.Gateway.CreateParent(parent)
 }
 

@@ -5,7 +5,7 @@ import "github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 type UseCase interface {
 	GetStudentById(studentId uint) (student *models.StudentCore, err error)
 	//GetStudent(email, password string) (student *models.StudentCore, err error)
-	CreateStudent(student *models.StudentCore) (id string, err error)
+	CreateStudent(student *models.StudentCore, parentId string) (id string, err error)
 	DeleteStudent(studentId uint) (err error)
 	UpdateStudent(student *models.StudentCore) (err error)
 
@@ -39,4 +39,6 @@ type UseCase interface {
 	GetSuperAdminById(superAdminId uint) (superAdmin *models.SuperAdminCore, err error)
 	UpdateSuperAdmin(superAdmin *models.SuperAdminCore) (err error)
 	DeleteSuperAdmin(superAdminId uint) (err error)
+
+	CreateRelation(parentId, childrenId string) (err error)
 }

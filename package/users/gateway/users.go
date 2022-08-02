@@ -413,3 +413,68 @@ func (r *UsersGatewayImpl) DeleteSuperAdmin(superAdminId uint) (err error) {
 	})
 	return
 }
+
+func (r *UsersGatewayImpl) CreateRelation(relation *models.ChildrenOfParentCore) (err error) {
+	relationDb := models.ChildrenOfParentDB{}
+	relationDb.FromCore(relation)
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Create(&relationDb).Error
+		return
+	})
+
+	return
+}
+
+func (r *UsersGatewayImpl) DeleteRelationByParentId(parentId string) (err error) {
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Where("parent_id = ?", parentId).Delete(&models.ChildrenOfParentDB{}).Error
+		return
+	})
+	return
+}
+
+func (r *UsersGatewayImpl) DeleteRelationByChildrenId(childrenId string) (err error) {
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Where("children_id = ?", childrenId).Delete(&models.ChildrenOfParentDB{}).Error
+		return
+	})
+	return
+}
+
+func (r *UsersGatewayImpl) DeleteRelation(relation *models.ChildrenOfParentCore) (err error) {
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Delete(&models.ChildrenOfParentDB{}, relation).Error
+		return
+	})
+	return
+}
+
+func (r *UsersGatewayImpl) GetRelationByParentId(parentId string) (relations []*models.ChildrenOfParentCore, err error) {
+	var relationsDB []*models.ChildrenOfParentDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("parent_id = ?", parentId).Find(&relationsDB).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, relationDB := range relationsDB {
+		relations = append(relations, relationDB.ToCore())
+	}
+	return
+}
+
+func (r *UsersGatewayImpl) GetRelationByChildrenId(childrenId string) (relations []*models.ChildrenOfParentCore, err error) {
+	var relationsDB []*models.ChildrenOfParentDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("children_id = ?", childrenId).Find(&relationsDB).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, relationDB := range relationsDB {
+		relations = append(relations, relationDB.ToCore())
+	}
+	return
+}

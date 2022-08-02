@@ -6,7 +6,7 @@ import (
 
 type Delegate interface {
 	//GetStudent(email, password string) (student models.StudentHTTP, err error)
-	CreateStudent(student *models.StudentHTTP) (id string, err error)
+	CreateStudent(student *models.StudentHTTP, parentId string) (id string, err error)
 	DeleteStudent(studentId uint) (err error)
 	GetStudentById(studentId uint) (student models.StudentHTTP, err error)
 	UpdateStudent(student *models.StudentHTTP) (err error)
@@ -41,4 +41,6 @@ type Delegate interface {
 	GetSuperAdminById(superAdminId uint) (superAdmin models.SuperAdminHTTP, err error)
 	UpdateSuperAdmin(superAdminHTTP *models.SuperAdminHTTP) (err error)
 	DeleteSuperAdmin(superAdminId uint) (err error)
+
+	CreateRelation(parentId, childrenId string) (err error)
 }

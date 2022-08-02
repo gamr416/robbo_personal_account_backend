@@ -162,18 +162,30 @@ func (h *Handler) GetStudentById(c *gin.Context) {
 	})
 }
 
+type createStudentInput struct {
+	Student  *models.StudentHTTP `json:"student"`
+	ParentId string              `json:"parentId"`
+}
+
 func (h *Handler) CreateStudent(c *gin.Context) {
 	fmt.Println("Create Student")
 
-	studentHttp := &models.StudentHTTP{}
+	_, role, userIdentityErr := h.userIdentity(c)
+	if role != models.SuperAdmin || userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+	input := new(createStudentInput)
 
-	if err := c.BindJSON(studentHttp); err != nil {
+	if err := c.BindJSON(input); err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	studentId, err := h.usersDelegate.CreateStudent(studentHttp)
+	fmt.Println(input.ParentId)
+
+	studentId, err := h.usersDelegate.CreateStudent(input.Student, input.ParentId)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -181,7 +193,7 @@ func (h *Handler) CreateStudent(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"student": studentId,
+		"studentId": studentId,
 	})
 }
 
@@ -242,7 +254,7 @@ func (h *Handler) CreateTeacher(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"teacher": teacherId,
+		"teacherId": teacherId,
 	})
 
 }
@@ -554,7 +566,7 @@ func (h *Handler) CreateUnitAdmin(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"unitAdmin": unitAdminId,
+		"unitAdminId": unitAdminId,
 	})
 }
 
@@ -625,5 +637,31 @@ func (h *Handler) DeleteSuperAdmin(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
+	c.Status(http.StatusOK)
+}
+
+type createRelation struct {
+	ParentId   string `json:"parentId"`
+	ChildrenId string `json:"childrenId"`
+}
+
+func (h *Handler) CreateRelation(c *gin.Context) {
+	fmt.Println("CreateRelation")
+
+	createRelationInput := new(createRelation)
+
+	if err := c.BindJSON(createRelationInput); err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	createRelationErr := h.usersDelegate.CreateRelation(createRelationInput.ParentId, createRelationInput.ChildrenId)
+
+	if createRelationErr != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
 	c.Status(http.StatusOK)
 }

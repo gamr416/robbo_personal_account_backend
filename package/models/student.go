@@ -7,26 +7,19 @@ import (
 
 type StudentCore struct {
 	UserCore
-	ParentID uint
-	//GroupsID   []uint
-	//TeachersID []uint
-	//ProjectsID []uint
 }
 
 type StudentHTTP struct {
-	UserHttp
-	ParentID uint `json:"parent_id"`
+	UserHttp `json:"userHttp"`
 }
 
 type StudentDB struct {
 	gorm.Model
 	UserDB
-	ParentID uint
 }
 
 func (em *StudentDB) ToCore() *StudentCore {
 	return &StudentCore{
-		ParentID: em.ParentID,
 		UserCore: UserCore{
 			Id:         strconv.FormatUint(uint64(em.ID), 10),
 			Email:      em.Email,
@@ -51,12 +44,10 @@ func (em *StudentDB) FromCore(student *StudentCore) {
 	em.Firstname = student.Firstname
 	em.Lastname = student.Lastname
 	em.Middlename = student.Middlename
-	em.ParentID = student.ParentID
 }
 
 func (ht *StudentHTTP) ToCore() *StudentCore {
 	return &StudentCore{
-		ParentID: ht.ParentID,
 		UserCore: UserCore{
 			Id:         ht.Id,
 			Email:      ht.Email,
@@ -80,5 +71,4 @@ func (ht *StudentHTTP) FromCore(student *StudentCore) {
 	ht.Firstname = student.Firstname
 	ht.Lastname = student.Lastname
 	ht.Middlename = student.Middlename
-	ht.ParentID = student.ParentID
 }

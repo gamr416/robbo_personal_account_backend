@@ -25,9 +25,9 @@ func SetupUsersDelegate(usecase users.UseCase) UsersDelegateModule {
 	}
 }
 
-func (p *UsersDelegateImpl) CreateStudent(student *models.StudentHTTP) (id string, err error) {
+func (p *UsersDelegateImpl) CreateStudent(student *models.StudentHTTP, parentId string) (id string, err error) {
 	studentCore := student.ToCore()
-	return p.UseCase.CreateStudent(studentCore)
+	return p.UseCase.CreateStudent(studentCore, parentId)
 }
 
 func (p *UsersDelegateImpl) DeleteStudent(studentId uint) (err error) {
@@ -187,4 +187,8 @@ func (p *UsersDelegateImpl) UpdateSuperAdmin(superAdminHTTP *models.SuperAdminHT
 }
 func (p *UsersDelegateImpl) DeleteSuperAdmin(superAdminId uint) (err error) {
 	return p.UseCase.DeleteSuperAdmin(superAdminId)
+}
+
+func (p *UsersDelegateImpl) CreateRelation(parentId, childrenId string) (err error) {
+	return p.UseCase.CreateRelation(parentId, childrenId)
 }

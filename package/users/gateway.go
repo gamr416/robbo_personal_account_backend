@@ -40,4 +40,11 @@ type Gateway interface { // TODO getAllByRole
 	GetSuperAdminById(superAdminId uint) (superAdmin *models.SuperAdminCore, err error)
 	UpdateSuperAdmin(superAdmin *models.SuperAdminCore) (err error)
 	DeleteSuperAdmin(superAdminId uint) (err error)
+
+	CreateRelation(relation *models.ChildrenOfParentCore) (err error)
+	DeleteRelationByParentId(parentId string) (err error)
+	DeleteRelationByChildrenId(childrenId string) (err error)
+	DeleteRelation(relation *models.ChildrenOfParentCore) (err error)
+	GetRelationByParentId(parentId string) (relations []*models.ChildrenOfParentCore, err error)
+	GetRelationByChildrenId(childrenId string) (relations []*models.ChildrenOfParentCore, err error)
 }

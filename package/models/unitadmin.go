@@ -6,7 +6,7 @@ import (
 )
 
 type UnitAdminHTTP struct {
-	UserHttp
+	UserHttp `json:"userHttp"`
 }
 
 type UnitAdminDB struct {

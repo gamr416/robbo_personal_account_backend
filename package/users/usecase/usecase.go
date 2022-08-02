@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
 	"log"
+	"strconv"
 )
 
 type UsersUseCaseImpl struct {
@@ -35,8 +36,22 @@ func (p *UsersUseCaseImpl) GetStudentById(studentId uint) (student *models.Stude
 	return p.Gateway.GetStudentById(studentId)
 }
 
-func (p *UsersUseCaseImpl) CreateStudent(student *models.StudentCore) (id string, err error) {
-	return p.Gateway.CreateStudent(student)
+func (p *UsersUseCaseImpl) CreateStudent(student *models.StudentCore, parentId string) (id string, err error) {
+	pwd := sha1.New()
+	pwd.Write([]byte(student.Password))
+	pwd.Write([]byte(viper.GetString("auth.hash_salt")))
+	passwordHash := fmt.Sprintf("%x", pwd.Sum(nil))
+	student.Password = passwordHash
+	id, err = p.Gateway.CreateStudent(student)
+	if err != nil {
+		return
+	}
+	relation := &models.ChildrenOfParentCore{
+		ChildId:  id,
+		ParentId: parentId,
+	}
+	p.Gateway.CreateRelation(relation)
+	return
 }
 
 func (p *UsersUseCaseImpl) DeleteStudent(studentId uint) (err error) {
@@ -90,7 +105,27 @@ func (p *UsersUseCaseImpl) GetParentById(parentId uint) (parent *models.ParentCo
 }
 
 func (p *UsersUseCaseImpl) GetAllParent() (parents []*models.ParentCore, err error) {
-	return p.Gateway.GetAllParent()
+	parents, err = p.Gateway.GetAllParent()
+	if err != nil {
+		return
+	}
+	for _, parent := range parents {
+		relations, getRelationsErr := p.Gateway.GetRelationByParentId(parent.Id)
+		if getRelationsErr != nil {
+			return parents, getRelationsErr
+		}
+		for _, relation := range relations {
+			studentId, _ := strconv.ParseUint(relation.ChildId, 10, 64)
+			student, getStudentErr := p.Gateway.GetStudentById(uint(studentId))
+			if getStudentErr != nil {
+				return parents, getStudentErr
+			}
+			parent.Children = append(parent.Children, student)
+		}
+
+	}
+
+	return
 }
 
 func (p *UsersUseCaseImpl) CreateParent(parent *models.ParentCore) (id string, err error) {
@@ -103,6 +138,22 @@ func (p *UsersUseCaseImpl) CreateParent(parent *models.ParentCore) (id string, e
 }
 
 func (p *UsersUseCaseImpl) DeleteParent(parentId uint) (err error) {
+	relations, getRelationsErr := p.GetRelationByParentId(strconv.Itoa(int(parentId)))
+	if getRelationsErr != nil {
+		return getRelationsErr
+	}
+
+	for _, relation := range relations {
+		studentId, _ := strconv.ParseUint(relation.ChildId, 10, 64)
+		deleteStudentErr := p.Gateway.DeleteStudent(uint(studentId))
+		if deleteStudentErr != nil {
+			return deleteStudentErr
+		}
+	}
+	deleteRelationErr := p.Gateway.DeleteRelationByParentId(strconv.Itoa(int(parentId)))
+	if deleteRelationErr != nil {
+		return deleteRelationErr
+	}
 	return p.Gateway.DeleteParent(parentId)
 }
 
@@ -178,4 +229,12 @@ func (p *UsersUseCaseImpl) UpdateSuperAdmin(superAdmin *models.SuperAdminCore) (
 }
 func (p *UsersUseCaseImpl) DeleteSuperAdmin(superAdminId uint) (err error) {
 	return p.Gateway.DeleteSuperAdmin(superAdminId)
+}
+
+func (p *UsersUseCaseImpl) CreateRelation(parentId, childrenId string) (err error) {
+	relationCore := models.ChildrenOfParentCore{
+		ChildId:  childrenId,
+		ParentId: parentId,
+	}
+	return p.Gateway.CreateRelation(&relationCore)
 }

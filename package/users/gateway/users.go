@@ -62,7 +62,7 @@ func (r *UsersGatewayImpl) DeleteStudent(studentId uint) (err error) {
 	return
 }
 
-func (r *UsersGatewayImpl) GetStudentById(studentId uint) (student *models.StudentCore, err error) {
+func (r *UsersGatewayImpl) GetStudentById(studentId string) (student *models.StudentCore, err error) {
 	var studentDb models.StudentDB
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
@@ -119,7 +119,7 @@ func (r *UsersGatewayImpl) GetAllTeachers() (teachers []*models.TeacherCore, err
 	return
 }
 
-func (r *UsersGatewayImpl) GetTeacherById(userId uint) (teacher *models.TeacherCore, err error) {
+func (r *UsersGatewayImpl) GetTeacherById(userId string) (teacher *models.TeacherCore, err error) {
 	var teacherDb models.TeacherDB
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
@@ -197,7 +197,7 @@ func (r *UsersGatewayImpl) GetAllParent() (parents []*models.ParentCore, err err
 	return
 }
 
-func (r *UsersGatewayImpl) GetParentById(parentId uint) (parent *models.ParentCore, err error) {
+func (r *UsersGatewayImpl) GetParentById(parentId string) (parent *models.ParentCore, err error) {
 	var parentDb models.ParentDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Where("id = ?", parentId).First(&parentDb).Error; err != nil {
@@ -258,7 +258,7 @@ func (r *UsersGatewayImpl) GetFreeListener(email, password string) (freeListener
 	return
 }
 
-func (r *UsersGatewayImpl) GetFreeListenerById(freeListenerId uint) (freeListener *models.FreeListenerCore, err error) {
+func (r *UsersGatewayImpl) GetFreeListenerById(freeListenerId string) (freeListener *models.FreeListenerCore, err error) {
 	var freeListenerDb models.FreeListenerDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Where("id = ?", freeListenerId).First(&freeListenerDb).Error; err != nil {
@@ -319,7 +319,7 @@ func (r *UsersGatewayImpl) GetUnitAdmin(email, password string) (unitAdmin *mode
 	return
 }
 
-func (r *UsersGatewayImpl) GetUnitAdminById(unitAdminId uint) (unitAdmin *models.UnitAdminCore, err error) {
+func (r *UsersGatewayImpl) GetUnitAdminById(unitAdminId string) (unitAdmin *models.UnitAdminCore, err error) {
 	var unitAdminDb models.UnitAdminDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Where("id = ?", unitAdminId).First(&unitAdminDb).Error; err != nil {
@@ -366,7 +366,7 @@ func (r *UsersGatewayImpl) UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (err
 	return
 }
 
-func (r *UsersGatewayImpl) GetSuperAdminById(superAdminId uint) (superAdmin *models.SuperAdminCore, err error) {
+func (r *UsersGatewayImpl) GetSuperAdminById(superAdminId string) (superAdmin *models.SuperAdminCore, err error) {
 	var superAdminDb models.SuperAdminDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Where("id = ?", superAdminId).First(&superAdminDb).Error; err != nil {

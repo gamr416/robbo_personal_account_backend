@@ -34,7 +34,7 @@ func (p *UsersDelegateImpl) DeleteStudent(studentId uint) (err error) {
 	return p.UseCase.DeleteStudent(studentId)
 }
 
-func (p *UsersDelegateImpl) GetStudentById(studentId uint) (student models.StudentHTTP, err error) {
+func (p *UsersDelegateImpl) GetStudentById(studentId string) (student models.StudentHTTP, err error) {
 	studentCore, err := p.UseCase.GetStudentById(studentId)
 	if err != nil {
 		log.Println("User not found")
@@ -44,12 +44,25 @@ func (p *UsersDelegateImpl) GetStudentById(studentId uint) (student models.Stude
 	return
 }
 
+func (p *UsersDelegateImpl) GetStudentByParentId(parentId string) (students []*models.StudentHTTP, err error) {
+	studentsCore, err := p.UseCase.GetStudentByParentId(parentId)
+	if err != nil {
+		return
+	}
+	for _, studentCore := range studentsCore {
+		var studentHttpTemp models.StudentHTTP
+		studentHttpTemp.FromCore(studentCore)
+		students = append(students, &studentHttpTemp)
+	}
+	return
+}
+
 func (p *UsersDelegateImpl) UpdateStudent(studentHTTP *models.StudentHTTP) (err error) {
 	studentCore := studentHTTP.ToCore()
 	return p.UseCase.UpdateStudent(studentCore)
 }
 
-func (p *UsersDelegateImpl) GetTeacherById(teacherId uint) (teacher models.TeacherHTTP, err error) {
+func (p *UsersDelegateImpl) GetTeacherById(teacherId string) (teacher models.TeacherHTTP, err error) {
 	teacherCore, err := p.UseCase.GetTeacherById(teacherId)
 	if err != nil {
 		log.Println("User not found")
@@ -86,7 +99,7 @@ func (p *UsersDelegateImpl) DeleteTeacher(teacherId uint) (err error) {
 	return p.UseCase.DeleteTeacher(teacherId)
 }
 
-func (p *UsersDelegateImpl) GetParentById(parentId uint) (parent models.ParentHTTP, err error) {
+func (p *UsersDelegateImpl) GetParentById(parentId string) (parent models.ParentHTTP, err error) {
 	parentCore, err := p.UseCase.GetParentById(parentId)
 	if err != nil {
 		log.Println("User not found")
@@ -123,7 +136,7 @@ func (p *UsersDelegateImpl) UpdateParent(parentHTTP *models.ParentHTTP) (err err
 	return p.UseCase.UpdateParent(parentCore)
 }
 
-func (p *UsersDelegateImpl) GetFreeListenerById(freeListenerId uint) (freeListener models.FreeListenerHttp, err error) {
+func (p *UsersDelegateImpl) GetFreeListenerById(freeListenerId string) (freeListener models.FreeListenerHttp, err error) {
 	freeListenerCore, err := p.UseCase.GetFreeListenerById(freeListenerId)
 	if err != nil {
 		log.Println("free listener not found")
@@ -147,7 +160,7 @@ func (p *UsersDelegateImpl) UpdateFreeListener(freeListenerHTTP *models.FreeList
 	return p.UseCase.UpdateFreeListener(freeListenerCore)
 }
 
-func (p *UsersDelegateImpl) GetUnitAdminById(unitAdminId uint) (unitAdmin models.UnitAdminHTTP, err error) {
+func (p *UsersDelegateImpl) GetUnitAdminById(unitAdminId string) (unitAdmin models.UnitAdminHTTP, err error) {
 	unitAdminCore, err := p.UseCase.GetUnitAdminById(unitAdminId)
 	if err != nil {
 		log.Println("User not found")
@@ -171,7 +184,7 @@ func (p *UsersDelegateImpl) DeleteUnitAdmin(unitAdminId uint) (err error) {
 	return p.UseCase.DeleteUnitAdmin(unitAdminId)
 }
 
-func (p *UsersDelegateImpl) GetSuperAdminById(superAdminId uint) (superAdmin models.SuperAdminHTTP, err error) {
+func (p *UsersDelegateImpl) GetSuperAdminById(superAdminId string) (superAdmin models.SuperAdminHTTP, err error) {
 	superAdminCore, err := p.UseCase.GetSuperAdminById(superAdminId)
 	if err != nil {
 		log.Println("User not found")

@@ -55,6 +55,7 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 		users.POST("/student", h.CreateStudent)
 		users.DELETE("/student/:studentId", h.DeleteStudent)
 		users.GET("/student/:studentId", h.GetStudentById)
+		users.GET("students/:parentId", h.GetStudentByParentId)
 		users.PUT("/student", h.UpdateStudent)
 
 		users.POST("/teacher", h.CreateTeacher)
@@ -87,8 +88,7 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 
 func (h *Handler) GetUser(c *gin.Context) {
 	fmt.Println("GetUser")
-	id, role, err := h.userIdentity(c)
-	userId, err := strconv.Atoi(id)
+	userId, role, err := h.userIdentity(c)
 
 	if err != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
@@ -96,14 +96,14 @@ func (h *Handler) GetUser(c *gin.Context) {
 
 	switch role {
 	case models.Student:
-		student, getStudentErr := h.usersDelegate.GetStudentById(uint(userId))
+		student, getStudentErr := h.usersDelegate.GetStudentById(userId)
 		if getStudentErr != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 		c.JSON(http.StatusOK, student)
 	case models.Teacher:
-		teacher, getTeacherErr := h.usersDelegate.GetTeacherById(uint(userId))
+		teacher, getTeacherErr := h.usersDelegate.GetTeacherById(userId)
 		if getTeacherErr != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
@@ -111,7 +111,7 @@ func (h *Handler) GetUser(c *gin.Context) {
 		c.JSON(http.StatusOK, teacher)
 		return
 	case models.Parent:
-		parent, getParentErr := h.usersDelegate.GetParentById(uint(userId))
+		parent, getParentErr := h.usersDelegate.GetParentById(userId)
 		if getParentErr != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
@@ -119,14 +119,14 @@ func (h *Handler) GetUser(c *gin.Context) {
 		c.JSON(http.StatusOK, parent)
 		return
 	case models.FreeListener:
-		freeListener, getFreeListenerErr := h.usersDelegate.GetFreeListenerById(uint(userId))
+		freeListener, getFreeListenerErr := h.usersDelegate.GetFreeListenerById(userId)
 		if getFreeListenerErr != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 		c.JSON(http.StatusOK, freeListener)
 	case models.UnitAdmin:
-		unitAdmin, getUnitAdminErr := h.usersDelegate.GetUnitAdminById(uint(userId))
+		unitAdmin, getUnitAdminErr := h.usersDelegate.GetUnitAdminById(userId)
 		if getUnitAdminErr != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
@@ -134,7 +134,7 @@ func (h *Handler) GetUser(c *gin.Context) {
 		c.JSON(http.StatusOK, unitAdmin)
 		return
 	case models.SuperAdmin:
-		superAdmin, getSuperAdminErr := h.usersDelegate.GetSuperAdminById(uint(userId))
+		superAdmin, getSuperAdminErr := h.usersDelegate.GetSuperAdminById(userId)
 		if getSuperAdminErr != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
@@ -146,10 +146,9 @@ func (h *Handler) GetUser(c *gin.Context) {
 
 func (h *Handler) GetStudentById(c *gin.Context) {
 	fmt.Println("Get Student By Id")
-	param := c.Param("studentId")
-	studentId, _ := strconv.Atoi(param)
+	studentId := c.Param("studentId")
 
-	student, err := h.usersDelegate.GetStudentById(uint(studentId))
+	student, err := h.usersDelegate.GetStudentById(studentId)
 
 	if err != nil {
 		log.Println(err)
@@ -160,6 +159,21 @@ func (h *Handler) GetStudentById(c *gin.Context) {
 	c.JSON(http.StatusOK, getStudentResponse{
 		student,
 	})
+}
+
+func (h *Handler) GetStudentByParentId(c *gin.Context) {
+	fmt.Println("Get Student By Parent Id")
+	parentId := c.Param("parentId")
+
+	students, err := h.usersDelegate.GetStudentByParentId(parentId)
+
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, students)
 }
 
 type createStudentInput struct {
@@ -277,10 +291,9 @@ func (h *Handler) DeleteTeacher(c *gin.Context) {
 
 func (h *Handler) GetTeacherById(c *gin.Context) {
 	fmt.Println("Get Teacher By Id")
-	param := c.Param("teacherId")
-	teacherId, _ := strconv.Atoi(param)
+	teacherId := c.Param("teacherId")
 
-	teacher, err := h.usersDelegate.GetTeacherById(uint(teacherId))
+	teacher, err := h.usersDelegate.GetTeacherById(teacherId)
 
 	if err != nil {
 		log.Println(err)
@@ -329,10 +342,9 @@ func (h *Handler) UpdateTeacher(c *gin.Context) {
 
 func (h *Handler) GetParentById(c *gin.Context) {
 	fmt.Println("Get Parent By Id")
-	id := c.Param("parentId")
-	parentId, _ := strconv.Atoi(id)
+	parentId := c.Param("parentId")
 
-	parent, err := h.usersDelegate.GetParentById(uint(parentId))
+	parent, err := h.usersDelegate.GetParentById(parentId)
 
 	if err != nil {
 		log.Println(err)
@@ -428,10 +440,9 @@ func (h *Handler) UpdateParent(c *gin.Context) {
 
 func (h *Handler) GetFreeListenerById(c *gin.Context) {
 	fmt.Println("Get FreeListener By Id")
-	id := c.Param("freeListenerId")
-	freeListenerId, _ := strconv.Atoi(id)
+	freeListenerId := c.Param("freeListenerId")
 
-	freeListener, err := h.usersDelegate.GetFreeListenerById(uint(freeListenerId))
+	freeListener, err := h.usersDelegate.GetFreeListenerById(freeListenerId)
 
 	if err != nil {
 		log.Println(err)
@@ -509,10 +520,9 @@ func (h *Handler) UpdateFreeListener(c *gin.Context) {
 
 func (h *Handler) GetUnitAdminByID(c *gin.Context) {
 	fmt.Println("Get Unit Admin By ID")
-	id := c.Param("unitAdminId")
-	unitAdminId, _ := strconv.Atoi(id)
+	unitAdminId := c.Param("unitAdminId")
 
-	unitAdmin, err := h.usersDelegate.GetUnitAdminById(uint(unitAdminId))
+	unitAdmin, err := h.usersDelegate.GetUnitAdminById(unitAdminId)
 
 	if err != nil {
 		log.Println(err)
@@ -587,10 +597,9 @@ func (h *Handler) DeleteUnitAdmin(c *gin.Context) {
 
 func (h *Handler) GetSuperAdminById(c *gin.Context) {
 	fmt.Println("Get Super Admin By Id")
-	param := c.Param("superAdminId")
-	superAdminId, _ := strconv.Atoi(param)
+	superAdminId := c.Param("superAdminId")
 
-	superAdmin, err := h.usersDelegate.GetSuperAdminById(uint(superAdminId))
+	superAdmin, err := h.usersDelegate.GetSuperAdminById(superAdminId)
 
 	if err != nil {
 		log.Println(err)

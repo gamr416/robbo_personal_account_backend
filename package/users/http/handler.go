@@ -252,12 +252,15 @@ func (h *Handler) DeleteStudent(c *gin.Context) {
 func (h *Handler) CreateTeacher(c *gin.Context) {
 	fmt.Println("Create Teacher")
 
-	teacherHttp := &models.TeacherHTTP{}
+	userHttp := models.UserHttp{}
 
-	if err := c.BindJSON(teacherHttp); err != nil {
+	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
+	}
+	teacherHttp := &models.TeacherHTTP{
+		UserHttp: userHttp,
 	}
 
 	teacherId, err := h.usersDelegate.CreateTeacher(teacherHttp)

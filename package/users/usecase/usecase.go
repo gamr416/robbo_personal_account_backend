@@ -55,6 +55,11 @@ func (p *UsersUseCaseImpl) CreateStudent(student *models.StudentCore, parentId s
 }
 
 func (p *UsersUseCaseImpl) DeleteStudent(studentId uint) (err error) {
+
+	deleteRelationErr := p.Gateway.DeleteRelationByChildrenId(strconv.Itoa(int(studentId)))
+	if deleteRelationErr != nil {
+		return deleteRelationErr
+	}
 	return p.Gateway.DeleteStudent(studentId)
 }
 
@@ -106,24 +111,24 @@ func (p *UsersUseCaseImpl) GetParentById(parentId uint) (parent *models.ParentCo
 
 func (p *UsersUseCaseImpl) GetAllParent() (parents []*models.ParentCore, err error) {
 	parents, err = p.Gateway.GetAllParent()
-	if err != nil {
-		return
-	}
-	for _, parent := range parents {
-		relations, getRelationsErr := p.Gateway.GetRelationByParentId(parent.Id)
-		if getRelationsErr != nil {
-			return parents, getRelationsErr
-		}
-		for _, relation := range relations {
-			studentId, _ := strconv.ParseUint(relation.ChildId, 10, 64)
-			student, getStudentErr := p.Gateway.GetStudentById(uint(studentId))
-			if getStudentErr != nil {
-				return parents, getStudentErr
-			}
-			parent.Children = append(parent.Children, student)
-		}
-
-	}
+	//if err != nil {
+	//	return
+	//}
+	//for _, parent := range parents {
+	//	relations, getRelationsErr := p.Gateway.GetRelationByParentId(parent.Id)
+	//	if getRelationsErr != nil {
+	//		return parents, getRelationsErr
+	//	}
+	//	for _, relation := range relations {
+	//		studentId, _ := strconv.ParseUint(relation.ChildId, 10, 64)
+	//		student, getStudentErr := p.Gateway.GetStudentById(uint(studentId))
+	//		if getStudentErr != nil {
+	//			return parents, getStudentErr
+	//		}
+	//		parent.Children = append(parent.Children, student)
+	//	}
+	//
+	//}
 
 	return
 }

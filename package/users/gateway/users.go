@@ -435,7 +435,7 @@ func (r *UsersGatewayImpl) DeleteRelationByParentId(parentId string) (err error)
 
 func (r *UsersGatewayImpl) DeleteRelationByChildrenId(childrenId string) (err error) {
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Where("children_id = ?", childrenId).Delete(&models.ChildrenOfParentDB{}).Error
+		err = tx.Where("child_id = ?", childrenId).Delete(&models.ChildrenOfParentDB{}).Error
 		return
 	})
 	return

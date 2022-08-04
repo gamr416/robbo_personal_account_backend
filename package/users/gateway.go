@@ -5,6 +5,7 @@ import "github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 type Gateway interface { // TODO getAllByRole
 
 	GetStudent(email, password string) (student *models.StudentCore, err error)
+	GetStudentByParentId(parentId string) (students []*models.StudentCore, err error)
 	CreateStudent(student *models.StudentCore) (id string, err error)
 	DeleteStudent(studentId uint) (err error)
 	GetStudentById(studentId uint) (student *models.StudentCore, err error)

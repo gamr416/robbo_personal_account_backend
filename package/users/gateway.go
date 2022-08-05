@@ -31,6 +31,7 @@ type Gateway interface { // TODO getAllByRole
 	UpdateFreeListener(freeListener *models.FreeListenerCore) (err error)
 
 	GetUnitAdmin(email, password string) (unitAdmin *models.UnitAdminCore, err error)
+	GetAllUnitAdmins() (unitAdmins []*models.UnitAdminCore, err error)
 	GetUnitAdminById(unitAdminId string) (unitAdmin *models.UnitAdminCore, err error)
 	CreateUnitAdmin(unitAdmin *models.UnitAdminCore) (id string, err error)
 	DeleteUnitAdmin(superAdminId uint) (err error)

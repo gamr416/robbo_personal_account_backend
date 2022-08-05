@@ -170,6 +170,19 @@ func (p *UsersDelegateImpl) GetUnitAdminById(unitAdminId string) (unitAdmin mode
 	return
 }
 
+func (p *UsersDelegateImpl) GetAllUnitAdmins() (unitAdmins []*models.UnitAdminHTTP, err error) {
+	unitAdminsCore, err := p.UseCase.GetAllUnitAdmins()
+	if err != nil {
+		return
+	}
+	for _, unitAdminCore := range unitAdminsCore {
+		var unitAdminHttpTemp models.UnitAdminHTTP
+		unitAdminHttpTemp.FromCore(unitAdminCore)
+		unitAdmins = append(unitAdmins, &unitAdminHttpTemp)
+	}
+	return
+}
+
 func (p *UsersDelegateImpl) CreateUnitAdmin(unitAdminHTTP *models.UnitAdminHTTP) (id string, err error) {
 	unitAdminCore := unitAdminHTTP.ToCore()
 	return p.UseCase.CreateUnitAdmin(unitAdminCore)

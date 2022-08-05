@@ -217,6 +217,10 @@ func (p *UsersUseCaseImpl) GetUnitAdminById(unitAdminId string) (unitAdmin *mode
 	return p.Gateway.GetUnitAdminById(unitAdminId)
 }
 
+func (p *UsersUseCaseImpl) GetAllUnitAdmins() (unitAdmins []*models.UnitAdminCore, err error) {
+	return p.Gateway.GetAllUnitAdmins()
+}
+
 //func (p *UsersUseCaseImpl) GetUnitAdmin(email, password string) (unitAdmin *models.UnitAdminCore, err error) {
 //	return p.Gateway.GetUnitAdmin(email, password)
 //}

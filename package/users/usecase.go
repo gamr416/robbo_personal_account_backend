@@ -31,6 +31,7 @@ type UseCase interface {
 	DeleteFreeListener(freeListenerId uint) (err error)
 
 	GetUnitAdminById(unitAdminId string) (unitAdmin *models.UnitAdminCore, err error)
+	GetAllUnitAdmins() (unitAdmins []*models.UnitAdminCore, err error)
 	//GetUnitAdmin(email, password string) (unitAdmin *models.UnitAdminCore, err error)
 	UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (err error)
 	CreateUnitAdmin(unitAdmin *models.UnitAdminCore) (id string, err error)

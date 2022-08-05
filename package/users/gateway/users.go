@@ -333,6 +333,21 @@ func (r *UsersGatewayImpl) GetUnitAdminById(unitAdminId string) (unitAdmin *mode
 	return
 }
 
+func (r *UsersGatewayImpl) GetAllUnitAdmins() (unitAdmins []*models.UnitAdminCore, err error) {
+	var unitAdminsDB []*models.UnitAdminDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Find(&unitAdminsDB).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, unitAdminDb := range unitAdminsDB {
+		unitAdmins = append(unitAdmins, unitAdminDb.ToCore())
+	}
+	return
+}
+
 func (r *UsersGatewayImpl) CreateUnitAdmin(unitAdmin *models.UnitAdminCore) (id string, err error) {
 	unitAdminDb := models.UnitAdminDB{}
 	unitAdminDb.FromCore(unitAdmin)

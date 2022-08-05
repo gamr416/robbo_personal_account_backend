@@ -79,6 +79,7 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 		users.DELETE("/unitAdmin/:unitAdminId", h.DeleteUnitAdmin)
 		users.PUT("/unitAdmin", h.UpdateUnitAdmin)
 		users.GET("/unitAdmin/:unitAdminId", h.GetUnitAdminByID)
+		users.GET("/unitAdmins", h.GetAllUnitAdmins)
 
 		users.GET("/superAdmin/:superAdminId", h.GetSuperAdminById)
 		users.PUT("/superAdmin", h.UpdateSuperAdmin)
@@ -142,6 +143,11 @@ func (h *Handler) GetUser(c *gin.Context) {
 		c.JSON(http.StatusOK, superAdmin)
 		return
 	}
+}
+
+func (h *Handler) SearchStudentByFullname(c *gin.Context) {
+	fmt.Println("Search Student By Full name")
+	//searchInput := c.Param("searchInput")
 }
 
 func (h *Handler) GetStudentById(c *gin.Context) {
@@ -538,6 +544,17 @@ func (h *Handler) GetUnitAdminByID(c *gin.Context) {
 	})
 }
 
+func (h *Handler) GetAllUnitAdmins(c *gin.Context) {
+	fmt.Println("Get All UnitAdmins")
+	unitAdmins, err := h.usersDelegate.GetAllUnitAdmins()
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, unitAdmins)
+}
+
 type updateUnitAdminInput struct {
 	UnitAdmin *models.UnitAdminHTTP `json:"unitAdmin"`
 }
@@ -564,11 +581,15 @@ func (h *Handler) UpdateUnitAdmin(c *gin.Context) {
 func (h *Handler) CreateUnitAdmin(c *gin.Context) {
 	fmt.Println("Create Unit Admin")
 
-	unitAdminHttp := &models.UnitAdminHTTP{}
-	if err := c.BindJSON(unitAdminHttp); err != nil {
+	userHttp := models.UserHttp{}
+	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
+	}
+
+	unitAdminHttp := &models.UnitAdminHTTP{
+		UserHttp: userHttp,
 	}
 
 	unitAdminId, err := h.usersDelegate.CreateUnitAdmin(unitAdminHttp)

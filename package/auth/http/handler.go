@@ -104,15 +104,15 @@ func (h *Handler) SignUp(c *gin.Context) {
 func (h *Handler) Refresh(c *gin.Context) {
 	fmt.Println("Refresh")
 
-	refreshToken, err := c.Request.Cookie("token2")
-	fmt.Println(refreshToken.Value)
+	refreshToken, err := c.Cookie("token2")
+	fmt.Println(refreshToken)
 	if err != nil {
 		fmt.Println(err)
 		ErrorHandling(err, c)
 		return
 	}
 
-	newAccessToken, err := h.delegate.RefreshToken(refreshToken.Value)
+	newAccessToken, err := h.delegate.RefreshToken(refreshToken)
 	if err != nil {
 		fmt.Println(err)
 		ErrorHandling(err, c)

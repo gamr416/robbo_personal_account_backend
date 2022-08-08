@@ -223,14 +223,20 @@ type updateStudentInput struct {
 
 func (h *Handler) UpdateStudent(c *gin.Context) {
 	fmt.Println("Update Student")
-	updateInput := new(updateStudentInput)
 
-	if err := c.BindJSON(updateInput); err != nil {
+	userHttp := models.UserHttp{}
+
+	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	err := h.usersDelegate.UpdateStudent(updateInput.Student)
+
+	studentHttp := &models.StudentHTTP{
+		UserHttp: userHttp,
+	}
+
+	err := h.usersDelegate.UpdateStudent(studentHttp)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -258,7 +264,9 @@ func (h *Handler) DeleteStudent(c *gin.Context) {
 func (h *Handler) CreateTeacher(c *gin.Context) {
 	fmt.Println("Create Teacher")
 
-	userHttp := models.UserHttp{}
+	userHttp := models.UserHttp{
+		Role: uint(models.Student),
+	}
 
 	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
@@ -332,14 +340,19 @@ type updateTeacherInput struct {
 
 func (h *Handler) UpdateTeacher(c *gin.Context) {
 	fmt.Println("Update Teacher")
-	updateInput := new(updateTeacherInput)
-	if err := c.BindJSON(updateInput); err != nil {
+	userHttp := models.UserHttp{}
+
+	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	err := h.usersDelegate.UpdateTeacher(updateInput.Teacher)
+	teacherHttp := &models.TeacherHTTP{
+		UserHttp: userHttp,
+	}
+
+	err := h.usersDelegate.UpdateTeacher(teacherHttp)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -384,7 +397,9 @@ func (h *Handler) CreateParent(c *gin.Context) {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
-	userHttp := models.UserHttp{}
+	userHttp := models.UserHttp{
+		Role: uint(models.Parent),
+	}
 
 	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
@@ -430,14 +445,19 @@ type updateParentInput struct {
 
 func (h *Handler) UpdateParent(c *gin.Context) {
 	fmt.Println("Update Parent")
-	updateInput := new(updateParentInput)
-	if err := c.BindJSON(updateInput); err != nil {
+	userHttp := models.UserHttp{}
+
+	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	err := h.usersDelegate.UpdateParent(updateInput.Parent)
+	parentHttp := &models.ParentHTTP{
+		UserHttp: userHttp,
+	}
+
+	err := h.usersDelegate.UpdateParent(parentHttp)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -467,15 +487,21 @@ func (h *Handler) GetFreeListenerById(c *gin.Context) {
 func (h *Handler) CreateFreeListener(c *gin.Context) {
 	fmt.Println("Create FreeListener")
 
-	freeListenerHttp := &models.FreeListenerHttp{}
+	userHttp := models.UserHttp{
+		Role: uint(models.FreeListener),
+	}
 
-	if err := c.BindJSON(freeListenerHttp); err != nil {
+	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	freeListenerId, err := h.usersDelegate.CreateFreeListener(freeListenerHttp)
+	freeListener := &models.FreeListenerHttp{
+		UserHttp: userHttp,
+	}
+
+	freeListenerId, err := h.usersDelegate.CreateFreeListener(freeListener)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -510,14 +536,19 @@ type updateFreeListenerInput struct {
 
 func (h *Handler) UpdateFreeListener(c *gin.Context) {
 	fmt.Println("Update Free Listener")
-	updateInput := new(updateFreeListenerInput)
-	if err := c.BindJSON(updateInput); err != nil {
+	userHttp := models.UserHttp{}
+
+	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	err := h.usersDelegate.UpdateFreeListener(updateInput.FreeListener)
+	freeListenerHttp := &models.FreeListenerHttp{
+		UserHttp: userHttp,
+	}
+
+	err := h.usersDelegate.UpdateFreeListener(freeListenerHttp)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -561,14 +592,19 @@ type updateUnitAdminInput struct {
 
 func (h *Handler) UpdateUnitAdmin(c *gin.Context) {
 	fmt.Println("Update Unit Admin")
-	updateInput := new(updateUnitAdminInput)
-	if err := c.BindJSON(updateInput); err != nil {
+	userHttp := models.UserHttp{}
+
+	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	err := h.usersDelegate.UpdateUnitAdmin(updateInput.UnitAdmin)
+	unitAdminHttp := &models.UnitAdminHTTP{
+		UserHttp: userHttp,
+	}
+
+	err := h.usersDelegate.UpdateUnitAdmin(unitAdminHttp)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -581,7 +617,9 @@ func (h *Handler) UpdateUnitAdmin(c *gin.Context) {
 func (h *Handler) CreateUnitAdmin(c *gin.Context) {
 	fmt.Println("Create Unit Admin")
 
-	userHttp := models.UserHttp{}
+	userHttp := models.UserHttp{
+		Role: uint(models.UnitAdmin),
+	}
 	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -642,14 +680,19 @@ type updateSuperAdminInput struct {
 
 func (h *Handler) UpdateSuperAdmin(c *gin.Context) {
 	fmt.Println("Update Super Admin")
-	updateInput := new(updateSuperAdminInput)
-	if err := c.BindJSON(updateInput); err != nil {
+	userHttp := models.UserHttp{}
+
+	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	err := h.usersDelegate.UpdateSuperAdmin(updateInput.SuperAdmin)
+	superAdminHTTP := &models.SuperAdminHTTP{
+		UserHttp: userHttp,
+	}
+
+	err := h.usersDelegate.UpdateSuperAdmin(superAdminHTTP)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)

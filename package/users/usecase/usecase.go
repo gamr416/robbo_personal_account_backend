@@ -111,6 +111,11 @@ func (p *UsersUseCaseImpl) UpdateTeacher(teacher *models.TeacherCore) (err error
 }
 
 func (p *UsersUseCaseImpl) CreateTeacher(teacher *models.TeacherCore) (id string, err error) {
+	pwd := sha1.New()
+	pwd.Write([]byte(teacher.Password))
+	pwd.Write([]byte(viper.GetString("auth.hash_salt")))
+	passwordHash := fmt.Sprintf("%x", pwd.Sum(nil))
+	teacher.Password = passwordHash
 	return p.Gateway.CreateTeacher(teacher)
 }
 
@@ -235,6 +240,11 @@ func (p *UsersUseCaseImpl) UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (err
 }
 
 func (p *UsersUseCaseImpl) CreateUnitAdmin(unitAdmin *models.UnitAdminCore) (id string, err error) {
+	pwd := sha1.New()
+	pwd.Write([]byte(unitAdmin.Password))
+	pwd.Write([]byte(viper.GetString("auth.hash_salt")))
+	passwordHash := fmt.Sprintf("%x", pwd.Sum(nil))
+	unitAdmin.Password = passwordHash
 	return p.Gateway.CreateUnitAdmin(unitAdmin)
 }
 

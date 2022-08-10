@@ -36,6 +36,11 @@ func (p *UsersUseCaseImpl) GetStudentById(studentId string) (student *models.Stu
 	return p.Gateway.GetStudentById(studentId)
 }
 
+func (p *UsersUseCaseImpl) SearchStudentByEmail(email string) (students []*models.StudentCore, err error) {
+	emailCondition := "%" + email + "%"
+	return p.Gateway.SearchStudentByEmail(emailCondition)
+}
+
 func (p *UsersUseCaseImpl) GetStudentByParentId(parentId string) (students []*models.StudentCore, err error) {
 	relations, getRelationErr := p.Gateway.GetRelationByParentId(parentId)
 	if getRelationErr != nil {
@@ -268,9 +273,10 @@ func (p *UsersUseCaseImpl) DeleteSuperAdmin(superAdminId uint) (err error) {
 }
 
 func (p *UsersUseCaseImpl) CreateRelation(parentId, childrenId string) (err error) {
-	relationCore := models.ChildrenOfParentCore{
+	relationCore := &models.ChildrenOfParentCore{
 		ChildId:  childrenId,
 		ParentId: parentId,
 	}
-	return p.Gateway.CreateRelation(&relationCore)
+	fmt.Println(relationCore)
+	return p.Gateway.CreateRelation(relationCore)
 }

@@ -55,6 +55,7 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 		users.POST("/student", h.CreateStudent)
 		users.DELETE("/student/:studentId", h.DeleteStudent)
 		users.GET("/student/:studentId", h.GetStudentById)
+		users.GET("/student/search/:studentEmail", h.SearchStudentByEmail)
 		users.GET("students/:parentId", h.GetStudentByParentId)
 		users.PUT("/student", h.UpdateStudent)
 
@@ -84,6 +85,8 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 		users.GET("/superAdmin/:superAdminId", h.GetSuperAdminById)
 		users.PUT("/superAdmin", h.UpdateSuperAdmin)
 		users.DELETE("/superAdmin", h.DeleteSuperAdmin)
+
+		users.POST("/relation", h.CreateRelation)
 	}
 }
 
@@ -145,9 +148,16 @@ func (h *Handler) GetUser(c *gin.Context) {
 	}
 }
 
-func (h *Handler) SearchStudentByFullname(c *gin.Context) {
-	fmt.Println("Search Student By Full name")
-	//searchInput := c.Param("searchInput")
+func (h *Handler) SearchStudentByEmail(c *gin.Context) {
+	fmt.Println("GetStudentByEmail")
+	studentEmail := c.Param("studentEmail")
+
+	students, err := h.usersDelegate.SearchStudentByEmail(studentEmail)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+	c.JSON(http.StatusOK, students)
 }
 
 func (h *Handler) GetStudentById(c *gin.Context) {
@@ -717,8 +727,8 @@ func (h *Handler) DeleteSuperAdmin(c *gin.Context) {
 }
 
 type createRelation struct {
-	ParentId   string `json:"parentId"`
-	ChildrenId string `json:"childrenId"`
+	ParentId string `json:"parentId"`
+	ChildId  string `json:"childId"`
 }
 
 func (h *Handler) CreateRelation(c *gin.Context) {
@@ -732,7 +742,7 @@ func (h *Handler) CreateRelation(c *gin.Context) {
 		return
 	}
 
-	createRelationErr := h.usersDelegate.CreateRelation(createRelationInput.ParentId, createRelationInput.ChildrenId)
+	createRelationErr := h.usersDelegate.CreateRelation(createRelationInput.ParentId, createRelationInput.ChildId)
 
 	if createRelationErr != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)

@@ -45,6 +45,19 @@ func (p *UsersDelegateImpl) GetStudentById(studentId string) (student models.Stu
 	return
 }
 
+func (p *UsersDelegateImpl) SearchStudentByEmail(email string) (students []*models.StudentHTTP, err error) {
+	studentsCore, err := p.UseCase.SearchStudentByEmail(email)
+	if err != nil {
+		return
+	}
+	for _, studentCore := range studentsCore {
+		var studentTemp models.StudentHTTP
+		studentTemp.FromCore(studentCore)
+		students = append(students, &studentTemp)
+	}
+	return
+}
+
 func (p *UsersDelegateImpl) GetStudentByParentId(parentId string) (students []*models.StudentHTTP, err error) {
 	studentsCore, err := p.UseCase.GetStudentByParentId(parentId)
 	if err != nil {

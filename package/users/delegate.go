@@ -5,7 +5,7 @@ import (
 )
 
 type Delegate interface {
-	//GetStudent(email, password string) (student models.StudentHTTP, err error)
+	SearchStudentByEmail(email string) (students []*models.StudentHTTP, err error)
 	CreateStudent(student *models.StudentHTTP, parentId string) (id string, err error)
 	DeleteStudent(studentId uint) (err error)
 	GetStudentById(studentId string) (student models.StudentHTTP, err error)

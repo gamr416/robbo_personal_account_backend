@@ -45,51 +45,52 @@ func SetupAuthUseCase(gateway users.Gateway) AuthUseCaseModule {
 	}
 }
 
-func (a *AuthUseCaseImpl) SignIn(email, passwordIn string, role uint) (accessToken, refreshToken string, err error) {
+func (a *AuthUseCaseImpl) SignIn(email, password string, role uint) (accessToken, refreshToken string, err error) {
 	pwd := sha1.New()
-	pwd.Write([]byte(passwordIn))
+	pwd.Write([]byte(password))
 	pwd.Write([]byte(a.hashSalt))
-	password := fmt.Sprintf("%x", pwd.Sum(nil))
+	passwordHash := fmt.Sprintf("%x", pwd.Sum(nil))
+
 	var user = new(models.UserCore)
 	switch models.Role(role) {
 	case models.Student:
-		student, getStudentErr := a.Gateway.GetStudent(email, password)
+		student, getStudentErr := a.Gateway.GetStudent(email, passwordHash)
 		if getStudentErr != nil {
 			return "", "", getStudentErr
 		}
 		user.Id = student.Id
 		user.Role = models.Student
 	case models.Teacher:
-		teacher, getTeacherErr := a.Gateway.GetTeacher(email, password)
+		teacher, getTeacherErr := a.Gateway.GetTeacher(email, passwordHash)
 		if getTeacherErr != nil {
 			return "", "", getTeacherErr
 		}
 		user.Id = teacher.Id
 		user.Role = models.Teacher
 	case models.Parent:
-		parent, getParentErr := a.Gateway.GetParent(email, password)
+		parent, getParentErr := a.Gateway.GetParent(email, passwordHash)
 		if getParentErr != nil {
 			return "", "", getParentErr
 		}
 		user.Id = parent.Id
 		user.Role = models.Parent
 	case models.FreeListener:
-		freeListener, getFreeListenerErr := a.Gateway.GetFreeListener(email, password)
+		freeListener, getFreeListenerErr := a.Gateway.GetFreeListener(email, passwordHash)
 		if getFreeListenerErr != nil {
 			return "", "", getFreeListenerErr
 		}
 		user.Id = freeListener.Id
 		user.Role = models.FreeListener
 	case models.UnitAdmin:
-		unitAdmin, getUnitAdminErr := a.Gateway.GetUnitAdmin(email, password)
+		unitAdmin, getUnitAdminErr := a.Gateway.GetUnitAdmin(email, passwordHash)
 		if getUnitAdminErr != nil {
 			return "", "", getUnitAdminErr
 		}
 		user.Id = unitAdmin.Id
 		user.Role = models.UnitAdmin
 	case models.SuperAdmin:
-		superAdmin, getSuperAdminErr := a.Gateway.GetSuperAdmin(email, password)
-		if err != nil {
+		superAdmin, getSuperAdminErr := a.Gateway.GetSuperAdmin(email, passwordHash)
+		if getSuperAdminErr != nil {
 			return "", "", getSuperAdminErr
 		}
 		user.Id = superAdmin.Id

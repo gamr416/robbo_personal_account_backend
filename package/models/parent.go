@@ -7,6 +7,7 @@ import (
 
 type ParentCore struct {
 	UserCore
+	Children []*StudentCore
 }
 
 type ParentDB struct {
@@ -15,7 +16,8 @@ type ParentDB struct {
 }
 
 type ParentHTTP struct {
-	UserHttp
+	UserHttp `json:"userHttp"`
+	Children []*StudentHTTP `json:"children"`
 }
 
 func (em *ParentDB) ToCore() *ParentCore {
@@ -72,5 +74,9 @@ func (ht *ParentHTTP) FromCore(parent *ParentCore) {
 	ht.Firstname = parent.Firstname
 	ht.Lastname = parent.Lastname
 	ht.Middlename = parent.Middlename
-	//ht.StudentsID = parent.StudentsID
+	for _, child := range parent.Children {
+		var childTemp StudentHTTP
+		childTemp.FromCore(child)
+		ht.Children = append(ht.Children, &childTemp)
+	}
 }

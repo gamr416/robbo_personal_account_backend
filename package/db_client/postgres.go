@@ -53,6 +53,7 @@ func (c *PostgresClient) Migrate() (err error) {
 		&models.SuperAdminDB{},
 		&models.UnitAdminDB{},
 		&models.FreeListenerDB{},
+		&models.ChildrenOfParentDB{},
 	)
 	return
 }

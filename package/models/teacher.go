@@ -18,7 +18,7 @@ type TeacherDB struct {
 }
 
 type TeacherHTTP struct {
-	UserHttp
+	UserHttp `json:"userHttp"`
 	//TeachersID []uint `json:"teachers_id"`
 	//CoursesID  []uint `json:"courses_id"`
 	//GroupsID   []uint `json:"groups_id"`

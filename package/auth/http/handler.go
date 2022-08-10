@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	"log"
 	"net/http"
 )
 
@@ -50,20 +51,14 @@ func (h *Handler) SignIn(c *gin.Context) {
 
 	accessToken, refreshToken, err := h.delegate.SignIn(signInInput.Email, signInInput.Password, signInInput.Role)
 	if err != nil {
+		fmt.Println(err)
 		ErrorHandling(err, c)
 		return
 	}
 
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:  "token2",
-		Value: refreshToken,
-		Path:  "/auth",
-		//Domain: "0.0.0.0",
-		MaxAge:   60 * 60 * 24 * 7,
-		HttpOnly: true,
-	})
+	setRefreshToken(refreshToken, c)
 
-	refreshToken2, _ := c.Request.Cookie("token")
+	refreshToken2, _ := c.Request.Cookie("token2")
 	fmt.Println(refreshToken2)
 
 	c.JSON(http.StatusOK, signInResponse{
@@ -87,13 +82,7 @@ func (h *Handler) SignUp(c *gin.Context) {
 		return
 	}
 
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     "token2",
-		Value:    refreshToken,
-		Path:     "/auth",
-		MaxAge:   60 * 60 * 24 * 7,
-		HttpOnly: true,
-	})
+	setRefreshToken(refreshToken, c)
 
 	c.JSON(http.StatusOK, signInResponse{
 		AccessToken: accessToken,
@@ -103,15 +92,13 @@ func (h *Handler) SignUp(c *gin.Context) {
 func (h *Handler) Refresh(c *gin.Context) {
 	fmt.Println("Refresh")
 
-	refreshToken, err := c.Request.Cookie("token2")
-	fmt.Println(refreshToken.Value)
+	refreshToken, err := getRefreshToken(c)
 	if err != nil {
-		fmt.Println(err)
 		ErrorHandling(err, c)
 		return
 	}
 
-	newAccessToken, err := h.delegate.RefreshToken(refreshToken.Value)
+	newAccessToken, err := h.delegate.RefreshToken(refreshToken)
 	if err != nil {
 		fmt.Println(err)
 		ErrorHandling(err, c)
@@ -125,16 +112,7 @@ func (h *Handler) Refresh(c *gin.Context) {
 
 func (h *Handler) SignOut(c *gin.Context) {
 	fmt.Println("SignOut")
-
-	cookie := &http.Cookie{
-		Name:  "token2",
-		Value: "",
-		//Path:     "/",
-		MaxAge:   0,
-		HttpOnly: true,
-	}
-	http.SetCookie(c.Writer, cookie)
-
+	setRefreshToken("", c)
 	c.Status(http.StatusOK)
 }
 
@@ -160,22 +138,55 @@ func ErrorHandling(err error, c *gin.Context) {
 	switch err {
 	case auth.ErrUserAlreadyExist:
 		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
-		return
 	case auth.ErrInvalidAccessToken:
 		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
-		return
 	case auth.ErrInvalidTypeClaims:
 		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
-		return
 	case auth.ErrUserNotFound:
 		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
-		return
 	case auth.ErrTokenNotFound:
 		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
-		return
 	case http.ErrNoCookie:
 		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
 	default:
 		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	}
+}
+
+func getRefreshToken(c *gin.Context) (refreshToken string, err error) {
+	cookie, gerTokenErr := c.Cookie("refresh_token")
+	if gerTokenErr != nil {
+		if gerTokenErr == http.ErrNoCookie {
+			log.Println("Error finding cookie: ", gerTokenErr)
+			err = http.ErrNoCookie
+		}
+		err = gerTokenErr
+		fmt.Println(err)
+		return "", err
+	}
+	refreshToken = cookie
+	return
+}
+
+func setRefreshToken(value string, c *gin.Context) {
+	//expirationTime := time.Now().Add(time.Hour * 24 * 7)
+	//http.SetCookie(c.Writer, &http.Cookie{
+	//	Name:     "refresh_token",
+	//	Value:    value,
+	//	Expires:  expirationTime,
+	//	HttpOnly: true,
+	//	Secure:   false,
+	//	Path:     "/",
+	//	Domain:   "0.0.0.0",
+	//})
+
+	c.SetCookie(
+		"refresh_token",
+		value,
+		60*60*24*7,
+		"/",
+		"localhost",
+		false,
+		true,
+	)
 }

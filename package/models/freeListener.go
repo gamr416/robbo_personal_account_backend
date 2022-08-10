@@ -12,7 +12,7 @@ type FreeListenerDB struct {
 }
 
 type FreeListenerHttp struct {
-	UserHttp
+	UserHttp `json:"userHttp"`
 }
 
 func (em *FreeListenerDB) ToCore() *FreeListenerCore {

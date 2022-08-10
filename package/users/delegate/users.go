@@ -1,6 +1,7 @@
 package delegate
 
 import (
+	"fmt"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
@@ -25,16 +26,16 @@ func SetupUsersDelegate(usecase users.UseCase) UsersDelegateModule {
 	}
 }
 
-func (p *UsersDelegateImpl) CreateStudent(student *models.StudentHTTP) (id string, err error) {
+func (p *UsersDelegateImpl) CreateStudent(student *models.StudentHTTP, parentId string) (id string, err error) {
 	studentCore := student.ToCore()
-	return p.UseCase.CreateStudent(studentCore)
+	return p.UseCase.CreateStudent(studentCore, parentId)
 }
 
 func (p *UsersDelegateImpl) DeleteStudent(studentId uint) (err error) {
 	return p.UseCase.DeleteStudent(studentId)
 }
 
-func (p *UsersDelegateImpl) GetStudentById(studentId uint) (student models.StudentHTTP, err error) {
+func (p *UsersDelegateImpl) GetStudentById(studentId string) (student models.StudentHTTP, err error) {
 	studentCore, err := p.UseCase.GetStudentById(studentId)
 	if err != nil {
 		log.Println("User not found")
@@ -44,18 +45,58 @@ func (p *UsersDelegateImpl) GetStudentById(studentId uint) (student models.Stude
 	return
 }
 
+func (p *UsersDelegateImpl) SearchStudentByEmail(email string) (students []*models.StudentHTTP, err error) {
+	studentsCore, err := p.UseCase.SearchStudentByEmail(email)
+	if err != nil {
+		return
+	}
+	for _, studentCore := range studentsCore {
+		var studentTemp models.StudentHTTP
+		studentTemp.FromCore(studentCore)
+		students = append(students, &studentTemp)
+	}
+	return
+}
+
+func (p *UsersDelegateImpl) GetStudentByParentId(parentId string) (students []*models.StudentHTTP, err error) {
+	studentsCore, err := p.UseCase.GetStudentByParentId(parentId)
+	if err != nil {
+		return
+	}
+	for _, studentCore := range studentsCore {
+		var studentHttpTemp models.StudentHTTP
+		studentHttpTemp.FromCore(studentCore)
+		students = append(students, &studentHttpTemp)
+	}
+	return
+}
+
 func (p *UsersDelegateImpl) UpdateStudent(studentHTTP *models.StudentHTTP) (err error) {
 	studentCore := studentHTTP.ToCore()
+	fmt.Println(studentCore.Id)
 	return p.UseCase.UpdateStudent(studentCore)
 }
 
-func (p *UsersDelegateImpl) GetTeacherById(teacherId uint) (teacher models.TeacherHTTP, err error) {
+func (p *UsersDelegateImpl) GetTeacherById(teacherId string) (teacher models.TeacherHTTP, err error) {
 	teacherCore, err := p.UseCase.GetTeacherById(teacherId)
 	if err != nil {
 		log.Println("User not found")
 		return teacher, auth.ErrUserNotFound
 	}
 	teacher.FromCore(teacherCore)
+	return
+}
+
+func (p *UsersDelegateImpl) GetAllTeachers() (teachers []*models.TeacherHTTP, err error) {
+	teachersCore, err := p.UseCase.GetAllTeachers()
+	if err != nil {
+		return
+	}
+	for _, teacherCore := range teachersCore {
+		var teacherTemp models.TeacherHTTP
+		teacherTemp.FromCore(teacherCore)
+		teachers = append(teachers, &teacherTemp)
+	}
 	return
 }
 
@@ -73,13 +114,26 @@ func (p *UsersDelegateImpl) DeleteTeacher(teacherId uint) (err error) {
 	return p.UseCase.DeleteTeacher(teacherId)
 }
 
-func (p *UsersDelegateImpl) GetParentById(parentId uint) (parent models.ParentHTTP, err error) {
+func (p *UsersDelegateImpl) GetParentById(parentId string) (parent models.ParentHTTP, err error) {
 	parentCore, err := p.UseCase.GetParentById(parentId)
 	if err != nil {
 		log.Println("User not found")
 		return parent, auth.ErrUserNotFound
 	}
 	parent.FromCore(parentCore)
+	return
+}
+
+func (p *UsersDelegateImpl) GetAllParent() (parents []*models.ParentHTTP, err error) {
+	parentsCore, err := p.UseCase.GetAllParent()
+	if err != nil {
+		return
+	}
+	for _, parentCore := range parentsCore {
+		var parentTemp models.ParentHTTP
+		parentTemp.FromCore(parentCore)
+		parents = append(parents, &parentTemp)
+	}
 	return
 }
 
@@ -97,7 +151,7 @@ func (p *UsersDelegateImpl) UpdateParent(parentHTTP *models.ParentHTTP) (err err
 	return p.UseCase.UpdateParent(parentCore)
 }
 
-func (p *UsersDelegateImpl) GetFreeListenerById(freeListenerId uint) (freeListener models.FreeListenerHttp, err error) {
+func (p *UsersDelegateImpl) GetFreeListenerById(freeListenerId string) (freeListener models.FreeListenerHttp, err error) {
 	freeListenerCore, err := p.UseCase.GetFreeListenerById(freeListenerId)
 	if err != nil {
 		log.Println("free listener not found")
@@ -121,13 +175,26 @@ func (p *UsersDelegateImpl) UpdateFreeListener(freeListenerHTTP *models.FreeList
 	return p.UseCase.UpdateFreeListener(freeListenerCore)
 }
 
-func (p *UsersDelegateImpl) GetUnitAdminById(unitAdminId uint) (unitAdmin models.UnitAdminHTTP, err error) {
+func (p *UsersDelegateImpl) GetUnitAdminById(unitAdminId string) (unitAdmin models.UnitAdminHTTP, err error) {
 	unitAdminCore, err := p.UseCase.GetUnitAdminById(unitAdminId)
 	if err != nil {
 		log.Println("User not found")
 		return unitAdmin, auth.ErrUserNotFound
 	}
 	unitAdmin.FromCore(unitAdminCore)
+	return
+}
+
+func (p *UsersDelegateImpl) GetAllUnitAdmins() (unitAdmins []*models.UnitAdminHTTP, err error) {
+	unitAdminsCore, err := p.UseCase.GetAllUnitAdmins()
+	if err != nil {
+		return
+	}
+	for _, unitAdminCore := range unitAdminsCore {
+		var unitAdminHttpTemp models.UnitAdminHTTP
+		unitAdminHttpTemp.FromCore(unitAdminCore)
+		unitAdmins = append(unitAdmins, &unitAdminHttpTemp)
+	}
 	return
 }
 
@@ -145,7 +212,7 @@ func (p *UsersDelegateImpl) DeleteUnitAdmin(unitAdminId uint) (err error) {
 	return p.UseCase.DeleteUnitAdmin(unitAdminId)
 }
 
-func (p *UsersDelegateImpl) GetSuperAdminById(superAdminId uint) (superAdmin models.SuperAdminHTTP, err error) {
+func (p *UsersDelegateImpl) GetSuperAdminById(superAdminId string) (superAdmin models.SuperAdminHTTP, err error) {
 	superAdminCore, err := p.UseCase.GetSuperAdminById(superAdminId)
 	if err != nil {
 		log.Println("User not found")
@@ -161,4 +228,8 @@ func (p *UsersDelegateImpl) UpdateSuperAdmin(superAdminHTTP *models.SuperAdminHT
 }
 func (p *UsersDelegateImpl) DeleteSuperAdmin(superAdminId uint) (err error) {
 	return p.UseCase.DeleteSuperAdmin(superAdminId)
+}
+
+func (p *UsersDelegateImpl) CreateRelation(parentId, childrenId string) (err error) {
+	return p.UseCase.CreateRelation(parentId, childrenId)
 }

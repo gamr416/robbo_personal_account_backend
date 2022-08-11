@@ -23,26 +23,39 @@ func SetupProjectPageDelegate(usecase robboUnits.UseCase) RobboUnitsDelegateModu
 	}
 }
 
-func (r RobboUnitsDelegateImpl) GetAllRobboUnit(authorId string) (robboUnits []*models.RobboUnitHTTP, err error) {
-	//TODO implement me
-	panic("implement me")
+func (r RobboUnitsDelegateImpl) GetAllRobboUnit() (robboUnits []*models.RobboUnitHTTP, err error) {
+	robboUnitsCore, getRobboUnits := r.UseCase.GetAllRobboUnit()
+	if getRobboUnits != nil {
+		err = getRobboUnits
+		return
+	}
+	for _, robboUnitCore := range robboUnitsCore {
+		var robboUnitTemp models.RobboUnitHTTP
+		robboUnitTemp.FromCore(robboUnitCore)
+		robboUnits = append(robboUnits, &robboUnitTemp)
+	}
+	return
 }
 
 func (r RobboUnitsDelegateImpl) GetRobboUnitById(robboUnitId string) (robboUnit *models.RobboUnitHTTP, err error) {
-	//TODO implement me
-	panic("implement me")
+	robboUnitCore, getRobboUnitErr := r.UseCase.GetRobboUnitById(robboUnitId)
+	if getRobboUnitErr != nil {
+		err = getRobboUnitErr
+		return
+	}
+	robboUnit.FromCore(robboUnitCore)
+	return
 }
 
-func (r RobboUnitsDelegateImpl) UpdateRobboUnit(projectPage *models.RobboUnitHTTP) (err error) {
-	//TODO implement me
-	panic("implement me")
+func (r RobboUnitsDelegateImpl) UpdateRobboUnit(robboUnit *models.RobboUnitHTTP) (err error) {
+	robboUnitCore := robboUnit.ToCore()
+	return r.UseCase.UpdateRobboUnit(robboUnitCore)
 }
 
-func (r RobboUnitsDelegateImpl) CreateRobboUnit() (robboUnitId string, err error) {
-	//TODO implement me
-	panic("implement me")
+func (r RobboUnitsDelegateImpl) CreateRobboUnit(robboUnit *models.RobboUnitHTTP) (robboUnitId string, err error) {
+	robboUnitCore := robboUnit.ToCore()
+	return r.UseCase.CreateRobboUnit(robboUnitCore)
 }
-func (r RobboUnitsDelegateImpl) DeleteRobboUnit(projectId string) (err error) {
-	//TODO implement me
-	panic("implement me")
+func (r RobboUnitsDelegateImpl) DeleteRobboUnit(robboUnitId string) (err error) {
+	return r.UseCase.DeleteRobboUnit(robboUnitId)
 }

@@ -23,22 +23,22 @@ func SetupProjectPageUseCase(robboUnitsGateway robboUnits.Gateway) RobboUnitsUse
 	}
 }
 
-func (p *RobboUnitsUseCaseImpl) CreateRobboUnit() (robboUnitId string, err error) {
-	return
+func (p *RobboUnitsUseCaseImpl) CreateRobboUnit(robboUnit *models.RobboUnitCore) (robboUnitId string, err error) {
+	return p.Gateway.CreateRobboUnit(robboUnit)
 }
 
-func (p *RobboUnitsUseCaseImpl) DeleteRobboUnit(projectId string) (err error) {
-	return
+func (p *RobboUnitsUseCaseImpl) DeleteRobboUnit(robboUnitId string) (err error) {
+	return p.Gateway.DeleteRobboUnit(robboUnitId)
 }
 
-func (p *RobboUnitsUseCaseImpl) GetAllRobboUnit(authorId string) (robboUnits []*models.RobboUnitCore, err error) {
-	return
+func (p *RobboUnitsUseCaseImpl) GetAllRobboUnit() (robboUnits []*models.RobboUnitCore, err error) {
+	return p.Gateway.GetAllRobboUnit()
 }
 
 func (p *RobboUnitsUseCaseImpl) GetRobboUnitById(robboUnitId string) (robboUnit *models.RobboUnitCore, err error) {
-	return
+	return p.Gateway.GetRobboUnitById(robboUnitId)
 }
 
-func (p *RobboUnitsUseCaseImpl) UpdateRobboUnit(projectPage *models.RobboUnitCore) (err error) {
-	return
+func (p *RobboUnitsUseCaseImpl) UpdateRobboUnit(robboUnit *models.RobboUnitCore) (err error) {
+	return p.Gateway.UpdateRobboUnit(robboUnit)
 }

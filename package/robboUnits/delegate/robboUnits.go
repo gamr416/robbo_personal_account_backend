@@ -15,7 +15,7 @@ type RobboUnitsDelegateModule struct {
 	robboUnits.Delegate
 }
 
-func SetupProjectPageDelegate(usecase robboUnits.UseCase) RobboUnitsDelegateModule {
+func SetupRobboUnitsDelegate(usecase robboUnits.UseCase) RobboUnitsDelegateModule {
 	return RobboUnitsDelegateModule{
 		Delegate: &RobboUnitsDelegateImpl{
 			usecase,
@@ -37,7 +37,7 @@ func (r RobboUnitsDelegateImpl) GetAllRobboUnit() (robboUnits []*models.RobboUni
 	return
 }
 
-func (r RobboUnitsDelegateImpl) GetRobboUnitById(robboUnitId string) (robboUnit *models.RobboUnitHTTP, err error) {
+func (r RobboUnitsDelegateImpl) GetRobboUnitById(robboUnitId string) (robboUnit models.RobboUnitHTTP, err error) {
 	robboUnitCore, getRobboUnitErr := r.UseCase.GetRobboUnitById(robboUnitId)
 	if getRobboUnitErr != nil {
 		err = getRobboUnitErr

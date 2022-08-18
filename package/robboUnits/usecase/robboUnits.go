@@ -15,7 +15,7 @@ type RobboUnitsUseCaseModule struct {
 	robboUnits.UseCase
 }
 
-func SetupProjectPageUseCase(robboUnitsGateway robboUnits.Gateway) RobboUnitsUseCaseModule {
+func SetupRobboUnitsUseCase(robboUnitsGateway robboUnits.Gateway) RobboUnitsUseCaseModule {
 	return RobboUnitsUseCaseModule{
 		UseCase: &RobboUnitsUseCaseImpl{
 			robboUnitsGateway,

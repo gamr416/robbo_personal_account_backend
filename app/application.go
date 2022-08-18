@@ -40,6 +40,10 @@ import (
 	robboUnitshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/robboUnits/http"
 	robboUnitsusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/robboUnits/usecase"
 
+	robboGroupdelegate "github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup/delegate"
+	robboGroupgateway "github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup/gateway"
+	robboGrouphttp "github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup/http"
+	robboGroupusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup/usecase"
 	"github.com/skinnykaen/robbo_student_personal_account.git/server"
 	"go.uber.org/fx"
 	"log"
@@ -58,7 +62,8 @@ func InvokeWith(options ...fx.Option) *fx.App {
 		fx.Provide(crsgateway.SetupCoursesGateway),
 		fx.Provide(chrtgateway.SetupCohortsGateway),
 		fx.Provide(usersgateway.SetupUsersGateway),
-		fx.Provide(robboUnitsgateway.SetupProjectPageGateway),
+		fx.Provide(robboUnitsgateway.SetupRobboGroupGateway),
+		fx.Provide(robboGroupgateway.SetupRobboGroupGateway),
 		fx.Provide(authusecase.SetupAuthUseCase),
 		fx.Provide(prjusecase.SetupProjectUseCase),
 		fx.Provide(ppageusecase.SetupProjectPageUseCase),
@@ -66,14 +71,16 @@ func InvokeWith(options ...fx.Option) *fx.App {
 		fx.Provide(chrtusecase.SetupCohortUseCase),
 		fx.Provide(edxusecase.SetupEdxApiUseCase),
 		fx.Provide(usersusecase.SetupUsersUseCase),
-		fx.Provide(robboUnitsusecase.SetupProjectPageUseCase),
+		fx.Provide(robboUnitsusecase.SetupRobboUnitsUseCase),
+		fx.Provide(robboGroupusecase.SetupRobboGroupUseCase),
 		fx.Provide(authdelegate.SetupAuthDelegate),
 		fx.Provide(prjdelegate.SetupProjectDelegate),
 		fx.Provide(ppagedelegate.SetupProjectPageDelegate),
 		fx.Provide(crsdelegate.SetupCourseDelegate),
 		fx.Provide(chrtdelegate.SetupCohortDelegate),
 		fx.Provide(usersdelegate.SetupUsersDelegate),
-		fx.Provide(robboUnitsdelegate.SetupProjectPageDelegate),
+		fx.Provide(robboUnitsdelegate.SetupRobboUnitsDelegate),
+		fx.Provide(robboGroupdelegate.SetupRobboGroupDelegate),
 		fx.Provide(prjhttp.NewProjectsHandler),
 		fx.Provide(ppagehttp.NewProjectPageHandler),
 		fx.Provide(authhttp.NewAuthHandler),
@@ -81,6 +88,7 @@ func InvokeWith(options ...fx.Option) *fx.App {
 		fx.Provide(chrthttp.NewCohortsHandler),
 		fx.Provide(usershtpp.NewUsersHandler),
 		fx.Provide(robboUnitshttp.NewRobboUnitsHandler),
+		fx.Provide(robboGrouphttp.NewRobboGroupHandler),
 	}
 	for _, option := range options {
 		di = append(di, option)

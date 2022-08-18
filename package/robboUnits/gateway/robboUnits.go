@@ -19,7 +19,7 @@ type RobboUnitsGatewayModule struct {
 	robboUnits.Gateway
 }
 
-func SetupProjectPageGateway(postgresClient db_client.PostgresClient) RobboUnitsGatewayModule {
+func SetupRobboGroupGateway(postgresClient db_client.PostgresClient) RobboUnitsGatewayModule {
 	return RobboUnitsGatewayModule{
 		Gateway: &RobboUnitsGatewayImpl{PostgresClient: &postgresClient},
 	}

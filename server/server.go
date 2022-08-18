@@ -9,6 +9,7 @@ import (
 	courseshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/courses/http"
 	projectpagehttp "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/http"
 	projectshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/http"
+	robbogrouphttp "github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup/http"
 	robbounitshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/robboUnits/http"
 	usershtpp "github.com/skinnykaen/robbo_student_personal_account.git/package/users/http"
 	"github.com/spf13/viper"
@@ -30,6 +31,7 @@ func NewServer(lifecycle fx.Lifecycle,
 	cohortshttp cohortshttp.Handler,
 	usershttp usershtpp.Handler,
 	robbounitshttp robbounitshttp.Handler,
+	robbogrouphttp robbogrouphttp.Handler,
 ) {
 	lifecycle.Append(
 		fx.Hook{
@@ -46,6 +48,7 @@ func NewServer(lifecycle fx.Lifecycle,
 				cohortshttp.InitCohortRoutes(router)
 				usershttp.InitUsersRoutes(router)
 				robbounitshttp.InitRobboUnitsRoutes(router)
+				robbogrouphttp.InitRobboGroupRoutes(router)
 				server := &http.Server{
 					Addr: viper.GetString("server.address"),
 					Handler: cors.New(

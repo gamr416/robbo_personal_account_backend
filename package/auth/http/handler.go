@@ -169,24 +169,14 @@ func getRefreshToken(c *gin.Context) (refreshToken string, err error) {
 }
 
 func setRefreshToken(value string, c *gin.Context) {
-	//expirationTime := time.Now().Add(time.Hour * 24 * 7)
-	//http.SetCookie(c.Writer, &http.Cookie{
-	//	Name:     "refresh_token",
-	//	Value:    value,
-	//	Expires:  expirationTime,
-	//	HttpOnly: true,
-	//	Secure:   false,
-	//	Path:     "/",
-	//	Domain:   "0.0.0.0",
-	//})
 
 	c.SetCookie(
 		"refresh_token",
 		value,
 		60*60*24*7,
 		"/",
-		"localhost",
+		"0.0.0.0",
 		false,
-		true,
+		false,
 	)
 }

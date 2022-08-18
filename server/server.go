@@ -54,9 +54,11 @@ func NewServer(lifecycle fx.Lifecycle,
 							AllowedOrigins:   []string{"http://0.0.0.0:3030", "http://0.0.0.0:8601", "localhost:3030"},
 							AllowCredentials: true,
 							AllowedMethods: []string{
-								"PUT", "DELETE", "GET", "OPTIONS", "POST", "HEAD",
+								http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions, http.MethodOptions,
 							},
-							AllowedHeaders: []string{"Origin", "X-Requested-With", "Content-Type", "Accept"},
+							AllowedHeaders: []string{
+								"Origin", "X-Requested-With", "Content-Type", "Accept", "Set-Cookie", "Authorization",
+							},
 						},
 					).Handler(router),
 					ReadTimeout:    10 * time.Second,

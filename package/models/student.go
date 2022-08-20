@@ -8,18 +8,22 @@ import (
 type StudentCore struct {
 	UserCore
 	RobboGroupId string
+	RobboUnitId  string
 }
 
 type StudentHTTP struct {
 	UserHttp     `json:"userHttp"`
 	RobboGroupId string `json:"robboGroupId"`
+	RobboUnitId  string `json:"robboUnitId"`
 }
 
 type StudentDB struct {
 	gorm.Model
 	UserDB
-	RobboGroupId string
-	RobboGroup   RobboGroupDB `gorm:"foreignKey:RobboGroupId;references:ID;"`
+	RobboGroupId uint
+	//RobboGroup   RobboGroupDB `gorm:"foreignKey:RobboGroupId;references:ID;"`
+	RobboUnitId uint
+	//RobboUnit    RobboUnitDB `gorm:"foreignKey:RobboUnitId;references:ID;"`
 }
 
 func (em *StudentDB) ToCore() *StudentCore {
@@ -35,12 +39,15 @@ func (em *StudentDB) ToCore() *StudentCore {
 			Middlename: em.Middlename,
 			CreatedAt:  em.CreatedAt.String(),
 		},
-		RobboGroupId: em.RobboGroupId,
+		RobboGroupId: strconv.FormatUint(uint64(em.RobboGroupId), 10),
+		RobboUnitId:  strconv.FormatUint(uint64(em.RobboUnitId), 10),
 	}
 }
 
 func (em *StudentDB) FromCore(student *StudentCore) {
 	id, _ := strconv.ParseUint(student.Id, 10, 64)
+	robboUnitId, _ := strconv.ParseUint(student.RobboUnitId, 10, 64)
+	robboGroupId, _ := strconv.ParseUint(student.RobboGroupId, 10, 64)
 	em.ID = uint(id)
 	em.Email = student.Email
 	em.Password = student.Password
@@ -49,7 +56,8 @@ func (em *StudentDB) FromCore(student *StudentCore) {
 	em.Firstname = student.Firstname
 	em.Lastname = student.Lastname
 	em.Middlename = student.Middlename
-	em.RobboGroupId = student.RobboGroupId
+	em.RobboGroupId = uint(robboUnitId)
+	em.RobboUnitId = uint(robboGroupId)
 }
 
 func (ht *StudentHTTP) ToCore() *StudentCore {
@@ -65,6 +73,7 @@ func (ht *StudentHTTP) ToCore() *StudentCore {
 			Middlename: ht.Middlename,
 		},
 		RobboGroupId: ht.RobboGroupId,
+		RobboUnitId:  ht.RobboUnitId,
 	}
 }
 
@@ -79,4 +88,5 @@ func (ht *StudentHTTP) FromCore(student *StudentCore) {
 	ht.Lastname = student.Lastname
 	ht.Middlename = student.Middlename
 	ht.RobboGroupId = student.RobboGroupId
+	ht.RobboUnitId = student.RobboUnitId
 }

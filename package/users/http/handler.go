@@ -58,7 +58,7 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 		users.GET("/student/search/:studentEmail", h.SearchStudentByEmail)
 		users.GET("students/:parentId", h.GetStudentByParentId)
 		users.PUT("/student", h.UpdateStudent)
-		users.PUT("/student/:studentId/robboGroupId", h.SetRobboGroupIdForStudent)
+		users.POST("/student/:studentId/robboGroup/:robboGroupId", h.SetRobboGroupIdForStudent)
 
 		users.POST("/teacher", h.CreateTeacher)
 		users.GET("/teachers", h.GetAllTeachers)
@@ -268,12 +268,23 @@ func (h *Handler) DeleteStudent(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+type SetRobboGroupIdForStudentInput struct {
+	RobboUnitId string `json:"robboUnitId"`
+}
+
 func (h *Handler) SetRobboGroupIdForStudent(c *gin.Context) {
 	fmt.Println("SetRobboGroupIdForStudent")
 	studentId := c.Param("studentId")
 	robboGroupId := c.Param("robboGroupId")
+	input := new(SetRobboGroupIdForStudentInput)
 
-	err := h.usersDelegate.SetRobboGroupIdForStudent(studentId, robboGroupId)
+	if err := c.BindJSON(&input); err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	err := h.usersDelegate.AddStudentToRobboGroup(studentId, robboGroupId, input.RobboUnitId)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)

@@ -2,10 +2,15 @@ package server
 
 import (
 	"context"
+	"log"
+	"net/http"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/rs/cors"
 	authhttp "github.com/skinnykaen/robbo_student_personal_account.git/package/auth/http"
 	cohortshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/cohorts/http"
+	coursepackethttp "github.com/skinnykaen/robbo_student_personal_account.git/package/coursePacket/http"
 	courseshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/courses/http"
 	projectpagehttp "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/http"
 	projectshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/http"
@@ -14,9 +19,6 @@ import (
 	usershtpp "github.com/skinnykaen/robbo_student_personal_account.git/package/users/http"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
-	"log"
-	"net/http"
-	"time"
 )
 
 type Server struct {
@@ -32,6 +34,7 @@ func NewServer(lifecycle fx.Lifecycle,
 	usershttp usershtpp.Handler,
 	robbounitshttp robbounitshttp.Handler,
 	robbogrouphttp robbogrouphttp.Handler,
+	coursepackethttp coursepackethttp.Handler,
 ) {
 	lifecycle.Append(
 		fx.Hook{
@@ -49,16 +52,18 @@ func NewServer(lifecycle fx.Lifecycle,
 				usershttp.InitUsersRoutes(router)
 				robbounitshttp.InitRobboUnitsRoutes(router)
 				robbogrouphttp.InitRobboGroupRoutes(router)
+				coursepackethttp.InitCoursePacketRoutes(router)
 				server := &http.Server{
 					Addr: viper.GetString("server.address"),
 					Handler: cors.New(
 						// TODO make config
 						cors.Options{
-							AllowedOrigins:   []string{"http://0.0.0.0:3030", "http://0.0.0.0:8601", "localhost:3030"},
+							AllowedOrigins:   []string{"http://0.0.0.0:3030", "http://0.0.0.0:8601", "http://localhost:3030"},
 							AllowCredentials: true,
 							AllowedMethods: []string{
 								http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions, http.MethodOptions,
 							},
+							//AllowedHeaders: []string{"*"},
 							AllowedHeaders: []string{
 								"Origin", "X-Requested-With", "Content-Type", "Accept", "Set-Cookie", "Authorization",
 							},

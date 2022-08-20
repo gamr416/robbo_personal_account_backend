@@ -35,21 +35,21 @@ func (p *CoursePacketUseCaseImpl) CreateCoursePacket(coursePacket *models.Course
 	return CoursePacketId, nil
 }
 
-func (p *CoursePacketUseCaseImpl) UpdateCoursePacket(course *models.CoursePacketCore) (err error) {
+func (p *CoursePacketUseCaseImpl) UpdateCoursePacket(coursePacket *models.CoursePacketCore) (err error) {
 
-	err = p.Gateway.UpdateCoursePacket(course)
+	err = p.Gateway.UpdateCoursePacket(coursePacket)
 	if err != nil {
-		log.Println("Error update Course")
+		log.Println("Error update Course Packet")
 		return
 	}
 
 	return nil
 }
 
-func (p *CoursePacketUseCaseImpl) DeleteCoursePacket(courseId string) (err error) {
-	id, err := p.Gateway.DeleteCoursePacket(courseId)
+func (p *CoursePacketUseCaseImpl) DeleteCoursePacket(coursePacketId string) (err error) {
+	id, err := p.Gateway.DeleteCoursePacket(coursePacketId)
 	if err != nil {
-		log.Println("Error delete Course")
+		log.Println("Error delete Course Packet")
 		return
 	}
 

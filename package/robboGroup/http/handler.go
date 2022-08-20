@@ -29,6 +29,7 @@ func (h *Handler) InitRobboGroupRoutes(router *gin.Engine) {
 		robboGroup.GET("/:robboGroupId", h.GetRobboGroupById)
 		robboGroup.GET("/", h.GetRobboGroupsByRobboUnitId)
 		robboGroup.DELETE("/:robboGroupId", h.DeleteRobboUnit)
+		//robboGroup.POST("/robboGroupId", h.GetRobboGroupsByRobboUnitId)
 	}
 }
 

@@ -10,6 +10,7 @@ type UseCase interface {
 	CreateStudent(student *models.StudentCore, parentId string) (id string, err error)
 	DeleteStudent(studentId uint) (err error)
 	UpdateStudent(student *models.StudentCore) (err error)
+	SetRobboGroupIdForStudent(studentId, robboGroupId string) (err error)
 
 	//GetTeacher(email, password string) (teacher *models.TeacherCore, err error)
 	GetTeacherById(teacherId string) (teacher *models.TeacherCore, err error)

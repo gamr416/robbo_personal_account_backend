@@ -94,6 +94,10 @@ func (p *UsersUseCaseImpl) UpdateStudent(student *models.StudentCore) (err error
 	return
 }
 
+func (p *UsersUseCaseImpl) SetRobboGroupIdForStudent(studentId, robboGroupId string) (err error) {
+	return p.Gateway.SetRobboGroupId(studentId, robboGroupId)
+}
+
 func (p *UsersUseCaseImpl) GetTeacherByID(teacherId string) (teacher *models.TeacherCore, err error) {
 	return p.Gateway.GetTeacherById(teacherId)
 }

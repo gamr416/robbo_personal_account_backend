@@ -7,15 +7,19 @@ import (
 
 type StudentCore struct {
 	UserCore
+	RobboGroupId string
 }
 
 type StudentHTTP struct {
-	UserHttp `json:"userHttp"`
+	UserHttp     `json:"userHttp"`
+	RobboGroupId string `json:"robboGroupId"`
 }
 
 type StudentDB struct {
 	gorm.Model
 	UserDB
+	RobboGroupId string
+	RobboGroup   RobboGroupDB `gorm:"foreignKey:RobboGroupId;references:ID;"`
 }
 
 func (em *StudentDB) ToCore() *StudentCore {
@@ -31,6 +35,7 @@ func (em *StudentDB) ToCore() *StudentCore {
 			Middlename: em.Middlename,
 			CreatedAt:  em.CreatedAt.String(),
 		},
+		RobboGroupId: em.RobboGroupId,
 	}
 }
 
@@ -44,6 +49,7 @@ func (em *StudentDB) FromCore(student *StudentCore) {
 	em.Firstname = student.Firstname
 	em.Lastname = student.Lastname
 	em.Middlename = student.Middlename
+	em.RobboGroupId = student.RobboGroupId
 }
 
 func (ht *StudentHTTP) ToCore() *StudentCore {
@@ -58,6 +64,7 @@ func (ht *StudentHTTP) ToCore() *StudentCore {
 			Lastname:   ht.Lastname,
 			Middlename: ht.Middlename,
 		},
+		RobboGroupId: ht.RobboGroupId,
 	}
 }
 
@@ -71,4 +78,5 @@ func (ht *StudentHTTP) FromCore(student *StudentCore) {
 	ht.Firstname = student.Firstname
 	ht.Lastname = student.Lastname
 	ht.Middlename = student.Middlename
+	ht.RobboGroupId = student.RobboGroupId
 }

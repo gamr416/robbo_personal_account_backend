@@ -53,6 +53,7 @@ func (ht *RobboGroupHttp) ToCore() *RobboGroupCore {
 func (ht *RobboGroupHttp) FromCore(robboGroup *RobboGroupCore) {
 	ht.Id = robboGroup.Id
 	ht.LastModified = robboGroup.LastModified
+	ht.RobboUnitId = robboGroup.RobboUnitId
 	for _, studentCore := range robboGroup.Students {
 		var studentHttpTemp StudentHTTP
 		studentHttpTemp.FromCore(studentCore)

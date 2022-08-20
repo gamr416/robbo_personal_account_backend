@@ -77,6 +77,10 @@ func (p *UsersDelegateImpl) UpdateStudent(studentHTTP *models.StudentHTTP) (err 
 	return p.UseCase.UpdateStudent(studentCore)
 }
 
+func (p *UsersDelegateImpl) SetRobboGroupIdForStudent(studentId, robboGroupId string) (err error) {
+	return p.UseCase.SetRobboGroupIdForStudent(studentId, robboGroupId)
+}
+
 func (p *UsersDelegateImpl) GetTeacherById(teacherId string) (teacher models.TeacherHTTP, err error) {
 	teacherCore, err := p.UseCase.GetTeacherById(teacherId)
 	if err != nil {

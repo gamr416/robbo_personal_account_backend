@@ -11,6 +11,7 @@ type Delegate interface {
 	GetStudentById(studentId string) (student models.StudentHTTP, err error)
 	GetStudentByParentId(parentId string) (students []*models.StudentHTTP, err error)
 	UpdateStudent(student *models.StudentHTTP) (err error)
+	SetRobboGroupIdForStudent(studentId, robboGroupId string) (err error)
 
 	//GetTeacher(email, password string) (teacher models.TeacherHTTP, err error)
 	GetTeacherById(teacherId string) (teacher models.TeacherHTTP, err error)

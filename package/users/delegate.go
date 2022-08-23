@@ -48,4 +48,5 @@ type Delegate interface {
 
 	CreateRelation(parentId, childrenId string) (err error)
 	SetNewUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error)
+	DeleteUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error)
 }

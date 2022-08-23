@@ -86,6 +86,7 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 		users.GET("/unitAdmins", h.GetAllUnitAdmins)
 		users.GET("/unitAdmin/search/:unitAdminEmail", h.SearchUnitAdminByEmail)
 		users.POST("unitAdmin/setRelation", h.SetNewUnitAdminForRobboUnit)
+		users.POST("unitAdmin/deleteRelation", h.DeleteUnitAdminForRobboUnit)
 
 		users.GET("/superAdmin/:superAdminId", h.GetSuperAdminById)
 		users.PUT("/superAdmin", h.UpdateSuperAdmin)
@@ -825,6 +826,27 @@ func (h *Handler) SetNewUnitAdminForRobboUnit(c *gin.Context) {
 	createRelationErr := h.usersDelegate.SetNewUnitAdminForRobboUnit(input.UnitAdminId, input.RobboUnitId)
 
 	if createRelationErr != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+func (h *Handler) DeleteUnitAdminForRobboUnit(c *gin.Context) {
+	fmt.Println("DeleteUnitAdminForRobboUnit")
+
+	input := new(setNewUnitAdminForRobboUnitRequest)
+
+	if err := c.BindJSON(input); err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	deleteRelationErr := h.usersDelegate.DeleteUnitAdminForRobboUnit(input.UnitAdminId, input.RobboUnitId)
+
+	if deleteRelationErr != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}

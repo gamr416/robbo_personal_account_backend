@@ -291,3 +291,11 @@ func (p *UsersUseCaseImpl) SetNewUnitAdminForRobboUnit(unitAdminId, robboUnitId 
 	}
 	return p.Gateway.SetUnitAdminForRobboUnit(relationCore)
 }
+
+func (p *UsersUseCaseImpl) DeleteUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error) {
+	relationCore := &models.UnitAdminsRobboUnitsCore{
+		UnitAdminId: unitAdminId,
+		RobboUnitId: robboUnitId,
+	}
+	return p.Gateway.DeleteUnitAdminForRobboUnit(relationCore)
+}

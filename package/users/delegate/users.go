@@ -267,3 +267,7 @@ func (p *UsersDelegateImpl) CreateRelation(parentId, childrenId string) (err err
 func (p *UsersDelegateImpl) SetNewUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error) {
 	return p.UseCase.SetNewUnitAdminForRobboUnit(unitAdminId, robboUnitId)
 }
+
+func (p *UsersDelegateImpl) DeleteUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error) {
+	return p.UseCase.DeleteUnitAdminForRobboUnit(unitAdminId, robboUnitId)
+}

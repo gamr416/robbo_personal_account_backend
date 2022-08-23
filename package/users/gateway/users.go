@@ -27,11 +27,11 @@ func SetupUsersGateway(postgresClient db_client.PostgresClient) UsersGatewayModu
 	}
 }
 
-func (r *UsersGatewayImpl) AddStudentToRobboGroup(studentId string, robboGroupId string, robboUnitId string) (err error) {
+func (r *UsersGatewayImpl) AddStudentToRobboGroup(studentId, robboGroupId, robboUnitId string) (err error) {
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Model(&models.StudentDB{}).Where("id = ?", studentId).
-			Update("robbo_group_id", robboGroupId).
-			Update("robbo_unit_id", robboUnitId).Error
+			Update("robbo_group_id", gorm.Expr(robboGroupId)).
+			Update("robbo_unit_id", gorm.Expr(robboUnitId)).Error
 		return
 	})
 	return

@@ -60,6 +60,7 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 		users.GET("students/:parentId", h.GetStudentByParentId)
 		users.PUT("/student", h.UpdateStudent)
 		users.POST("/student/:studentId/robboGroup/:robboGroupId", h.SetRobboGroupIdForStudent)
+		//users.DELETE("/student/:studentId/robboGroup/:robboGroupId", h.SetRobboGroupIdForStudent)
 
 		users.POST("/teacher", h.CreateTeacher)
 		users.GET("/teachers", h.GetAllTeachers)
@@ -290,6 +291,7 @@ func (h *Handler) SetRobboGroupIdForStudent(c *gin.Context) {
 		return
 	}
 
+	// TODO rename method to set robboGroupId, robboUnitId
 	err := h.usersDelegate.AddStudentToRobboGroup(studentId, robboGroupId, input.RobboUnitId)
 	if err != nil {
 		log.Println(err)
@@ -303,7 +305,7 @@ func (h *Handler) CreateTeacher(c *gin.Context) {
 	fmt.Println("Create Teacher")
 
 	userHttp := models.UserHttp{
-		Role: uint(models.Student),
+		Role: uint(models.Teacher),
 	}
 
 	if err := c.BindJSON(&userHttp); err != nil {

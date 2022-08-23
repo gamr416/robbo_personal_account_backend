@@ -10,7 +10,7 @@ import (
 )
 
 type UsersDelegateImpl struct {
-	users.UseCase
+	UseCase users.UseCase
 }
 
 type UsersDelegateModule struct {
@@ -202,6 +202,19 @@ func (p *UsersDelegateImpl) GetAllUnitAdmins() (unitAdmins []*models.UnitAdminHT
 	return
 }
 
+func (p *UsersDelegateImpl) GetUnitAdminByRobboUnitId(robboUnitId string) (unitAdmins []*models.UnitAdminHTTP, err error) {
+	unitAdminsCore, err := p.UseCase.GetUnitAdminByRobboUnitId(robboUnitId)
+	if err != nil {
+		return
+	}
+	for _, unitAdminCore := range unitAdminsCore {
+		var unitAdminHttpTemp models.UnitAdminHTTP
+		unitAdminHttpTemp.FromCore(unitAdminCore)
+		unitAdmins = append(unitAdmins, &unitAdminHttpTemp)
+	}
+	return
+}
+
 func (p *UsersDelegateImpl) CreateUnitAdmin(unitAdminHTTP *models.UnitAdminHTTP) (id string, err error) {
 	unitAdminCore := unitAdminHTTP.ToCore()
 	return p.UseCase.CreateUnitAdmin(unitAdminCore)
@@ -214,6 +227,19 @@ func (p *UsersDelegateImpl) UpdateUnitAdmin(unitAdminHTTP *models.UnitAdminHTTP)
 
 func (p *UsersDelegateImpl) DeleteUnitAdmin(unitAdminId uint) (err error) {
 	return p.UseCase.DeleteUnitAdmin(unitAdminId)
+}
+
+func (p *UsersDelegateImpl) SearchUnitAdminByEmail(email string) (unitAdmins []*models.UnitAdminHTTP, err error) {
+	unitAdminsCore, err := p.UseCase.SearchUnitAdminByEmail(email)
+	if err != nil {
+		return
+	}
+	for _, unitAdminCore := range unitAdminsCore {
+		var unitAdminTemp models.UnitAdminHTTP
+		unitAdminTemp.FromCore(unitAdminCore)
+		unitAdmins = append(unitAdmins, &unitAdminTemp)
+	}
+	return
 }
 
 func (p *UsersDelegateImpl) GetSuperAdminById(superAdminId string) (superAdmin models.SuperAdminHTTP, err error) {
@@ -236,4 +262,8 @@ func (p *UsersDelegateImpl) DeleteSuperAdmin(superAdminId uint) (err error) {
 
 func (p *UsersDelegateImpl) CreateRelation(parentId, childrenId string) (err error) {
 	return p.UseCase.CreateRelation(parentId, childrenId)
+}
+
+func (p *UsersDelegateImpl) SetNewUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error) {
+	return p.UseCase.SetNewUnitAdminForRobboUnit(unitAdminId, robboUnitId)
 }

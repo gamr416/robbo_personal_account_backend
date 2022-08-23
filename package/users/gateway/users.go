@@ -424,6 +424,22 @@ func (r *UsersGatewayImpl) UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (err
 	return
 }
 
+func (r *UsersGatewayImpl) SearchUnitAdminByEmail(email string) (unitAdmins []*models.UnitAdminCore, err error) {
+	var unitAdminsDb []*models.UnitAdminDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Limit(10).Where("email LIKE ?", email).Find(&unitAdminsDb).Error; err != nil {
+			err = auth.ErrUserNotFound
+			log.Println(err)
+			return
+		}
+		return
+	})
+	for _, unitAdminDb := range unitAdminsDb {
+		unitAdmins = append(unitAdmins, unitAdminDb.ToCore())
+	}
+	return
+}
+
 func (r *UsersGatewayImpl) GetSuperAdminById(superAdminId string) (superAdmin *models.SuperAdminCore, err error) {
 	var superAdminDb models.SuperAdminDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
@@ -534,5 +550,70 @@ func (r *UsersGatewayImpl) GetRelationByChildrenId(childrenId string) (relations
 	for _, relationDB := range relationsDB {
 		relations = append(relations, relationDB.ToCore())
 	}
+	return
+}
+
+func (r *UsersGatewayImpl) SetUnitAdminForRobboUnit(relation *models.UnitAdminsRobboUnitsCore) (err error) {
+	relationDb := models.UnitAdminsRobboUnitsDB{}
+	relationDb.FromCore(relation)
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Create(&relationDb).Error
+		return
+	})
+
+	return
+}
+
+func (r *UsersGatewayImpl) DeleteRelationByRobboUnitId(robboUnitId string) (err error) {
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Where("robbo_unit_id = ?", robboUnitId).Delete(&models.UnitAdminsRobboUnitsDB{}).Error
+		return
+	})
+	return
+}
+
+func (r *UsersGatewayImpl) DeleteRelationByUnitAdminId(unitAdminId string) (err error) {
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Where("unit_admin_id = ?", unitAdminId).Delete(&models.UnitAdminsRobboUnitsDB{}).Error
+		return
+	})
+	return
+}
+
+func (r *UsersGatewayImpl) GetRelationByRobboUnitId(robboUnitId string) (relations []*models.UnitAdminsRobboUnitsCore, err error) {
+	var relationsDB []*models.UnitAdminsRobboUnitsDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("robbo_unit_id = ?", robboUnitId).Find(&relationsDB).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, relationDB := range relationsDB {
+		relations = append(relations, relationDB.ToCore())
+	}
+	return
+}
+
+func (r *UsersGatewayImpl) GetRelationByUnitAdminId(unitAdminId string) (relations []*models.UnitAdminsRobboUnitsCore, err error) {
+	var relationsDB []*models.UnitAdminsRobboUnitsDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("unit_admin_id = ?", unitAdminId).Find(&relationsDB).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, relationDB := range relationsDB {
+		relations = append(relations, relationDB.ToCore())
+	}
+	return
+}
+
+func (r *UsersGatewayImpl) DeleteUnitAdminForRobboUnit(relation *models.UnitAdminsRobboUnitsCore) (err error) {
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Delete(&models.UnitAdminsRobboUnitsDB{}, relation).Error
+		return
+	})
 	return
 }

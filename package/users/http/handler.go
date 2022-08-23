@@ -52,6 +52,7 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 	{
 		users.GET("/", h.GetUser)
 
+		// TODO refactor
 		users.POST("/student", h.CreateStudent)
 		users.DELETE("/student/:studentId", h.DeleteStudent)
 		users.GET("/student/:studentId", h.GetStudentById)
@@ -81,12 +82,16 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 		users.DELETE("/unitAdmin/:unitAdminId", h.DeleteUnitAdmin)
 		users.PUT("/unitAdmin", h.UpdateUnitAdmin)
 		users.GET("/unitAdmin/:unitAdminId", h.GetUnitAdminByID)
+		users.GET("/unitAdmins/:robboUnitId", h.GetUnitAdminsByRobboUnitId)
 		users.GET("/unitAdmins", h.GetAllUnitAdmins)
+		users.GET("/unitAdmin/search/:unitAdminEmail", h.SearchUnitAdminByEmail)
+		users.POST("unitAdmin/setRelation", h.SetNewUnitAdminForRobboUnit)
 
 		users.GET("/superAdmin/:superAdminId", h.GetSuperAdminById)
 		users.PUT("/superAdmin", h.UpdateSuperAdmin)
 		users.DELETE("/superAdmin", h.DeleteSuperAdmin)
 
+		// TODO rename
 		users.POST("/relation", h.CreateRelation)
 	}
 }
@@ -607,6 +612,21 @@ func (h *Handler) GetUnitAdminByID(c *gin.Context) {
 	})
 }
 
+func (h *Handler) GetUnitAdminsByRobboUnitId(c *gin.Context) {
+	fmt.Println("GetUnitAdminsByRobboUnitId")
+	robboUnitId := c.Param("robboUnitId")
+
+	unitAdmins, err := h.usersDelegate.GetUnitAdminByRobboUnitId(robboUnitId)
+
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, unitAdmins)
+}
+
 func (h *Handler) GetAllUnitAdmins(c *gin.Context) {
 	fmt.Println("Get All UnitAdmins")
 	unitAdmins, err := h.usersDelegate.GetAllUnitAdmins()
@@ -689,6 +709,18 @@ func (h *Handler) DeleteUnitAdmin(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+func (h *Handler) SearchUnitAdminByEmail(c *gin.Context) {
+	fmt.Println("SearchUnitAdminByEmail")
+	unitAdminEmail := c.Param("unitAdminEmail")
+
+	unitAdmins, err := h.usersDelegate.SearchUnitAdminByEmail(unitAdminEmail)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+	c.JSON(http.StatusOK, unitAdmins)
+}
+
 func (h *Handler) GetSuperAdminById(c *gin.Context) {
 	fmt.Println("Get Super Admin By Id")
 	superAdminId := c.Param("superAdminId")
@@ -765,6 +797,32 @@ func (h *Handler) CreateRelation(c *gin.Context) {
 	}
 
 	createRelationErr := h.usersDelegate.CreateRelation(createRelationInput.ParentId, createRelationInput.ChildId)
+
+	if createRelationErr != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+type setNewUnitAdminForRobboUnitRequest struct {
+	UnitAdminId string `json:"unitAdminId"`
+	RobboUnitId string `json:"robboUnitId"`
+}
+
+func (h *Handler) SetNewUnitAdminForRobboUnit(c *gin.Context) {
+	fmt.Println("SetNewUnitAdminForRobboUnit")
+
+	input := new(setNewUnitAdminForRobboUnitRequest)
+
+	if err := c.BindJSON(input); err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	createRelationErr := h.usersDelegate.SetNewUnitAdminForRobboUnit(input.UnitAdminId, input.RobboUnitId)
 
 	if createRelationErr != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)

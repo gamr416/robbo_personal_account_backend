@@ -38,6 +38,7 @@ type Gateway interface {
 	CreateUnitAdmin(unitAdmin *models.UnitAdminCore) (id string, err error)
 	DeleteUnitAdmin(superAdminId uint) (err error)
 	UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (err error)
+	SearchUnitAdminByEmail(email string) (unitAdmins []*models.UnitAdminCore, err error)
 
 	GetSuperAdmin(email, password string) (superAdmin *models.SuperAdminCore, err error)
 	GetSuperAdminById(superAdminId string) (superAdmin *models.SuperAdminCore, err error)
@@ -50,4 +51,11 @@ type Gateway interface {
 	DeleteRelation(relation *models.ChildrenOfParentCore) (err error)
 	GetRelationByParentId(parentId string) (relations []*models.ChildrenOfParentCore, err error)
 	GetRelationByChildrenId(childrenId string) (relations []*models.ChildrenOfParentCore, err error)
+
+	SetUnitAdminForRobboUnit(relation *models.UnitAdminsRobboUnitsCore) (err error)
+	DeleteUnitAdminForRobboUnit(relation *models.UnitAdminsRobboUnitsCore) (err error)
+	DeleteRelationByRobboUnitId(robboUnitId string) (err error)
+	DeleteRelationByUnitAdminId(unitAdminId string) (err error)
+	GetRelationByRobboUnitId(robboUnitId string) (relations []*models.UnitAdminsRobboUnitsCore, err error)
+	GetRelationByUnitAdminId(unitAdminId string) (relations []*models.UnitAdminsRobboUnitsCore, err error)
 }

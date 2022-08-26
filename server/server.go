@@ -9,6 +9,8 @@ import (
 	courseshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/courses/http"
 	projectpagehttp "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/http"
 	projectshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/http"
+	robbogrouphttp "github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup/http"
+	robbounitshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/robboUnits/http"
 	usershtpp "github.com/skinnykaen/robbo_student_personal_account.git/package/users/http"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
@@ -28,6 +30,8 @@ func NewServer(lifecycle fx.Lifecycle,
 	coursehttp courseshttp.Handler,
 	cohortshttp cohortshttp.Handler,
 	usershttp usershtpp.Handler,
+	robbounitshttp robbounitshttp.Handler,
+	robbogrouphttp robbogrouphttp.Handler,
 ) {
 	lifecycle.Append(
 		fx.Hook{
@@ -43,6 +47,8 @@ func NewServer(lifecycle fx.Lifecycle,
 				coursehttp.InitCourseRoutes(router)
 				cohortshttp.InitCohortRoutes(router)
 				usershttp.InitUsersRoutes(router)
+				robbounitshttp.InitRobboUnitsRoutes(router)
+				robbogrouphttp.InitRobboGroupRoutes(router)
 				server := &http.Server{
 					Addr: viper.GetString("server.address"),
 					Handler: cors.New(
@@ -51,9 +57,11 @@ func NewServer(lifecycle fx.Lifecycle,
 							AllowedOrigins:   []string{"http://0.0.0.0:3030", "http://0.0.0.0:8601", "localhost:3030"},
 							AllowCredentials: true,
 							AllowedMethods: []string{
-								"PUT", "DELETE", "GET", "OPTIONS", "POST", "HEAD",
+								http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions, http.MethodOptions,
 							},
-							AllowedHeaders: []string{"Origin", "X-Requested-With", "Content-Type", "Accept"},
+							AllowedHeaders: []string{
+								"Origin", "X-Requested-With", "Content-Type", "Accept", "Set-Cookie", "Authorization",
+							},
 						},
 					).Handler(router),
 					ReadTimeout:    10 * time.Second,

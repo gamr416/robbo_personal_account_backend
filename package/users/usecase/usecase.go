@@ -12,7 +12,7 @@ import (
 )
 
 type UsersUseCaseImpl struct {
-	users.Gateway
+	Gateway users.Gateway
 }
 
 type UsersUseCaseModule struct {
@@ -94,7 +94,11 @@ func (p *UsersUseCaseImpl) UpdateStudent(student *models.StudentCore) (err error
 	return
 }
 
-func (p *UsersUseCaseImpl) GetTeacherByID(teacherId string) (teacher *models.TeacherCore, err error) {
+func (p *UsersUseCaseImpl) AddStudentToRobboGroup(studentId string, robboGroupId string, robboUnitId string) (err error) {
+	return p.Gateway.AddStudentToRobboGroup(studentId, robboGroupId, robboUnitId)
+}
+
+func (p *UsersUseCaseImpl) GetTeacherById(teacherId string) (teacher *models.TeacherCore, err error) {
 	return p.Gateway.GetTeacherById(teacherId)
 }
 
@@ -138,25 +142,6 @@ func (p *UsersUseCaseImpl) GetParentById(parentId string) (parent *models.Parent
 
 func (p *UsersUseCaseImpl) GetAllParent() (parents []*models.ParentCore, err error) {
 	parents, err = p.Gateway.GetAllParent()
-	//if err != nil {
-	//	return
-	//}
-	//for _, parent := range parents {
-	//	relations, getRelationsErr := p.Gateway.GetRelationByParentId(parent.Id)
-	//	if getRelationsErr != nil {
-	//		return parents, getRelationsErr
-	//	}
-	//	for _, relation := range relations {
-	//		studentId, _ := strconv.ParseUint(relation.ChildId, 10, 64)
-	//		student, getStudentErr := p.Gateway.GetStudentById(uint(studentId))
-	//		if getStudentErr != nil {
-	//			return parents, getStudentErr
-	//		}
-	//		parent.Children = append(parent.Children, student)
-	//	}
-	//
-	//}
-
 	return
 }
 
@@ -170,7 +155,7 @@ func (p *UsersUseCaseImpl) CreateParent(parent *models.ParentCore) (id string, e
 }
 
 func (p *UsersUseCaseImpl) DeleteParent(parentId uint) (err error) {
-	relations, getRelationsErr := p.GetRelationByParentId(strconv.Itoa(int(parentId)))
+	relations, getRelationsErr := p.Gateway.GetRelationByParentId(strconv.Itoa(int(parentId)))
 	if getRelationsErr != nil {
 		return getRelationsErr
 	}
@@ -257,9 +242,28 @@ func (p *UsersUseCaseImpl) DeleteUnitAdmin(unitAdminId uint) (err error) {
 	return p.Gateway.DeleteUnitAdmin(unitAdminId)
 }
 
-//func (p *UsersUseCaseImpl) GetSuperAdmin(email, password string) (superAdmin *models.SuperAdminCore, err error) {
-//	return p.Gateway.GetSuperAdmin(email, password)
-//}
+func (p *UsersUseCaseImpl) SearchUnitAdminByEmail(email string) (unitAdmins []*models.UnitAdminCore, err error) {
+	emailCondition := "%" + email + "%"
+	return p.Gateway.SearchUnitAdminByEmail(emailCondition)
+}
+
+func (p *UsersUseCaseImpl) GetUnitAdminByRobboUnitId(robboUnitId string) (unitAdmins []*models.UnitAdminCore, err error) {
+	relations, getRelationErr := p.Gateway.GetRelationByRobboUnitId(robboUnitId)
+	if getRelationErr != nil {
+		err = getRelationErr
+		return
+	}
+
+	for _, relation := range relations {
+		unitAdmin, getUnitAdminErr := p.Gateway.GetUnitAdminById(relation.UnitAdminId)
+		if getUnitAdminErr != nil {
+			err = getRelationErr
+			return
+		}
+		unitAdmins = append(unitAdmins, unitAdmin)
+	}
+	return
+}
 
 func (p *UsersUseCaseImpl) GetSuperAdminById(superAdminId string) (superAdmin *models.SuperAdminCore, err error) {
 	return p.Gateway.GetSuperAdminById(superAdminId)
@@ -277,6 +281,21 @@ func (p *UsersUseCaseImpl) CreateRelation(parentId, childrenId string) (err erro
 		ChildId:  childrenId,
 		ParentId: parentId,
 	}
-	fmt.Println(relationCore)
 	return p.Gateway.CreateRelation(relationCore)
+}
+
+func (p *UsersUseCaseImpl) SetNewUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error) {
+	relationCore := &models.UnitAdminsRobboUnitsCore{
+		UnitAdminId: unitAdminId,
+		RobboUnitId: robboUnitId,
+	}
+	return p.Gateway.SetUnitAdminForRobboUnit(relationCore)
+}
+
+func (p *UsersUseCaseImpl) DeleteUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error) {
+	relationCore := &models.UnitAdminsRobboUnitsCore{
+		UnitAdminId: unitAdminId,
+		RobboUnitId: robboUnitId,
+	}
+	return p.Gateway.DeleteUnitAdminForRobboUnit(relationCore)
 }

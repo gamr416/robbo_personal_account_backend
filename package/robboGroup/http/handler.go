@@ -29,12 +29,14 @@ func (h *Handler) InitRobboGroupRoutes(router *gin.Engine) {
 		robboGroup.GET("/:robboGroupId", h.GetRobboGroupById)
 		robboGroup.GET("/", h.GetRobboGroupsByRobboUnitId)
 		robboGroup.DELETE("/:robboGroupId", h.DeleteRobboUnit)
+		//robboGroup.POST("/robboGroupId", h.GetRobboGroupsByRobboUnitId)
 	}
 }
 
 func (h *Handler) CreateRobboGroup(c *gin.Context) {
 	fmt.Println("Create Robbo Unit")
 
+	robboUnitId := c.Param("robboUnitId")
 	robboGroupHttp := models.RobboGroupHttp{}
 	if err := c.BindJSON(&robboGroupHttp); err != nil {
 		log.Println(err)
@@ -42,7 +44,10 @@ func (h *Handler) CreateRobboGroup(c *gin.Context) {
 		return
 	}
 
-	robboUnitId, err := h.robboGroupDelegate.CreateRobboGroup(&robboGroupHttp)
+	fmt.Println(robboGroupHttp)
+
+	robboGroupHttp.RobboUnitId = robboUnitId
+	robboGroupId, err := h.robboGroupDelegate.CreateRobboGroup(&robboGroupHttp)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -50,7 +55,7 @@ func (h *Handler) CreateRobboGroup(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"robboGroupId": robboUnitId,
+		"robboGroupId": robboGroupId,
 	})
 }
 

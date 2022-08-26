@@ -57,6 +57,8 @@ func (c *PostgresClient) Migrate() (err error) {
 		&models.ChildrenOfParentDB{},
 		&models.RobboUnitDB{},
 		&models.CoursePacketDB{},
+		&models.RobboGroupDB{},
+		&models.UnitAdminsRobboUnitsDB{},
 	)
 	return
 }

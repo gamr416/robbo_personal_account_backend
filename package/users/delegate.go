@@ -11,6 +11,7 @@ type Delegate interface {
 	GetStudentById(studentId string) (student models.StudentHTTP, err error)
 	GetStudentByParentId(parentId string) (students []*models.StudentHTTP, err error)
 	UpdateStudent(student *models.StudentHTTP) (err error)
+	AddStudentToRobboGroup(studentId string, robboGroupId string, robboUnitId string) (err error)
 
 	//GetTeacher(email, password string) (teacher models.TeacherHTTP, err error)
 	GetTeacherById(teacherId string) (teacher models.TeacherHTTP, err error)
@@ -37,7 +38,8 @@ type Delegate interface {
 	DeleteUnitAdmin(unitAdminId uint) (err error)
 	GetUnitAdminById(unitAdminId string) (unitAdmin models.UnitAdminHTTP, err error)
 	GetAllUnitAdmins() (unitAdmins []*models.UnitAdminHTTP, err error)
-	//GetUnitAdmin(email, password string) (unitAdmin models.UnitAdminHTTP, err error)
+	SearchUnitAdminByEmail(email string) (unitAdmins []*models.UnitAdminHTTP, err error)
+	GetUnitAdminByRobboUnitId(robboUnitId string) (unitAdmins []*models.UnitAdminHTTP, err error)
 
 	//GetSuperAdmin(email, password string) (superAdmin models.SuperAdminHTTP, err error)
 	GetSuperAdminById(superAdminId string) (superAdmin models.SuperAdminHTTP, err error)
@@ -45,4 +47,6 @@ type Delegate interface {
 	DeleteSuperAdmin(superAdminId uint) (err error)
 
 	CreateRelation(parentId, childrenId string) (err error)
+	SetNewUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error)
+	DeleteUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error)
 }

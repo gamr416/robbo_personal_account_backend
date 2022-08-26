@@ -27,6 +27,7 @@ func (h *Handler) InitRobboUnitsRoutes(router *gin.Engine) {
 	{
 		robboUnits.POST("/", h.CreateRobboUnit)
 		robboUnits.GET("/:robboUnitId", h.GetRobboUnitById)
+		robboUnits.GET("/unitAdmin", h.GetRobboUnitsByUnitAdminId)
 		robboUnits.GET("/", h.GetAllRobboUnits)
 		robboUnits.PUT("/", h.UpdateRobboUnit)
 		robboUnits.DELETE("/:robboUnitId", h.DeleteRobboUnit)
@@ -74,6 +75,24 @@ func (h *Handler) GetAllRobboUnits(c *gin.Context) {
 	fmt.Println("Get all robboUnits")
 
 	robboUnits, err := h.robboUnitsDelegate.GetAllRobboUnit()
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, robboUnits)
+}
+
+func (h *Handler) GetRobboUnitsByUnitAdminId(c *gin.Context) {
+	fmt.Println("GetRobboUnitsByUnitAdminId")
+	id, role, identityErr := h.userIdentity(c)
+
+	if identityErr != nil || role != models.UnitAdmin {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	robboUnits, err := h.robboUnitsDelegate.GetRobboUnitsByUnitAdminId(id)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return

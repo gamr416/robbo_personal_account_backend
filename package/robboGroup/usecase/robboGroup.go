@@ -3,33 +3,39 @@ package usecase
 import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
 	"go.uber.org/fx"
 )
 
 type RobboGroupUseCaseImpl struct {
-	Gateway robboGroup.Gateway
+	robboGroupGateway robboGroup.Gateway
+	usersGateway      users.Gateway
 }
 
 func (r *RobboGroupUseCaseImpl) CreateRobboGroup(robboGroup *models.RobboGroupCore) (robboGroupId string, err error) {
-	return r.Gateway.CreateRobboGroup(robboGroup)
+	return r.robboGroupGateway.CreateRobboGroup(robboGroup)
 }
 
 func (r *RobboGroupUseCaseImpl) DeleteRobboGroup(robboGroupId string) (err error) {
 	// TODO set robboGroupId = null for student
-	return r.Gateway.DeleteRobboGroup(robboGroupId)
+	return r.robboGroupGateway.DeleteRobboGroup(robboGroupId)
 }
 
 func (r *RobboGroupUseCaseImpl) GetRobboGroupsByRobboUnitId(robboUnitId string) (robboGroups []*models.RobboGroupCore, err error) {
-	return r.Gateway.GetRobboGroupsByRobboUnitId(robboUnitId)
+	return r.robboGroupGateway.GetRobboGroupsByRobboUnitId(robboUnitId)
 }
 
 func (r *RobboGroupUseCaseImpl) GetRobboGroupById(robboGroupId string) (robboGroup *models.RobboGroupCore, err error) {
-	robboGroup, err = r.Gateway.GetRobboGroupById(robboGroupId)
+	robboGroup, err = r.robboGroupGateway.GetRobboGroupById(robboGroupId)
 	if err != nil {
 		return
 	}
-
-	//TODO get student by robbogroupid
+	students, getStudentErr := r.usersGateway.GetStudentsByRobboGroupId(robboGroup.Id)
+	if getStudentErr != nil {
+		err = getStudentErr
+		return
+	}
+	robboGroup.Students = students
 	return
 }
 
@@ -38,10 +44,11 @@ type RobboGroupUseCaseModule struct {
 	robboGroup.UseCase
 }
 
-func SetupRobboGroupUseCase(robboGroupGateway robboGroup.Gateway) RobboGroupUseCaseModule {
+func SetupRobboGroupUseCase(robboGroupGateway robboGroup.Gateway, usersGateway users.Gateway) RobboGroupUseCaseModule {
 	return RobboGroupUseCaseModule{
 		UseCase: &RobboGroupUseCaseImpl{
 			robboGroupGateway,
+			usersGateway,
 		},
 	}
 }

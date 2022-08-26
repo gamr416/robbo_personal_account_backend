@@ -10,6 +10,7 @@ type UseCase interface {
 	CreateStudent(student *models.StudentCore, parentId string) (id string, err error)
 	DeleteStudent(studentId uint) (err error)
 	UpdateStudent(student *models.StudentCore) (err error)
+	AddStudentToRobboGroup(studentId string, robboGroupId string, robboUnitId string) (err error)
 
 	//GetTeacher(email, password string) (teacher *models.TeacherCore, err error)
 	GetTeacherById(teacherId string) (teacher *models.TeacherCore, err error)
@@ -33,10 +34,11 @@ type UseCase interface {
 
 	GetUnitAdminById(unitAdminId string) (unitAdmin *models.UnitAdminCore, err error)
 	GetAllUnitAdmins() (unitAdmins []*models.UnitAdminCore, err error)
-	//GetUnitAdmin(email, password string) (unitAdmin *models.UnitAdminCore, err error)
+	GetUnitAdminByRobboUnitId(robboUnitId string) (unitAdmins []*models.UnitAdminCore, err error)
 	UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (err error)
 	CreateUnitAdmin(unitAdmin *models.UnitAdminCore) (id string, err error)
 	DeleteUnitAdmin(unitAdminId uint) (err error)
+	SearchUnitAdminByEmail(email string) (unitAdmins []*models.UnitAdminCore, err error)
 
 	//GetSuperAdmin(email, password string) (superAdmin *models.SuperAdminCore, err error)
 	GetSuperAdminById(superAdminId string) (superAdmin *models.SuperAdminCore, err error)
@@ -44,4 +46,6 @@ type UseCase interface {
 	DeleteSuperAdmin(superAdminId uint) (err error)
 
 	CreateRelation(parentId, childrenId string) (err error)
+	SetNewUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error)
+	DeleteUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error)
 }

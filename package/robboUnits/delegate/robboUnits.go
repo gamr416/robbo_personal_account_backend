@@ -47,6 +47,20 @@ func (r RobboUnitsDelegateImpl) GetRobboUnitById(robboUnitId string) (robboUnit 
 	return
 }
 
+func (r RobboUnitsDelegateImpl) GetRobboUnitsByUnitAdminId(unitAdminId string) (robboUnits []*models.RobboUnitHTTP, err error) {
+	robboUnitsCore, getRobboUnits := r.UseCase.GetRobboUnitsByUnitAdminId(unitAdminId)
+	if getRobboUnits != nil {
+		err = getRobboUnits
+		return
+	}
+	for _, robboUnitCore := range robboUnitsCore {
+		var robboUnitTemp models.RobboUnitHTTP
+		robboUnitTemp.FromCore(robboUnitCore)
+		robboUnits = append(robboUnits, &robboUnitTemp)
+	}
+	return
+}
+
 func (r RobboUnitsDelegateImpl) UpdateRobboUnit(robboUnit *models.RobboUnitHTTP) (err error) {
 	robboUnitCore := robboUnit.ToCore()
 	return r.UseCase.UpdateRobboUnit(robboUnitCore)

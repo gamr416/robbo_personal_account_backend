@@ -2,6 +2,7 @@ package delegate
 
 import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"go.uber.org/fx"
 )
 
@@ -20,17 +21,18 @@ func SetupAuthDelegate(usecase auth.UseCase) AuthDelegateModule {
 	}
 }
 
-func (s *AuthDelegateImpl) SignIn(email, password string) (accessToken, refreshToken string, err error) {
-	return s.UseCase.SignIn(email, password)
+func (s *AuthDelegateImpl) SignIn(email, password string, role uint) (accessToken, refreshToken string, err error) {
+	return s.UseCase.SignIn(email, password, role)
 }
 
-func (s *AuthDelegateImpl) SignUp(email, password string) (accessToken, refreshToken string, err error) {
-	return s.UseCase.SignUp(email, password)
+func (s *AuthDelegateImpl) SignUp(userHttp *models.UserHttp) (accessToken, refreshToken string, err error) {
+	userCore := userHttp.ToCore()
+	return s.UseCase.SignUp(userCore)
 }
 
-func (s *AuthDelegateImpl) ParseToken(token string, key []byte) (id string, err error) {
+func (s *AuthDelegateImpl) ParseToken(token string, key []byte) (claims *models.UserClaims, err error) {
 	return s.UseCase.ParseToken(token, key)
 }
-func (s *AuthDelegateImpl) RefreshToken(token string) (newAccessToken, newRefreshToken string, err error) {
-	return s.UseCase.RefreshToken(token)
+func (s *AuthDelegateImpl) RefreshToken(refreshToken string) (newAccessToken string, err error) {
+	return s.UseCase.RefreshToken(refreshToken)
 }

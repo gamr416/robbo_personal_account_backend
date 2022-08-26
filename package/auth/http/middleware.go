@@ -1,11 +1,10 @@
 package http
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/spf13/viper"
-	"net/http"
 	"strings"
 )
 
@@ -15,27 +14,23 @@ type AuthMiddleware struct {
 
 const (
 	authorizationHeader = "Authorization"
-	userCtx             = "userId"
 )
 
-func (h *Handler) userIdentity(c *gin.Context) (id string) {
+func (h *Handler) userIdentity(c *gin.Context) (id string, role models.Role, err error) {
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
+		return "", models.Anonymous, auth.ErrTokenNotFound
 	}
 
 	headerParts := strings.Split(header, " ")
 	if len(headerParts) != 2 {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		return "", models.Anonymous, auth.ErrTokenNotFound
 		return
 	}
 
-	id, err := h.delegate.ParseToken(headerParts[1], []byte(viper.GetString("auth.access_signing_key")))
+	claims, err := h.delegate.ParseToken(headerParts[1], []byte(viper.GetString("auth.access_signing_key")))
 	if err != nil {
-		fmt.Println(err)
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
+		return "", models.Anonymous, auth.ErrInvalidAccessToken
 	}
-	return
+	return claims.Id, claims.Role, nil
 }

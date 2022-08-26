@@ -1,14 +1,15 @@
 package db_client
 
 import (
+	"log"
+	"os"
+	"time"
+
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"log"
-	"os"
-	"time"
 )
 
 type PostgresClient struct {
@@ -40,9 +41,24 @@ func NewPostgresClient(_logger *log.Logger) (postgresClient PostgresClient, err 
 
 func (c *PostgresClient) Migrate() (err error) {
 	err = c.Db.AutoMigrate(
-		&models.UserDB{},
 		&models.ProjectDB{},
 		&models.ProjectPageDB{},
+		&models.CourseDB{},
+		&models.AbsoluteMediaDB{},
+		&models.ImageDB{},
+		&models.CourseApiMediaCollectionDB{},
+		&models.MediaDB{},
+		&models.TeacherDB{},
+		&models.StudentDB{},
+		&models.ParentDB{},
+		&models.SuperAdminDB{},
+		&models.UnitAdminDB{},
+		&models.FreeListenerDB{},
+		&models.ChildrenOfParentDB{},
+		&models.RobboUnitDB{},
+		&models.CoursePacketDB{},
+		&models.RobboGroupDB{},
+		&models.UnitAdminsRobboUnitsDB{},
 	)
 	return
 }

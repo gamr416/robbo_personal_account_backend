@@ -2,8 +2,8 @@ package gateway
 
 //
 //import (
-//	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
-//	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth/gateway/mock"
+//	"github.com/skinnykaen/robbo_student_personal_account.git/package/api"
+//	"github.com/skinnykaen/robbo_student_personal_account.git/package/api/gateway/mock"
 //	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 //	"github.com/stretchr/testify/assert"
 //	"testing"
@@ -26,5 +26,5 @@ package gateway
 //
 //	returnedUser, err = g.GetUser("user", "")
 //	assert.Error(t, err)
-//	assert.Equal(t, err, auth.ErrUserNotFound)
+//	assert.Equal(t, err, api.ErrUserNotFound)
 //}

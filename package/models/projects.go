@@ -3,14 +3,12 @@ package models
 import (
 	"gorm.io/gorm"
 	"strconv"
-	"time"
 )
 
 type ProjectCore struct {
 	ID       string
 	Name     string
 	AuthorId string
-	Date     time.Time
 	Json     string
 }
 

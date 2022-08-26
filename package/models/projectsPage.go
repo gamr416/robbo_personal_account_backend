@@ -1,70 +1,87 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type ProjectPageCore struct {
-	ProjectCore ProjectCore
-	//LastModified string
-	//IsShares     bool
-	//Instructions  string
-	//Notes        string
-	Description string
-	Preview     string
-	LinkScratch string
+	LastModified string
+	Title        string
+	ProjectId    string
+	Instruction  string
+	Notes        string
+	Preview      string
+	LinkScratch  string
+	IsShared     bool
 }
 
 type ProjectPageDB struct {
 	gorm.Model
 
-	PPId uint
-	//Project     ProjectDB
-	PP          ProjectDB `gorm:"foreignKey:PPId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Description string    `gorm:"size:256;not null"`
+	ProjectId   string
+	Project     ProjectDB `gorm:"foreignKey:ProjectId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Instruction string    `gorm:"size:256;not null"`
+	Notes       string    `gorm:"size:256;not null"`
 	Preview     string    `gorm:"size:256;not null"`
 	LinkScratch string    `gorm:"size:256;not null"`
+	Title       string    `gorm:"size:256;not null"`
+	IsShared    bool
 }
 
 type ProjectPageHTTP struct {
-	ProjectHTTP *ProjectHTTP `json:"project"`
-	Description string       `json:"description"`
-	Preview     string       `json:"preview"`
-	LinkScratch string       `json:"link"`
+	LastModified string `json:"lastModified"`
+	ProjectId    string `json:"projectId"`
+	Instruction  string `json:"instruction"`
+	Notes        string `json:"notes"`
+	Preview      string `json:"preview"`
+	LinkScratch  string `json:"linkScratch"`
+	Title        string `json:"title"`
+	IsShared     bool   `json:"isShared"`
 }
 
-func (em *ProjectPageDB) ToCore(projects []*ProjectDB) ProjectPageCore {
-	var coreProjects []*ProjectCore
-	for _, projectDB := range projects {
-		coreProjects = append(coreProjects, projectDB.ToCore())
-	}
-	return ProjectPageCore{
-		Description: em.Description,
-		Preview:     em.Preview,
-		LinkScratch: em.LinkScratch,
-		//ProjectsCore: coreProjects,
+func (em *ProjectPageDB) ToCore() *ProjectPageCore {
+	return &ProjectPageCore{
+		LastModified: em.UpdatedAt.String(),
+		Title:        em.Title,
+		ProjectId:    em.ProjectId,
+		Instruction:  em.Instruction,
+		Notes:        em.Notes,
+		Preview:      em.Preview,
+		LinkScratch:  em.LinkScratch,
+		IsShared:     em.IsShared,
 	}
 }
 
 func (em *ProjectPageDB) FromCore(pp *ProjectPageCore) {
-	em.Description = pp.Description
+	em.ProjectId = pp.ProjectId
+	em.Instruction = pp.Instruction
+	em.Notes = pp.Notes
 	em.Preview = pp.Preview
 	em.LinkScratch = pp.LinkScratch
+	em.Title = pp.Title
+	em.IsShared = pp.IsShared
 }
 
-func (ht *ProjectPageHTTP) ToCore(projects []*ProjectDB) ProjectPageCore {
-	var coreProjects []*ProjectCore
-	for _, projectDB := range projects {
-		coreProjects = append(coreProjects, projectDB.ToCore())
-	}
-	return ProjectPageCore{
-		Description: ht.Description,
-		Preview:     ht.Preview,
-		LinkScratch: ht.LinkScratch,
-		//ProjectsCore: coreProjects,
+func (ht *ProjectPageHTTP) ToCore() *ProjectPageCore {
+	return &ProjectPageCore{
+		LastModified: ht.LastModified,
+		Title:        ht.Title,
+		ProjectId:    ht.ProjectId,
+		Instruction:  ht.Instruction,
+		Notes:        ht.Notes,
+		Preview:      ht.Preview,
+		LinkScratch:  ht.LinkScratch,
+		IsShared:     ht.IsShared,
 	}
 }
 
 func (ht *ProjectPageHTTP) FromCore(pp *ProjectPageCore) {
-	ht.Description = pp.Description
+	ht.LastModified = pp.LastModified
+	ht.ProjectId = pp.ProjectId
+	ht.Instruction = pp.Instruction
+	ht.Notes = pp.Notes
 	ht.Preview = pp.Preview
 	ht.LinkScratch = pp.LinkScratch
+	ht.Title = pp.Title
+	ht.IsShared = pp.IsShared
 }

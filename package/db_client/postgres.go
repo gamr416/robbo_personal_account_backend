@@ -1,14 +1,15 @@
 package db_client
 
 import (
+	"log"
+	"os"
+	"time"
+
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"log"
-	"os"
-	"time"
 )
 
 type PostgresClient struct {
@@ -55,6 +56,7 @@ func (c *PostgresClient) Migrate() (err error) {
 		&models.FreeListenerDB{},
 		&models.ChildrenOfParentDB{},
 		&models.RobboUnitDB{},
+		&models.CoursePacketDB{},
 		&models.RobboGroupDB{},
 		&models.UnitAdminsRobboUnitsDB{},
 	)

@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/middleware"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"io/ioutil"
 	"log"
@@ -15,6 +16,7 @@ import (
 )
 
 type Handler struct {
+	middleware.Middleware
 	authDelegate    auth.Delegate
 	coursesDelegate courses.Delegate
 }

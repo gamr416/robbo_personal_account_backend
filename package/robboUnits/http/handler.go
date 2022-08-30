@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/middleware"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboUnits"
 	"log"
@@ -11,6 +12,7 @@ import (
 )
 
 type Handler struct {
+	middleware.Middleware
 	authDelegate       auth.Delegate
 	robboUnitsDelegate robboUnits.Delegate
 }
@@ -85,7 +87,7 @@ func (h *Handler) GetAllRobboUnits(c *gin.Context) {
 
 func (h *Handler) GetRobboUnitsByUnitAdminId(c *gin.Context) {
 	fmt.Println("GetRobboUnitsByUnitAdminId")
-	id, role, identityErr := h.userIdentity(c)
+	id, role, identityErr := h.UserIdentity(c)
 
 	if identityErr != nil || role != models.UnitAdmin {
 		c.AbortWithStatus(http.StatusUnauthorized)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/middleware"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
 	"log"
@@ -12,6 +13,7 @@ import (
 )
 
 type Handler struct {
+	middleware.Middleware
 	authDelegate  auth.Delegate
 	usersDelegate users.Delegate
 }
@@ -100,7 +102,7 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 
 func (h *Handler) GetUser(c *gin.Context) {
 	fmt.Println("GetUser")
-	userId, role, err := h.userIdentity(c)
+	userId, role, err := h.UserIdentity(c)
 
 	if err != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
@@ -208,7 +210,7 @@ type createStudentInput struct {
 func (h *Handler) CreateStudent(c *gin.Context) {
 	fmt.Println("Create Student")
 
-	_, role, userIdentityErr := h.userIdentity(c)
+	_, role, userIdentityErr := h.UserIdentity(c)
 	if role != models.SuperAdmin || userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -432,7 +434,7 @@ func (h *Handler) GetAllParent(c *gin.Context) {
 
 func (h *Handler) CreateParent(c *gin.Context) {
 	fmt.Println("Create Parent")
-	_, role, userIdentityErr := h.userIdentity(c)
+	_, role, userIdentityErr := h.UserIdentity(c)
 	if role != models.SuperAdmin || userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return

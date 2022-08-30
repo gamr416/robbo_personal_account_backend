@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/middleware"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"log"
 	"net/http"
 )
 
 type Handler struct {
+	middleware.Middleware
 	delegate auth.Delegate
 }
 
@@ -123,7 +125,7 @@ type userIdentity struct {
 
 func (h *Handler) CheckAuth(c *gin.Context) {
 	fmt.Println("CheckAuth")
-	userId, role, err := h.userIdentity(c)
+	userId, role, err := h.Middleware.UserIdentity(c)
 	if err != nil {
 		ErrorHandling(err, c)
 		return

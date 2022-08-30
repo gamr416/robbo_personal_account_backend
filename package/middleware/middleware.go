@@ -1,4 +1,4 @@
-package http
+package middleware
 
 import (
 	"github.com/gin-gonic/gin"
@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-type AuthMiddleware struct {
+type Middleware struct {
 	authDelegate auth.Delegate
 }
 
@@ -16,7 +16,7 @@ const (
 	authorizationHeader = "Authorization"
 )
 
-func (h *Handler) userIdentity(c *gin.Context) (id string, role models.Role, err error) {
+func (h *Middleware) UserIdentity(c *gin.Context) (id string, role models.Role, err error) {
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {
 		return "", models.Anonymous, auth.ErrTokenNotFound

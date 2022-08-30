@@ -3,6 +3,7 @@ package http
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/middleware"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -14,6 +15,7 @@ import (
 )
 
 type Handler struct {
+	middleware.Middleware
 	authDelegate         auth.Delegate
 	coursePacketDelegate coursePacket.Delegate
 }

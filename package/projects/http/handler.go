@@ -38,6 +38,8 @@ type testResponse struct {
 	Id string `json:"id"`
 }
 
+// TODO нет защиты, так как запрос идет с robboscratchweb без токена. для dev сервера пока можно убрать эти ручки
+
 func (h *Handler) CreateProject(c *gin.Context) {
 	fmt.Println("Create Project")
 	jsonDataBytes, err := ioutil.ReadAll(c.Request.Body)

@@ -69,7 +69,10 @@ func (h *Handler) InitCourseRoutes(router *gin.Engine) {
 
 func (h *Handler) UpdateCourse(c *gin.Context) {
 	fmt.Println("Update Course")
-
+	_, _, userIdentityErr := h.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	courseHTTP := models.CourseHTTP{}
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
@@ -97,7 +100,10 @@ func (h *Handler) UpdateCourse(c *gin.Context) {
 
 func (h *Handler) CreateCourse(c *gin.Context) {
 	fmt.Println("Create Course")
-
+	_, _, userIdentityErr := h.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	courseId := c.Param("courseId")
 	courseHTTP := models.CourseHTTP{}
 	courseId, err := h.coursesDelegate.CreateCourse(&courseHTTP, courseId)
@@ -115,6 +121,10 @@ func (h *Handler) CreateCourse(c *gin.Context) {
 
 func (h *Handler) GetCourseContent(c *gin.Context) {
 	fmt.Println("Get Course Content")
+	_, _, userIdentityErr := h.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	courseId := c.Param("courseId")
 	body, err := h.coursesDelegate.GetCourseContent(courseId)
 	if err != nil {
@@ -133,6 +143,10 @@ func (h *Handler) GetCourseContent(c *gin.Context) {
 
 func (h *Handler) GetCoursesByUser(c *gin.Context) {
 	fmt.Println("Get courses For User")
+	_, _, userIdentityErr := h.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	body, err := h.coursesDelegate.GetCoursesByUser()
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -174,6 +188,10 @@ func (h *Handler) GetAllPublicCourses(c *gin.Context) {
 
 func (h *Handler) GetEnrollments(c *gin.Context) {
 	fmt.Println("Get Enrollments")
+	_, _, userIdentityErr := h.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	username := c.Param("username")
 
 	body, err := h.coursesDelegate.GetEnrollments(username)
@@ -193,7 +211,10 @@ func (h *Handler) GetEnrollments(c *gin.Context) {
 
 func (h *Handler) DeleteCourse(c *gin.Context) {
 	fmt.Println("Delete Course")
-
+	_, _, userIdentityErr := h.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	courseId := c.Param("courseId")
 	err := h.coursesDelegate.DeleteCourse(courseId)
 

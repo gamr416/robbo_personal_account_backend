@@ -37,7 +37,10 @@ func (h *Handler) InitRobboGroupRoutes(router *gin.Engine) {
 
 func (h *Handler) CreateRobboGroup(c *gin.Context) {
 	fmt.Println("Create Robbo Unit")
-
+	_, _, userIdentityErr := h.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	robboUnitId := c.Param("robboUnitId")
 	robboGroupHttp := models.RobboGroupHttp{}
 	if err := c.BindJSON(&robboGroupHttp); err != nil {
@@ -63,6 +66,10 @@ func (h *Handler) CreateRobboGroup(c *gin.Context) {
 
 func (h *Handler) GetRobboGroupById(c *gin.Context) {
 	fmt.Println("Get RobboUnit By Id")
+	_, _, userIdentityErr := h.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	robboGroupId := c.Param("robboGroupId")
 
 	robboGroup, err := h.robboGroupDelegate.GetRobboGroupById(robboGroupId)
@@ -78,7 +85,10 @@ func (h *Handler) GetRobboGroupById(c *gin.Context) {
 
 func (h *Handler) GetRobboGroupsByRobboUnitId(c *gin.Context) {
 	fmt.Println("Get all robboUnits")
-
+	_, _, userIdentityErr := h.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	robboUnitId := c.Param("robboUnitId")
 
 	robboGroups, err := h.robboGroupDelegate.GetRobboGroupsByRobboUnitId(robboUnitId)
@@ -92,7 +102,10 @@ func (h *Handler) GetRobboGroupsByRobboUnitId(c *gin.Context) {
 
 func (h *Handler) DeleteRobboUnit(c *gin.Context) {
 	fmt.Println("Delete RobboUnit")
-
+	_, _, userIdentityErr := h.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	robboGroupId := c.Param("robboGroupId")
 	err := h.robboGroupDelegate.DeleteRobboGroup(robboGroupId)
 	if err != nil {

@@ -44,7 +44,10 @@ func (h *Handler) InitCoursePacketRoutes(router *gin.Engine) {
 
 func (h *Handler) UpdateCoursePacket(c *gin.Context) {
 	fmt.Println("Update Course Packet")
-
+	_, _, userIdentityErr := h.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	coursePacketHTTP := models.CoursePacketHTTP{}
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
@@ -72,7 +75,10 @@ func (h *Handler) UpdateCoursePacket(c *gin.Context) {
 
 func (h *Handler) CreateCoursePacket(c *gin.Context) {
 	fmt.Println("Create Course Packet")
-
+	_, _, userIdentityErr := h.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	courseId := c.Param("coursePacketId")
 	coursePacketHTTP := models.CoursePacketHTTP{}
 	courseId, err := h.coursePacketDelegate.CreateCoursePacket(&coursePacketHTTP, courseId)
@@ -90,6 +96,10 @@ func (h *Handler) CreateCoursePacket(c *gin.Context) {
 
 func (h *Handler) GetCoursePacketById(c *gin.Context) {
 	fmt.Println("Get CoursePacket By Id")
+	_, _, userIdentityErr := h.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	coursePacketId := c.Param("coursePacketId")
 
 	coursePacket, err := h.coursePacketDelegate.GetCoursePacketById(coursePacketId)
@@ -105,7 +115,10 @@ func (h *Handler) GetCoursePacketById(c *gin.Context) {
 
 func (h *Handler) GetAllCoursePackets(c *gin.Context) {
 	fmt.Println("Get all CoursePackets")
-
+	_, _, userIdentityErr := h.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	coursePackets, err := h.coursePacketDelegate.GetAllCoursePackets()
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -117,7 +130,10 @@ func (h *Handler) GetAllCoursePackets(c *gin.Context) {
 
 func (h *Handler) DeleteCoursePacket(c *gin.Context) {
 	fmt.Println("Delete Course Packet")
-
+	_, _, userIdentityErr := h.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	courseId := c.Param("coursePacketId")
 	err := h.coursePacketDelegate.DeleteCoursePacket(courseId)
 

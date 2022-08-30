@@ -63,7 +63,7 @@ func TestEdxApiCohortImpl_CreateCohort(t *testing.T) {
 	for _, testCase := range testTable {
 		t.Run(testCase.name, func(t *testing.T) {
 			expect := testCase.expectedError
-			_, correct := edxUseCase.ApiCohort.CreateCohort(testCase.courseId, testCase.message)
+			_, correct := edxUseCase.UseCase.CreateCohort(testCase.courseId, testCase.message)
 			assert.Equal(t, expect, correct)
 		})
 	}
@@ -107,7 +107,7 @@ func TestEdxApiCohortImpl_AddStudent(t *testing.T) {
 	for _, testCase := range testTable {
 		t.Run(testCase.name, func(t *testing.T) {
 			expect := testCase.expectedError
-			_, correct := edxUseCase.ApiCohort.AddStudent(testCase.username, testCase.courseId, testCase.cohortId)
+			_, correct := edxUseCase.UseCase.AddStudent(testCase.username, testCase.courseId, testCase.cohortId)
 			assert.Equal(t, expect, correct)
 		})
 	}

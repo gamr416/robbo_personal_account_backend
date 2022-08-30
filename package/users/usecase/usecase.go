@@ -17,7 +17,7 @@ type UsersUseCaseImpl struct {
 
 type UsersUseCaseModule struct {
 	fx.Out
-	UseCase users.UseCase
+	users.UseCase
 }
 
 func SetupUsersUseCase(gateway users.Gateway) UsersUseCaseModule {

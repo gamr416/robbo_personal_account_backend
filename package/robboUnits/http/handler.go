@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/middleware"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboUnits"
 	"log"
@@ -12,12 +11,14 @@ import (
 )
 
 type Handler struct {
-	middleware.Middleware
 	authDelegate       auth.Delegate
 	robboUnitsDelegate robboUnits.Delegate
 }
 
-func NewRobboUnitsHandler(authDelegate auth.Delegate, robboUnits robboUnits.Delegate) Handler {
+func NewRobboUnitsHandler(
+	authDelegate auth.Delegate,
+	robboUnits robboUnits.Delegate,
+) Handler {
 	return Handler{
 		authDelegate:       authDelegate,
 		robboUnitsDelegate: robboUnits,
@@ -38,7 +39,7 @@ func (h *Handler) InitRobboUnitsRoutes(router *gin.Engine) {
 
 func (h *Handler) CreateRobboUnit(c *gin.Context) {
 	fmt.Println("Create Robbo Unit")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
@@ -64,7 +65,7 @@ func (h *Handler) CreateRobboUnit(c *gin.Context) {
 
 func (h *Handler) GetRobboUnitById(c *gin.Context) {
 	fmt.Println("Get RobboUnit By Id")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
@@ -83,7 +84,7 @@ func (h *Handler) GetRobboUnitById(c *gin.Context) {
 
 func (h *Handler) GetAllRobboUnits(c *gin.Context) {
 	fmt.Println("Get all robboUnits")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
@@ -98,11 +99,8 @@ func (h *Handler) GetAllRobboUnits(c *gin.Context) {
 
 func (h *Handler) GetRobboUnitsByUnitAdminId(c *gin.Context) {
 	fmt.Println("GetRobboUnitsByUnitAdminId")
-	_, _, userIdentityErr := h.UserIdentity(c)
-	if userIdentityErr != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
-	}
-	id, role, identityErr := h.UserIdentity(c)
+
+	id, role, identityErr := h.authDelegate.UserIdentity(c)
 
 	if identityErr != nil || role != models.UnitAdmin {
 		c.AbortWithStatus(http.StatusUnauthorized)
@@ -120,7 +118,7 @@ func (h *Handler) GetRobboUnitsByUnitAdminId(c *gin.Context) {
 
 func (h *Handler) UpdateRobboUnit(c *gin.Context) {
 	fmt.Println("Update RobboUnit")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
@@ -144,7 +142,7 @@ func (h *Handler) UpdateRobboUnit(c *gin.Context) {
 
 func (h *Handler) DeleteRobboUnit(c *gin.Context) {
 	fmt.Println("Delete RobboUnit")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}

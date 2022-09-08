@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/middleware"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"io/ioutil"
 	"log"
@@ -16,12 +15,14 @@ import (
 )
 
 type Handler struct {
-	middleware.Middleware
 	authDelegate    auth.Delegate
 	coursesDelegate courses.Delegate
 }
 
-func NewCoursesHandler(authDelegate auth.Delegate, coursesDelegate courses.Delegate) Handler {
+func NewCoursesHandler(
+	authDelegate auth.Delegate,
+	coursesDelegate courses.Delegate,
+) Handler {
 	return Handler{
 		authDelegate:    authDelegate,
 		coursesDelegate: coursesDelegate,
@@ -69,7 +70,7 @@ func (h *Handler) InitCourseRoutes(router *gin.Engine) {
 
 func (h *Handler) UpdateCourse(c *gin.Context) {
 	fmt.Println("Update Course")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
@@ -100,7 +101,7 @@ func (h *Handler) UpdateCourse(c *gin.Context) {
 
 func (h *Handler) CreateCourse(c *gin.Context) {
 	fmt.Println("Create Course")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
@@ -121,7 +122,7 @@ func (h *Handler) CreateCourse(c *gin.Context) {
 
 func (h *Handler) GetCourseContent(c *gin.Context) {
 	fmt.Println("Get Course Content")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
@@ -143,7 +144,7 @@ func (h *Handler) GetCourseContent(c *gin.Context) {
 
 func (h *Handler) GetCoursesByUser(c *gin.Context) {
 	fmt.Println("Get courses For User")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
@@ -188,7 +189,7 @@ func (h *Handler) GetAllPublicCourses(c *gin.Context) {
 
 func (h *Handler) GetEnrollments(c *gin.Context) {
 	fmt.Println("Get Enrollments")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
@@ -211,7 +212,7 @@ func (h *Handler) GetEnrollments(c *gin.Context) {
 
 func (h *Handler) DeleteCourse(c *gin.Context) {
 	fmt.Println("Delete Course")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/middleware"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/projects"
@@ -12,13 +11,16 @@ import (
 )
 
 type Handler struct {
-	middleware.Middleware
 	authDelegate        auth.Delegate
 	projectsDelegate    projects.Delegate
 	projectPageDelegate projectPage.Delegate
 }
 
-func NewProjectPageHandler(authDelegate auth.Delegate, projectsDelegate projects.Delegate, projectPageDelegate projectPage.Delegate) Handler {
+func NewProjectPageHandler(
+	authDelegate auth.Delegate,
+	projectsDelegate projects.Delegate,
+	projectPageDelegate projectPage.Delegate,
+) Handler {
 	return Handler{
 		authDelegate:        authDelegate,
 		projectsDelegate:    projectsDelegate,
@@ -43,11 +45,8 @@ type createProjectPageResponse struct {
 
 func (h *Handler) CreateProjectPage(c *gin.Context) {
 	fmt.Println("CreateProjectPage")
-	_, _, userIdentityErr := h.UserIdentity(c)
-	if userIdentityErr != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
-	}
-	userId, _, userIdentityErr := h.userIdentity(c)
+
+	userId, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -70,7 +69,7 @@ type getProjectPageResponse struct {
 
 func (h *Handler) GetProjectPageById(c *gin.Context) {
 	fmt.Println("Get Project Page By ID")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
@@ -100,7 +99,7 @@ type getAllProjectPageResponse struct {
 func (h *Handler) GetAllProjectPageByUserId(c *gin.Context) {
 	fmt.Println("GetAllProjectPageByUserId")
 
-	userId, _, userIdentityErr := h.userIdentity(c)
+	userId, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -121,7 +120,7 @@ type updateProjectPageInput struct {
 
 func (h *Handler) UpdateProjectPage(c *gin.Context) {
 	fmt.Println("Update Project Page")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
@@ -139,7 +138,7 @@ func (h *Handler) UpdateProjectPage(c *gin.Context) {
 
 func (h *Handler) DeleteProjectPage(c *gin.Context) {
 	fmt.Println("Delete Project Page")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}

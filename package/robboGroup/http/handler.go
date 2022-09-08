@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/middleware"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup"
 	"log"
@@ -12,12 +11,14 @@ import (
 )
 
 type Handler struct {
-	middleware.Middleware
 	authDelegate       auth.Delegate
 	robboGroupDelegate robboGroup.Delegate
 }
 
-func NewRobboGroupHandler(authDelegate auth.Delegate, robboGroup robboGroup.Delegate) Handler {
+func NewRobboGroupHandler(
+	authDelegate auth.Delegate,
+	robboGroup robboGroup.Delegate,
+) Handler {
 	return Handler{
 		authDelegate:       authDelegate,
 		robboGroupDelegate: robboGroup,
@@ -37,7 +38,7 @@ func (h *Handler) InitRobboGroupRoutes(router *gin.Engine) {
 
 func (h *Handler) CreateRobboGroup(c *gin.Context) {
 	fmt.Println("Create Robbo Unit")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
@@ -66,7 +67,7 @@ func (h *Handler) CreateRobboGroup(c *gin.Context) {
 
 func (h *Handler) GetRobboGroupById(c *gin.Context) {
 	fmt.Println("Get RobboUnit By Id")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
@@ -85,7 +86,7 @@ func (h *Handler) GetRobboGroupById(c *gin.Context) {
 
 func (h *Handler) GetRobboGroupsByRobboUnitId(c *gin.Context) {
 	fmt.Println("Get all robboUnits")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
@@ -102,7 +103,7 @@ func (h *Handler) GetRobboGroupsByRobboUnitId(c *gin.Context) {
 
 func (h *Handler) DeleteRobboUnit(c *gin.Context) {
 	fmt.Println("Delete RobboUnit")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}

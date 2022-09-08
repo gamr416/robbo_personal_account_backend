@@ -8,7 +8,7 @@ import (
 func Init() error {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yml")
-	viper.AddConfigPath("../package/config")
+	viper.AddConfigPath("./package/config")
 
 	err := viper.ReadInConfig()
 	return err

@@ -3,7 +3,6 @@ package http
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/middleware"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -15,12 +14,14 @@ import (
 )
 
 type Handler struct {
-	middleware.Middleware
 	authDelegate         auth.Delegate
 	coursePacketDelegate coursePacket.Delegate
 }
 
-func NewCoursePacketHandler(authDelegate auth.Delegate, coursePacketDelegate coursePacket.Delegate) Handler {
+func NewCoursePacketHandler(
+	authDelegate auth.Delegate,
+	coursePacketDelegate coursePacket.Delegate,
+) Handler {
 	return Handler{
 		authDelegate:         authDelegate,
 		coursePacketDelegate: coursePacketDelegate,
@@ -44,7 +45,7 @@ func (h *Handler) InitCoursePacketRoutes(router *gin.Engine) {
 
 func (h *Handler) UpdateCoursePacket(c *gin.Context) {
 	fmt.Println("Update Course Packet")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
@@ -75,7 +76,7 @@ func (h *Handler) UpdateCoursePacket(c *gin.Context) {
 
 func (h *Handler) CreateCoursePacket(c *gin.Context) {
 	fmt.Println("Create Course Packet")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
@@ -96,7 +97,7 @@ func (h *Handler) CreateCoursePacket(c *gin.Context) {
 
 func (h *Handler) GetCoursePacketById(c *gin.Context) {
 	fmt.Println("Get CoursePacket By Id")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
@@ -115,7 +116,7 @@ func (h *Handler) GetCoursePacketById(c *gin.Context) {
 
 func (h *Handler) GetAllCoursePackets(c *gin.Context) {
 	fmt.Println("Get all CoursePackets")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
@@ -130,7 +131,7 @@ func (h *Handler) GetAllCoursePackets(c *gin.Context) {
 
 func (h *Handler) DeleteCoursePacket(c *gin.Context) {
 	fmt.Println("Delete Course Packet")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}

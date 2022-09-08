@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/middleware"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/projects"
 	"io/ioutil"
@@ -12,12 +11,14 @@ import (
 )
 
 type Handler struct {
-	middleware.Middleware
 	authDelegate     auth.Delegate
 	projectsDelegate projects.Delegate
 }
 
-func NewProjectsHandler(authDelegate auth.Delegate, projectsDelegate projects.Delegate) Handler {
+func NewProjectsHandler(
+	authDelegate auth.Delegate,
+	projectsDelegate projects.Delegate,
+) Handler {
 	return Handler{
 		authDelegate:     authDelegate,
 		projectsDelegate: projectsDelegate,

@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/cohorts"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/middleware"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"io/ioutil"
 	"log"
@@ -15,12 +14,14 @@ import (
 )
 
 type Handler struct {
-	middleware.Middleware
 	authDelegate    auth.Delegate
 	cohortsDelegate cohorts.Delegate
 }
 
-func NewCohortsHandler(authDelegate auth.Delegate, cohortsDelegate cohorts.Delegate) Handler {
+func NewCohortsHandler(
+	authDelegate auth.Delegate,
+	cohortsDelegate cohorts.Delegate,
+) Handler {
 	return Handler{
 		authDelegate:    authDelegate,
 		cohortsDelegate: cohortsDelegate,
@@ -41,7 +42,7 @@ func (h *Handler) InitCohortRoutes(router *gin.Engine) {
 
 func (h *Handler) CreateCohort(c *gin.Context) {
 	fmt.Println("Create Cohort")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
@@ -78,7 +79,7 @@ func (h *Handler) CreateCohort(c *gin.Context) {
 
 func (h *Handler) AddStudent(c *gin.Context) {
 	fmt.Println("Add Student")
-	_, _, userIdentityErr := h.UserIdentity(c)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}

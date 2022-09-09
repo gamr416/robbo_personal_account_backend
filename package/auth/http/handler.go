@@ -13,7 +13,9 @@ type Handler struct {
 	delegate auth.Delegate
 }
 
-func NewAuthHandler(authDelegate auth.Delegate) Handler {
+func NewAuthHandler(
+	authDelegate auth.Delegate,
+) Handler {
 	return Handler{
 		delegate: authDelegate,
 	}
@@ -123,7 +125,7 @@ type userIdentity struct {
 
 func (h *Handler) CheckAuth(c *gin.Context) {
 	fmt.Println("CheckAuth")
-	userId, role, err := h.userIdentity(c)
+	userId, role, err := h.delegate.UserIdentity(c)
 	if err != nil {
 		ErrorHandling(err, c)
 		return
@@ -147,7 +149,7 @@ func ErrorHandling(err error, c *gin.Context) {
 	case auth.ErrTokenNotFound:
 		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
 	case http.ErrNoCookie:
-		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
 	default:
 		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	}

@@ -15,7 +15,10 @@ type Handler struct {
 	projectsDelegate projects.Delegate
 }
 
-func NewProjectsHandler(authDelegate auth.Delegate, projectsDelegate projects.Delegate) Handler {
+func NewProjectsHandler(
+	authDelegate auth.Delegate,
+	projectsDelegate projects.Delegate,
+) Handler {
 	return Handler{
 		authDelegate:     authDelegate,
 		projectsDelegate: projectsDelegate,
@@ -35,6 +38,8 @@ func (h *Handler) InitProjectRoutes(router *gin.Engine) {
 type testResponse struct {
 	Id string `json:"id"`
 }
+
+// TODO нет защиты, так как запрос идет с robboscratchweb без токена. для dev сервера пока можно убрать эти ручки
 
 func (h *Handler) CreateProject(c *gin.Context) {
 	fmt.Println("Create Project")

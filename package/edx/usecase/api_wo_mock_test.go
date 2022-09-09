@@ -15,7 +15,7 @@ func TestGetUser2(t *testing.T) {
 	edx := SetupEdxApiUseCase()
 
 	expect := []byte("{\"username\":\"edxsom\"}")
-	correct, _ := edx.ApiUser.GetUser()
+	correct, _ := edx.UseCase.GetUser()
 	assert.Equal(t, expect, correct)
 
 }
@@ -46,7 +46,7 @@ func TestEdxApiUseCaseImpl_GetCourseContent2(t *testing.T) {
 	for _, testCase := range testTable {
 		t.Run(testCase.name, func(t *testing.T) {
 			expect := testCase.expectedError
-			_, correct := edx.ApiCourse.GetCourseContent(testCase.courseId)
+			_, correct := edx.UseCase.GetCourseContent(testCase.courseId)
 			assert.Equal(t, expect, correct)
 		})
 	}
@@ -84,7 +84,7 @@ func TestEdxApiUseCaseImpl_GetEnrollments2(t *testing.T) {
 
 			expect := testCase.expectedError
 
-			_, correct := edx.ApiCourse.GetEnrollments(testCase.username)
+			_, correct := edx.UseCase.GetEnrollments(testCase.username)
 			assert.Equal(t, expect, correct)
 		})
 	}
@@ -122,7 +122,7 @@ func TestEdxApiUseCaseImpl_GetAllPublicCourses2(t *testing.T) {
 
 			expect := testCase.expectedError
 
-			_, correct := edx.ApiCourse.GetAllPublicCourses(testCase.pageNumber)
+			_, correct := edx.UseCase.GetAllPublicCourses(testCase.pageNumber)
 			assert.Equal(t, expect, correct)
 		})
 	}
@@ -186,7 +186,7 @@ func TestEdxApiUseCaseImpl_PostEnrollment2(t *testing.T) {
 
 			expect := testCase.expectedError
 
-			_, correct := edx.ApiCourse.PostEnrollment(testCase.message)
+			_, correct := edx.UseCase.PostEnrollment(testCase.message)
 			assert.Equal(t, expect, correct)
 		})
 	}

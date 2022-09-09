@@ -7,11 +7,6 @@ import (
 	"go.uber.org/fx"
 )
 
-type RobboGroupUseCaseImpl struct {
-	robboGroupGateway robboGroup.Gateway
-	usersGateway      users.Gateway
-}
-
 func (r *RobboGroupUseCaseImpl) CreateRobboGroup(robboGroup *models.RobboGroupCore) (robboGroupId string, err error) {
 	return r.robboGroupGateway.CreateRobboGroup(robboGroup)
 }
@@ -37,6 +32,11 @@ func (r *RobboGroupUseCaseImpl) GetRobboGroupById(robboGroupId string) (robboGro
 	}
 	robboGroup.Students = students
 	return
+}
+
+type RobboGroupUseCaseImpl struct {
+	robboGroupGateway robboGroup.Gateway
+	usersGateway      users.Gateway
 }
 
 type RobboGroupUseCaseModule struct {

@@ -16,7 +16,11 @@ type Handler struct {
 	projectPageDelegate projectPage.Delegate
 }
 
-func NewProjectPageHandler(authDelegate auth.Delegate, projectsDelegate projects.Delegate, projectPageDelegate projectPage.Delegate) Handler {
+func NewProjectPageHandler(
+	authDelegate auth.Delegate,
+	projectsDelegate projects.Delegate,
+	projectPageDelegate projectPage.Delegate,
+) Handler {
 	return Handler{
 		authDelegate:        authDelegate,
 		projectsDelegate:    projectsDelegate,
@@ -42,7 +46,7 @@ type createProjectPageResponse struct {
 func (h *Handler) CreateProjectPage(c *gin.Context) {
 	fmt.Println("CreateProjectPage")
 
-	userId, _, userIdentityErr := h.userIdentity(c)
+	userId, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -65,6 +69,10 @@ type getProjectPageResponse struct {
 
 func (h *Handler) GetProjectPageById(c *gin.Context) {
 	fmt.Println("Get Project Page By ID")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	projectId := c.Param("projectPageId")
 	project_page, err := h.projectPageDelegate.GetProjectPageById(projectId)
 	switch err {
@@ -91,7 +99,7 @@ type getAllProjectPageResponse struct {
 func (h *Handler) GetAllProjectPageByUserId(c *gin.Context) {
 	fmt.Println("GetAllProjectPageByUserId")
 
-	userId, _, userIdentityErr := h.userIdentity(c)
+	userId, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -112,6 +120,10 @@ type updateProjectPageInput struct {
 
 func (h *Handler) UpdateProjectPage(c *gin.Context) {
 	fmt.Println("Update Project Page")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	inp := new(updateProjectPageInput)
 	if err := c.BindJSON(&inp); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -126,7 +138,10 @@ func (h *Handler) UpdateProjectPage(c *gin.Context) {
 
 func (h *Handler) DeleteProjectPage(c *gin.Context) {
 	fmt.Println("Delete Project Page")
-
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	projectId := c.Param("projectPageId")
 
 	err := h.projectPageDelegate.DeleteProjectPage(projectId)

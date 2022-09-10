@@ -65,6 +65,7 @@ func (ht *ParentHTTP) ToCore() *ParentCore {
 }
 
 func (ht *ParentHTTP) FromCore(parent *ParentCore) {
+	// TODO refactor user.ToCore()
 	ht.Id = parent.Id
 	ht.CreatedAt = parent.CreatedAt
 	ht.Email = parent.Email

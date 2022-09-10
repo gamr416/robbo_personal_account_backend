@@ -1,0 +1,54 @@
+type User {
+    id: ID!
+    email: String!
+    password: String!
+    role: Int!
+    nickname: String!
+    firstname: String!
+    lastname: String!
+    middlename: String!
+    createdAt: Timestamp!
+}
+
+type Student {
+    user: User!
+    robboGroupId: String!
+    robboUnitId: String!
+}
+
+type Parent {
+    user: User!
+    Children: [User!]
+}
+
+input NewParent {
+    email: String!
+    password: String!
+    nickname: String!
+    firstname: String!
+    lastname: String!
+    middlename: String!
+}
+
+input NewStudent {
+    email: String!
+    password: String!
+    nickname: String!
+    firstname: String!
+    lastname: String!
+    middlename: String!
+    robboGroupId: String!
+    robboUnitId: String!
+}
+
+type Mutation {
+    createStudent(input: NewStudent!): Student!
+    createParent(input: NewParent!): Parent!
+}
+
+type Query {
+    Students(limit: Int = 10, offset: Int = 0): [Student!]!
+    Parents(limit: Int = 10, offset: Int = 0):[Parent!]!
+}
+
+scalar Timestamp

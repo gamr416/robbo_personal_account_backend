@@ -1,6 +1,7 @@
 package modules
 
 import (
+	"github.com/skinnykaen/robbo_student_personal_account.git/graph"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	authdelegate "github.com/skinnykaen/robbo_student_personal_account.git/package/auth/delegate"
 	authgateway "github.com/skinnykaen/robbo_student_personal_account.git/package/auth/gateway"
@@ -154,5 +155,15 @@ func SetupHandler(delegate DelegateModule) HandlerModule {
 		RobboUnitsHandler:   robboUnitshttp.NewRobboUnitsHandler(delegate.AuthDelegate, delegate.RobboUnitsDelegate),
 		RobboGroupHandler:   robboGrouphttp.NewRobboGroupHandler(delegate.AuthDelegate, delegate.RobboGroupDelegate),
 		CoursePacketHandler: coursePackethttp.NewCoursePacketHandler(delegate.AuthDelegate, delegate.CoursePacketDelegate),
+	}
+}
+
+type GraphQLModule struct {
+	UsersResolver graph.Resolver
+}
+
+func SetupGraphQLModule(delegate DelegateModule) GraphQLModule {
+	return GraphQLModule{
+		UsersResolver: graph.NewUsersResolver(delegate.AuthDelegate, delegate.UsersDelegate),
 	}
 }

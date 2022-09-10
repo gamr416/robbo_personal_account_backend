@@ -1,6 +1,9 @@
 server:
   address: "localhost:8000"
 
+graphqlServer:
+  port: "8080"
+
 auth:
   hash_salt: "hash_salt"
   access_signing_key: "access_signing_key"

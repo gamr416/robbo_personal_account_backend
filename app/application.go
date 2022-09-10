@@ -5,9 +5,9 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/config"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/logger"
+	"github.com/skinnykaen/robbo_student_personal_account.git/server"
 	"log"
 
-	"github.com/skinnykaen/robbo_student_personal_account.git/server"
 	"go.uber.org/fx"
 )
 
@@ -22,6 +22,7 @@ func InvokeWith(options ...fx.Option) *fx.App {
 		fx.Provide(modules.SetupUseCase),
 		fx.Provide(modules.SetupDelegate),
 		fx.Provide(modules.SetupHandler),
+		fx.Provide(modules.SetupGraphQLModule),
 	}
 	for _, option := range options {
 		di = append(di, option)
@@ -30,5 +31,8 @@ func InvokeWith(options ...fx.Option) *fx.App {
 }
 
 func RunApp() {
-	InvokeWith(fx.Invoke(server.NewServer)).Run()
+	InvokeWith(
+		//fx.Invoke(server.NewHttpServer),
+		fx.Invoke(server.NewGraphqlServer),
+	).Run()
 }

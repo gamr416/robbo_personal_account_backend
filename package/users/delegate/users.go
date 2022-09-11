@@ -51,7 +51,11 @@ func (p *UsersDelegateImpl) SearchStudentByEmail(email string) (students []*mode
 		return
 	}
 	for _, studentCore := range studentsCore {
-		var studentTemp models.StudentHTTP
+		studentTemp := models.StudentHTTP{
+			UserHTTP:     &models.UserHTTP{},
+			RobboGroupID: "",
+			RobboUnitID:  "",
+		}
 		studentTemp.FromCore(studentCore)
 		students = append(students, &studentTemp)
 	}
@@ -64,7 +68,11 @@ func (p *UsersDelegateImpl) GetStudentByParentId(parentId string) (students []*m
 		return
 	}
 	for _, studentCore := range studentsCore {
-		var studentHttpTemp models.StudentHTTP
+		studentHttpTemp := models.StudentHTTP{
+			UserHTTP:     &models.UserHTTP{},
+			RobboGroupID: "",
+			RobboUnitID:  "",
+		}
 		studentHttpTemp.FromCore(studentCore)
 		students = append(students, &studentHttpTemp)
 	}
@@ -87,7 +95,7 @@ func (p *UsersDelegateImpl) GetTeacherById(teacherId string) (teacher models.Tea
 		log.Println("User not found")
 		return teacher, auth.ErrUserNotFound
 	}
-	teacher.FromCore(teacherCore)
+	teacher.FromCore(&teacherCore)
 	return
 }
 
@@ -98,7 +106,7 @@ func (p *UsersDelegateImpl) GetAllTeachers() (teachers []*models.TeacherHTTP, er
 	}
 	for _, teacherCore := range teachersCore {
 		var teacherTemp models.TeacherHTTP
-		teacherTemp.FromCore(teacherCore)
+		teacherTemp.FromCore(&teacherCore)
 		teachers = append(teachers, &teacherTemp)
 	}
 	return
@@ -124,7 +132,7 @@ func (p *UsersDelegateImpl) GetParentById(parentId string) (parent models.Parent
 		log.Println("User not found")
 		return parent, auth.ErrUserNotFound
 	}
-	parent.FromCore(parentCore)
+	parent.FromCore(*parentCore)
 	return
 }
 
@@ -134,8 +142,11 @@ func (p *UsersDelegateImpl) GetAllParent() (parents []*models.ParentHTTP, err er
 		return
 	}
 	for _, parentCore := range parentsCore {
-		var parentTemp models.ParentHTTP
-		parentTemp.FromCore(parentCore)
+		parentTemp := models.ParentHTTP{
+			UserHTTP: &models.UserHTTP{},
+			Children: []*models.StudentHTTP{},
+		}
+		parentTemp.FromCore(*parentCore)
 		parents = append(parents, &parentTemp)
 	}
 	return

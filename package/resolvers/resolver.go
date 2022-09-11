@@ -1,4 +1,4 @@
-package graph
+package resolvers
 
 import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
@@ -25,12 +25,4 @@ func NewUsersResolver(
 		authDelegate:  authDelegate,
 		usersDelegate: usersDelegate,
 	}
-}
-
-func (r *QueryResolver) GetAllParents() {
-
-}
-
-func (r *MutationResolver) CreateParent() {
-
 }

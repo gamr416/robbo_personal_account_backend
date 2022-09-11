@@ -98,7 +98,7 @@ func (p *UsersUseCaseImpl) AddStudentToRobboGroup(studentId string, robboGroupId
 	return p.Gateway.AddStudentToRobboGroup(studentId, robboGroupId, robboUnitId)
 }
 
-func (p *UsersUseCaseImpl) GetTeacherById(teacherId string) (teacher *models.TeacherCore, err error) {
+func (p *UsersUseCaseImpl) GetTeacherById(teacherId string) (teacher models.TeacherCore, err error) {
 	return p.Gateway.GetTeacherById(teacherId)
 }
 
@@ -106,7 +106,7 @@ func (p *UsersUseCaseImpl) GetTeacherById(teacherId string) (teacher *models.Tea
 //	return p.Gateway.GetTeacher(email, password)
 //}
 
-func (p *UsersUseCaseImpl) GetAllTeachers() (teachers []*models.TeacherCore, err error) {
+func (p *UsersUseCaseImpl) GetAllTeachers() (teachers []models.TeacherCore, err error) {
 	return p.Gateway.GetAllTeachers()
 }
 

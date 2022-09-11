@@ -13,7 +13,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/skinnykaen/robbo_student_personal_account.git/graph/model"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -45,13 +45,13 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
-		CreateParent  func(childComplexity int, input model.NewParent) int
-		CreateStudent func(childComplexity int, input model.NewStudent) int
+		CreateParent  func(childComplexity int, input models.NewParent) int
+		CreateStudent func(childComplexity int, input models.NewStudent) int
 	}
 
-	Parent struct {
+	ParentHttp struct {
 		Children func(childComplexity int) int
-		User     func(childComplexity int) int
+		UserHTTP func(childComplexity int) int
 	}
 
 	Query struct {
@@ -60,13 +60,13 @@ type ComplexityRoot struct {
 		Students      func(childComplexity int, limit *int, offset *int) int
 	}
 
-	Student struct {
+	StudentHttp struct {
 		RobboGroupID func(childComplexity int) int
 		RobboUnitID  func(childComplexity int) int
-		User         func(childComplexity int) int
+		UserHTTP     func(childComplexity int) int
 	}
 
-	User struct {
+	UserHttp struct {
 		CreatedAt  func(childComplexity int) int
 		Email      func(childComplexity int) int
 		Firstname  func(childComplexity int) int
@@ -80,13 +80,13 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateStudent(ctx context.Context, input model.NewStudent) (*model.Student, error)
-	CreateParent(ctx context.Context, input model.NewParent) (*model.Parent, error)
+	CreateStudent(ctx context.Context, input models.NewStudent) (*models.StudentHTTP, error)
+	CreateParent(ctx context.Context, input models.NewParent) (*models.ParentHTTP, error)
 }
 type QueryResolver interface {
-	Students(ctx context.Context, limit *int, offset *int) ([]*model.Student, error)
-	GetAllParents(ctx context.Context) ([]*model.Parent, error)
-	GetParentByID(ctx context.Context, parentID string) (*model.Parent, error)
+	Students(ctx context.Context, limit *int, offset *int) ([]*models.StudentHTTP, error)
+	GetAllParents(ctx context.Context) ([]*models.ParentHTTP, error)
+	GetParentByID(ctx context.Context, parentID string) (*models.ParentHTTP, error)
 }
 
 type executableSchema struct {
@@ -114,7 +114,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateParent(childComplexity, args["input"].(model.NewParent)), true
+		return e.complexity.Mutation.CreateParent(childComplexity, args["input"].(models.NewParent)), true
 
 	case "Mutation.createStudent":
 		if e.complexity.Mutation.CreateStudent == nil {
@@ -126,21 +126,21 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateStudent(childComplexity, args["input"].(model.NewStudent)), true
+		return e.complexity.Mutation.CreateStudent(childComplexity, args["input"].(models.NewStudent)), true
 
-	case "Parent.children":
-		if e.complexity.Parent.Children == nil {
+	case "ParentHttp.children":
+		if e.complexity.ParentHttp.Children == nil {
 			break
 		}
 
-		return e.complexity.Parent.Children(childComplexity), true
+		return e.complexity.ParentHttp.Children(childComplexity), true
 
-	case "Parent.user":
-		if e.complexity.Parent.User == nil {
+	case "ParentHttp.userHttp":
+		if e.complexity.ParentHttp.UserHTTP == nil {
 			break
 		}
 
-		return e.complexity.Parent.User(childComplexity), true
+		return e.complexity.ParentHttp.UserHTTP(childComplexity), true
 
 	case "Query.GetAllParents":
 		if e.complexity.Query.GetAllParents == nil {
@@ -173,89 +173,89 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Students(childComplexity, args["limit"].(*int), args["offset"].(*int)), true
 
-	case "Student.robboGroupId":
-		if e.complexity.Student.RobboGroupID == nil {
+	case "StudentHttp.robboGroupId":
+		if e.complexity.StudentHttp.RobboGroupID == nil {
 			break
 		}
 
-		return e.complexity.Student.RobboGroupID(childComplexity), true
+		return e.complexity.StudentHttp.RobboGroupID(childComplexity), true
 
-	case "Student.robboUnitId":
-		if e.complexity.Student.RobboUnitID == nil {
+	case "StudentHttp.robboUnitId":
+		if e.complexity.StudentHttp.RobboUnitID == nil {
 			break
 		}
 
-		return e.complexity.Student.RobboUnitID(childComplexity), true
+		return e.complexity.StudentHttp.RobboUnitID(childComplexity), true
 
-	case "Student.user":
-		if e.complexity.Student.User == nil {
+	case "StudentHttp.userHttp":
+		if e.complexity.StudentHttp.UserHTTP == nil {
 			break
 		}
 
-		return e.complexity.Student.User(childComplexity), true
+		return e.complexity.StudentHttp.UserHTTP(childComplexity), true
 
-	case "User.createdAt":
-		if e.complexity.User.CreatedAt == nil {
+	case "UserHttp.createdAt":
+		if e.complexity.UserHttp.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.User.CreatedAt(childComplexity), true
+		return e.complexity.UserHttp.CreatedAt(childComplexity), true
 
-	case "User.email":
-		if e.complexity.User.Email == nil {
+	case "UserHttp.email":
+		if e.complexity.UserHttp.Email == nil {
 			break
 		}
 
-		return e.complexity.User.Email(childComplexity), true
+		return e.complexity.UserHttp.Email(childComplexity), true
 
-	case "User.firstname":
-		if e.complexity.User.Firstname == nil {
+	case "UserHttp.firstname":
+		if e.complexity.UserHttp.Firstname == nil {
 			break
 		}
 
-		return e.complexity.User.Firstname(childComplexity), true
+		return e.complexity.UserHttp.Firstname(childComplexity), true
 
-	case "User.id":
-		if e.complexity.User.ID == nil {
+	case "UserHttp.id":
+		if e.complexity.UserHttp.ID == nil {
 			break
 		}
 
-		return e.complexity.User.ID(childComplexity), true
+		return e.complexity.UserHttp.ID(childComplexity), true
 
-	case "User.lastname":
-		if e.complexity.User.Lastname == nil {
+	case "UserHttp.lastname":
+		if e.complexity.UserHttp.Lastname == nil {
 			break
 		}
 
-		return e.complexity.User.Lastname(childComplexity), true
+		return e.complexity.UserHttp.Lastname(childComplexity), true
 
-	case "User.middlename":
-		if e.complexity.User.Middlename == nil {
+	case "UserHttp.middlename":
+		if e.complexity.UserHttp.Middlename == nil {
 			break
 		}
 
-		return e.complexity.User.Middlename(childComplexity), true
+		return e.complexity.UserHttp.Middlename(childComplexity), true
 
-	case "User.nickname":
-		if e.complexity.User.Nickname == nil {
+	case "UserHttp.nickname":
+		if e.complexity.UserHttp.Nickname == nil {
 			break
 		}
 
-		return e.complexity.User.Nickname(childComplexity), true
+		return e.complexity.UserHttp.Nickname(childComplexity), true
 
-	case "User.password":
-		if e.complexity.User.Password == nil {
+	case "UserHttp.password":
+		if e.complexity.UserHttp.Password == nil {
 			break
 		}
 
-		return e.complexity.User.Password(childComplexity), true
+		return e.complexity.UserHttp.Password(childComplexity), true
 
-	case "User.role":
-		if e.complexity.User.Role == nil {
+	case "UserHttp.role":
+		if e.complexity.UserHttp.Role == nil {
 			break
 		}
 
-		return e.complexity.User.Role(childComplexity), true
+		return e.complexity.UserHttp.Role(childComplexity), true
 
 	}
 	return 0, false
@@ -327,7 +327,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../user.graphqls", Input: `type User {
+	{Name: "../user.graphqls", Input: `type UserHttp {
     id: ID!
     email: String!
     password: String!
@@ -339,15 +339,15 @@ var sources = []*ast.Source{
     createdAt: Timestamp!
 }
 
-type Student {
-    user: User!
+type StudentHttp {
+    userHttp: UserHttp!
     robboGroupId: String!
     robboUnitId: String!
 }
 
-type Parent {
-    user: User!
-    children: [Student!]!
+type ParentHttp {
+    userHttp: UserHttp!
+    children: [StudentHttp!]!
 }
 
 input NewParent {
@@ -371,14 +371,14 @@ input NewStudent {
 }
 
 type Mutation {
-    createStudent(input: NewStudent!): Student
-    createParent(input: NewParent!): Parent
+    createStudent(input: NewStudent!): StudentHttp!
+    createParent(input: NewParent!): ParentHttp!
 }
 
 type Query {
-    Students(limit: Int = 10, offset: Int = 0): [Student]
-    GetAllParents:[Parent!]!
-    GetParentById(parentId: String!):Parent!
+    Students(limit: Int = 10, offset: Int = 0): [StudentHttp]
+    GetAllParents:[ParentHttp!]!
+    GetParentById(parentId: String!):ParentHttp!
 }
 
 scalar Timestamp
@@ -393,10 +393,10 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_createParent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.NewParent
+	var arg0 models.NewParent
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNNewParent2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐNewParent(ctx, tmp)
+		arg0, err = ec.unmarshalNNewParent2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewParent(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -408,10 +408,10 @@ func (ec *executionContext) field_Mutation_createParent_args(ctx context.Context
 func (ec *executionContext) field_Mutation_createStudent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.NewStudent
+	var arg0 models.NewStudent
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNNewStudent2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐNewStudent(ctx, tmp)
+		arg0, err = ec.unmarshalNNewStudent2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewStudent(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -526,18 +526,21 @@ func (ec *executionContext) _Mutation_createStudent(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateStudent(rctx, fc.Args["input"].(model.NewStudent))
+		return ec.resolvers.Mutation().CreateStudent(rctx, fc.Args["input"].(models.NewStudent))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Student)
+	res := resTmp.(*models.StudentHTTP)
 	fc.Result = res
-	return ec.marshalOStudent2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐStudent(ctx, field.Selections, res)
+	return ec.marshalNStudentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTP(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createStudent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -548,14 +551,14 @@ func (ec *executionContext) fieldContext_Mutation_createStudent(ctx context.Cont
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "user":
-				return ec.fieldContext_Student_user(ctx, field)
+			case "userHttp":
+				return ec.fieldContext_StudentHttp_userHttp(ctx, field)
 			case "robboGroupId":
-				return ec.fieldContext_Student_robboGroupId(ctx, field)
+				return ec.fieldContext_StudentHttp_robboGroupId(ctx, field)
 			case "robboUnitId":
-				return ec.fieldContext_Student_robboUnitId(ctx, field)
+				return ec.fieldContext_StudentHttp_robboUnitId(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Student", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type StudentHttp", field.Name)
 		},
 	}
 	defer func() {
@@ -586,18 +589,21 @@ func (ec *executionContext) _Mutation_createParent(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateParent(rctx, fc.Args["input"].(model.NewParent))
+		return ec.resolvers.Mutation().CreateParent(rctx, fc.Args["input"].(models.NewParent))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Parent)
+	res := resTmp.(*models.ParentHTTP)
 	fc.Result = res
-	return ec.marshalOParent2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐParent(ctx, field.Selections, res)
+	return ec.marshalNParentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐParentHTTP(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createParent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -608,12 +614,12 @@ func (ec *executionContext) fieldContext_Mutation_createParent(ctx context.Conte
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "user":
-				return ec.fieldContext_Parent_user(ctx, field)
+			case "userHttp":
+				return ec.fieldContext_ParentHttp_userHttp(ctx, field)
 			case "children":
-				return ec.fieldContext_Parent_children(ctx, field)
+				return ec.fieldContext_ParentHttp_children(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Parent", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ParentHttp", field.Name)
 		},
 	}
 	defer func() {
@@ -630,8 +636,8 @@ func (ec *executionContext) fieldContext_Mutation_createParent(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Parent_user(ctx context.Context, field graphql.CollectedField, obj *model.Parent) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Parent_user(ctx, field)
+func (ec *executionContext) _ParentHttp_userHttp(ctx context.Context, field graphql.CollectedField, obj *models.ParentHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ParentHttp_userHttp(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -644,7 +650,7 @@ func (ec *executionContext) _Parent_user(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.User, nil
+		return obj.UserHTTP, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -656,46 +662,46 @@ func (ec *executionContext) _Parent_user(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(*models.UserHTTP)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUserHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUserHTTP(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Parent_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ParentHttp_userHttp(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Parent",
+		Object:     "ParentHttp",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_User_id(ctx, field)
+				return ec.fieldContext_UserHttp_id(ctx, field)
 			case "email":
-				return ec.fieldContext_User_email(ctx, field)
+				return ec.fieldContext_UserHttp_email(ctx, field)
 			case "password":
-				return ec.fieldContext_User_password(ctx, field)
+				return ec.fieldContext_UserHttp_password(ctx, field)
 			case "role":
-				return ec.fieldContext_User_role(ctx, field)
+				return ec.fieldContext_UserHttp_role(ctx, field)
 			case "nickname":
-				return ec.fieldContext_User_nickname(ctx, field)
+				return ec.fieldContext_UserHttp_nickname(ctx, field)
 			case "firstname":
-				return ec.fieldContext_User_firstname(ctx, field)
+				return ec.fieldContext_UserHttp_firstname(ctx, field)
 			case "lastname":
-				return ec.fieldContext_User_lastname(ctx, field)
+				return ec.fieldContext_UserHttp_lastname(ctx, field)
 			case "middlename":
-				return ec.fieldContext_User_middlename(ctx, field)
+				return ec.fieldContext_UserHttp_middlename(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_User_createdAt(ctx, field)
+				return ec.fieldContext_UserHttp_createdAt(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type UserHttp", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Parent_children(ctx context.Context, field graphql.CollectedField, obj *model.Parent) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Parent_children(ctx, field)
+func (ec *executionContext) _ParentHttp_children(ctx context.Context, field graphql.CollectedField, obj *models.ParentHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ParentHttp_children(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -720,27 +726,27 @@ func (ec *executionContext) _Parent_children(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Student)
+	res := resTmp.([]*models.StudentHTTP)
 	fc.Result = res
-	return ec.marshalNStudent2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐStudentᚄ(ctx, field.Selections, res)
+	return ec.marshalNStudentHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTPᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Parent_children(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ParentHttp_children(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Parent",
+		Object:     "ParentHttp",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "user":
-				return ec.fieldContext_Student_user(ctx, field)
+			case "userHttp":
+				return ec.fieldContext_StudentHttp_userHttp(ctx, field)
 			case "robboGroupId":
-				return ec.fieldContext_Student_robboGroupId(ctx, field)
+				return ec.fieldContext_StudentHttp_robboGroupId(ctx, field)
 			case "robboUnitId":
-				return ec.fieldContext_Student_robboUnitId(ctx, field)
+				return ec.fieldContext_StudentHttp_robboUnitId(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Student", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type StudentHttp", field.Name)
 		},
 	}
 	return fc, nil
@@ -769,9 +775,9 @@ func (ec *executionContext) _Query_Students(ctx context.Context, field graphql.C
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Student)
+	res := resTmp.([]*models.StudentHTTP)
 	fc.Result = res
-	return ec.marshalOStudent2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐStudent(ctx, field.Selections, res)
+	return ec.marshalOStudentHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTP(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_Students(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -782,14 +788,14 @@ func (ec *executionContext) fieldContext_Query_Students(ctx context.Context, fie
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "user":
-				return ec.fieldContext_Student_user(ctx, field)
+			case "userHttp":
+				return ec.fieldContext_StudentHttp_userHttp(ctx, field)
 			case "robboGroupId":
-				return ec.fieldContext_Student_robboGroupId(ctx, field)
+				return ec.fieldContext_StudentHttp_robboGroupId(ctx, field)
 			case "robboUnitId":
-				return ec.fieldContext_Student_robboUnitId(ctx, field)
+				return ec.fieldContext_StudentHttp_robboUnitId(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Student", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type StudentHttp", field.Name)
 		},
 	}
 	defer func() {
@@ -832,9 +838,9 @@ func (ec *executionContext) _Query_GetAllParents(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Parent)
+	res := resTmp.([]*models.ParentHTTP)
 	fc.Result = res
-	return ec.marshalNParent2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐParentᚄ(ctx, field.Selections, res)
+	return ec.marshalNParentHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐParentHTTPᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetAllParents(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -845,12 +851,12 @@ func (ec *executionContext) fieldContext_Query_GetAllParents(ctx context.Context
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "user":
-				return ec.fieldContext_Parent_user(ctx, field)
+			case "userHttp":
+				return ec.fieldContext_ParentHttp_userHttp(ctx, field)
 			case "children":
-				return ec.fieldContext_Parent_children(ctx, field)
+				return ec.fieldContext_ParentHttp_children(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Parent", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ParentHttp", field.Name)
 		},
 	}
 	return fc, nil
@@ -882,9 +888,9 @@ func (ec *executionContext) _Query_GetParentById(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Parent)
+	res := resTmp.(*models.ParentHTTP)
 	fc.Result = res
-	return ec.marshalNParent2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐParent(ctx, field.Selections, res)
+	return ec.marshalNParentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐParentHTTP(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetParentById(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -895,12 +901,12 @@ func (ec *executionContext) fieldContext_Query_GetParentById(ctx context.Context
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "user":
-				return ec.fieldContext_Parent_user(ctx, field)
+			case "userHttp":
+				return ec.fieldContext_ParentHttp_userHttp(ctx, field)
 			case "children":
-				return ec.fieldContext_Parent_children(ctx, field)
+				return ec.fieldContext_ParentHttp_children(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Parent", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ParentHttp", field.Name)
 		},
 	}
 	defer func() {
@@ -1046,8 +1052,8 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Student_user(ctx context.Context, field graphql.CollectedField, obj *model.Student) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Student_user(ctx, field)
+func (ec *executionContext) _StudentHttp_userHttp(ctx context.Context, field graphql.CollectedField, obj *models.StudentHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_StudentHttp_userHttp(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1060,7 +1066,7 @@ func (ec *executionContext) _Student_user(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.User, nil
+		return obj.UserHTTP, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1072,46 +1078,46 @@ func (ec *executionContext) _Student_user(ctx context.Context, field graphql.Col
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(*models.UserHTTP)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUserHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUserHTTP(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Student_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_StudentHttp_userHttp(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Student",
+		Object:     "StudentHttp",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_User_id(ctx, field)
+				return ec.fieldContext_UserHttp_id(ctx, field)
 			case "email":
-				return ec.fieldContext_User_email(ctx, field)
+				return ec.fieldContext_UserHttp_email(ctx, field)
 			case "password":
-				return ec.fieldContext_User_password(ctx, field)
+				return ec.fieldContext_UserHttp_password(ctx, field)
 			case "role":
-				return ec.fieldContext_User_role(ctx, field)
+				return ec.fieldContext_UserHttp_role(ctx, field)
 			case "nickname":
-				return ec.fieldContext_User_nickname(ctx, field)
+				return ec.fieldContext_UserHttp_nickname(ctx, field)
 			case "firstname":
-				return ec.fieldContext_User_firstname(ctx, field)
+				return ec.fieldContext_UserHttp_firstname(ctx, field)
 			case "lastname":
-				return ec.fieldContext_User_lastname(ctx, field)
+				return ec.fieldContext_UserHttp_lastname(ctx, field)
 			case "middlename":
-				return ec.fieldContext_User_middlename(ctx, field)
+				return ec.fieldContext_UserHttp_middlename(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_User_createdAt(ctx, field)
+				return ec.fieldContext_UserHttp_createdAt(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type UserHttp", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Student_robboGroupId(ctx context.Context, field graphql.CollectedField, obj *model.Student) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Student_robboGroupId(ctx, field)
+func (ec *executionContext) _StudentHttp_robboGroupId(ctx context.Context, field graphql.CollectedField, obj *models.StudentHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_StudentHttp_robboGroupId(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1141,9 +1147,9 @@ func (ec *executionContext) _Student_robboGroupId(ctx context.Context, field gra
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Student_robboGroupId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_StudentHttp_robboGroupId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Student",
+		Object:     "StudentHttp",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1154,8 +1160,8 @@ func (ec *executionContext) fieldContext_Student_robboGroupId(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _Student_robboUnitId(ctx context.Context, field graphql.CollectedField, obj *model.Student) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Student_robboUnitId(ctx, field)
+func (ec *executionContext) _StudentHttp_robboUnitId(ctx context.Context, field graphql.CollectedField, obj *models.StudentHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_StudentHttp_robboUnitId(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1185,9 +1191,9 @@ func (ec *executionContext) _Student_robboUnitId(ctx context.Context, field grap
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Student_robboUnitId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_StudentHttp_robboUnitId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Student",
+		Object:     "StudentHttp",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1198,8 +1204,8 @@ func (ec *executionContext) fieldContext_Student_robboUnitId(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_id(ctx, field)
+func (ec *executionContext) _UserHttp_id(ctx context.Context, field graphql.CollectedField, obj *models.UserHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserHttp_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1229,9 +1235,9 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserHttp_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "User",
+		Object:     "UserHttp",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1242,8 +1248,8 @@ func (ec *executionContext) fieldContext_User_id(ctx context.Context, field grap
 	return fc, nil
 }
 
-func (ec *executionContext) _User_email(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_email(ctx, field)
+func (ec *executionContext) _UserHttp_email(ctx context.Context, field graphql.CollectedField, obj *models.UserHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserHttp_email(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1273,9 +1279,9 @@ func (ec *executionContext) _User_email(ctx context.Context, field graphql.Colle
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_email(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserHttp_email(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "User",
+		Object:     "UserHttp",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1286,8 +1292,8 @@ func (ec *executionContext) fieldContext_User_email(ctx context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _User_password(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_password(ctx, field)
+func (ec *executionContext) _UserHttp_password(ctx context.Context, field graphql.CollectedField, obj *models.UserHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserHttp_password(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1317,9 +1323,9 @@ func (ec *executionContext) _User_password(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_password(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserHttp_password(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "User",
+		Object:     "UserHttp",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1330,8 +1336,8 @@ func (ec *executionContext) fieldContext_User_password(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _User_role(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_role(ctx, field)
+func (ec *executionContext) _UserHttp_role(ctx context.Context, field graphql.CollectedField, obj *models.UserHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserHttp_role(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1361,9 +1367,9 @@ func (ec *executionContext) _User_role(ctx context.Context, field graphql.Collec
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_role(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserHttp_role(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "User",
+		Object:     "UserHttp",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1374,8 +1380,8 @@ func (ec *executionContext) fieldContext_User_role(ctx context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _User_nickname(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_nickname(ctx, field)
+func (ec *executionContext) _UserHttp_nickname(ctx context.Context, field graphql.CollectedField, obj *models.UserHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserHttp_nickname(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1405,9 +1411,9 @@ func (ec *executionContext) _User_nickname(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_nickname(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserHttp_nickname(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "User",
+		Object:     "UserHttp",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1418,8 +1424,8 @@ func (ec *executionContext) fieldContext_User_nickname(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _User_firstname(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_firstname(ctx, field)
+func (ec *executionContext) _UserHttp_firstname(ctx context.Context, field graphql.CollectedField, obj *models.UserHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserHttp_firstname(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1449,9 +1455,9 @@ func (ec *executionContext) _User_firstname(ctx context.Context, field graphql.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_firstname(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserHttp_firstname(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "User",
+		Object:     "UserHttp",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1462,8 +1468,8 @@ func (ec *executionContext) fieldContext_User_firstname(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _User_lastname(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_lastname(ctx, field)
+func (ec *executionContext) _UserHttp_lastname(ctx context.Context, field graphql.CollectedField, obj *models.UserHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserHttp_lastname(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1493,9 +1499,9 @@ func (ec *executionContext) _User_lastname(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_lastname(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserHttp_lastname(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "User",
+		Object:     "UserHttp",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1506,8 +1512,8 @@ func (ec *executionContext) fieldContext_User_lastname(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _User_middlename(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_middlename(ctx, field)
+func (ec *executionContext) _UserHttp_middlename(ctx context.Context, field graphql.CollectedField, obj *models.UserHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserHttp_middlename(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1537,9 +1543,9 @@ func (ec *executionContext) _User_middlename(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_middlename(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserHttp_middlename(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "User",
+		Object:     "UserHttp",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1550,8 +1556,8 @@ func (ec *executionContext) fieldContext_User_middlename(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _User_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_createdAt(ctx, field)
+func (ec *executionContext) _UserHttp_createdAt(ctx context.Context, field graphql.CollectedField, obj *models.UserHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserHttp_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1581,9 +1587,9 @@ func (ec *executionContext) _User_createdAt(ctx context.Context, field graphql.C
 	return ec.marshalNTimestamp2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserHttp_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "User",
+		Object:     "UserHttp",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -3367,8 +3373,8 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputNewParent(ctx context.Context, obj interface{}) (model.NewParent, error) {
-	var it model.NewParent
+func (ec *executionContext) unmarshalInputNewParent(ctx context.Context, obj interface{}) (models.NewParent, error) {
+	var it models.NewParent
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -3435,8 +3441,8 @@ func (ec *executionContext) unmarshalInputNewParent(ctx context.Context, obj int
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputNewStudent(ctx context.Context, obj interface{}) (model.NewStudent, error) {
-	var it model.NewStudent
+func (ec *executionContext) unmarshalInputNewStudent(ctx context.Context, obj interface{}) (models.NewStudent, error) {
+	var it models.NewStudent
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -3552,12 +3558,18 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_createStudent(ctx, field)
 			})
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "createParent":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createParent(ctx, field)
 			})
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3569,26 +3581,26 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 	return out
 }
 
-var parentImplementors = []string{"Parent"}
+var parentHttpImplementors = []string{"ParentHttp"}
 
-func (ec *executionContext) _Parent(ctx context.Context, sel ast.SelectionSet, obj *model.Parent) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, parentImplementors)
+func (ec *executionContext) _ParentHttp(ctx context.Context, sel ast.SelectionSet, obj *models.ParentHTTP) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, parentHttpImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("Parent")
-		case "user":
+			out.Values[i] = graphql.MarshalString("ParentHttp")
+		case "userHttp":
 
-			out.Values[i] = ec._Parent_user(ctx, field, obj)
+			out.Values[i] = ec._ParentHttp_userHttp(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
 		case "children":
 
-			out.Values[i] = ec._Parent_children(ctx, field, obj)
+			out.Values[i] = ec._ParentHttp_children(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -3712,33 +3724,33 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	return out
 }
 
-var studentImplementors = []string{"Student"}
+var studentHttpImplementors = []string{"StudentHttp"}
 
-func (ec *executionContext) _Student(ctx context.Context, sel ast.SelectionSet, obj *model.Student) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, studentImplementors)
+func (ec *executionContext) _StudentHttp(ctx context.Context, sel ast.SelectionSet, obj *models.StudentHTTP) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, studentHttpImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("Student")
-		case "user":
+			out.Values[i] = graphql.MarshalString("StudentHttp")
+		case "userHttp":
 
-			out.Values[i] = ec._Student_user(ctx, field, obj)
+			out.Values[i] = ec._StudentHttp_userHttp(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
 		case "robboGroupId":
 
-			out.Values[i] = ec._Student_robboGroupId(ctx, field, obj)
+			out.Values[i] = ec._StudentHttp_robboGroupId(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
 		case "robboUnitId":
 
-			out.Values[i] = ec._Student_robboUnitId(ctx, field, obj)
+			out.Values[i] = ec._StudentHttp_robboUnitId(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -3754,75 +3766,75 @@ func (ec *executionContext) _Student(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
-var userImplementors = []string{"User"}
+var userHttpImplementors = []string{"UserHttp"}
 
-func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *model.User) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, userImplementors)
+func (ec *executionContext) _UserHttp(ctx context.Context, sel ast.SelectionSet, obj *models.UserHTTP) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userHttpImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("User")
+			out.Values[i] = graphql.MarshalString("UserHttp")
 		case "id":
 
-			out.Values[i] = ec._User_id(ctx, field, obj)
+			out.Values[i] = ec._UserHttp_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
 		case "email":
 
-			out.Values[i] = ec._User_email(ctx, field, obj)
+			out.Values[i] = ec._UserHttp_email(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
 		case "password":
 
-			out.Values[i] = ec._User_password(ctx, field, obj)
+			out.Values[i] = ec._UserHttp_password(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
 		case "role":
 
-			out.Values[i] = ec._User_role(ctx, field, obj)
+			out.Values[i] = ec._UserHttp_role(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
 		case "nickname":
 
-			out.Values[i] = ec._User_nickname(ctx, field, obj)
+			out.Values[i] = ec._UserHttp_nickname(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
 		case "firstname":
 
-			out.Values[i] = ec._User_firstname(ctx, field, obj)
+			out.Values[i] = ec._UserHttp_firstname(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
 		case "lastname":
 
-			out.Values[i] = ec._User_lastname(ctx, field, obj)
+			out.Values[i] = ec._UserHttp_lastname(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
 		case "middlename":
 
-			out.Values[i] = ec._User_middlename(ctx, field, obj)
+			out.Values[i] = ec._UserHttp_middlename(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
 		case "createdAt":
 
-			out.Values[i] = ec._User_createdAt(ctx, field, obj)
+			out.Values[i] = ec._UserHttp_createdAt(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -4201,21 +4213,21 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) unmarshalNNewParent2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐNewParent(ctx context.Context, v interface{}) (model.NewParent, error) {
+func (ec *executionContext) unmarshalNNewParent2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewParent(ctx context.Context, v interface{}) (models.NewParent, error) {
 	res, err := ec.unmarshalInputNewParent(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNNewStudent2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐNewStudent(ctx context.Context, v interface{}) (model.NewStudent, error) {
+func (ec *executionContext) unmarshalNNewStudent2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewStudent(ctx context.Context, v interface{}) (models.NewStudent, error) {
 	res, err := ec.unmarshalInputNewStudent(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNParent2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐParent(ctx context.Context, sel ast.SelectionSet, v model.Parent) graphql.Marshaler {
-	return ec._Parent(ctx, sel, &v)
+func (ec *executionContext) marshalNParentHttp2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐParentHTTP(ctx context.Context, sel ast.SelectionSet, v models.ParentHTTP) graphql.Marshaler {
+	return ec._ParentHttp(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNParent2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐParentᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Parent) graphql.Marshaler {
+func (ec *executionContext) marshalNParentHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐParentHTTPᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.ParentHTTP) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4239,7 +4251,7 @@ func (ec *executionContext) marshalNParent2ᚕᚖgithubᚗcomᚋskinnykaenᚋrob
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNParent2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐParent(ctx, sel, v[i])
+			ret[i] = ec.marshalNParentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐParentHTTP(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4259,14 +4271,14 @@ func (ec *executionContext) marshalNParent2ᚕᚖgithubᚗcomᚋskinnykaenᚋrob
 	return ret
 }
 
-func (ec *executionContext) marshalNParent2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐParent(ctx context.Context, sel ast.SelectionSet, v *model.Parent) graphql.Marshaler {
+func (ec *executionContext) marshalNParentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐParentHTTP(ctx context.Context, sel ast.SelectionSet, v *models.ParentHTTP) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._Parent(ctx, sel, v)
+	return ec._ParentHttp(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -4284,7 +4296,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNStudent2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐStudentᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Student) graphql.Marshaler {
+func (ec *executionContext) marshalNStudentHttp2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTP(ctx context.Context, sel ast.SelectionSet, v models.StudentHTTP) graphql.Marshaler {
+	return ec._StudentHttp(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNStudentHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTPᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.StudentHTTP) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4308,7 +4324,7 @@ func (ec *executionContext) marshalNStudent2ᚕᚖgithubᚗcomᚋskinnykaenᚋro
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNStudent2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐStudent(ctx, sel, v[i])
+			ret[i] = ec.marshalNStudentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTP(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4328,14 +4344,14 @@ func (ec *executionContext) marshalNStudent2ᚕᚖgithubᚗcomᚋskinnykaenᚋro
 	return ret
 }
 
-func (ec *executionContext) marshalNStudent2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐStudent(ctx context.Context, sel ast.SelectionSet, v *model.Student) graphql.Marshaler {
+func (ec *executionContext) marshalNStudentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTP(ctx context.Context, sel ast.SelectionSet, v *models.StudentHTTP) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._Student(ctx, sel, v)
+	return ec._StudentHttp(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNTimestamp2string(ctx context.Context, v interface{}) (string, error) {
@@ -4353,14 +4369,14 @@ func (ec *executionContext) marshalNTimestamp2string(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUserHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUserHTTP(ctx context.Context, sel ast.SelectionSet, v *models.UserHTTP) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._User(ctx, sel, v)
+	return ec._UserHttp(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -4658,13 +4674,6 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return res
 }
 
-func (ec *executionContext) marshalOParent2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐParent(ctx context.Context, sel ast.SelectionSet, v *model.Parent) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Parent(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -4681,7 +4690,7 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalOStudent2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐStudent(ctx context.Context, sel ast.SelectionSet, v []*model.Student) graphql.Marshaler {
+func (ec *executionContext) marshalOStudentHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTP(ctx context.Context, sel ast.SelectionSet, v []*models.StudentHTTP) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -4708,7 +4717,7 @@ func (ec *executionContext) marshalOStudent2ᚕᚖgithubᚗcomᚋskinnykaenᚋro
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOStudent2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐStudent(ctx, sel, v[i])
+			ret[i] = ec.marshalOStudentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTP(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4722,11 +4731,11 @@ func (ec *executionContext) marshalOStudent2ᚕᚖgithubᚗcomᚋskinnykaenᚋro
 	return ret
 }
 
-func (ec *executionContext) marshalOStudent2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋgraphᚋmodelᚐStudent(ctx context.Context, sel ast.SelectionSet, v *model.Student) graphql.Marshaler {
+func (ec *executionContext) marshalOStudentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTP(ctx context.Context, sel ast.SelectionSet, v *models.StudentHTTP) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._Student(ctx, sel, v)
+	return ec._StudentHttp(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

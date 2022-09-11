@@ -1,4 +1,4 @@
-type User {
+type UserHttp {
     id: ID!
     email: String!
     password: String!
@@ -10,15 +10,15 @@ type User {
     createdAt: Timestamp!
 }
 
-type Student {
-    user: User!
+type StudentHttp {
+    userHttp: UserHttp!
     robboGroupId: String!
     robboUnitId: String!
 }
 
-type Parent {
-    user: User!
-    children: [Student!]!
+type ParentHttp {
+    userHttp: UserHttp!
+    children: [StudentHttp!]!
 }
 
 input NewParent {
@@ -42,14 +42,14 @@ input NewStudent {
 }
 
 type Mutation {
-    createStudent(input: NewStudent!): Student
-    createParent(input: NewParent!): Parent
+    createStudent(input: NewStudent!): StudentHttp!
+    createParent(input: NewParent!): ParentHttp!
 }
 
 type Query {
-    Students(limit: Int = 10, offset: Int = 0): [Student]
-    GetAllParents:[Parent!]!
-    GetParentById(parentId: String!):Parent!
+    Students(limit: Int = 10, offset: Int = 0): [StudentHttp]
+    GetAllParents:[ParentHttp!]!
+    GetParentById(parentId: String!):ParentHttp!
 }
 
 scalar Timestamp

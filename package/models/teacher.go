@@ -1,7 +1,6 @@
 package models
 
 import (
-	"gorm.io/gorm"
 	"strconv"
 )
 
@@ -10,12 +9,7 @@ type TeacherCore struct {
 }
 
 type TeacherDB struct {
-	gorm.Model
 	UserDB
-}
-
-type TeacherHTTP struct {
-	UserHTTP `json:"userHttp"`
 }
 
 func (em *TeacherDB) ToCore() TeacherCore {

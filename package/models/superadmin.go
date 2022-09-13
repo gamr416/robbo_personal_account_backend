@@ -5,10 +5,6 @@ import (
 	"strconv"
 )
 
-type SuperAdminHTTP struct {
-	UserHTTP `json:"userHttp"`
-}
-
 type SuperAdminDB struct {
 	gorm.Model
 	UserDB

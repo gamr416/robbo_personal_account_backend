@@ -1,7 +1,6 @@
 package models
 
 import (
-	"gorm.io/gorm"
 	"strconv"
 )
 
@@ -18,10 +17,9 @@ type StudentCore struct {
 //}
 
 type StudentDB struct {
-	gorm.Model
 	UserDB
-	RobboGroupId uint
-	RobboUnitId  uint
+	RobboGroupId uint `gorm:"default:null"`
+	RobboUnitId  uint `gorm:"default:null"`
 }
 
 func (em *StudentDB) ToCore() *StudentCore {

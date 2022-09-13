@@ -63,3 +63,22 @@ func (s *AuthDelegateImpl) UserIdentity(c *gin.Context) (id string, role models.
 	}
 	return claims.Id, claims.Role, nil
 }
+
+//func (s *AuthDelegateImpl) UserIdentityGraphQL(c *context.Context) (id string, role models.Role, err error) {
+//	header := c.(authorizationHeader)
+//	if header == "" {
+//		return "", models.Anonymous, auth.ErrTokenNotFound
+//	}
+//
+//	headerParts := strings.Split(header, " ")
+//	if len(headerParts) != 2 {
+//		return "", models.Anonymous, auth.ErrTokenNotFound
+//		return
+//	}
+//
+//	claims, err := s.UseCase.ParseToken(headerParts[1], []byte(viper.GetString("auth.access_signing_key")))
+//	if err != nil {
+//		return "", models.Anonymous, auth.ErrInvalidAccessToken
+//	}
+//	return claims.Id, claims.Role, nil
+//}

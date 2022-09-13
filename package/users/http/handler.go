@@ -189,7 +189,7 @@ func (h *Handler) GetStudentById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, getStudentResponse{
-		student,
+		*student,
 	})
 }
 
@@ -345,7 +345,7 @@ func (h *Handler) CreateTeacher(c *gin.Context) {
 		return
 	}
 	teacherHttp := &models.TeacherHTTP{
-		UserHTTP: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	teacherId, err := h.usersDelegate.CreateTeacher(teacherHttp)
@@ -398,7 +398,7 @@ func (h *Handler) GetTeacherById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, getTeacherResponse{
-		teacher,
+		*teacher,
 	})
 }
 
@@ -436,7 +436,7 @@ func (h *Handler) UpdateTeacher(c *gin.Context) {
 	}
 
 	teacherHttp := &models.TeacherHTTP{
-		UserHTTP: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	err := h.usersDelegate.UpdateTeacher(teacherHttp)
@@ -466,7 +466,7 @@ func (h *Handler) GetParentById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, getParentResponse{
-		parent,
+		*parent,
 	})
 }
 
@@ -751,7 +751,7 @@ func (h *Handler) UpdateUnitAdmin(c *gin.Context) {
 	}
 
 	unitAdminHttp := &models.UnitAdminHTTP{
-		UserHTTP: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	err := h.usersDelegate.UpdateUnitAdmin(unitAdminHttp)
@@ -781,7 +781,7 @@ func (h *Handler) CreateUnitAdmin(c *gin.Context) {
 	}
 
 	unitAdminHttp := &models.UnitAdminHTTP{
-		UserHTTP: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	unitAdminId, err := h.usersDelegate.CreateUnitAdmin(unitAdminHttp)
@@ -871,7 +871,7 @@ func (h *Handler) UpdateSuperAdmin(c *gin.Context) {
 	}
 
 	superAdminHTTP := &models.SuperAdminHTTP{
-		UserHTTP: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	err := h.usersDelegate.UpdateSuperAdmin(superAdminHTTP)

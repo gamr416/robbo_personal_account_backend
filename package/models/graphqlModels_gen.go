@@ -12,14 +12,31 @@ type NewParent struct {
 }
 
 type NewStudent struct {
-	Email        string `json:"email"`
-	Password     string `json:"password"`
-	Nickname     string `json:"nickname"`
-	Firstname    string `json:"firstname"`
-	Lastname     string `json:"lastname"`
-	Middlename   string `json:"middlename"`
-	RobboGroupID string `json:"robboGroupId"`
-	RobboUnitID  string `json:"robboUnitId"`
+	Email      string `json:"email"`
+	Password   string `json:"password"`
+	Nickname   string `json:"nickname"`
+	Firstname  string `json:"firstname"`
+	Lastname   string `json:"lastname"`
+	Middlename string `json:"middlename"`
+	ParentID   string `json:"parentId"`
+}
+
+type NewTeacher struct {
+	Email      string `json:"email"`
+	Password   string `json:"password"`
+	Nickname   string `json:"nickname"`
+	Firstname  string `json:"firstname"`
+	Lastname   string `json:"lastname"`
+	Middlename string `json:"middlename"`
+}
+
+type NewUnitAdmin struct {
+	Email      string `json:"email"`
+	Password   string `json:"password"`
+	Nickname   string `json:"nickname"`
+	Firstname  string `json:"firstname"`
+	Lastname   string `json:"lastname"`
+	Middlename string `json:"middlename"`
 }
 
 type ParentHTTP struct {
@@ -31,6 +48,18 @@ type StudentHTTP struct {
 	UserHTTP     *UserHTTP `json:"userHttp"`
 	RobboGroupID string    `json:"robboGroupId"`
 	RobboUnitID  string    `json:"robboUnitId"`
+}
+
+type SuperAdminHTTP struct {
+	UserHTTP *UserHTTP `json:"userHttp"`
+}
+
+type TeacherHTTP struct {
+	UserHTTP *UserHTTP `json:"userHttp"`
+}
+
+type UnitAdminHTTP struct {
+	UserHTTP *UserHTTP `json:"userHttp"`
 }
 
 type UserHTTP struct {

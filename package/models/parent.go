@@ -10,7 +10,6 @@ type ParentCore struct {
 }
 
 type ParentDB struct {
-	//gorm.Model
 	UserDB
 }
 

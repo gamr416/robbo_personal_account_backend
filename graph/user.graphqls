@@ -21,6 +21,18 @@ type ParentHttp {
     children: [StudentHttp!]!
 }
 
+type TeacherHttp {
+    userHttp: UserHttp!
+}
+
+type UnitAdminHttp{
+    userHttp: UserHttp!
+}
+
+type SuperAdminHttp{
+    userHttp: UserHttp!
+}
+
 input NewParent {
     email: String!
     password: String!
@@ -37,19 +49,47 @@ input NewStudent {
     firstname: String!
     lastname: String!
     middlename: String!
-    robboGroupId: String!
-    robboUnitId: String!
+    parentId: String!
+}
+
+input NewTeacher {
+    email: String!
+    password: String!
+    nickname: String!
+    firstname: String!
+    lastname: String!
+    middlename: String!
+}
+
+input NewUnitAdmin {
+    email: String!
+    password: String!
+    nickname: String!
+    firstname: String!
+    lastname: String!
+    middlename: String!
 }
 
 type Mutation {
     createStudent(input: NewStudent!): StudentHttp!
+    createTeacher(input: NewTeacher!): TeacherHttp!
     createParent(input: NewParent!): ParentHttp!
+    createUnitAdmin(input: NewUnitAdmin!): UnitAdminHttp!
 }
 
 type Query {
-    Students(limit: Int = 10, offset: Int = 0): [StudentHttp]
-    GetAllParents:[ParentHttp!]!
-    GetParentById(parentId: String!):ParentHttp!
+    GetStudentsByParentId(parentId: String!): [StudentHttp!]!
+    GetStudentById(studentId: String!): StudentHttp!
+    SearchStudentsByEmail(email: String!): [StudentHttp!]!
+    GetAllTeachers: [TeacherHttp!]!
+    GetTeacherById(teacherId: String!): TeacherHttp!
+    GetAllParents: [ParentHttp!]!
+    GetParentById(parentId: String!): ParentHttp!
+    GetAllUnitAdmins: [UnitAdminHttp!]!
+    GetUnitAdminsByRobboUnitId(robboUnitId: String!): [UnitAdminHttp!]!
+    GetUnitAdminById(unitAdminId: String!): UnitAdminHttp!
+    SearchUnitAdminsByEmail(email: String!): [UnitAdminHttp!]!
+    GetSuperAdminById(superAdminId: String!): SuperAdminHttp!
 }
 
 scalar Timestamp

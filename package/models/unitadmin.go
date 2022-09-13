@@ -1,16 +1,10 @@
 package models
 
 import (
-	"gorm.io/gorm"
 	"strconv"
 )
 
-type UnitAdminHTTP struct {
-	UserHTTP `json:"userHttp"`
-}
-
 type UnitAdminDB struct {
-	gorm.Model
 	UserDB
 }
 

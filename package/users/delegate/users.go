@@ -35,11 +35,14 @@ func (p *UsersDelegateImpl) DeleteStudent(studentId uint) (err error) {
 	return p.UseCase.DeleteStudent(studentId)
 }
 
-func (p *UsersDelegateImpl) GetStudentById(studentId string) (student models.StudentHTTP, err error) {
+func (p *UsersDelegateImpl) GetStudentById(studentId string) (student *models.StudentHTTP, err error) {
 	studentCore, err := p.UseCase.GetStudentById(studentId)
 	if err != nil {
 		log.Println("User not found")
 		return student, auth.ErrUserNotFound
+	}
+	student = &models.StudentHTTP{
+		UserHTTP: &models.UserHTTP{},
 	}
 	student.FromCore(studentCore)
 	return
@@ -89,11 +92,14 @@ func (p *UsersDelegateImpl) AddStudentToRobboGroup(studentId string, robboGroupI
 	return p.UseCase.AddStudentToRobboGroup(studentId, robboGroupId, robboUnitId)
 }
 
-func (p *UsersDelegateImpl) GetTeacherById(teacherId string) (teacher models.TeacherHTTP, err error) {
+func (p *UsersDelegateImpl) GetTeacherById(teacherId string) (teacher *models.TeacherHTTP, err error) {
 	teacherCore, err := p.UseCase.GetTeacherById(teacherId)
 	if err != nil {
 		log.Println("User not found")
 		return teacher, auth.ErrUserNotFound
+	}
+	teacher = &models.TeacherHTTP{
+		UserHTTP: &models.UserHTTP{},
 	}
 	teacher.FromCore(&teacherCore)
 	return
@@ -105,7 +111,9 @@ func (p *UsersDelegateImpl) GetAllTeachers() (teachers []*models.TeacherHTTP, er
 		return
 	}
 	for _, teacherCore := range teachersCore {
-		var teacherTemp models.TeacherHTTP
+		teacherTemp := models.TeacherHTTP{
+			UserHTTP: &models.UserHTTP{},
+		}
 		teacherTemp.FromCore(&teacherCore)
 		teachers = append(teachers, &teacherTemp)
 	}
@@ -126,11 +134,13 @@ func (p *UsersDelegateImpl) DeleteTeacher(teacherId uint) (err error) {
 	return p.UseCase.DeleteTeacher(teacherId)
 }
 
-func (p *UsersDelegateImpl) GetParentById(parentId string) (parent models.ParentHTTP, err error) {
+func (p *UsersDelegateImpl) GetParentById(parentId string) (parent *models.ParentHTTP, err error) {
 	parentCore, err := p.UseCase.GetParentById(parentId)
 	if err != nil {
-		log.Println("User not found")
 		return parent, auth.ErrUserNotFound
+	}
+	parent = &models.ParentHTTP{
+		UserHTTP: &models.UserHTTP{},
 	}
 	parent.FromCore(*parentCore)
 	return
@@ -196,6 +206,9 @@ func (p *UsersDelegateImpl) GetUnitAdminById(unitAdminId string) (unitAdmin mode
 		log.Println("User not found")
 		return unitAdmin, auth.ErrUserNotFound
 	}
+	unitAdmin = models.UnitAdminHTTP{
+		UserHTTP: &models.UserHTTP{},
+	}
 	unitAdmin.FromCore(unitAdminCore)
 	return
 }
@@ -206,7 +219,9 @@ func (p *UsersDelegateImpl) GetAllUnitAdmins() (unitAdmins []*models.UnitAdminHT
 		return
 	}
 	for _, unitAdminCore := range unitAdminsCore {
-		var unitAdminHttpTemp models.UnitAdminHTTP
+		unitAdminHttpTemp := models.UnitAdminHTTP{
+			UserHTTP: &models.UserHTTP{},
+		}
 		unitAdminHttpTemp.FromCore(unitAdminCore)
 		unitAdmins = append(unitAdmins, &unitAdminHttpTemp)
 	}
@@ -219,7 +234,9 @@ func (p *UsersDelegateImpl) GetUnitAdminByRobboUnitId(robboUnitId string) (unitA
 		return
 	}
 	for _, unitAdminCore := range unitAdminsCore {
-		var unitAdminHttpTemp models.UnitAdminHTTP
+		unitAdminHttpTemp := models.UnitAdminHTTP{
+			UserHTTP: &models.UserHTTP{},
+		}
 		unitAdminHttpTemp.FromCore(unitAdminCore)
 		unitAdmins = append(unitAdmins, &unitAdminHttpTemp)
 	}
@@ -246,9 +263,11 @@ func (p *UsersDelegateImpl) SearchUnitAdminByEmail(email string) (unitAdmins []*
 		return
 	}
 	for _, unitAdminCore := range unitAdminsCore {
-		var unitAdminTemp models.UnitAdminHTTP
-		unitAdminTemp.FromCore(unitAdminCore)
-		unitAdmins = append(unitAdmins, &unitAdminTemp)
+		unitAdminHttpTemp := models.UnitAdminHTTP{
+			UserHTTP: &models.UserHTTP{},
+		}
+		unitAdminHttpTemp.FromCore(unitAdminCore)
+		unitAdmins = append(unitAdmins, &unitAdminHttpTemp)
 	}
 	return
 }
@@ -258,6 +277,9 @@ func (p *UsersDelegateImpl) GetSuperAdminById(superAdminId string) (superAdmin m
 	if err != nil {
 		log.Println("User not found")
 		return superAdmin, auth.ErrUserNotFound
+	}
+	superAdmin = models.SuperAdminHTTP{
+		UserHTTP: &models.UserHTTP{},
 	}
 	superAdmin.FromCore(superAdminCore)
 	return

@@ -10,10 +10,23 @@ type UserHttp {
     createdAt: Timestamp!
 }
 
+input UpdateUserHttp {
+    id: ID!
+    email: String!
+    nickname: String!
+    firstname: String!
+    lastname: String!
+    middlename: String!
+}
+
 type StudentHttp {
     userHttp: UserHttp!
     robboGroupId: String!
     robboUnitId: String!
+}
+
+input UpdateStudentHttp {
+    userHttp: UpdateUserHttp!
 }
 
 type ParentHttp {
@@ -21,16 +34,32 @@ type ParentHttp {
     children: [StudentHttp!]!
 }
 
+input UpdateParentHttp {
+    userHttp: UpdateUserHttp!
+}
+
 type TeacherHttp {
     userHttp: UserHttp!
+}
+
+input UpdateTeacherHttp {
+    userHttp: UpdateUserHttp!
 }
 
 type UnitAdminHttp{
     userHttp: UserHttp!
 }
 
+input UpdateUnitAdminHttp {
+    userHttp: UpdateUserHttp!
+}
+
 type SuperAdminHttp{
     userHttp: UserHttp!
+}
+
+input UpdateSuperAdminHttp {
+    userHttp: UpdateUserHttp!
 }
 
 input NewParent {
@@ -70,11 +99,36 @@ input NewUnitAdmin {
     middlename: String!
 }
 
+input UpdateStudentInput {
+    studentHttp: UpdateStudentHttp!
+}
+
+input UpdateParentInput {
+    parentHttp: UpdateParentHttp!
+}
+
+input UpdateTeacherInput {
+    teacherHttp: UpdateTeacherHttp!
+}
+
+input UpdateUnitAdminInput {
+    unitAdminHttp: UpdateUnitAdminHttp!
+}
+
+input UpdateSuperAdminInput {
+    superAdminHttp: UpdateSuperAdminHttp!
+}
+
 type Mutation {
     createStudent(input: NewStudent!): StudentHttp!
+    updateStudent(input: UpdateStudentInput!): StudentHttp!
     createTeacher(input: NewTeacher!): TeacherHttp!
+    updateTeacher(input: UpdateTeacherInput!): TeacherHttp!
     createParent(input: NewParent!): ParentHttp!
+    updateParent(input: UpdateParentInput!): ParentHttp!
     createUnitAdmin(input: NewUnitAdmin!): UnitAdminHttp!
+    updateUnitAdmin(input: UpdateUnitAdminInput!): UnitAdminHttp!
+    updateSuperAdmin(input: UpdateSuperAdminInput!): SuperAdminHttp!
 }
 
 type Query {

@@ -1,7 +1,6 @@
 package delegate
 
 import (
-	"fmt"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
@@ -84,7 +83,6 @@ func (p *UsersDelegateImpl) GetStudentByParentId(parentId string) (students []*m
 
 func (p *UsersDelegateImpl) UpdateStudent(studentHTTP *models.StudentHTTP) (err error) {
 	studentCore := studentHTTP.ToCore()
-	fmt.Println(studentCore.Id)
 	return p.UseCase.UpdateStudent(studentCore)
 }
 

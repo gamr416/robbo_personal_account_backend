@@ -1,12 +1,10 @@
 package models
 
 import (
-	"gorm.io/gorm"
 	"strconv"
 )
 
 type SuperAdminDB struct {
-	gorm.Model
 	UserDB
 }
 
@@ -23,7 +21,7 @@ func (em *SuperAdminDB) ToCore() *SuperAdminCore {
 func (em *SuperAdminDB) FromCore(superAdmin *SuperAdminCore) {
 	id, _ := strconv.ParseUint(superAdmin.Id, 10, 64)
 	em.ID = uint(id)
-	em.UserDB.ToCore()
+	em.UserDB.FromCore(&superAdmin.UserCore)
 }
 
 func (ht *SuperAdminHTTP) ToCore() *SuperAdminCore {

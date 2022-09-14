@@ -270,7 +270,12 @@ func (p *UsersUseCaseImpl) GetSuperAdminById(superAdminId string) (superAdmin *m
 }
 
 func (p *UsersUseCaseImpl) UpdateSuperAdmin(superAdmin *models.SuperAdminCore) (err error) {
-	return p.Gateway.UpdateSuperAdmin(superAdmin)
+	err = p.Gateway.UpdateSuperAdmin(superAdmin)
+	if err != nil {
+		log.Println("Error update Super Admin")
+		return
+	}
+	return
 }
 func (p *UsersUseCaseImpl) DeleteSuperAdmin(superAdminId uint) (err error) {
 	return p.Gateway.DeleteSuperAdmin(superAdminId)

@@ -469,7 +469,9 @@ func (r *UsersGatewayImpl) GetSuperAdmin(email, password string) (superAdmin *mo
 
 func (r *UsersGatewayImpl) UpdateSuperAdmin(superAdmin *models.SuperAdminCore) (err error) {
 	superAdminDb := models.SuperAdminDB{}
+	fmt.Println(superAdmin)
 	superAdminDb.FromCore(superAdmin)
+	fmt.Println(superAdminDb)
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 			err = tx.Model(&superAdminDb).Where("id = ?", superAdminDb.ID).Updates(superAdminDb).Error

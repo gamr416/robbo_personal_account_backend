@@ -18,6 +18,26 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 
+func (r *mutationResolver) AddChildToParent(ctx context.Context, parentID string, childID string) (string, error) {
+	err := r.usersDelegate.CreateRelation(parentID, childID)
+	return "", err
+}
+
+func (r *mutationResolver) SetNewUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (string, error) {
+	err := r.usersDelegate.SetNewUnitAdminForRobboUnit(unitAdminID, robboUnitID)
+	return "", err
+}
+
+func (r *mutationResolver) DeleteUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (string, error) {
+	err := r.usersDelegate.DeleteUnitAdminForRobboUnit(unitAdminID, robboUnitID)
+	return "", err
+}
+
+func (r *mutationResolver) SetRobboGroupIDForStudent(ctx context.Context, studentID string, robboGroupID string, robboUnitID string) (string, error) {
+	err := r.usersDelegate.AddStudentToRobboGroup(studentID, robboGroupID, robboUnitID)
+	return "", err
+}
+
 func (r *mutationResolver) DeleteStudent(ctx context.Context, studentID string) (string, error) {
 	id, _ := strconv.ParseUint(studentID, 10, 64)
 	err := r.usersDelegate.DeleteStudent(uint(id))

@@ -123,15 +123,19 @@ type Mutation {
     createStudent(input: NewStudent!): StudentHttp!
     updateStudent(input: UpdateStudentInput!): StudentHttp!
     deleteStudent(studentId: String!): String!
+    setRobboGroupIdForStudent(studentId: String!, robboGroupId: String!, robboUnitId: String!): String!
     createTeacher(input: NewTeacher!): TeacherHttp!
     updateTeacher(input: UpdateTeacherInput!): TeacherHttp!
     deleteTeacher(teacherId: String!): String!
     createParent(input: NewParent!): ParentHttp!
+    addChildToParent(parentId: String!, childId: String!): String!
     updateParent(input: UpdateParentInput!): ParentHttp!
     deleteParent(parentId: String!): String!
     createUnitAdmin(input: NewUnitAdmin!): UnitAdminHttp!
     updateUnitAdmin(input: UpdateUnitAdminInput!): UnitAdminHttp!
     deleteUnitAdmin(UnitAdminId: String!): String!
+    setNewUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
+    DeleteUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
     updateSuperAdmin(input: UpdateSuperAdminInput!): SuperAdminHttp!
 }
 

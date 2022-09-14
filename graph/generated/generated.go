@@ -45,19 +45,23 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
-		CreateParent     func(childComplexity int, input models.NewParent) int
-		CreateStudent    func(childComplexity int, input models.NewStudent) int
-		CreateTeacher    func(childComplexity int, input models.NewTeacher) int
-		CreateUnitAdmin  func(childComplexity int, input models.NewUnitAdmin) int
-		DeleteParent     func(childComplexity int, parentID string) int
-		DeleteStudent    func(childComplexity int, studentID string) int
-		DeleteTeacher    func(childComplexity int, teacherID string) int
-		DeleteUnitAdmin  func(childComplexity int, unitAdminID string) int
-		UpdateParent     func(childComplexity int, input models.UpdateParentInput) int
-		UpdateStudent    func(childComplexity int, input models.UpdateStudentInput) int
-		UpdateSuperAdmin func(childComplexity int, input models.UpdateSuperAdminInput) int
-		UpdateTeacher    func(childComplexity int, input models.UpdateTeacherInput) int
-		UpdateUnitAdmin  func(childComplexity int, input models.UpdateUnitAdminInput) int
+		AddChildToParent            func(childComplexity int, parentID string, childID string) int
+		CreateParent                func(childComplexity int, input models.NewParent) int
+		CreateStudent               func(childComplexity int, input models.NewStudent) int
+		CreateTeacher               func(childComplexity int, input models.NewTeacher) int
+		CreateUnitAdmin             func(childComplexity int, input models.NewUnitAdmin) int
+		DeleteParent                func(childComplexity int, parentID string) int
+		DeleteStudent               func(childComplexity int, studentID string) int
+		DeleteTeacher               func(childComplexity int, teacherID string) int
+		DeleteUnitAdmin             func(childComplexity int, unitAdminID string) int
+		DeleteUnitAdminForRobboUnit func(childComplexity int, unitAdminID string, robboUnitID string) int
+		SetNewUnitAdminForRobboUnit func(childComplexity int, unitAdminID string, robboUnitID string) int
+		SetRobboGroupIDForStudent   func(childComplexity int, studentID string, robboGroupID string, robboUnitID string) int
+		UpdateParent                func(childComplexity int, input models.UpdateParentInput) int
+		UpdateStudent               func(childComplexity int, input models.UpdateStudentInput) int
+		UpdateSuperAdmin            func(childComplexity int, input models.UpdateSuperAdminInput) int
+		UpdateTeacher               func(childComplexity int, input models.UpdateTeacherInput) int
+		UpdateUnitAdmin             func(childComplexity int, input models.UpdateUnitAdminInput) int
 	}
 
 	ParentHttp struct {
@@ -115,15 +119,19 @@ type MutationResolver interface {
 	CreateStudent(ctx context.Context, input models.NewStudent) (*models.StudentHTTP, error)
 	UpdateStudent(ctx context.Context, input models.UpdateStudentInput) (*models.StudentHTTP, error)
 	DeleteStudent(ctx context.Context, studentID string) (string, error)
+	SetRobboGroupIDForStudent(ctx context.Context, studentID string, robboGroupID string, robboUnitID string) (string, error)
 	CreateTeacher(ctx context.Context, input models.NewTeacher) (*models.TeacherHTTP, error)
 	UpdateTeacher(ctx context.Context, input models.UpdateTeacherInput) (*models.TeacherHTTP, error)
 	DeleteTeacher(ctx context.Context, teacherID string) (string, error)
 	CreateParent(ctx context.Context, input models.NewParent) (*models.ParentHTTP, error)
+	AddChildToParent(ctx context.Context, parentID string, childID string) (string, error)
 	UpdateParent(ctx context.Context, input models.UpdateParentInput) (*models.ParentHTTP, error)
 	DeleteParent(ctx context.Context, parentID string) (string, error)
 	CreateUnitAdmin(ctx context.Context, input models.NewUnitAdmin) (*models.UnitAdminHTTP, error)
 	UpdateUnitAdmin(ctx context.Context, input models.UpdateUnitAdminInput) (*models.UnitAdminHTTP, error)
 	DeleteUnitAdmin(ctx context.Context, unitAdminID string) (string, error)
+	SetNewUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (string, error)
+	DeleteUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (string, error)
 	UpdateSuperAdmin(ctx context.Context, input models.UpdateSuperAdminInput) (*models.SuperAdminHTTP, error)
 }
 type QueryResolver interface {
@@ -155,6 +163,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "Mutation.addChildToParent":
+		if e.complexity.Mutation.AddChildToParent == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_addChildToParent_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AddChildToParent(childComplexity, args["parentId"].(string), args["childId"].(string)), true
 
 	case "Mutation.createParent":
 		if e.complexity.Mutation.CreateParent == nil {
@@ -251,6 +271,42 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteUnitAdmin(childComplexity, args["UnitAdminId"].(string)), true
+
+	case "Mutation.DeleteUnitAdminForRobboUnit":
+		if e.complexity.Mutation.DeleteUnitAdminForRobboUnit == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_DeleteUnitAdminForRobboUnit_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteUnitAdminForRobboUnit(childComplexity, args["unitAdminId"].(string), args["robboUnitId"].(string)), true
+
+	case "Mutation.setNewUnitAdminForRobboUnit":
+		if e.complexity.Mutation.SetNewUnitAdminForRobboUnit == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_setNewUnitAdminForRobboUnit_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SetNewUnitAdminForRobboUnit(childComplexity, args["unitAdminId"].(string), args["robboUnitId"].(string)), true
+
+	case "Mutation.setRobboGroupIdForStudent":
+		if e.complexity.Mutation.SetRobboGroupIDForStudent == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_setRobboGroupIdForStudent_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SetRobboGroupIDForStudent(childComplexity, args["studentId"].(string), args["robboGroupId"].(string), args["robboUnitId"].(string)), true
 
 	case "Mutation.updateParent":
 		if e.complexity.Mutation.UpdateParent == nil {
@@ -768,15 +824,19 @@ type Mutation {
     createStudent(input: NewStudent!): StudentHttp!
     updateStudent(input: UpdateStudentInput!): StudentHttp!
     deleteStudent(studentId: String!): String!
+    setRobboGroupIdForStudent(studentId: String!, robboGroupId: String!, robboUnitId: String!): String!
     createTeacher(input: NewTeacher!): TeacherHttp!
     updateTeacher(input: UpdateTeacherInput!): TeacherHttp!
     deleteTeacher(teacherId: String!): String!
     createParent(input: NewParent!): ParentHttp!
+    addChildToParent(parentId: String!, childId: String!): String!
     updateParent(input: UpdateParentInput!): ParentHttp!
     deleteParent(parentId: String!): String!
     createUnitAdmin(input: NewUnitAdmin!): UnitAdminHttp!
     updateUnitAdmin(input: UpdateUnitAdminInput!): UnitAdminHttp!
     deleteUnitAdmin(UnitAdminId: String!): String!
+    setNewUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
+    DeleteUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
     updateSuperAdmin(input: UpdateSuperAdminInput!): SuperAdminHttp!
 }
 
@@ -803,6 +863,54 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_DeleteUnitAdminForRobboUnit_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["unitAdminId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unitAdminId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["unitAdminId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["robboUnitId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["robboUnitId"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_addChildToParent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["parentId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("parentId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["parentId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["childId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("childId"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["childId"] = arg1
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_createParent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -921,6 +1029,63 @@ func (ec *executionContext) field_Mutation_deleteUnitAdmin_args(ctx context.Cont
 		}
 	}
 	args["UnitAdminId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_setNewUnitAdminForRobboUnit_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["unitAdminId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unitAdminId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["unitAdminId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["robboUnitId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["robboUnitId"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_setRobboGroupIdForStudent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["studentId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("studentId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["studentId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["robboGroupId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboGroupId"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["robboGroupId"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["robboUnitId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["robboUnitId"] = arg2
 	return args, nil
 }
 
@@ -1368,6 +1533,61 @@ func (ec *executionContext) fieldContext_Mutation_deleteStudent(ctx context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_setRobboGroupIdForStudent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_setRobboGroupIdForStudent(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SetRobboGroupIDForStudent(rctx, fc.Args["studentId"].(string), fc.Args["robboGroupId"].(string), fc.Args["robboUnitId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_setRobboGroupIdForStudent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_setRobboGroupIdForStudent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createTeacher(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createTeacher(ctx, field)
 	if err != nil {
@@ -1596,6 +1816,61 @@ func (ec *executionContext) fieldContext_Mutation_createParent(ctx context.Conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createParent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_addChildToParent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_addChildToParent(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().AddChildToParent(rctx, fc.Args["parentId"].(string), fc.Args["childId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_addChildToParent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_addChildToParent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -1885,6 +2160,116 @@ func (ec *executionContext) fieldContext_Mutation_deleteUnitAdmin(ctx context.Co
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteUnitAdmin_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_setNewUnitAdminForRobboUnit(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_setNewUnitAdminForRobboUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SetNewUnitAdminForRobboUnit(rctx, fc.Args["unitAdminId"].(string), fc.Args["robboUnitId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_setNewUnitAdminForRobboUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_setNewUnitAdminForRobboUnit_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_DeleteUnitAdminForRobboUnit(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_DeleteUnitAdminForRobboUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteUnitAdminForRobboUnit(rctx, fc.Args["unitAdminId"].(string), fc.Args["robboUnitId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_DeleteUnitAdminForRobboUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_DeleteUnitAdminForRobboUnit_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -6081,6 +6466,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "setRobboGroupIdForStudent":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_setRobboGroupIdForStudent(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "createTeacher":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -6112,6 +6506,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createParent(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "addChildToParent":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_addChildToParent(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -6157,6 +6560,24 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteUnitAdmin(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "setNewUnitAdminForRobboUnit":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_setNewUnitAdminForRobboUnit(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "DeleteUnitAdminForRobboUnit":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_DeleteUnitAdminForRobboUnit(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {

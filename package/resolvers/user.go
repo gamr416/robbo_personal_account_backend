@@ -7,6 +7,7 @@ import (
 	"context"
 	"github.com/skinnykaen/robbo_student_personal_account.git/graph/generated"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	"strconv"
 )
 
 // Mutation returns generated.MutationResolver implementation.
@@ -16,6 +17,30 @@ func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResol
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
+
+func (r *mutationResolver) DeleteStudent(ctx context.Context, studentID string) (string, error) {
+	id, _ := strconv.ParseUint(studentID, 10, 64)
+	err := r.usersDelegate.DeleteStudent(uint(id))
+	return studentID, err
+}
+
+func (r *mutationResolver) DeleteTeacher(ctx context.Context, teacherID string) (string, error) {
+	id, _ := strconv.ParseUint(teacherID, 10, 64)
+	err := r.usersDelegate.DeleteTeacher(uint(id))
+	return teacherID, err
+}
+
+func (r *mutationResolver) DeleteParent(ctx context.Context, parentID string) (string, error) {
+	id, _ := strconv.ParseUint(parentID, 10, 64)
+	err := r.usersDelegate.DeleteParent(uint(id))
+	return parentID, err
+}
+
+func (r *mutationResolver) DeleteUnitAdmin(ctx context.Context, unitAdminID string) (string, error) {
+	id, _ := strconv.ParseUint(unitAdminID, 10, 64)
+	err := r.usersDelegate.DeleteUnitAdmin(uint(id))
+	return unitAdminID, err
+}
 
 func (r *mutationResolver) UpdateTeacher(ctx context.Context, input models.UpdateTeacherInput) (*models.TeacherHTTP, error) {
 	updateTeacherInput := &models.TeacherHTTP{

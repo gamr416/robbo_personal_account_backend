@@ -122,12 +122,16 @@ input UpdateSuperAdminInput {
 type Mutation {
     createStudent(input: NewStudent!): StudentHttp!
     updateStudent(input: UpdateStudentInput!): StudentHttp!
+    deleteStudent(studentId: String!): String!
     createTeacher(input: NewTeacher!): TeacherHttp!
     updateTeacher(input: UpdateTeacherInput!): TeacherHttp!
+    deleteTeacher(teacherId: String!): String!
     createParent(input: NewParent!): ParentHttp!
     updateParent(input: UpdateParentInput!): ParentHttp!
+    deleteParent(parentId: String!): String!
     createUnitAdmin(input: NewUnitAdmin!): UnitAdminHttp!
     updateUnitAdmin(input: UpdateUnitAdminInput!): UnitAdminHttp!
+    deleteUnitAdmin(UnitAdminId: String!): String!
     updateSuperAdmin(input: UpdateSuperAdminInput!): SuperAdminHttp!
 }
 

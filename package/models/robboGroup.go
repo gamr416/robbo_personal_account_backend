@@ -62,7 +62,11 @@ func (ht *RobboGroupHttp) FromCore(robboGroup *RobboGroupCore) {
 	ht.Name = robboGroup.Name
 	ht.RobboUnitId = robboGroup.RobboUnitId
 	for _, studentCore := range robboGroup.Students {
-		var studentHttpTemp StudentHTTP
+		studentHttpTemp := StudentHTTP{
+			UserHTTP:     &UserHTTP{},
+			RobboGroupID: "",
+			RobboUnitID:  "",
+		}
 		studentHttpTemp.FromCore(studentCore)
 		ht.Students = append(ht.Students, &studentHttpTemp)
 	}

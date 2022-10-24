@@ -20,7 +20,6 @@ func NewGraphqlServer(lifecycle fx.Lifecycle, graphQLModule modules.GraphQLModul
 
 				srv := handler.NewDefaultServer(
 					generated.NewExecutableSchema(generated.Config{
-						//Resolvers: &graph.Resolver{},
 						Resolvers: &graphQLModule.UsersResolver,
 					}),
 				)

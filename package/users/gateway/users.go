@@ -132,7 +132,7 @@ func (r *UsersGatewayImpl) UpdateStudent(student *models.StudentCore) (err error
 	return
 }
 
-func (r *UsersGatewayImpl) GetTeacher(email, password string) (teacher *models.TeacherCore, err error) {
+func (r *UsersGatewayImpl) GetTeacher(email, password string) (teacher models.TeacherCore, err error) {
 	var teacherDb models.TeacherDB
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
@@ -147,7 +147,7 @@ func (r *UsersGatewayImpl) GetTeacher(email, password string) (teacher *models.T
 	return teacher, err
 }
 
-func (r *UsersGatewayImpl) GetAllTeachers() (teachers []*models.TeacherCore, err error) {
+func (r *UsersGatewayImpl) GetAllTeachers() (teachers []models.TeacherCore, err error) {
 	var teachersDB []*models.TeacherDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Find(&teachersDB).Error; err != nil {
@@ -162,7 +162,7 @@ func (r *UsersGatewayImpl) GetAllTeachers() (teachers []*models.TeacherCore, err
 	return
 }
 
-func (r *UsersGatewayImpl) GetTeacherById(userId string) (teacher *models.TeacherCore, err error) {
+func (r *UsersGatewayImpl) GetTeacherById(userId string) (teacher models.TeacherCore, err error) {
 	var teacherDb models.TeacherDB
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
@@ -469,7 +469,9 @@ func (r *UsersGatewayImpl) GetSuperAdmin(email, password string) (superAdmin *mo
 
 func (r *UsersGatewayImpl) UpdateSuperAdmin(superAdmin *models.SuperAdminCore) (err error) {
 	superAdminDb := models.SuperAdminDB{}
+	fmt.Println(superAdmin)
 	superAdminDb.FromCore(superAdmin)
+	fmt.Println(superAdminDb)
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 			err = tx.Model(&superAdminDb).Where("id = ?", superAdminDb.ID).Updates(superAdminDb).Error

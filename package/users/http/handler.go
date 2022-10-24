@@ -189,7 +189,7 @@ func (h *Handler) GetStudentById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, getStudentResponse{
-		student,
+		*student,
 	})
 }
 
@@ -256,7 +256,7 @@ func (h *Handler) UpdateStudent(c *gin.Context) {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
 
-	userHttp := models.UserHttp{}
+	userHttp := models.UserHTTP{}
 
 	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
@@ -265,7 +265,7 @@ func (h *Handler) UpdateStudent(c *gin.Context) {
 	}
 
 	studentHttp := &models.StudentHTTP{
-		UserHttp: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	err := h.usersDelegate.UpdateStudent(studentHttp)
@@ -335,8 +335,8 @@ func (h *Handler) CreateTeacher(c *gin.Context) {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
 
-	userHttp := models.UserHttp{
-		Role: uint(models.Teacher),
+	userHttp := models.UserHTTP{
+		Role: int(models.Teacher),
 	}
 
 	if err := c.BindJSON(&userHttp); err != nil {
@@ -345,7 +345,7 @@ func (h *Handler) CreateTeacher(c *gin.Context) {
 		return
 	}
 	teacherHttp := &models.TeacherHTTP{
-		UserHttp: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	teacherId, err := h.usersDelegate.CreateTeacher(teacherHttp)
@@ -398,7 +398,7 @@ func (h *Handler) GetTeacherById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, getTeacherResponse{
-		teacher,
+		*teacher,
 	})
 }
 
@@ -427,7 +427,7 @@ func (h *Handler) UpdateTeacher(c *gin.Context) {
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
-	userHttp := models.UserHttp{}
+	userHttp := models.UserHTTP{}
 
 	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
@@ -436,7 +436,7 @@ func (h *Handler) UpdateTeacher(c *gin.Context) {
 	}
 
 	teacherHttp := &models.TeacherHTTP{
-		UserHttp: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	err := h.usersDelegate.UpdateTeacher(teacherHttp)
@@ -466,7 +466,7 @@ func (h *Handler) GetParentById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, getParentResponse{
-		parent,
+		*parent,
 	})
 }
 
@@ -492,8 +492,8 @@ func (h *Handler) CreateParent(c *gin.Context) {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
-	userHttp := models.UserHttp{
-		Role: uint(models.Parent),
+	userHttp := models.UserHTTP{
+		Role: int(models.Parent),
 	}
 
 	if err := c.BindJSON(&userHttp); err != nil {
@@ -502,7 +502,7 @@ func (h *Handler) CreateParent(c *gin.Context) {
 		return
 	}
 	parentHttp := &models.ParentHTTP{
-		UserHttp: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	parentId, err := h.usersDelegate.CreateParent(parentHttp)
@@ -548,7 +548,7 @@ func (h *Handler) UpdateParent(c *gin.Context) {
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
-	userHttp := models.UserHttp{}
+	userHttp := models.UserHTTP{}
 
 	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
@@ -557,7 +557,7 @@ func (h *Handler) UpdateParent(c *gin.Context) {
 	}
 
 	parentHttp := &models.ParentHTTP{
-		UserHttp: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	err := h.usersDelegate.UpdateParent(parentHttp)
@@ -598,8 +598,8 @@ func (h *Handler) CreateFreeListener(c *gin.Context) {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
 
-	userHttp := models.UserHttp{
-		Role: uint(models.FreeListener),
+	userHttp := models.UserHTTP{
+		Role: int(models.FreeListener),
 	}
 
 	if err := c.BindJSON(&userHttp); err != nil {
@@ -609,7 +609,7 @@ func (h *Handler) CreateFreeListener(c *gin.Context) {
 	}
 
 	freeListener := &models.FreeListenerHttp{
-		UserHttp: userHttp,
+		UserHTTP: userHttp,
 	}
 
 	freeListenerId, err := h.usersDelegate.CreateFreeListener(freeListener)
@@ -655,7 +655,7 @@ func (h *Handler) UpdateFreeListener(c *gin.Context) {
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
-	userHttp := models.UserHttp{}
+	userHttp := models.UserHTTP{}
 
 	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
@@ -664,7 +664,7 @@ func (h *Handler) UpdateFreeListener(c *gin.Context) {
 	}
 
 	freeListenerHttp := &models.FreeListenerHttp{
-		UserHttp: userHttp,
+		UserHTTP: userHttp,
 	}
 
 	err := h.usersDelegate.UpdateFreeListener(freeListenerHttp)
@@ -742,7 +742,7 @@ func (h *Handler) UpdateUnitAdmin(c *gin.Context) {
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
-	userHttp := models.UserHttp{}
+	userHttp := models.UserHTTP{}
 
 	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
@@ -751,7 +751,7 @@ func (h *Handler) UpdateUnitAdmin(c *gin.Context) {
 	}
 
 	unitAdminHttp := &models.UnitAdminHTTP{
-		UserHttp: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	err := h.usersDelegate.UpdateUnitAdmin(unitAdminHttp)
@@ -771,8 +771,8 @@ func (h *Handler) CreateUnitAdmin(c *gin.Context) {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
 
-	userHttp := models.UserHttp{
-		Role: uint(models.UnitAdmin),
+	userHttp := models.UserHTTP{
+		Role: int(models.UnitAdmin),
 	}
 	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
@@ -781,7 +781,7 @@ func (h *Handler) CreateUnitAdmin(c *gin.Context) {
 	}
 
 	unitAdminHttp := &models.UnitAdminHTTP{
-		UserHttp: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	unitAdminId, err := h.usersDelegate.CreateUnitAdmin(unitAdminHttp)
@@ -862,7 +862,7 @@ func (h *Handler) UpdateSuperAdmin(c *gin.Context) {
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
-	userHttp := models.UserHttp{}
+	userHttp := models.UserHTTP{}
 
 	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
@@ -871,7 +871,7 @@ func (h *Handler) UpdateSuperAdmin(c *gin.Context) {
 	}
 
 	superAdminHTTP := &models.SuperAdminHTTP{
-		UserHttp: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	err := h.usersDelegate.UpdateSuperAdmin(superAdminHTTP)

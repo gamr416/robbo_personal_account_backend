@@ -98,7 +98,7 @@ func (p *UsersUseCaseImpl) AddStudentToRobboGroup(studentId string, robboGroupId
 	return p.Gateway.AddStudentToRobboGroup(studentId, robboGroupId, robboUnitId)
 }
 
-func (p *UsersUseCaseImpl) GetTeacherById(teacherId string) (teacher *models.TeacherCore, err error) {
+func (p *UsersUseCaseImpl) GetTeacherById(teacherId string) (teacher models.TeacherCore, err error) {
 	return p.Gateway.GetTeacherById(teacherId)
 }
 
@@ -106,7 +106,7 @@ func (p *UsersUseCaseImpl) GetTeacherById(teacherId string) (teacher *models.Tea
 //	return p.Gateway.GetTeacher(email, password)
 //}
 
-func (p *UsersUseCaseImpl) GetAllTeachers() (teachers []*models.TeacherCore, err error) {
+func (p *UsersUseCaseImpl) GetAllTeachers() (teachers []models.TeacherCore, err error) {
 	return p.Gateway.GetAllTeachers()
 }
 
@@ -270,7 +270,12 @@ func (p *UsersUseCaseImpl) GetSuperAdminById(superAdminId string) (superAdmin *m
 }
 
 func (p *UsersUseCaseImpl) UpdateSuperAdmin(superAdmin *models.SuperAdminCore) (err error) {
-	return p.Gateway.UpdateSuperAdmin(superAdmin)
+	err = p.Gateway.UpdateSuperAdmin(superAdmin)
+	if err != nil {
+		log.Println("Error update Super Admin")
+		return
+	}
+	return
 }
 func (p *UsersUseCaseImpl) DeleteSuperAdmin(superAdminId uint) (err error) {
 	return p.Gateway.DeleteSuperAdmin(superAdminId)

@@ -1,4 +1,4 @@
-type User {
+type UserHttp {
     id: ID!
     email: String!
     password: String!
@@ -10,15 +10,56 @@ type User {
     createdAt: Timestamp!
 }
 
-type Student {
-    user: User!
+input UpdateUserHttp {
+    id: ID!
+    email: String!
+    nickname: String!
+    firstname: String!
+    lastname: String!
+    middlename: String!
+}
+
+type StudentHttp {
+    userHttp: UserHttp!
     robboGroupId: String!
     robboUnitId: String!
 }
 
-type Parent {
-    user: User!
-    children: [Student!]!
+input UpdateStudentHttp {
+    userHttp: UpdateUserHttp!
+}
+
+type ParentHttp {
+    userHttp: UserHttp!
+    children: [StudentHttp!]!
+}
+
+input UpdateParentHttp {
+    userHttp: UpdateUserHttp!
+}
+
+type TeacherHttp {
+    userHttp: UserHttp!
+}
+
+input UpdateTeacherHttp {
+    userHttp: UpdateUserHttp!
+}
+
+type UnitAdminHttp{
+    userHttp: UserHttp!
+}
+
+input UpdateUnitAdminHttp {
+    userHttp: UpdateUserHttp!
+}
+
+type SuperAdminHttp{
+    userHttp: UserHttp!
+}
+
+input UpdateSuperAdminHttp {
+    userHttp: UpdateUserHttp!
 }
 
 input NewParent {
@@ -37,19 +78,80 @@ input NewStudent {
     firstname: String!
     lastname: String!
     middlename: String!
-    robboGroupId: String!
-    robboUnitId: String!
+    parentId: String!
+}
+
+input NewTeacher {
+    email: String!
+    password: String!
+    nickname: String!
+    firstname: String!
+    lastname: String!
+    middlename: String!
+}
+
+input NewUnitAdmin {
+    email: String!
+    password: String!
+    nickname: String!
+    firstname: String!
+    lastname: String!
+    middlename: String!
+}
+
+input UpdateStudentInput {
+    studentHttp: UpdateStudentHttp!
+}
+
+input UpdateParentInput {
+    parentHttp: UpdateParentHttp!
+}
+
+input UpdateTeacherInput {
+    teacherHttp: UpdateTeacherHttp!
+}
+
+input UpdateUnitAdminInput {
+    unitAdminHttp: UpdateUnitAdminHttp!
+}
+
+input UpdateSuperAdminInput {
+    superAdminHttp: UpdateSuperAdminHttp!
 }
 
 type Mutation {
-    createStudent(input: NewStudent!): Student
-    createParent(input: NewParent!): Parent
+    createStudent(input: NewStudent!): StudentHttp!
+    updateStudent(input: UpdateStudentInput!): StudentHttp!
+    deleteStudent(studentId: String!): String!
+    setRobboGroupIdForStudent(studentId: String!, robboGroupId: String!, robboUnitId: String!): String!
+    createTeacher(input: NewTeacher!): TeacherHttp!
+    updateTeacher(input: UpdateTeacherInput!): TeacherHttp!
+    deleteTeacher(teacherId: String!): String!
+    createParent(input: NewParent!): ParentHttp!
+    addChildToParent(parentId: String!, childId: String!): String!
+    updateParent(input: UpdateParentInput!): ParentHttp!
+    deleteParent(parentId: String!): String!
+    createUnitAdmin(input: NewUnitAdmin!): UnitAdminHttp!
+    updateUnitAdmin(input: UpdateUnitAdminInput!): UnitAdminHttp!
+    deleteUnitAdmin(UnitAdminId: String!): String!
+    setNewUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
+    DeleteUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
+    updateSuperAdmin(input: UpdateSuperAdminInput!): SuperAdminHttp!
 }
 
 type Query {
-    Students(limit: Int = 10, offset: Int = 0): [Student]
-    GetAllParents:[Parent!]!
-    GetParentById(parentId: String!):Parent!
+    GetStudentsByParentId(parentId: String!): [StudentHttp!]!
+    GetStudentById(studentId: String!): StudentHttp!
+    SearchStudentsByEmail(email: String!): [StudentHttp!]!
+    GetAllTeachers: [TeacherHttp!]!
+    GetTeacherById(teacherId: String!): TeacherHttp!
+    GetAllParents: [ParentHttp!]!
+    GetParentById(parentId: String!): ParentHttp!
+    GetAllUnitAdmins: [UnitAdminHttp!]!
+    GetUnitAdminsByRobboUnitId(robboUnitId: String!): [UnitAdminHttp!]!
+    GetUnitAdminById(unitAdminId: String!): UnitAdminHttp!
+    SearchUnitAdminsByEmail(email: String!): [UnitAdminHttp!]!
+    GetSuperAdminById(superAdminId: String!): SuperAdminHttp!
 }
 
 scalar Timestamp

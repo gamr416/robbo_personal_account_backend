@@ -1,7 +1,6 @@
 package delegate
 
 import (
-	"fmt"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
@@ -35,11 +34,14 @@ func (p *UsersDelegateImpl) DeleteStudent(studentId uint) (err error) {
 	return p.UseCase.DeleteStudent(studentId)
 }
 
-func (p *UsersDelegateImpl) GetStudentById(studentId string) (student models.StudentHTTP, err error) {
+func (p *UsersDelegateImpl) GetStudentById(studentId string) (student *models.StudentHTTP, err error) {
 	studentCore, err := p.UseCase.GetStudentById(studentId)
 	if err != nil {
 		log.Println("User not found")
 		return student, auth.ErrUserNotFound
+	}
+	student = &models.StudentHTTP{
+		UserHTTP: &models.UserHTTP{},
 	}
 	student.FromCore(studentCore)
 	return
@@ -51,7 +53,11 @@ func (p *UsersDelegateImpl) SearchStudentByEmail(email string) (students []*mode
 		return
 	}
 	for _, studentCore := range studentsCore {
-		var studentTemp models.StudentHTTP
+		studentTemp := models.StudentHTTP{
+			UserHTTP:     &models.UserHTTP{},
+			RobboGroupID: "",
+			RobboUnitID:  "",
+		}
 		studentTemp.FromCore(studentCore)
 		students = append(students, &studentTemp)
 	}
@@ -64,7 +70,11 @@ func (p *UsersDelegateImpl) GetStudentByParentId(parentId string) (students []*m
 		return
 	}
 	for _, studentCore := range studentsCore {
-		var studentHttpTemp models.StudentHTTP
+		studentHttpTemp := models.StudentHTTP{
+			UserHTTP:     &models.UserHTTP{},
+			RobboGroupID: "",
+			RobboUnitID:  "",
+		}
 		studentHttpTemp.FromCore(studentCore)
 		students = append(students, &studentHttpTemp)
 	}
@@ -73,7 +83,6 @@ func (p *UsersDelegateImpl) GetStudentByParentId(parentId string) (students []*m
 
 func (p *UsersDelegateImpl) UpdateStudent(studentHTTP *models.StudentHTTP) (err error) {
 	studentCore := studentHTTP.ToCore()
-	fmt.Println(studentCore.Id)
 	return p.UseCase.UpdateStudent(studentCore)
 }
 
@@ -81,13 +90,16 @@ func (p *UsersDelegateImpl) AddStudentToRobboGroup(studentId string, robboGroupI
 	return p.UseCase.AddStudentToRobboGroup(studentId, robboGroupId, robboUnitId)
 }
 
-func (p *UsersDelegateImpl) GetTeacherById(teacherId string) (teacher models.TeacherHTTP, err error) {
+func (p *UsersDelegateImpl) GetTeacherById(teacherId string) (teacher *models.TeacherHTTP, err error) {
 	teacherCore, err := p.UseCase.GetTeacherById(teacherId)
 	if err != nil {
 		log.Println("User not found")
 		return teacher, auth.ErrUserNotFound
 	}
-	teacher.FromCore(teacherCore)
+	teacher = &models.TeacherHTTP{
+		UserHTTP: &models.UserHTTP{},
+	}
+	teacher.FromCore(&teacherCore)
 	return
 }
 
@@ -97,8 +109,10 @@ func (p *UsersDelegateImpl) GetAllTeachers() (teachers []*models.TeacherHTTP, er
 		return
 	}
 	for _, teacherCore := range teachersCore {
-		var teacherTemp models.TeacherHTTP
-		teacherTemp.FromCore(teacherCore)
+		teacherTemp := models.TeacherHTTP{
+			UserHTTP: &models.UserHTTP{},
+		}
+		teacherTemp.FromCore(&teacherCore)
 		teachers = append(teachers, &teacherTemp)
 	}
 	return
@@ -118,13 +132,15 @@ func (p *UsersDelegateImpl) DeleteTeacher(teacherId uint) (err error) {
 	return p.UseCase.DeleteTeacher(teacherId)
 }
 
-func (p *UsersDelegateImpl) GetParentById(parentId string) (parent models.ParentHTTP, err error) {
+func (p *UsersDelegateImpl) GetParentById(parentId string) (parent *models.ParentHTTP, err error) {
 	parentCore, err := p.UseCase.GetParentById(parentId)
 	if err != nil {
-		log.Println("User not found")
 		return parent, auth.ErrUserNotFound
 	}
-	parent.FromCore(parentCore)
+	parent = &models.ParentHTTP{
+		UserHTTP: &models.UserHTTP{},
+	}
+	parent.FromCore(*parentCore)
 	return
 }
 
@@ -134,8 +150,11 @@ func (p *UsersDelegateImpl) GetAllParent() (parents []*models.ParentHTTP, err er
 		return
 	}
 	for _, parentCore := range parentsCore {
-		var parentTemp models.ParentHTTP
-		parentTemp.FromCore(parentCore)
+		parentTemp := models.ParentHTTP{
+			UserHTTP: &models.UserHTTP{},
+			Children: []*models.StudentHTTP{},
+		}
+		parentTemp.FromCore(*parentCore)
 		parents = append(parents, &parentTemp)
 	}
 	return
@@ -185,6 +204,9 @@ func (p *UsersDelegateImpl) GetUnitAdminById(unitAdminId string) (unitAdmin mode
 		log.Println("User not found")
 		return unitAdmin, auth.ErrUserNotFound
 	}
+	unitAdmin = models.UnitAdminHTTP{
+		UserHTTP: &models.UserHTTP{},
+	}
 	unitAdmin.FromCore(unitAdminCore)
 	return
 }
@@ -195,7 +217,9 @@ func (p *UsersDelegateImpl) GetAllUnitAdmins() (unitAdmins []*models.UnitAdminHT
 		return
 	}
 	for _, unitAdminCore := range unitAdminsCore {
-		var unitAdminHttpTemp models.UnitAdminHTTP
+		unitAdminHttpTemp := models.UnitAdminHTTP{
+			UserHTTP: &models.UserHTTP{},
+		}
 		unitAdminHttpTemp.FromCore(unitAdminCore)
 		unitAdmins = append(unitAdmins, &unitAdminHttpTemp)
 	}
@@ -208,7 +232,9 @@ func (p *UsersDelegateImpl) GetUnitAdminByRobboUnitId(robboUnitId string) (unitA
 		return
 	}
 	for _, unitAdminCore := range unitAdminsCore {
-		var unitAdminHttpTemp models.UnitAdminHTTP
+		unitAdminHttpTemp := models.UnitAdminHTTP{
+			UserHTTP: &models.UserHTTP{},
+		}
 		unitAdminHttpTemp.FromCore(unitAdminCore)
 		unitAdmins = append(unitAdmins, &unitAdminHttpTemp)
 	}
@@ -235,9 +261,11 @@ func (p *UsersDelegateImpl) SearchUnitAdminByEmail(email string) (unitAdmins []*
 		return
 	}
 	for _, unitAdminCore := range unitAdminsCore {
-		var unitAdminTemp models.UnitAdminHTTP
-		unitAdminTemp.FromCore(unitAdminCore)
-		unitAdmins = append(unitAdmins, &unitAdminTemp)
+		unitAdminHttpTemp := models.UnitAdminHTTP{
+			UserHTTP: &models.UserHTTP{},
+		}
+		unitAdminHttpTemp.FromCore(unitAdminCore)
+		unitAdmins = append(unitAdmins, &unitAdminHttpTemp)
 	}
 	return
 }
@@ -247,6 +275,9 @@ func (p *UsersDelegateImpl) GetSuperAdminById(superAdminId string) (superAdmin m
 	if err != nil {
 		log.Println("User not found")
 		return superAdmin, auth.ErrUserNotFound
+	}
+	superAdmin = models.SuperAdminHTTP{
+		UserHTTP: &models.UserHTTP{},
 	}
 	superAdmin.FromCore(superAdminCore)
 	return

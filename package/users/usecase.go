@@ -13,8 +13,8 @@ type UseCase interface {
 	AddStudentToRobboGroup(studentId string, robboGroupId string, robboUnitId string) (err error)
 
 	//GetTeacher(email, password string) (teacher *models.TeacherCore, err error)
-	GetTeacherById(teacherId string) (teacher *models.TeacherCore, err error)
-	GetAllTeachers() (teachers []*models.TeacherCore, err error)
+	GetTeacherById(teacherId string) (teacher models.TeacherCore, err error)
+	GetAllTeachers() (teachers []models.TeacherCore, err error)
 	CreateTeacher(teacher *models.TeacherCore) (id string, err error)
 	UpdateTeacher(teacher *models.TeacherCore) (err error)
 	DeleteTeacher(teacherId uint) (err error)

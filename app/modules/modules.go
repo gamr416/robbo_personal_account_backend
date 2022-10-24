@@ -1,7 +1,6 @@
 package modules
 
 import (
-	"github.com/skinnykaen/robbo_student_personal_account.git/graph"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	authdelegate "github.com/skinnykaen/robbo_student_personal_account.git/package/auth/delegate"
 	authgateway "github.com/skinnykaen/robbo_student_personal_account.git/package/auth/gateway"
@@ -35,6 +34,7 @@ import (
 	prjgateway "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/gateway"
 	prjhttp "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/http"
 	prjusecase "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/usecase"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/resolvers"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup"
 	robboGroupdelegate "github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup/delegate"
 	robboGroupgateway "github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup/gateway"
@@ -159,11 +159,11 @@ func SetupHandler(delegate DelegateModule) HandlerModule {
 }
 
 type GraphQLModule struct {
-	UsersResolver graph.Resolver
+	UsersResolver resolvers.Resolver
 }
 
 func SetupGraphQLModule(delegate DelegateModule) GraphQLModule {
 	return GraphQLModule{
-		UsersResolver: graph.NewUsersResolver(delegate.AuthDelegate, delegate.UsersDelegate),
+		UsersResolver: resolvers.NewUsersResolver(delegate.AuthDelegate, delegate.UsersDelegate),
 	}
 }

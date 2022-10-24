@@ -71,7 +71,7 @@ func (h *Handler) SignIn(c *gin.Context) {
 func (h *Handler) SignUp(c *gin.Context) {
 	fmt.Println("SignUp")
 
-	userHttp := &models.UserHttp{}
+	userHttp := &models.UserHTTP{}
 
 	if err := c.BindJSON(userHttp); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)

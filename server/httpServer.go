@@ -13,11 +13,11 @@ import (
 	"go.uber.org/fx"
 )
 
-type Server struct {
+type HttpServer struct {
 	httpServer *http.Server
 }
 
-func NewServer(lifecycle fx.Lifecycle, handlers modules.HandlerModule) {
+func NewHttpServer(lifecycle fx.Lifecycle, handlers modules.HandlerModule) {
 	lifecycle.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) (err error) {

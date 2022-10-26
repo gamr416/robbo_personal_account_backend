@@ -7,6 +7,7 @@ type Delegate interface {
 	DeleteRobboGroup(robboGroupId string) (err error)
 	GetRobboGroupsByRobboUnitId(robboUnitId string) (robboGroups []*models.RobboGroupHTTP, err error)
 	GetRobboGroupById(robboGroupId string) (robboGroup models.RobboGroupHTTP, err error)
+	GetRobboGroupsByTeacherId(teacherId string) (robboGroups []*models.RobboGroupHTTP, err error)
 	SetTeacherForRobboGroup(teacherId, robboGroupId string) (err error)
 	DeleteTeacherForRobboGroup(teacherId, robboGroupId string) (err error)
 	SearchRobboGroupByName(name string) (robboGroups []*models.RobboGroupHTTP, err error)

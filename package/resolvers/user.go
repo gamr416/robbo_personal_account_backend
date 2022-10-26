@@ -5,6 +5,7 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/skinnykaen/robbo_student_personal_account.git/graph/generated"
@@ -247,6 +248,12 @@ func (r *queryResolver) GetTeacherByID(ctx context.Context, teacherID string) (*
 
 // GetAllParents is the resolver for the GetAllParents field.
 func (r *queryResolver) GetAllParents(ctx context.Context) ([]*models.ParentHTTP, error) {
+	ginContext, err := GinContextFromContext(ctx)
+	fmt.Println(err)
+	userId, userRole, identityErr := r.authDelegate.UserIdentity(ginContext)
+	fmt.Println(userId)
+	fmt.Println(userRole)
+	fmt.Println(identityErr)
 	parents, err := r.usersDelegate.GetAllParent()
 	return parents, err
 }

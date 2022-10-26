@@ -52,7 +52,7 @@ func (r *RobboGroupUseCaseImpl) SetTeacherForRobboGroup(teacherId, robboGroupId 
 	return r.robboGroupGateway.SetTeacherForRobboGroup(relationCore)
 }
 
-func (r *RobboGroupUseCaseImpl) DeleteUnitAdminForRobboUnit(teacherId, robboGroupId string) (err error) {
+func (r *RobboGroupUseCaseImpl) DeleteTeacherForRobboGroup(teacherId, robboGroupId string) (err error) {
 	relationCore := &models.TeachersRobboGroupsCore{
 		TeacherId:    teacherId,
 		RobboGroupId: robboGroupId,

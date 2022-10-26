@@ -10,6 +10,16 @@ type RobboGroupDelegateImpl struct {
 	UseCase robboGroup.UseCase
 }
 
+func (r *RobboGroupDelegateImpl) GetRobboGroupsByTeacherId(teacherId string) (robboGroups []*models.RobboGroupHTTP, err error) {
+	robboGroupsCore, err := r.UseCase.GetRobboGroupsByTeacherId(teacherId)
+	for _, robboGroupCore := range robboGroupsCore {
+		var robboGroupTemp models.RobboGroupHTTP
+		robboGroupTemp.FromCore(robboGroupCore)
+		robboGroups = append(robboGroups, &robboGroupTemp)
+	}
+	return
+}
+
 func (r *RobboGroupDelegateImpl) SearchRobboGroupByName(name string) (robboGroups []*models.RobboGroupHTTP, err error) {
 	robboGroupsCore, err := r.UseCase.SearchRobboGroupsByTitle(name)
 	for _, robboGroupCore := range robboGroupsCore {
@@ -25,7 +35,7 @@ func (r *RobboGroupDelegateImpl) SetTeacherForRobboGroup(teacherId, robboGroupId
 }
 
 func (r *RobboGroupDelegateImpl) DeleteTeacherForRobboGroup(teacherId, robboGroupId string) (err error) {
-	return r.UseCase.DeleteUnitAdminForRobboUnit(teacherId, robboGroupId)
+	return r.UseCase.DeleteTeacherForRobboGroup(teacherId, robboGroupId)
 }
 
 func (r *RobboGroupDelegateImpl) CreateRobboGroup(robboGroup *models.RobboGroupHTTP) (robboGroupId string, err error) {

@@ -7,9 +7,9 @@ type UseCase interface {
 	DeleteRobboGroup(robboGroupId string) (err error)
 	GetRobboGroupsByRobboUnitId(robboUnitId string) (robboGroups []*models.RobboGroupCore, err error)
 	GetRobboGroupById(robboGroupId string) (robboGroup *models.RobboGroupCore, err error)
-
-	SetTeacherForRobboGroup(teacherId, robboGroupId string) (err error)
-	DeleteUnitAdminForRobboUnit(teacherId, robboGroupId string) (err error)
 	GetRobboGroupsByTeacherId(teacherId string) (robboGroups []*models.RobboGroupCore, err error)
+	SetTeacherForRobboGroup(teacherId, robboGroupId string) (err error)
+	DeleteTeacherForRobboGroup(teacherId, robboGroupId string) (err error)
+
 	SearchRobboGroupsByTitle(title string) (robboGroups []*models.RobboGroupCore, err error)
 }

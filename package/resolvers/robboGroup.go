@@ -5,8 +5,6 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 )
 
@@ -18,7 +16,8 @@ func (r *queryResolver) GetRobboGroupByID(ctx context.Context, id string) (*mode
 
 // GetRobboGroupsByTeacherID is the resolver for the GetRobboGroupsByTeacherId field.
 func (r *queryResolver) GetRobboGroupsByTeacherID(ctx context.Context, teacherID string) ([]*models.RobboGroupHTTP, error) {
-	panic(fmt.Errorf("not implemented: GetRobboGroupsByTeacherID - GetRobboGroupsByTeacherId"))
+	robboGroupsHttp, err := r.robboGroupDelegate.GetRobboGroupsByTeacherId(teacherID)
+	return robboGroupsHttp, err
 }
 
 // SearchGroupsByName is the resolver for the SearchGroupsByName field.

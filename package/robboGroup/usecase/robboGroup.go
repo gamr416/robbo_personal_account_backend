@@ -39,6 +39,44 @@ type RobboGroupUseCaseImpl struct {
 	usersGateway      users.Gateway
 }
 
+func (r *RobboGroupUseCaseImpl) SearchRobboGroupsByTitle(title string) (robboGroups []*models.RobboGroupCore, err error) {
+	titleCondition := "%" + title + "%"
+	return r.robboGroupGateway.SearchRobboGroupsByTitle(titleCondition)
+}
+
+func (r *RobboGroupUseCaseImpl) SetTeacherForRobboGroup(teacherId, robboGroupId string) (err error) {
+	relationCore := &models.TeachersRobboGroupsCore{
+		TeacherId:    teacherId,
+		RobboGroupId: robboGroupId,
+	}
+	return r.robboGroupGateway.SetTeacherForRobboGroup(relationCore)
+}
+
+func (r *RobboGroupUseCaseImpl) DeleteUnitAdminForRobboUnit(teacherId, robboGroupId string) (err error) {
+	relationCore := &models.TeachersRobboGroupsCore{
+		TeacherId:    teacherId,
+		RobboGroupId: robboGroupId,
+	}
+	return r.robboGroupGateway.DeleteTeacherForRobboGroup(relationCore)
+}
+
+func (r *RobboGroupUseCaseImpl) GetRobboGroupsByTeacherId(teacherId string) (robboGroups []*models.RobboGroupCore, err error) {
+	relations, getRelationsErr := r.robboGroupGateway.GetRelationByTeacherId(teacherId)
+	if getRelationsErr != nil {
+		err = getRelationsErr
+		return
+	}
+	for _, relation := range relations {
+		robboGroup, getRobboGroupErr := r.robboGroupGateway.GetRobboGroupById(relation.RobboGroupId)
+		if getRobboGroupErr != nil {
+			err = getRobboGroupErr
+			return
+		}
+		robboGroups = append(robboGroups, robboGroup)
+	}
+	return
+}
+
 type RobboGroupUseCaseModule struct {
 	fx.Out
 	robboGroup.UseCase

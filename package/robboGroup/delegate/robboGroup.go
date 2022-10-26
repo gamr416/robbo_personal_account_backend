@@ -10,7 +10,25 @@ type RobboGroupDelegateImpl struct {
 	UseCase robboGroup.UseCase
 }
 
-func (r *RobboGroupDelegateImpl) CreateRobboGroup(robboGroup *models.RobboGroupHttp) (robboGroupId string, err error) {
+func (r *RobboGroupDelegateImpl) SearchRobboGroupByName(name string) (robboGroups []*models.RobboGroupHTTP, err error) {
+	robboGroupsCore, err := r.UseCase.SearchRobboGroupsByTitle(name)
+	for _, robboGroupCore := range robboGroupsCore {
+		var robboGroupTemp models.RobboGroupHTTP
+		robboGroupTemp.FromCore(robboGroupCore)
+		robboGroups = append(robboGroups, &robboGroupTemp)
+	}
+	return
+}
+
+func (r *RobboGroupDelegateImpl) SetTeacherForRobboGroup(teacherId, robboGroupId string) (err error) {
+	return r.UseCase.SetTeacherForRobboGroup(teacherId, robboGroupId)
+}
+
+func (r *RobboGroupDelegateImpl) DeleteTeacherForRobboGroup(teacherId, robboGroupId string) (err error) {
+	return r.UseCase.DeleteUnitAdminForRobboUnit(teacherId, robboGroupId)
+}
+
+func (r *RobboGroupDelegateImpl) CreateRobboGroup(robboGroup *models.RobboGroupHTTP) (robboGroupId string, err error) {
 	robboGroupCore := robboGroup.ToCore()
 	return r.UseCase.CreateRobboGroup(robboGroupCore)
 }
@@ -19,20 +37,20 @@ func (r *RobboGroupDelegateImpl) DeleteRobboGroup(robboGroupId string) (err erro
 	return r.UseCase.DeleteRobboGroup(robboGroupId)
 }
 
-func (r *RobboGroupDelegateImpl) GetRobboGroupsByRobboUnitId(robboUnitId string) (robboGroups []*models.RobboGroupHttp, err error) {
+func (r *RobboGroupDelegateImpl) GetRobboGroupsByRobboUnitId(robboUnitId string) (robboGroups []*models.RobboGroupHTTP, err error) {
 	robboGroupsCore, err := r.UseCase.GetRobboGroupsByRobboUnitId(robboUnitId)
 	if err != nil {
 		return
 	}
 	for _, robboGroupCore := range robboGroupsCore {
-		var robboGroupTemp models.RobboGroupHttp
+		var robboGroupTemp models.RobboGroupHTTP
 		robboGroupTemp.FromCore(robboGroupCore)
 		robboGroups = append(robboGroups, &robboGroupTemp)
 	}
 	return
 }
 
-func (r *RobboGroupDelegateImpl) GetRobboGroupById(robboGroupId string) (robboGroup models.RobboGroupHttp, err error) {
+func (r *RobboGroupDelegateImpl) GetRobboGroupById(robboGroupId string) (robboGroup models.RobboGroupHTTP, err error) {
 	robboGroupCore, err := r.UseCase.GetRobboGroupById(robboGroupId)
 	if err != nil {
 		return

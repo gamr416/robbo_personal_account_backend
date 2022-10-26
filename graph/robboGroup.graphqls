@@ -1,0 +1,13 @@
+type RobboGroupHttp {
+	id: String!
+	lastModified: Timestamp!
+	name: String!
+	robboUnitId: String!
+	students: [StudentHttp!]
+}
+
+extend type Query {
+	GetRobboGroupById(id: String!): RobboGroupHttp!
+	GetRobboGroupsByTeacherId(teacherId: String!): [RobboGroupHttp!]!
+	SearchGroupsByName(name: String!): [RobboGroupHttp!]!
+}

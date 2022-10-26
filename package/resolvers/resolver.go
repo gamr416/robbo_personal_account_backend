@@ -2,6 +2,7 @@ package resolvers
 
 import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
 )
 
@@ -10,8 +11,9 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	authDelegate  auth.Delegate
-	usersDelegate users.Delegate
+	authDelegate       auth.Delegate
+	usersDelegate      users.Delegate
+	robboGroupDelegate robboGroup.Delegate
 }
 
 type MutationResolver struct{ *Resolver }
@@ -20,9 +22,11 @@ type QueryResolver struct{ *Resolver }
 func NewUsersResolver(
 	authDelegate auth.Delegate,
 	usersDelegate users.Delegate,
+	robboGroupDelegate robboGroup.Delegate,
 ) Resolver {
 	return Resolver{
-		authDelegate:  authDelegate,
-		usersDelegate: usersDelegate,
+		authDelegate:       authDelegate,
+		usersDelegate:      usersDelegate,
+		robboGroupDelegate: robboGroupDelegate,
 	}
 }

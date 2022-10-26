@@ -74,14 +74,25 @@ type ComplexityRoot struct {
 		GetAllTeachers             func(childComplexity int) int
 		GetAllUnitAdmins           func(childComplexity int) int
 		GetParentByID              func(childComplexity int, parentID string) int
+		GetRobboGroupByID          func(childComplexity int, id string) int
+		GetRobboGroupsByTeacherID  func(childComplexity int, teacherID string) int
 		GetStudentByID             func(childComplexity int, studentID string) int
 		GetStudentsByParentID      func(childComplexity int, parentID string) int
 		GetSuperAdminByID          func(childComplexity int, superAdminID string) int
 		GetTeacherByID             func(childComplexity int, teacherID string) int
 		GetUnitAdminByID           func(childComplexity int, unitAdminID string) int
 		GetUnitAdminsByRobboUnitID func(childComplexity int, robboUnitID string) int
+		SearchGroupsByName         func(childComplexity int, name string) int
 		SearchStudentsByEmail      func(childComplexity int, email string) int
 		SearchUnitAdminsByEmail    func(childComplexity int, email string) int
+	}
+
+	RobboGroupHttp struct {
+		ID           func(childComplexity int) int
+		LastModified func(childComplexity int) int
+		Name         func(childComplexity int) int
+		RobboUnitID  func(childComplexity int) int
+		Students     func(childComplexity int) int
 	}
 
 	StudentHttp struct {
@@ -147,6 +158,9 @@ type QueryResolver interface {
 	GetUnitAdminByID(ctx context.Context, unitAdminID string) (*models.UnitAdminHTTP, error)
 	SearchUnitAdminsByEmail(ctx context.Context, email string) ([]*models.UnitAdminHTTP, error)
 	GetSuperAdminByID(ctx context.Context, superAdminID string) (*models.SuperAdminHTTP, error)
+	GetRobboGroupByID(ctx context.Context, id string) (*models.RobboGroupHTTP, error)
+	GetRobboGroupsByTeacherID(ctx context.Context, teacherID string) ([]*models.RobboGroupHTTP, error)
+	SearchGroupsByName(ctx context.Context, name string) ([]*models.RobboGroupHTTP, error)
 }
 
 type executableSchema struct {
@@ -415,6 +429,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetParentByID(childComplexity, args["parentId"].(string)), true
 
+	case "Query.GetRobboGroupById":
+		if e.complexity.Query.GetRobboGroupByID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetRobboGroupById_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetRobboGroupByID(childComplexity, args["id"].(string)), true
+
+	case "Query.GetRobboGroupsByTeacherId":
+		if e.complexity.Query.GetRobboGroupsByTeacherID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetRobboGroupsByTeacherId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetRobboGroupsByTeacherID(childComplexity, args["teacherId"].(string)), true
+
 	case "Query.GetStudentById":
 		if e.complexity.Query.GetStudentByID == nil {
 			break
@@ -487,6 +525,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetUnitAdminsByRobboUnitID(childComplexity, args["robboUnitId"].(string)), true
 
+	case "Query.SearchGroupsByName":
+		if e.complexity.Query.SearchGroupsByName == nil {
+			break
+		}
+
+		args, err := ec.field_Query_SearchGroupsByName_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.SearchGroupsByName(childComplexity, args["name"].(string)), true
+
 	case "Query.SearchStudentsByEmail":
 		if e.complexity.Query.SearchStudentsByEmail == nil {
 			break
@@ -510,6 +560,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.SearchUnitAdminsByEmail(childComplexity, args["email"].(string)), true
+
+	case "RobboGroupHttp.id":
+		if e.complexity.RobboGroupHttp.ID == nil {
+			break
+		}
+
+		return e.complexity.RobboGroupHttp.ID(childComplexity), true
+
+	case "RobboGroupHttp.lastModified":
+		if e.complexity.RobboGroupHttp.LastModified == nil {
+			break
+		}
+
+		return e.complexity.RobboGroupHttp.LastModified(childComplexity), true
+
+	case "RobboGroupHttp.name":
+		if e.complexity.RobboGroupHttp.Name == nil {
+			break
+		}
+
+		return e.complexity.RobboGroupHttp.Name(childComplexity), true
+
+	case "RobboGroupHttp.robboUnitId":
+		if e.complexity.RobboGroupHttp.RobboUnitID == nil {
+			break
+		}
+
+		return e.complexity.RobboGroupHttp.RobboUnitID(childComplexity), true
+
+	case "RobboGroupHttp.students":
+		if e.complexity.RobboGroupHttp.Students == nil {
+			break
+		}
+
+		return e.complexity.RobboGroupHttp.Students(childComplexity), true
 
 	case "StudentHttp.robboGroupId":
 		if e.complexity.StudentHttp.RobboGroupID == nil {
@@ -699,6 +784,19 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
+	{Name: "../robboGroup.graphqls", Input: `type RobboGroupHttp {
+	id: String!
+	lastModified: Timestamp!
+	name: String!
+	robboUnitId: String!
+	students: [StudentHttp!]
+}
+
+extend type Query {
+	GetRobboGroupById(id: String!): RobboGroupHttp!
+	GetRobboGroupsByTeacherId(teacherId: String!): [RobboGroupHttp!]!
+	SearchGroupsByName(name: String!): [RobboGroupHttp!]!
+}`, BuiltIn: false},
 	{Name: "../user.graphqls", Input: `type UserHttp {
     id: ID!
     email: String!
@@ -1179,6 +1277,36 @@ func (ec *executionContext) field_Query_GetParentById_args(ctx context.Context, 
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_GetRobboGroupById_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetRobboGroupsByTeacherId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["teacherId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teacherId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["teacherId"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_GetStudentById_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1266,6 +1394,21 @@ func (ec *executionContext) field_Query_GetUnitAdminsByRobboUnitId_args(ctx cont
 		}
 	}
 	args["robboUnitId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_SearchGroupsByName_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["name"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["name"] = arg0
 	return args, nil
 }
 
@@ -3142,6 +3285,207 @@ func (ec *executionContext) fieldContext_Query_GetSuperAdminById(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_GetRobboGroupById(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetRobboGroupById(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetRobboGroupByID(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.RobboGroupHTTP)
+	fc.Result = res
+	return ec.marshalNRobboGroupHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupHTTP(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetRobboGroupById(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_RobboGroupHttp_id(ctx, field)
+			case "lastModified":
+				return ec.fieldContext_RobboGroupHttp_lastModified(ctx, field)
+			case "name":
+				return ec.fieldContext_RobboGroupHttp_name(ctx, field)
+			case "robboUnitId":
+				return ec.fieldContext_RobboGroupHttp_robboUnitId(ctx, field)
+			case "students":
+				return ec.fieldContext_RobboGroupHttp_students(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RobboGroupHttp", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetRobboGroupById_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetRobboGroupsByTeacherId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetRobboGroupsByTeacherId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetRobboGroupsByTeacherID(rctx, fc.Args["teacherId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*models.RobboGroupHTTP)
+	fc.Result = res
+	return ec.marshalNRobboGroupHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupHTTPᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetRobboGroupsByTeacherId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_RobboGroupHttp_id(ctx, field)
+			case "lastModified":
+				return ec.fieldContext_RobboGroupHttp_lastModified(ctx, field)
+			case "name":
+				return ec.fieldContext_RobboGroupHttp_name(ctx, field)
+			case "robboUnitId":
+				return ec.fieldContext_RobboGroupHttp_robboUnitId(ctx, field)
+			case "students":
+				return ec.fieldContext_RobboGroupHttp_students(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RobboGroupHttp", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetRobboGroupsByTeacherId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_SearchGroupsByName(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_SearchGroupsByName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().SearchGroupsByName(rctx, fc.Args["name"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*models.RobboGroupHTTP)
+	fc.Result = res
+	return ec.marshalNRobboGroupHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupHTTPᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_SearchGroupsByName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_RobboGroupHttp_id(ctx, field)
+			case "lastModified":
+				return ec.fieldContext_RobboGroupHttp_lastModified(ctx, field)
+			case "name":
+				return ec.fieldContext_RobboGroupHttp_name(ctx, field)
+			case "robboUnitId":
+				return ec.fieldContext_RobboGroupHttp_robboUnitId(ctx, field)
+			case "students":
+				return ec.fieldContext_RobboGroupHttp_students(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RobboGroupHttp", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_SearchGroupsByName_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query___type(ctx, field)
 	if err != nil {
@@ -3266,6 +3610,231 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RobboGroupHttp_id(ctx context.Context, field graphql.CollectedField, obj *models.RobboGroupHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RobboGroupHttp_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RobboGroupHttp_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RobboGroupHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RobboGroupHttp_lastModified(ctx context.Context, field graphql.CollectedField, obj *models.RobboGroupHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RobboGroupHttp_lastModified(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LastModified, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNTimestamp2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RobboGroupHttp_lastModified(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RobboGroupHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Timestamp does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RobboGroupHttp_name(ctx context.Context, field graphql.CollectedField, obj *models.RobboGroupHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RobboGroupHttp_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RobboGroupHttp_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RobboGroupHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RobboGroupHttp_robboUnitId(ctx context.Context, field graphql.CollectedField, obj *models.RobboGroupHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RobboGroupHttp_robboUnitId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RobboUnitID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RobboGroupHttp_robboUnitId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RobboGroupHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RobboGroupHttp_students(ctx context.Context, field graphql.CollectedField, obj *models.RobboGroupHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RobboGroupHttp_students(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Students, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*models.StudentHTTP)
+	fc.Result = res
+	return ec.marshalOStudentHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTPᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RobboGroupHttp_students(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RobboGroupHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "userHttp":
+				return ec.fieldContext_StudentHttp_userHttp(ctx, field)
+			case "robboGroupId":
+				return ec.fieldContext_StudentHttp_robboGroupId(ctx, field)
+			case "robboUnitId":
+				return ec.fieldContext_StudentHttp_robboUnitId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type StudentHttp", field.Name)
 		},
 	}
 	return fc, nil
@@ -6933,6 +7502,75 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "GetRobboGroupById":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetRobboGroupById(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetRobboGroupsByTeacherId":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetRobboGroupsByTeacherId(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "SearchGroupsByName":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_SearchGroupsByName(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -6944,6 +7582,59 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var robboGroupHttpImplementors = []string{"RobboGroupHttp"}
+
+func (ec *executionContext) _RobboGroupHttp(ctx context.Context, sel ast.SelectionSet, obj *models.RobboGroupHTTP) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, robboGroupHttpImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RobboGroupHttp")
+		case "id":
+
+			out.Values[i] = ec._RobboGroupHttp_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "lastModified":
+
+			out.Values[i] = ec._RobboGroupHttp_lastModified(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "name":
+
+			out.Values[i] = ec._RobboGroupHttp_name(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "robboUnitId":
+
+			out.Values[i] = ec._RobboGroupHttp_robboUnitId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "students":
+
+			out.Values[i] = ec._RobboGroupHttp_students(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -7607,6 +8298,64 @@ func (ec *executionContext) marshalNParentHttp2ᚖgithubᚗcomᚋskinnykaenᚋro
 	return ec._ParentHttp(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNRobboGroupHttp2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupHTTP(ctx context.Context, sel ast.SelectionSet, v models.RobboGroupHTTP) graphql.Marshaler {
+	return ec._RobboGroupHttp(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRobboGroupHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupHTTPᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.RobboGroupHTTP) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRobboGroupHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupHTTP(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNRobboGroupHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupHTTP(ctx context.Context, sel ast.SelectionSet, v *models.RobboGroupHTTP) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RobboGroupHttp(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -8183,6 +8932,53 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOStudentHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTPᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.StudentHTTP) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNStudentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTP(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

@@ -19,13 +19,6 @@ type RobboUnitDB struct {
 	City string `gorm:"size:256;not null"`
 }
 
-type RobboUnitHTTP struct {
-	Id           string `json:"id"`
-	LastModified string `json:"lastModified"`
-	Name         string `json:"name"`
-	City         string `json:"city"`
-}
-
 func (em *RobboUnitDB) ToCore() *RobboUnitCore {
 	return &RobboUnitCore{
 		Id:           strconv.FormatUint(uint64(em.ID), 10),
@@ -44,7 +37,7 @@ func (em *RobboUnitDB) FromCore(robboUnit *RobboUnitCore) {
 
 func (ht *RobboUnitHTTP) ToCore() *RobboUnitCore {
 	return &RobboUnitCore{
-		Id:           ht.Id,
+		Id:           ht.ID,
 		LastModified: ht.LastModified,
 		Name:         ht.Name,
 		City:         ht.City,
@@ -52,7 +45,7 @@ func (ht *RobboUnitHTTP) ToCore() *RobboUnitCore {
 }
 
 func (ht *RobboUnitHTTP) FromCore(robboUnit *RobboUnitCore) {
-	ht.Id = robboUnit.Id
+	ht.ID = robboUnit.Id
 	ht.LastModified = robboUnit.LastModified
 	ht.Name = robboUnit.Name
 	ht.City = robboUnit.City

@@ -1,0 +1,28 @@
+package resolvers
+
+// This file will be automatically regenerated based on the schema, any resolver implementations
+// will be copied through when generating and any unknown code will be moved to the end.
+
+import (
+	"context"
+
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+)
+
+// GetRobboUnitByID is the resolver for the GetRobboUnitById field.
+func (r *queryResolver) GetRobboUnitByID(ctx context.Context, id string) (*models.RobboUnitHTTP, error) {
+	robboUnitsHttp, err := r.robboUnitsDelegate.GetRobboUnitById(id)
+	return &robboUnitsHttp, err
+}
+
+// GetAllRobboUnits is the resolver for the GetAllRobboUnits field.
+func (r *queryResolver) GetAllRobboUnits(ctx context.Context) ([]*models.RobboUnitHTTP, error) {
+	robboUnitsHttp, err := r.robboUnitsDelegate.GetAllRobboUnit()
+	return robboUnitsHttp, err
+}
+
+// GetRobboUnitsByUnitAdminID is the resolver for the GetRobboUnitsByUnitAdminId field.
+func (r *queryResolver) GetRobboUnitsByUnitAdminID(ctx context.Context, unitAdminID string) ([]*models.RobboUnitHTTP, error) {
+	robboUnitsHttp, err := r.robboUnitsDelegate.GetRobboUnitsByUnitAdminId(unitAdminID)
+	return robboUnitsHttp, err
+}

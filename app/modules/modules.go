@@ -168,6 +168,7 @@ func SetupGraphQLModule(delegate DelegateModule) GraphQLModule {
 			delegate.AuthDelegate,
 			delegate.UsersDelegate,
 			delegate.RobboGroupDelegate,
+			delegate.RobboUnitsDelegate,
 		),
 	}
 }

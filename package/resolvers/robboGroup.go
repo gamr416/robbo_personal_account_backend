@@ -5,6 +5,7 @@ package resolvers
 
 import (
 	"context"
+
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 )
 
@@ -17,6 +18,12 @@ func (r *queryResolver) GetRobboGroupByID(ctx context.Context, id string) (*mode
 // GetRobboGroupsByTeacherID is the resolver for the GetRobboGroupsByTeacherId field.
 func (r *queryResolver) GetRobboGroupsByTeacherID(ctx context.Context, teacherID string) ([]*models.RobboGroupHTTP, error) {
 	robboGroupsHttp, err := r.robboGroupDelegate.GetRobboGroupsByTeacherId(teacherID)
+	return robboGroupsHttp, err
+}
+
+// GetRobboGroupsByRobboUnitID is the resolver for the GetRobboGroupsByRobboUnitId field.
+func (r *queryResolver) GetRobboGroupsByRobboUnitID(ctx context.Context, robboUnitID string) ([]*models.RobboGroupHTTP, error) {
+	robboGroupsHttp, err := r.robboGroupDelegate.GetRobboGroupsByRobboUnitId(robboUnitID)
 	return robboGroupsHttp, err
 }
 

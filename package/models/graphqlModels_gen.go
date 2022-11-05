@@ -52,6 +52,13 @@ type RobboGroupHTTP struct {
 	Students     []*StudentHTTP `json:"students"`
 }
 
+type RobboUnitHTTP struct {
+	ID           string `json:"id"`
+	LastModified string `json:"lastModified"`
+	Name         string `json:"name"`
+	City         string `json:"city"`
+}
+
 type StudentHTTP struct {
 	UserHTTP     *UserHTTP `json:"userHttp"`
 	RobboGroupID string    `json:"robboGroupId"`

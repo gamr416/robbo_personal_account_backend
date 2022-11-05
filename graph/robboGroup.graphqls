@@ -9,5 +9,6 @@ type RobboGroupHttp {
 extend type Query {
 	GetRobboGroupById(id: String!): RobboGroupHttp!
 	GetRobboGroupsByTeacherId(teacherId: String!): [RobboGroupHttp!]!
+	GetRobboGroupsByRobboUnitId(robboUnitId: String!): [RobboGroupHttp!]!
 	SearchGroupsByName(name: String!): [RobboGroupHttp!]!
 }

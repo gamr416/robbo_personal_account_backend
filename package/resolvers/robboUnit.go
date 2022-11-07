@@ -5,8 +5,6 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 )
 
@@ -16,14 +14,11 @@ func (r *queryResolver) GetRobboUnitByID(ctx context.Context, id string) (*model
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(err)
-	userId, userRole, identityErr := r.authDelegate.UserIdentity(ginContext)
+	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
 		return nil, identityErr
 	}
-	fmt.Println(userId)
-	fmt.Println(userRole)
-	fmt.Println(identityErr)
+
 	robboUnitsHttp, err := r.robboUnitsDelegate.GetRobboUnitById(id)
 	return &robboUnitsHttp, err
 }
@@ -34,14 +29,10 @@ func (r *queryResolver) GetAllRobboUnits(ctx context.Context) ([]*models.RobboUn
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(err)
-	userId, userRole, identityErr := r.authDelegate.UserIdentity(ginContext)
+	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
 		return nil, identityErr
 	}
-	fmt.Println(userId)
-	fmt.Println(userRole)
-	fmt.Println(identityErr)
 	robboUnitsHttp, err := r.robboUnitsDelegate.GetAllRobboUnit()
 	return robboUnitsHttp, err
 }
@@ -52,14 +43,10 @@ func (r *queryResolver) GetRobboUnitsByUnitAdminID(ctx context.Context, unitAdmi
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(err)
-	userId, userRole, identityErr := r.authDelegate.UserIdentity(ginContext)
+	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
 		return nil, identityErr
 	}
-	fmt.Println(userId)
-	fmt.Println(userRole)
-	fmt.Println(identityErr)
 	robboUnitsHttp, err := r.robboUnitsDelegate.GetRobboUnitsByUnitAdminId(unitAdminID)
 	return robboUnitsHttp, err
 }

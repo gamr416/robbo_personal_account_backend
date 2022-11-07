@@ -5,7 +5,6 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 	"errors"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 )
@@ -16,14 +15,10 @@ func (r *queryResolver) GetRobboGroupByID(ctx context.Context, id string) (*mode
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(err)
-	userId, userRole, identityErr := r.authDelegate.UserIdentity(ginContext)
+	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
 		return nil, identityErr
 	}
-	fmt.Println(userId)
-	fmt.Println(userRole)
-	fmt.Println(identityErr)
 	robboGroupsHttp, err := r.robboGroupDelegate.GetRobboGroupById(id)
 	return &robboGroupsHttp, err
 }
@@ -41,6 +36,22 @@ func (r *queryResolver) GetRobboGroupsByTeacherID(ctx context.Context, teacherID
 		return nil, err
 	}
 	robboGroupsHttp, err := r.robboGroupDelegate.GetRobboGroupsByTeacherId(teacherID)
+	return robboGroupsHttp, err
+}
+
+// GetRobboGroupsByRobboUnitID is the resolver for the GetRobboGroupsByRobboUnitId field.
+func (r *queryResolver) GetRobboGroupsByRobboUnitID(ctx context.Context, robboUnitID string) ([]*models.RobboGroupHTTP, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return nil, err
+	}
+	_, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
+	if userIdentityErr != nil {
+		err := errors.New("status unauthorized")
+		return nil, err
+	}
+	robboGroupsHttp, err := r.robboGroupDelegate.GetRobboGroupsByRobboUnitId(robboUnitID)
 	return robboGroupsHttp, err
 }
 
@@ -66,14 +77,10 @@ func (r *queryResolver) SearchGroupsByName(ctx context.Context, name string) ([]
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(err)
-	userId, userRole, identityErr := r.authDelegate.UserIdentity(ginContext)
+	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
 		return nil, identityErr
 	}
-	fmt.Println(userId)
-	fmt.Println(userRole)
-	fmt.Println(identityErr)
 	robboGroupsHttp, err := r.robboGroupDelegate.SearchRobboGroupByName(name)
 	return robboGroupsHttp, err
 }

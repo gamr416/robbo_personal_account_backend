@@ -76,6 +76,7 @@ type ComplexityRoot struct {
 		GetAllUnitAdmins            func(childComplexity int) int
 		GetParentByID               func(childComplexity int, parentID string) int
 		GetRobboGroupByID           func(childComplexity int, id string) int
+		GetRobboGroupsByAccessToken func(childComplexity int) int
 		GetRobboGroupsByRobboUnitID func(childComplexity int, robboUnitID string) int
 		GetRobboGroupsByTeacherID   func(childComplexity int, teacherID string) int
 		GetRobboUnitByID            func(childComplexity int, id string) int
@@ -464,6 +465,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetRobboGroupByID(childComplexity, args["id"].(string)), true
 
+	case "Query.GetRobboGroupsByAccessToken":
+		if e.complexity.Query.GetRobboGroupsByAccessToken == nil {
+			break
+		}
+
+		return e.complexity.Query.GetRobboGroupsByAccessToken(childComplexity), true
+
 	case "Query.GetRobboGroupsByRobboUnitId":
 		if e.complexity.Query.GetRobboGroupsByRobboUnitID == nil {
 			break
@@ -475,12 +483,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetRobboGroupsByRobboUnitID(childComplexity, args["robboUnitId"].(string)), true
-	case "Query.GetRobboGroupsByAccessToken":
-		if e.complexity.Query.GetRobboGroupsByAccessToken == nil {
-			break
-		}
-
-		return e.complexity.Query.GetRobboGroupsByAccessToken(childComplexity), true
 
 	case "Query.GetRobboGroupsByTeacherId":
 		if e.complexity.Query.GetRobboGroupsByTeacherID == nil {
@@ -3571,11 +3573,8 @@ func (ec *executionContext) fieldContext_Query_GetRobboGroupsByTeacherId(ctx con
 	return fc, nil
 }
 
-
 func (ec *executionContext) _Query_GetRobboGroupsByRobboUnitId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_GetRobboGroupsByRobboUnitId(ctx, field)
-func (ec *executionContext) _Query_GetRobboGroupsByAccessToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_GetRobboGroupsByAccessToken(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3589,7 +3588,6 @@ func (ec *executionContext) _Query_GetRobboGroupsByAccessToken(ctx context.Conte
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().GetRobboGroupsByRobboUnitID(rctx, fc.Args["robboUnitId"].(string))
-		return ec.resolvers.Query().GetRobboGroupsByAccessToken(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3607,6 +3605,72 @@ func (ec *executionContext) _Query_GetRobboGroupsByAccessToken(ctx context.Conte
 }
 
 func (ec *executionContext) fieldContext_Query_GetRobboGroupsByRobboUnitId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_RobboGroupHttp_id(ctx, field)
+			case "lastModified":
+				return ec.fieldContext_RobboGroupHttp_lastModified(ctx, field)
+			case "name":
+				return ec.fieldContext_RobboGroupHttp_name(ctx, field)
+			case "robboUnitId":
+				return ec.fieldContext_RobboGroupHttp_robboUnitId(ctx, field)
+			case "students":
+				return ec.fieldContext_RobboGroupHttp_students(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RobboGroupHttp", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetRobboGroupsByRobboUnitId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetRobboGroupsByAccessToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetRobboGroupsByAccessToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetRobboGroupsByAccessToken(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*models.RobboGroupHTTP)
+	fc.Result = res
+	return ec.marshalNRobboGroupHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupHTTPᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) fieldContext_Query_GetRobboGroupsByAccessToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
@@ -3629,19 +3693,6 @@ func (ec *executionContext) fieldContext_Query_GetRobboGroupsByAccessToken(ctx c
 			return nil, fmt.Errorf("no field named %q was found under type RobboGroupHttp", field.Name)
 		},
 	}
-
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_GetRobboGroupsByRobboUnitId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-
 	return fc, nil
 }
 
@@ -8135,7 +8186,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				return rrm(innerCtx)
 			})
 		case "GetRobboGroupsByRobboUnitId":
-		case "GetRobboGroupsByAccessToken":s
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -8145,6 +8195,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_GetRobboGroupsByRobboUnitId(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetRobboGroupsByAccessToken":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
 				res = ec._Query_GetRobboGroupsByAccessToken(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)

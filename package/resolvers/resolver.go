@@ -39,7 +39,7 @@ func GinContextFromContext(ctx context.Context) (*gin.Context, error) {
 	return gc, nil
 }
 
-func NewUsersResolver(
+func NewResolver(
 	authDelegate auth.Delegate,
 	usersDelegate users.Delegate,
 	robboGroupDelegate robboGroup.Delegate,

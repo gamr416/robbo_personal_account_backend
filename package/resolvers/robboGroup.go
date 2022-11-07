@@ -6,7 +6,7 @@ package resolvers
 import (
 	"context"
 	"fmt"
-
+	"errors"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 )
 
@@ -30,37 +30,33 @@ func (r *queryResolver) GetRobboGroupByID(ctx context.Context, id string) (*mode
 
 // GetRobboGroupsByTeacherID is the resolver for the GetRobboGroupsByTeacherId field.
 func (r *queryResolver) GetRobboGroupsByTeacherID(ctx context.Context, teacherID string) ([]*models.RobboGroupHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
 		return nil, err
 	}
-	fmt.Println(err)
-	userId, userRole, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
+	_, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
+	if userIdentityErr != nil {
+		err := errors.New("status unauthorized")
+		return nil, err
 	}
-	fmt.Println(userId)
-	fmt.Println(userRole)
-	fmt.Println(identityErr)
 	robboGroupsHttp, err := r.robboGroupDelegate.GetRobboGroupsByTeacherId(teacherID)
 	return robboGroupsHttp, err
 }
 
-// GetRobboGroupsByRobboUnitID is the resolver for the GetRobboGroupsByRobboUnitId field.
-func (r *queryResolver) GetRobboGroupsByRobboUnitID(ctx context.Context, robboUnitID string) ([]*models.RobboGroupHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
+// GetRobboGroupsByAccessToken is the resolver for the GetRobboGroupsByAccessToken field.
+func (r *queryResolver) GetRobboGroupsByAccessToken(ctx context.Context) ([]*models.RobboGroupHTTP, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
 		return nil, err
 	}
-	fmt.Println(err)
-	userId, userRole, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
+	userId, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
+	if userIdentityErr != nil {
+		err := errors.New("status unauthorized")
+		return nil, err
 	}
-	fmt.Println(userId)
-	fmt.Println(userRole)
-	fmt.Println(identityErr)
-	robboGroupsHttp, err := r.robboGroupDelegate.GetRobboGroupsByRobboUnitId(robboUnitID)
+	robboGroupsHttp, err := r.robboGroupDelegate.GetRobboGroupsByTeacherId(userId)
 	return robboGroupsHttp, err
 }
 

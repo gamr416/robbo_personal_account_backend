@@ -172,6 +172,7 @@ type QueryResolver interface {
 	GetRobboGroupByID(ctx context.Context, id string) (*models.RobboGroupHTTP, error)
 	GetRobboGroupsByTeacherID(ctx context.Context, teacherID string) ([]*models.RobboGroupHTTP, error)
 	GetRobboGroupsByRobboUnitID(ctx context.Context, robboUnitID string) ([]*models.RobboGroupHTTP, error)
+	GetRobboGroupsByAccessToken(ctx context.Context) ([]*models.RobboGroupHTTP, error)
 	SearchGroupsByName(ctx context.Context, name string) ([]*models.RobboGroupHTTP, error)
 	GetRobboUnitByID(ctx context.Context, id string) (*models.RobboUnitHTTP, error)
 	GetAllRobboUnits(ctx context.Context) ([]*models.RobboUnitHTTP, error)
@@ -474,6 +475,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetRobboGroupsByRobboUnitID(childComplexity, args["robboUnitId"].(string)), true
+	case "Query.GetRobboGroupsByAccessToken":
+		if e.complexity.Query.GetRobboGroupsByAccessToken == nil {
+			break
+		}
+
+		return e.complexity.Query.GetRobboGroupsByAccessToken(childComplexity), true
 
 	case "Query.GetRobboGroupsByTeacherId":
 		if e.complexity.Query.GetRobboGroupsByTeacherID == nil {
@@ -882,6 +889,7 @@ extend type Query {
 	GetRobboGroupById(id: String!): RobboGroupHttp!
 	GetRobboGroupsByTeacherId(teacherId: String!): [RobboGroupHttp!]!
 	GetRobboGroupsByRobboUnitId(robboUnitId: String!): [RobboGroupHttp!]!
+	GetRobboGroupsByAccessToken: [RobboGroupHttp!]!
 	SearchGroupsByName(name: String!): [RobboGroupHttp!]!
 }`, BuiltIn: false},
 	{Name: "../robboUnit.graphqls", Input: `type RobboUnitHttp {
@@ -3563,8 +3571,11 @@ func (ec *executionContext) fieldContext_Query_GetRobboGroupsByTeacherId(ctx con
 	return fc, nil
 }
 
+
 func (ec *executionContext) _Query_GetRobboGroupsByRobboUnitId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_GetRobboGroupsByRobboUnitId(ctx, field)
+func (ec *executionContext) _Query_GetRobboGroupsByAccessToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetRobboGroupsByAccessToken(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3578,6 +3589,7 @@ func (ec *executionContext) _Query_GetRobboGroupsByRobboUnitId(ctx context.Conte
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().GetRobboGroupsByRobboUnitID(rctx, fc.Args["robboUnitId"].(string))
+		return ec.resolvers.Query().GetRobboGroupsByAccessToken(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3595,6 +3607,7 @@ func (ec *executionContext) _Query_GetRobboGroupsByRobboUnitId(ctx context.Conte
 }
 
 func (ec *executionContext) fieldContext_Query_GetRobboGroupsByRobboUnitId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_GetRobboGroupsByAccessToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -3616,6 +3629,7 @@ func (ec *executionContext) fieldContext_Query_GetRobboGroupsByRobboUnitId(ctx c
 			return nil, fmt.Errorf("no field named %q was found under type RobboGroupHttp", field.Name)
 		},
 	}
+
 	defer func() {
 		if r := recover(); r != nil {
 			err = ec.Recover(ctx, r)
@@ -3627,6 +3641,7 @@ func (ec *executionContext) fieldContext_Query_GetRobboGroupsByRobboUnitId(ctx c
 		ec.Error(ctx, err)
 		return
 	}
+
 	return fc, nil
 }
 
@@ -8120,6 +8135,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				return rrm(innerCtx)
 			})
 		case "GetRobboGroupsByRobboUnitId":
+		case "GetRobboGroupsByAccessToken":s
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -8129,6 +8145,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_GetRobboGroupsByRobboUnitId(ctx, field)
+				res = ec._Query_GetRobboGroupsByAccessToken(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

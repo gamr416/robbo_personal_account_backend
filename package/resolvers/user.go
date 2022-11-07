@@ -5,7 +5,7 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"strconv"
 
 	"github.com/skinnykaen/robbo_student_personal_account.git/graph/generated"
@@ -248,12 +248,18 @@ func (r *queryResolver) GetTeacherByID(ctx context.Context, teacherID string) (*
 
 // GetAllParents is the resolver for the GetAllParents field.
 func (r *queryResolver) GetAllParents(ctx context.Context) ([]*models.ParentHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	fmt.Println(err)
-	userId, userRole, identityErr := r.authDelegate.UserIdentity(ginContext)
-	fmt.Println(userId)
-	fmt.Println(userRole)
-	fmt.Println(identityErr)
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return nil, err
+	}
+
+	_, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
+	if userIdentityErr != nil {
+		err := errors.New("status unauthorized")
+		return nil, err
+	}
+
 	parents, err := r.usersDelegate.GetAllParent()
 	return parents, err
 }
@@ -292,7 +298,11 @@ func (r *queryResolver) GetSuperAdminByID(ctx context.Context, superAdminID stri
 }
 
 // Mutation returns generated.MutationResolver implementation.
-func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
+func (r *Resolver) Mutation() generated.MutationResolver {
+	return &mutationResolver{
+		r,
+	}
+}
 
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }

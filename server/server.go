@@ -87,7 +87,11 @@ func playgroundHandler() gin.HandlerFunc {
 }
 
 func graphqlHandler(graphQLModule modules.GraphQLModule) gin.HandlerFunc {
-	h := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graphQLModule.UsersResolver}))
+	h := handler.NewDefaultServer(
+		generated.NewExecutableSchema(
+			generated.Config{
+				Resolvers: &graphQLModule.UsersResolver},
+		))
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)

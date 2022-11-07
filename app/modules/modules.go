@@ -164,7 +164,7 @@ type GraphQLModule struct {
 
 func SetupGraphQLModule(delegate DelegateModule) GraphQLModule {
 	return GraphQLModule{
-		UsersResolver: resolvers.NewUsersResolver(
+		UsersResolver: resolvers.NewResolver(
 			delegate.AuthDelegate,
 			delegate.UsersDelegate,
 			delegate.RobboGroupDelegate,

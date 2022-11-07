@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboUnits"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
 )
 
@@ -17,6 +18,7 @@ type Resolver struct {
 	authDelegate       auth.Delegate
 	usersDelegate      users.Delegate
 	robboGroupDelegate robboGroup.Delegate
+	robboUnitsDelegate robboUnits.Delegate
 }
 
 type MutationResolver struct{ *Resolver }
@@ -41,10 +43,12 @@ func NewResolver(
 	authDelegate auth.Delegate,
 	usersDelegate users.Delegate,
 	robboGroupDelegate robboGroup.Delegate,
+	robboUnitsDelegate robboUnits.Delegate,
 ) Resolver {
 	return Resolver{
 		authDelegate:       authDelegate,
 		usersDelegate:      usersDelegate,
 		robboGroupDelegate: robboGroupDelegate,
+		robboUnitsDelegate: robboUnitsDelegate,
 	}
 }

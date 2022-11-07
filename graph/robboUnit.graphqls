@@ -1,0 +1,12 @@
+type RobboUnitHttp {
+    id: String!
+    lastModified: Timestamp!
+    name: String!
+    city: String!
+}
+
+extend type Query {
+    GetRobboUnitById(id: String!): RobboUnitHttp!
+    GetAllRobboUnits: [RobboUnitHttp!]!
+    GetRobboUnitsByUnitAdminId(unitAdminId: String!): [RobboUnitHttp!]!
+}

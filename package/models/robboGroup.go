@@ -18,13 +18,6 @@ type RobboGroupDB struct {
 	RobboUnitId string `gorm:"not null"`
 	Name        string `gorm:"size:256;not null"`
 }
-type RobboGroupHttp struct {
-	Id           string         `json:"id"`
-	LastModified string         `json:"lastModified"`
-	Name         string         `json:"name"`
-	RobboUnitId  string         `json:"robboUnitId"`
-	Students     []*StudentHTTP `json:"students"`
-}
 
 func (em *RobboGroupDB) ToCore() *RobboGroupCore {
 	return &RobboGroupCore{
@@ -42,25 +35,25 @@ func (em *RobboGroupDB) FromCore(robboGroup *RobboGroupCore) {
 	em.RobboUnitId = robboGroup.RobboUnitId
 }
 
-func (ht *RobboGroupHttp) ToCore() *RobboGroupCore {
+func (ht *RobboGroupHTTP) ToCore() *RobboGroupCore {
 	var studentsCore []*StudentCore
 	for _, studentHttp := range ht.Students {
 		studentsCore = append(studentsCore, studentHttp.ToCore())
 	}
 	return &RobboGroupCore{
-		Id:           ht.Id,
+		Id:           ht.ID,
 		LastModified: ht.LastModified,
-		RobboUnitId:  ht.RobboUnitId,
+		RobboUnitId:  ht.RobboUnitID,
 		Name:         ht.Name,
 		Students:     studentsCore,
 	}
 }
 
-func (ht *RobboGroupHttp) FromCore(robboGroup *RobboGroupCore) {
-	ht.Id = robboGroup.Id
+func (ht *RobboGroupHTTP) FromCore(robboGroup *RobboGroupCore) {
+	ht.ID = robboGroup.Id
 	ht.LastModified = robboGroup.LastModified
 	ht.Name = robboGroup.Name
-	ht.RobboUnitId = robboGroup.RobboUnitId
+	ht.RobboUnitID = robboGroup.RobboUnitId
 	for _, studentCore := range robboGroup.Students {
 		studentHttpTemp := StudentHTTP{
 			UserHTTP:     &UserHTTP{},

@@ -119,6 +119,17 @@ type ParentHTTP struct {
 	Children []*StudentHTTP `json:"children"`
 }
 
+type ProjectPageHTTP struct {
+	LastModified string `json:"LastModified"`
+	ProjectID    string `json:"ProjectID"`
+	Instruction  string `json:"Instruction"`
+	Notes        string `json:"Notes"`
+	Preview      string `json:"Preview"`
+	LinkScratch  string `json:"LinkScratch"`
+	Title        string `json:"Title"`
+	IsShared     bool   `json:"IsShared"`
+}
+
 type RobboGroupHTTP struct {
 	ID           string         `json:"id"`
 	LastModified string         `json:"lastModified"`

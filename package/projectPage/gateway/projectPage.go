@@ -37,10 +37,24 @@ func (r *ProjectPageGatewayImpl) CreateProjectPage(projectPage *models.ProjectPa
 	return
 }
 
-func (r *ProjectPageGatewayImpl) GetProjectPageById(projectId string) (projectPage *models.ProjectPageCore, err error) {
+func (r *ProjectPageGatewayImpl) GetProjectPageById(projectPageId string) (projectPage *models.ProjectPageCore, err error) {
 	var projectPageDB models.ProjectPageDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Where("id = ?", projectId).First(&projectPageDB).Error; err != nil {
+		if err = tx.Where("id = ?", projectPageId).First(&projectPageDB).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	projectPage = projectPageDB.ToCore()
+
+	return
+}
+
+func (r *ProjectPageGatewayImpl) GetProjectPageByProjectId(projectId string) (projectPage *models.ProjectPageCore, err error) {
+	var projectPageDB models.ProjectPageDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("project_id = ?", projectId).First(&projectPageDB).Error; err != nil {
 			return
 		}
 		return

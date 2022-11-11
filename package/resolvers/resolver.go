@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboUnits"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
@@ -16,11 +17,12 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	authDelegate       auth.Delegate
-	usersDelegate      users.Delegate
-	robboGroupDelegate robboGroup.Delegate
-	robboUnitsDelegate robboUnits.Delegate
-	coursesDelegate    courses.Delegate
+	authDelegate        auth.Delegate
+	usersDelegate       users.Delegate
+	robboGroupDelegate  robboGroup.Delegate
+	robboUnitsDelegate  robboUnits.Delegate
+	coursesDelegate     courses.Delegate
+	projectPageDelegate projectPage.Delegate
 }
 
 type MutationResolver struct{ *Resolver }
@@ -47,12 +49,14 @@ func NewResolver(
 	robboGroupDelegate robboGroup.Delegate,
 	robboUnitsDelegate robboUnits.Delegate,
 	coursesDelegate courses.Delegate,
+	projectPageDelegate projectPage.Delegate,
 ) Resolver {
 	return Resolver{
-		authDelegate:       authDelegate,
-		usersDelegate:      usersDelegate,
-		robboGroupDelegate: robboGroupDelegate,
-		robboUnitsDelegate: robboUnitsDelegate,
-		coursesDelegate:    coursesDelegate,
+		authDelegate:        authDelegate,
+		usersDelegate:       usersDelegate,
+		robboGroupDelegate:  robboGroupDelegate,
+		robboUnitsDelegate:  robboUnitsDelegate,
+		coursesDelegate:     coursesDelegate,
+		projectPageDelegate: projectPageDelegate,
 	}
 }

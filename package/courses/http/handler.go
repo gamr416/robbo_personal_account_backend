@@ -10,8 +10,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
-	"time"
 )
 
 type Handler struct {
@@ -33,28 +31,6 @@ type testCourseResponse struct {
 	CourseId string `json:"courseId"`
 }
 
-type getCoursesListResponse struct {
-	Results    []models.CourseHTTP `json:"results"`
-	Pagination struct {
-		Next     string      `json:"next"`
-		Previous interface{} `json:"previous"`
-		Count    int         `json:"count"`
-		NumPages int         `json:"num_pages"`
-	} `json:"pagination"`
-}
-
-type getEnrollmentsResponse struct {
-	Next     interface{} `json:"next"`
-	Previous interface{} `json:"previous"`
-	Results  []struct {
-		Created  time.Time `json:"created"`
-		Mode     string    `json:"mode"`
-		IsActive bool      `json:"is_active"`
-		User     string    `json:"user"`
-		CourseID string    `json:"course_id"`
-	} `json:"results"`
-}
-
 func (h *Handler) InitCourseRoutes(router *gin.Engine) {
 	course := router.Group("/course")
 	{
@@ -69,30 +45,30 @@ func (h *Handler) InitCourseRoutes(router *gin.Engine) {
 }
 
 func (h *Handler) UpdateCourse(c *gin.Context) {
-	fmt.Println("Update Course")
 	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		ErrorHandling(userIdentityErr, c)
 	}
 	courseHTTP := models.CourseHTTP{}
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		ErrorHandling(err, c)
 		return
 	}
 
 	err = json.Unmarshal(body, &courseHTTP)
 	fmt.Println(courseHTTP)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
 		log.Println(err)
+		ErrorHandling(err, c)
 		return
 	}
 
 	err = h.coursesDelegate.UpdateCourse(&courseHTTP)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		log.Println(err)
+		ErrorHandling(err, c)
 		return
 	}
 
@@ -100,10 +76,9 @@ func (h *Handler) UpdateCourse(c *gin.Context) {
 }
 
 func (h *Handler) CreateCourse(c *gin.Context) {
-	fmt.Println("Create Course")
 	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		ErrorHandling(userIdentityErr, c)
 	}
 	courseId := c.Param("courseId")
 	courseHTTP := models.CourseHTTP{}
@@ -111,7 +86,7 @@ func (h *Handler) CreateCourse(c *gin.Context) {
 
 	if err != nil {
 		log.Println(err)
-		c.AbortWithStatus(http.StatusBadRequest)
+		ErrorHandling(err, c)
 		return
 	}
 
@@ -121,106 +96,91 @@ func (h *Handler) CreateCourse(c *gin.Context) {
 }
 
 func (h *Handler) GetCourseContent(c *gin.Context) {
-	fmt.Println("Get Course Content")
 	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
-	}
-	courseId := c.Param("courseId")
-	body, err := h.coursesDelegate.GetCourseContent(courseId)
-	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		ErrorHandling(userIdentityErr, c)
 		return
 	}
-	courseHTTP := &models.CourseHTTP{}
-	log.Println(courseHTTP)
-	err = json.Unmarshal(body, courseHTTP)
+	courseId := c.Param("courseId")
+	courseHTTP, err := h.coursesDelegate.GetCourseContent(courseId)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		ErrorHandling(err, c)
 		return
 	}
 	c.JSON(http.StatusOK, courseHTTP)
 }
 
 func (h *Handler) GetCoursesByUser(c *gin.Context) {
-	fmt.Println("Get courses For User")
 	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
-	}
-	body, err := h.coursesDelegate.GetCoursesByUser()
-	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		ErrorHandling(userIdentityErr, c)
 		return
 	}
-	var coursesHTTP getCoursesListResponse
-	err = json.Unmarshal(body, &coursesHTTP)
-	log.Println(coursesHTTP)
+	coursesHTTP, err := h.coursesDelegate.GetCoursesByUser()
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		ErrorHandling(err, c)
 		return
 	}
 	c.JSON(http.StatusOK, coursesHTTP)
 }
 
 func (h *Handler) GetAllPublicCourses(c *gin.Context) {
-	fmt.Println("Get All Public courses")
-	pN := c.Param("pageNumber")
-	pageNumber, err := strconv.Atoi(pN)
-	if err != nil {
-		log.Println("Nit number in url")
-		c.AbortWithStatus(http.StatusInternalServerError)
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		ErrorHandling(userIdentityErr, c)
 		return
 	}
-	body, err := h.coursesDelegate.GetAllPublicCourses(pageNumber)
+	pageNumber := c.Param("pageNumber")
+	coursesListHTTP, err := h.coursesDelegate.GetAllPublicCourses(pageNumber)
+
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		ErrorHandling(err, c)
 		return
 	}
-	var coursesHTTP getCoursesListResponse
-	err = json.Unmarshal(body, &coursesHTTP)
-	log.Println(coursesHTTP)
-	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	c.JSON(http.StatusOK, coursesHTTP)
+	c.JSON(http.StatusOK, coursesListHTTP)
 }
 
 func (h *Handler) GetEnrollments(c *gin.Context) {
-	fmt.Println("Get Enrollments")
 	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		ErrorHandling(userIdentityErr, c)
+		return
 	}
 	username := c.Param("username")
 
-	body, err := h.coursesDelegate.GetEnrollments(username)
+	enrollmentsHTTP, err := h.coursesDelegate.GetEnrollments(username)
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-	var enrollmentsHTTP getEnrollmentsResponse
-	err = json.Unmarshal(body, &enrollmentsHTTP)
-	log.Println(enrollmentsHTTP)
-	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		ErrorHandling(err, c)
 		return
 	}
 	c.JSON(http.StatusOK, enrollmentsHTTP)
 }
 
 func (h *Handler) DeleteCourse(c *gin.Context) {
-	fmt.Println("Delete Course")
 	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		ErrorHandling(userIdentityErr, c)
 	}
 	courseId := c.Param("courseId")
 	err := h.coursesDelegate.DeleteCourse(courseId)
 
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		ErrorHandling(err, c)
 		return
+	}
+}
+
+func ErrorHandling(err error, c *gin.Context) {
+	switch err {
+	case courses.ErrBadRequest:
+		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+	case courses.ErrInternalServer:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+	case auth.ErrInvalidAccessToken:
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+	case auth.ErrTokenNotFound:
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+	default:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	}
 }

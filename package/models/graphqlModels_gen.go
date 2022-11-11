@@ -2,6 +2,74 @@
 
 package models
 
+type AbsoluteMediaHTTP struct {
+	ID          string `json:"ID"`
+	URI         string `json:"URI"`
+	URIAbsolute string `json:"URI_Absolute"`
+}
+
+type CourseAPIMediaCollectionHTTP struct {
+	ID          string             `json:"ID"`
+	BannerImage *AbsoluteMediaHTTP `json:"Banner_Image"`
+	CourseImage *MediaHTTP         `json:"Course_Image"`
+	CourseVideo *MediaHTTP         `json:"Course_Video"`
+	Image       *ImageHTTP         `json:"Image"`
+}
+
+type CourseHTTP struct {
+	ID               string                        `json:"ID"`
+	BlocksURL        string                        `json:"Blocks_URL"`
+	Effort           string                        `json:"Effort"`
+	EnrollmentStart  string                        `json:"Enrollment_Start"`
+	EnrollmentEnd    string                        `json:"Enrollment_End"`
+	End              string                        `json:"End"`
+	Name             string                        `json:"Name"`
+	Number           string                        `json:"Number"`
+	Org              string                        `json:"Org"`
+	ShortDescription string                        `json:"Short_Description"`
+	Start            string                        `json:"Start"`
+	StartDisplay     string                        `json:"Start_Display"`
+	StartType        string                        `json:"Start_Type"`
+	Pacing           string                        `json:"Pacing"`
+	MobileAvailable  bool                          `json:"Mobile_Available"`
+	Hidden           bool                          `json:"Hidden"`
+	InvitationOnly   bool                          `json:"Invitation_Only"`
+	Overview         *string                       `json:"Overview"`
+	CourseID         string                        `json:"Course_ID"`
+	Media            *CourseAPIMediaCollectionHTTP `json:"Media"`
+}
+
+type CoursesListHTTP struct {
+	Results    []*CourseHTTP `json:"Results"`
+	Pagination *Pagination   `json:"Pagination"`
+}
+
+type EnrollmentHTTP struct {
+	Created  string `json:"Created"`
+	Mode     string `json:"Mode"`
+	IsActive bool   `json:"IsActive"`
+	User     string `json:"User"`
+	CourseID string `json:"Course_ID"`
+}
+
+type EnrollmentsListHTTP struct {
+	Next     string            `json:"Next"`
+	Previous string            `json:"Previous"`
+	Results  []*EnrollmentHTTP `json:"Results"`
+}
+
+type ImageHTTP struct {
+	ID    string `json:"ID"`
+	Raw   string `json:"Raw"`
+	Small string `json:"Small"`
+	Large string `json:"Large"`
+}
+
+type MediaHTTP struct {
+	ID  string `json:"ID"`
+	URI string `json:"URI"`
+}
+
 type NewParent struct {
 	Email      string `json:"email"`
 	Password   string `json:"password"`
@@ -37,6 +105,13 @@ type NewUnitAdmin struct {
 	Firstname  string `json:"firstname"`
 	Lastname   string `json:"lastname"`
 	Middlename string `json:"middlename"`
+}
+
+type Pagination struct {
+	Next     string `json:"Next"`
+	Previous string `json:"Previous"`
+	Count    int    `json:"Count"`
+	NumPages int    `json:"Num_Pages"`
 }
 
 type ParentHTTP struct {

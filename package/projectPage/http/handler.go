@@ -35,7 +35,7 @@ func (h *Handler) InitProjectRoutes(router *gin.Engine) {
 		projectPage.GET("/:projectPageId", h.GetProjectPageById)
 		projectPage.GET("/", h.GetAllProjectPageByUserId)
 		projectPage.PUT("/", h.UpdateProjectPage)
-		projectPage.DELETE("/:projectId", h.DeleteProjectPage)
+		projectPage.DELETE("/:projectPageId", h.DeleteProjectPage)
 	}
 }
 
@@ -149,7 +149,7 @@ func (h *Handler) DeleteProjectPage(c *gin.Context) {
 		ErrorHandling(userIdentityErr, c)
 		return
 	}
-	projectId := c.Param("projectId")
+	projectId := c.Param("projectPageId")
 
 	err := h.projectPageDelegate.DeleteProjectPage(projectId)
 	if err != nil {

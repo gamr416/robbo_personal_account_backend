@@ -34,7 +34,7 @@ func (h *Handler) InitRobboGroupRoutes(router *gin.Engine) {
 		robboGroup.DELETE("/:robboGroupId", h.DeleteRobboUnit)
 		//robboGroup.POST("/robboGroupId", h.GetRobboGroupsByRobboUnitId)
 		robboGroup.POST("/setTeacher", h.SetTeacherForRobboGroup)
-		robboGroup.DELETE("/deleteTeacher", h.DeleteTeacherForRobboGroup)
+		robboGroup.DELETE("/:robboGroupId/deleteTeacher/:teacherId", h.DeleteTeacherForRobboGroup)
 	}
 }
 
@@ -155,15 +155,9 @@ func (h *Handler) DeleteTeacherForRobboGroup(c *gin.Context) {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
 
-	deleteTeacherForRobboGroupInput := new(SetTeacherForRobboGroupInput)
-
-	if err := c.BindJSON(deleteTeacherForRobboGroupInput); err != nil {
-		log.Println(err)
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-
-	deleteTeacherForRobboGroupErr := h.robboGroupDelegate.DeleteTeacherForRobboGroup(deleteTeacherForRobboGroupInput.TeacherId, deleteTeacherForRobboGroupInput.RobboGroupId)
+	robboGroupId := c.Param("robboGroupId")
+	teacherId := c.Param("teacherId")
+	deleteTeacherForRobboGroupErr := h.robboGroupDelegate.DeleteTeacherForRobboGroup(teacherId, robboGroupId)
 
 	if deleteTeacherForRobboGroupErr != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)

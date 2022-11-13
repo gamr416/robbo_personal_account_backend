@@ -3,7 +3,6 @@ name: ActionEDX
 on: [push]
 
 jobs:
-
   edx:
     runs-on: ubuntu-20.04
     steps:

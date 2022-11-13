@@ -72,7 +72,9 @@ func (h *Handler) GetProjectPageById(c *gin.Context) {
 	log.Println("Get Project Page By ID")
 	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		log.Println(userIdentityErr)
+		ErrorHandling(userIdentityErr, c)
+		return
 	}
 	projectPageId := c.Param("projectPageId")
 	projectPage, err := h.projectPageDelegate.GetProjectPageById(projectPageId)

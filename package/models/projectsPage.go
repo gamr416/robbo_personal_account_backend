@@ -28,17 +28,6 @@ type ProjectPageDB struct {
 	IsShared    bool
 }
 
-type ProjectPageHTTP struct {
-	LastModified string `json:"lastModified"`
-	ProjectId    string `json:"projectId"`
-	Instruction  string `json:"instruction"`
-	Notes        string `json:"notes"`
-	Preview      string `json:"preview"`
-	LinkScratch  string `json:"linkScratch"`
-	Title        string `json:"title"`
-	IsShared     bool   `json:"isShared"`
-}
-
 func (em *ProjectPageDB) ToCore() *ProjectPageCore {
 	return &ProjectPageCore{
 		LastModified: em.UpdatedAt.String(),
@@ -66,7 +55,7 @@ func (ht *ProjectPageHTTP) ToCore() *ProjectPageCore {
 	return &ProjectPageCore{
 		LastModified: ht.LastModified,
 		Title:        ht.Title,
-		ProjectId:    ht.ProjectId,
+		ProjectId:    ht.ProjectID,
 		Instruction:  ht.Instruction,
 		Notes:        ht.Notes,
 		Preview:      ht.Preview,
@@ -77,7 +66,7 @@ func (ht *ProjectPageHTTP) ToCore() *ProjectPageCore {
 
 func (ht *ProjectPageHTTP) FromCore(pp *ProjectPageCore) {
 	ht.LastModified = pp.LastModified
-	ht.ProjectId = pp.ProjectId
+	ht.ProjectID = pp.ProjectId
 	ht.Instruction = pp.Instruction
 	ht.Notes = pp.Notes
 	ht.Preview = pp.Preview

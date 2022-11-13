@@ -20,12 +20,6 @@ type AbsoluteMediaDB struct {
 	CourseApiMediaCollection   CourseApiMediaCollectionDB `gorm:"foreignKey:CourseApiMediaCollectionID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
-type AbsoluteMediaHTTP struct {
-	ID          string `json:"id"`
-	Uri         string `json:"uri"`
-	UriAbsolute string `json:"uri_absolute"`
-}
-
 func (em *AbsoluteMediaDB) ToCore() *AbsoluteMediaCore {
 	return &AbsoluteMediaCore{
 		ID:                         strconv.FormatUint(uint64(em.ID), 10),
@@ -47,13 +41,13 @@ func (em *AbsoluteMediaDB) FromCore(absoluteMedia *AbsoluteMediaCore) {
 func (ht *AbsoluteMediaHTTP) ToCore() *AbsoluteMediaCore {
 	return &AbsoluteMediaCore{
 		ID:          ht.ID,
-		Uri:         ht.Uri,
-		UriAbsolute: ht.UriAbsolute,
+		Uri:         ht.URI,
+		UriAbsolute: ht.URIAbsolute,
 	}
 }
 
 func (ht *AbsoluteMediaHTTP) FromCore(absoluteMedia *AbsoluteMediaCore) {
 	ht.ID = absoluteMedia.ID
-	ht.Uri = absoluteMedia.Uri
-	ht.UriAbsolute = absoluteMedia.UriAbsolute
+	ht.URI = absoluteMedia.Uri
+	ht.URIAbsolute = absoluteMedia.UriAbsolute
 }

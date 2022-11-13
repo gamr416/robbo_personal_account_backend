@@ -1,0 +1,80 @@
+type CourseHttp {
+    ID: String!
+    Blocks_URL: String!
+    Effort: String!
+    Enrollment_Start: Timestamp!
+    Enrollment_End: Timestamp!
+    End: Timestamp!
+    Name: String!
+    Number: String!
+    Org: String!
+    Short_Description: String!
+    Start: Timestamp!
+    Start_Display: String!
+    Start_Type: String!
+    Pacing: String!
+    Mobile_Available: Boolean!
+    Hidden: Boolean!
+    Invitation_Only: Boolean!
+    Overview: String
+    Course_ID: String!
+    Media: CourseAPIMediaCollectionHttp!
+}
+
+type CourseAPIMediaCollectionHttp {
+    ID: String!
+    Banner_Image: AbsoluteMediaHttp
+    Course_Image: MediaHttp
+    Course_Video: MediaHttp
+    Image: ImageHttp
+}
+
+type AbsoluteMediaHttp {
+    ID: String!
+    URI: String!
+    URI_Absolute: String!
+}
+
+type ImageHttp {
+    ID: String!
+    Raw: String!
+    Small: String!
+    Large: String!
+}
+
+type MediaHttp {
+    ID: String!
+    URI: String!
+}
+
+type EnrollmentHttp {
+    Created: Timestamp!
+    Mode: String!
+    IsActive: Boolean!
+    User: String!
+    Course_ID: String!
+}
+
+type EnrollmentsListHttp {
+    Next: String!
+    Previous: String!
+    Results:  [EnrollmentHttp!]
+}
+
+type Pagination {
+    Next: String!
+    Previous: String!
+    Count: Int!
+    Num_Pages: Int!
+}
+type CoursesListHttp {
+    Results:    [CourseHttp!]!
+    Pagination: Pagination!
+}
+
+extend type Query {
+    GetCourseContent(courseId: String!): CourseHttp!
+    GetCoursesByUser: CoursesListHttp!
+    GetAllPublicCourses(pageNumber: String!): CoursesListHttp!
+    GetEnrollments(username: String!): EnrollmentsListHttp!
+}

@@ -1,0 +1,15 @@
+type ProjectPageHttp {
+    LastModified: String!
+    ProjectID: String!
+    Instruction: String!
+    Notes: String!
+    Preview: String!
+    LinkScratch: String!
+    Title: String!
+    IsShared: Boolean!
+}
+
+extend type Query {
+    GetProjectPageById(projectPageID: String!): ProjectPageHttp!
+    GetAllProjectPageByUserID(userID: String!): [ProjectPageHttp!]!
+}

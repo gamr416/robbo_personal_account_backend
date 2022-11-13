@@ -169,6 +169,8 @@ func SetupGraphQLModule(delegate DelegateModule) GraphQLModule {
 			delegate.UsersDelegate,
 			delegate.RobboGroupDelegate,
 			delegate.RobboUnitsDelegate,
+			delegate.CoursesDelegate,
+			delegate.ProjectPageDelegate,
 		),
 	}
 }

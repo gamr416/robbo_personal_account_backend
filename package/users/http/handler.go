@@ -16,7 +16,10 @@ type Handler struct {
 	usersDelegate users.Delegate
 }
 
-func NewUsersHandler(authDelegate auth.Delegate, usersDelegate users.Delegate) Handler {
+func NewUsersHandler(
+	authDelegate auth.Delegate,
+	usersDelegate users.Delegate,
+) Handler {
 	return Handler{
 		authDelegate:  authDelegate,
 		usersDelegate: usersDelegate,
@@ -100,7 +103,7 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 
 func (h *Handler) GetUser(c *gin.Context) {
 	fmt.Println("GetUser")
-	userId, role, err := h.userIdentity(c)
+	userId, role, err := h.authDelegate.UserIdentity(c)
 
 	if err != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
@@ -170,6 +173,11 @@ func (h *Handler) SearchStudentByEmail(c *gin.Context) {
 
 func (h *Handler) GetStudentById(c *gin.Context) {
 	fmt.Println("Get Student By Id")
+	_, _, err := h.authDelegate.UserIdentity(c)
+	if err != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
+
 	studentId := c.Param("studentId")
 
 	student, err := h.usersDelegate.GetStudentById(studentId)
@@ -181,7 +189,7 @@ func (h *Handler) GetStudentById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, getStudentResponse{
-		student,
+		*student,
 	})
 }
 
@@ -189,6 +197,10 @@ func (h *Handler) GetStudentByParentId(c *gin.Context) {
 	fmt.Println("Get Student By Parent Id")
 	parentId := c.Param("parentId")
 
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	students, err := h.usersDelegate.GetStudentByParentId(parentId)
 
 	if err != nil {
@@ -208,8 +220,10 @@ type createStudentInput struct {
 func (h *Handler) CreateStudent(c *gin.Context) {
 	fmt.Println("Create Student")
 
-	_, role, userIdentityErr := h.userIdentity(c)
-	if role != models.SuperAdmin || userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role < models.UnitAdmin || userIdentityErr != nil {
+		fmt.Println(role)
+		fmt.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
@@ -237,8 +251,12 @@ func (h *Handler) CreateStudent(c *gin.Context) {
 
 func (h *Handler) UpdateStudent(c *gin.Context) {
 	fmt.Println("Update Student")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 
-	userHttp := models.UserHttp{}
+	userHttp := models.UserHTTP{}
 
 	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
@@ -247,7 +265,7 @@ func (h *Handler) UpdateStudent(c *gin.Context) {
 	}
 
 	studentHttp := &models.StudentHTTP{
-		UserHttp: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	err := h.usersDelegate.UpdateStudent(studentHttp)
@@ -262,6 +280,10 @@ func (h *Handler) UpdateStudent(c *gin.Context) {
 
 func (h *Handler) DeleteStudent(c *gin.Context) {
 	fmt.Println("Delete Student")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 
 	studentId := c.Param("studentId")
 	id, _ := strconv.Atoi(studentId)
@@ -281,6 +303,11 @@ type SetRobboGroupIdForStudentInput struct {
 
 func (h *Handler) SetRobboGroupIdForStudent(c *gin.Context) {
 	fmt.Println("SetRobboGroupIdForStudent")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
+
 	studentId := c.Param("studentId")
 	robboGroupId := c.Param("robboGroupId")
 	input := new(SetRobboGroupIdForStudentInput)
@@ -303,9 +330,13 @@ func (h *Handler) SetRobboGroupIdForStudent(c *gin.Context) {
 
 func (h *Handler) CreateTeacher(c *gin.Context) {
 	fmt.Println("Create Teacher")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 
-	userHttp := models.UserHttp{
-		Role: uint(models.Teacher),
+	userHttp := models.UserHTTP{
+		Role: int(models.Teacher),
 	}
 
 	if err := c.BindJSON(&userHttp); err != nil {
@@ -314,7 +345,7 @@ func (h *Handler) CreateTeacher(c *gin.Context) {
 		return
 	}
 	teacherHttp := &models.TeacherHTTP{
-		UserHttp: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	teacherId, err := h.usersDelegate.CreateTeacher(teacherHttp)
@@ -332,6 +363,10 @@ func (h *Handler) CreateTeacher(c *gin.Context) {
 
 func (h *Handler) DeleteTeacher(c *gin.Context) {
 	fmt.Println("Delete Teacher")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 
 	teacherId := c.Param("teacherId")
 	id, _ := strconv.Atoi(teacherId)
@@ -348,6 +383,10 @@ func (h *Handler) DeleteTeacher(c *gin.Context) {
 
 func (h *Handler) GetTeacherById(c *gin.Context) {
 	fmt.Println("Get Teacher By Id")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	teacherId := c.Param("teacherId")
 
 	teacher, err := h.usersDelegate.GetTeacherById(teacherId)
@@ -359,12 +398,16 @@ func (h *Handler) GetTeacherById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, getTeacherResponse{
-		teacher,
+		*teacher,
 	})
 }
 
 func (h *Handler) GetAllTeachers(c *gin.Context) {
 	fmt.Println("Get All Teachers")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	teachers, err := h.usersDelegate.GetAllTeachers()
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -380,7 +423,11 @@ type updateTeacherInput struct {
 
 func (h *Handler) UpdateTeacher(c *gin.Context) {
 	fmt.Println("Update Teacher")
-	userHttp := models.UserHttp{}
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
+	userHttp := models.UserHTTP{}
 
 	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
@@ -389,7 +436,7 @@ func (h *Handler) UpdateTeacher(c *gin.Context) {
 	}
 
 	teacherHttp := &models.TeacherHTTP{
-		UserHttp: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	err := h.usersDelegate.UpdateTeacher(teacherHttp)
@@ -404,6 +451,10 @@ func (h *Handler) UpdateTeacher(c *gin.Context) {
 
 func (h *Handler) GetParentById(c *gin.Context) {
 	fmt.Println("Get Parent By Id")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	parentId := c.Param("parentId")
 
 	parent, err := h.usersDelegate.GetParentById(parentId)
@@ -415,12 +466,16 @@ func (h *Handler) GetParentById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, getParentResponse{
-		parent,
+		*parent,
 	})
 }
 
 func (h *Handler) GetAllParent(c *gin.Context) {
 	fmt.Println("Get All Parents")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	parents, err := h.usersDelegate.GetAllParent()
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -432,13 +487,13 @@ func (h *Handler) GetAllParent(c *gin.Context) {
 
 func (h *Handler) CreateParent(c *gin.Context) {
 	fmt.Println("Create Parent")
-	_, role, userIdentityErr := h.userIdentity(c)
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if role != models.SuperAdmin || userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
-	userHttp := models.UserHttp{
-		Role: uint(models.Parent),
+	userHttp := models.UserHTTP{
+		Role: int(models.Parent),
 	}
 
 	if err := c.BindJSON(&userHttp); err != nil {
@@ -447,7 +502,7 @@ func (h *Handler) CreateParent(c *gin.Context) {
 		return
 	}
 	parentHttp := &models.ParentHTTP{
-		UserHttp: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	parentId, err := h.usersDelegate.CreateParent(parentHttp)
@@ -465,6 +520,10 @@ func (h *Handler) CreateParent(c *gin.Context) {
 
 func (h *Handler) DeleteParent(c *gin.Context) {
 	fmt.Println("Delete Parent")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 
 	parentId := c.Param("parentId")
 	id, _ := strconv.Atoi(parentId)
@@ -485,7 +544,11 @@ type updateParentInput struct {
 
 func (h *Handler) UpdateParent(c *gin.Context) {
 	fmt.Println("Update Parent")
-	userHttp := models.UserHttp{}
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
+	userHttp := models.UserHTTP{}
 
 	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
@@ -494,7 +557,7 @@ func (h *Handler) UpdateParent(c *gin.Context) {
 	}
 
 	parentHttp := &models.ParentHTTP{
-		UserHttp: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	err := h.usersDelegate.UpdateParent(parentHttp)
@@ -509,6 +572,10 @@ func (h *Handler) UpdateParent(c *gin.Context) {
 
 func (h *Handler) GetFreeListenerById(c *gin.Context) {
 	fmt.Println("Get FreeListener By Id")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	freeListenerId := c.Param("freeListenerId")
 
 	freeListener, err := h.usersDelegate.GetFreeListenerById(freeListenerId)
@@ -526,9 +593,13 @@ func (h *Handler) GetFreeListenerById(c *gin.Context) {
 
 func (h *Handler) CreateFreeListener(c *gin.Context) {
 	fmt.Println("Create FreeListener")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 
-	userHttp := models.UserHttp{
-		Role: uint(models.FreeListener),
+	userHttp := models.UserHTTP{
+		Role: int(models.FreeListener),
 	}
 
 	if err := c.BindJSON(&userHttp); err != nil {
@@ -538,7 +609,7 @@ func (h *Handler) CreateFreeListener(c *gin.Context) {
 	}
 
 	freeListener := &models.FreeListenerHttp{
-		UserHttp: userHttp,
+		UserHTTP: userHttp,
 	}
 
 	freeListenerId, err := h.usersDelegate.CreateFreeListener(freeListener)
@@ -556,6 +627,10 @@ func (h *Handler) CreateFreeListener(c *gin.Context) {
 
 func (h *Handler) DeleteFreeListener(c *gin.Context) {
 	fmt.Println("Delete Free Listener")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 
 	freeListenerId := c.Param("freeListenerId")
 	id, _ := strconv.Atoi(freeListenerId)
@@ -576,7 +651,11 @@ type updateFreeListenerInput struct {
 
 func (h *Handler) UpdateFreeListener(c *gin.Context) {
 	fmt.Println("Update Free Listener")
-	userHttp := models.UserHttp{}
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
+	userHttp := models.UserHTTP{}
 
 	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
@@ -585,7 +664,7 @@ func (h *Handler) UpdateFreeListener(c *gin.Context) {
 	}
 
 	freeListenerHttp := &models.FreeListenerHttp{
-		UserHttp: userHttp,
+		UserHTTP: userHttp,
 	}
 
 	err := h.usersDelegate.UpdateFreeListener(freeListenerHttp)
@@ -600,6 +679,10 @@ func (h *Handler) UpdateFreeListener(c *gin.Context) {
 
 func (h *Handler) GetUnitAdminByID(c *gin.Context) {
 	fmt.Println("Get Unit Admin By ID")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	unitAdminId := c.Param("unitAdminId")
 
 	unitAdmin, err := h.usersDelegate.GetUnitAdminById(unitAdminId)
@@ -617,6 +700,10 @@ func (h *Handler) GetUnitAdminByID(c *gin.Context) {
 
 func (h *Handler) GetUnitAdminsByRobboUnitId(c *gin.Context) {
 	fmt.Println("GetUnitAdminsByRobboUnitId")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	robboUnitId := c.Param("robboUnitId")
 
 	unitAdmins, err := h.usersDelegate.GetUnitAdminByRobboUnitId(robboUnitId)
@@ -632,6 +719,10 @@ func (h *Handler) GetUnitAdminsByRobboUnitId(c *gin.Context) {
 
 func (h *Handler) GetAllUnitAdmins(c *gin.Context) {
 	fmt.Println("Get All UnitAdmins")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	unitAdmins, err := h.usersDelegate.GetAllUnitAdmins()
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -647,7 +738,11 @@ type updateUnitAdminInput struct {
 
 func (h *Handler) UpdateUnitAdmin(c *gin.Context) {
 	fmt.Println("Update Unit Admin")
-	userHttp := models.UserHttp{}
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
+	userHttp := models.UserHTTP{}
 
 	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
@@ -656,7 +751,7 @@ func (h *Handler) UpdateUnitAdmin(c *gin.Context) {
 	}
 
 	unitAdminHttp := &models.UnitAdminHTTP{
-		UserHttp: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	err := h.usersDelegate.UpdateUnitAdmin(unitAdminHttp)
@@ -671,9 +766,13 @@ func (h *Handler) UpdateUnitAdmin(c *gin.Context) {
 
 func (h *Handler) CreateUnitAdmin(c *gin.Context) {
 	fmt.Println("Create Unit Admin")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 
-	userHttp := models.UserHttp{
-		Role: uint(models.UnitAdmin),
+	userHttp := models.UserHTTP{
+		Role: int(models.UnitAdmin),
 	}
 	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
@@ -682,7 +781,7 @@ func (h *Handler) CreateUnitAdmin(c *gin.Context) {
 	}
 
 	unitAdminHttp := &models.UnitAdminHTTP{
-		UserHttp: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	unitAdminId, err := h.usersDelegate.CreateUnitAdmin(unitAdminHttp)
@@ -699,6 +798,10 @@ func (h *Handler) CreateUnitAdmin(c *gin.Context) {
 
 func (h *Handler) DeleteUnitAdmin(c *gin.Context) {
 	fmt.Println("Delete Unit Admin")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 
 	unitAdminId := c.Param("unitAdminId")
 	id, _ := strconv.Atoi(unitAdminId)
@@ -714,6 +817,10 @@ func (h *Handler) DeleteUnitAdmin(c *gin.Context) {
 
 func (h *Handler) SearchUnitAdminByEmail(c *gin.Context) {
 	fmt.Println("SearchUnitAdminByEmail")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	unitAdminEmail := c.Param("unitAdminEmail")
 
 	unitAdmins, err := h.usersDelegate.SearchUnitAdminByEmail(unitAdminEmail)
@@ -726,6 +833,10 @@ func (h *Handler) SearchUnitAdminByEmail(c *gin.Context) {
 
 func (h *Handler) GetSuperAdminById(c *gin.Context) {
 	fmt.Println("Get Super Admin By Id")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	superAdminId := c.Param("superAdminId")
 
 	superAdmin, err := h.usersDelegate.GetSuperAdminById(superAdminId)
@@ -747,7 +858,11 @@ type updateSuperAdminInput struct {
 
 func (h *Handler) UpdateSuperAdmin(c *gin.Context) {
 	fmt.Println("Update Super Admin")
-	userHttp := models.UserHttp{}
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
+	userHttp := models.UserHTTP{}
 
 	if err := c.BindJSON(&userHttp); err != nil {
 		log.Println(err)
@@ -756,7 +871,7 @@ func (h *Handler) UpdateSuperAdmin(c *gin.Context) {
 	}
 
 	superAdminHTTP := &models.SuperAdminHTTP{
-		UserHttp: userHttp,
+		UserHTTP: &userHttp,
 	}
 
 	err := h.usersDelegate.UpdateSuperAdmin(superAdminHTTP)
@@ -771,6 +886,10 @@ func (h *Handler) UpdateSuperAdmin(c *gin.Context) {
 
 func (h *Handler) DeleteSuperAdmin(c *gin.Context) {
 	fmt.Println("Delete Super Admin")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	superAdminId := c.Param("AdminId")
 	id, _ := strconv.Atoi(superAdminId)
 	err := h.usersDelegate.DeleteSuperAdmin(uint(id))
@@ -790,7 +909,10 @@ type createRelation struct {
 
 func (h *Handler) CreateRelation(c *gin.Context) {
 	fmt.Println("CreateRelation")
-
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	createRelationInput := new(createRelation)
 
 	if err := c.BindJSON(createRelationInput); err != nil {
@@ -816,7 +938,10 @@ type setNewUnitAdminForRobboUnitRequest struct {
 
 func (h *Handler) SetNewUnitAdminForRobboUnit(c *gin.Context) {
 	fmt.Println("SetNewUnitAdminForRobboUnit")
-
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	input := new(setNewUnitAdminForRobboUnitRequest)
 
 	if err := c.BindJSON(input); err != nil {
@@ -837,6 +962,10 @@ func (h *Handler) SetNewUnitAdminForRobboUnit(c *gin.Context) {
 
 func (h *Handler) DeleteUnitAdminForRobboUnit(c *gin.Context) {
 	fmt.Println("DeleteUnitAdminForRobboUnit")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 
 	input := new(setNewUnitAdminForRobboUnitRequest)
 

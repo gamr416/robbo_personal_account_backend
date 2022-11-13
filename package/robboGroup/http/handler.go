@@ -15,7 +15,10 @@ type Handler struct {
 	robboGroupDelegate robboGroup.Delegate
 }
 
-func NewRobboGroupHandler(authDelegate auth.Delegate, robboGroup robboGroup.Delegate) Handler {
+func NewRobboGroupHandler(
+	authDelegate auth.Delegate,
+	robboGroup robboGroup.Delegate,
+) Handler {
 	return Handler{
 		authDelegate:       authDelegate,
 		robboGroupDelegate: robboGroup,
@@ -30,14 +33,19 @@ func (h *Handler) InitRobboGroupRoutes(router *gin.Engine) {
 		robboGroup.GET("/", h.GetRobboGroupsByRobboUnitId)
 		robboGroup.DELETE("/:robboGroupId", h.DeleteRobboUnit)
 		//robboGroup.POST("/robboGroupId", h.GetRobboGroupsByRobboUnitId)
+		robboGroup.POST("/setTeacher", h.SetTeacherForRobboGroup)
+		robboGroup.DELETE("/:robboGroupId/deleteTeacher/:teacherId", h.DeleteTeacherForRobboGroup)
 	}
 }
 
 func (h *Handler) CreateRobboGroup(c *gin.Context) {
 	fmt.Println("Create Robbo Unit")
-
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	robboUnitId := c.Param("robboUnitId")
-	robboGroupHttp := models.RobboGroupHttp{}
+	robboGroupHttp := models.RobboGroupHTTP{}
 	if err := c.BindJSON(&robboGroupHttp); err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -46,7 +54,7 @@ func (h *Handler) CreateRobboGroup(c *gin.Context) {
 
 	fmt.Println(robboGroupHttp)
 
-	robboGroupHttp.RobboUnitId = robboUnitId
+	robboGroupHttp.RobboUnitID = robboUnitId
 	robboGroupId, err := h.robboGroupDelegate.CreateRobboGroup(&robboGroupHttp)
 	if err != nil {
 		log.Println(err)
@@ -61,6 +69,10 @@ func (h *Handler) CreateRobboGroup(c *gin.Context) {
 
 func (h *Handler) GetRobboGroupById(c *gin.Context) {
 	fmt.Println("Get RobboUnit By Id")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	robboGroupId := c.Param("robboGroupId")
 
 	robboGroup, err := h.robboGroupDelegate.GetRobboGroupById(robboGroupId)
@@ -76,7 +88,10 @@ func (h *Handler) GetRobboGroupById(c *gin.Context) {
 
 func (h *Handler) GetRobboGroupsByRobboUnitId(c *gin.Context) {
 	fmt.Println("Get all robboUnits")
-
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	robboUnitId := c.Param("robboUnitId")
 
 	robboGroups, err := h.robboGroupDelegate.GetRobboGroupsByRobboUnitId(robboUnitId)
@@ -90,7 +105,10 @@ func (h *Handler) GetRobboGroupsByRobboUnitId(c *gin.Context) {
 
 func (h *Handler) DeleteRobboUnit(c *gin.Context) {
 	fmt.Println("Delete RobboUnit")
-
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	robboGroupId := c.Param("robboGroupId")
 	err := h.robboGroupDelegate.DeleteRobboGroup(robboGroupId)
 	if err != nil {
@@ -98,5 +116,53 @@ func (h *Handler) DeleteRobboUnit(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
+	c.Status(http.StatusOK)
+}
+
+type SetTeacherForRobboGroupInput struct {
+	TeacherId    string `json:"teacherId"`
+	RobboGroupId string `json:"robboGroupId"`
+}
+
+func (h *Handler) SetTeacherForRobboGroup(c *gin.Context) {
+	fmt.Println("SetTeacherForRobboGroup")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
+	setTeacherForRobboGroupInput := new(SetTeacherForRobboGroupInput)
+
+	if err := c.BindJSON(setTeacherForRobboGroupInput); err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	setTeacherForRobboGroupErr := h.robboGroupDelegate.SetTeacherForRobboGroup(setTeacherForRobboGroupInput.TeacherId, setTeacherForRobboGroupInput.RobboGroupId)
+
+	if setTeacherForRobboGroupErr != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+func (h *Handler) DeleteTeacherForRobboGroup(c *gin.Context) {
+	fmt.Println("DeleteTeacherForRobboGroup")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
+
+	robboGroupId := c.Param("robboGroupId")
+	teacherId := c.Param("teacherId")
+	deleteTeacherForRobboGroupErr := h.robboGroupDelegate.DeleteTeacherForRobboGroup(teacherId, robboGroupId)
+
+	if deleteTeacherForRobboGroupErr != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
 	c.Status(http.StatusOK)
 }

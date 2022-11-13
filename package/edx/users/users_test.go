@@ -16,7 +16,7 @@ func TestGetUser(t *testing.T) {
 	edxUseCase := usecase.SetupEdxApiUseCase()
 
 	expect := []byte("{\"username\":\"edxsom\"}")
-	correct, _ := edxUseCase.ApiUser.GetUser()
+	correct, _ := edxUseCase.UseCase.GetUser()
 	assert.Equal(t, expect, correct)
 
 }
@@ -56,7 +56,7 @@ func TestEdxApiUseCaseImpl_Login(t *testing.T) {
 	for _, testCase := range testTable {
 		t.Run(testCase.name, func(t *testing.T) {
 			expect := testCase.expectedError
-			_, correct := edxUseCase.ApiUser.Login(testCase.email, testCase.password)
+			_, correct := edxUseCase.UseCase.Login(testCase.email, testCase.password)
 
 			assert.Equal(t, expect, correct)
 		})
@@ -158,7 +158,7 @@ func TestEdxApiUseCaseImpl_PostRegistration(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 
 			expect := testCase.expectedError
-			_, correct := edxUseCase.ApiUser.PostRegistration(testCase.registrationMessage)
+			_, correct := edxUseCase.UseCase.PostRegistration(testCase.registrationMessage)
 			assert.Equal(t, expect, correct)
 		})
 	}

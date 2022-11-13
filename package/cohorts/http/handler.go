@@ -18,7 +18,10 @@ type Handler struct {
 	cohortsDelegate cohorts.Delegate
 }
 
-func NewCohortsHandler(authDelegate auth.Delegate, cohortsDelegate cohorts.Delegate) Handler {
+func NewCohortsHandler(
+	authDelegate auth.Delegate,
+	cohortsDelegate cohorts.Delegate,
+) Handler {
 	return Handler{
 		authDelegate:    authDelegate,
 		cohortsDelegate: cohortsDelegate,
@@ -39,6 +42,10 @@ func (h *Handler) InitCohortRoutes(router *gin.Engine) {
 
 func (h *Handler) CreateCohort(c *gin.Context) {
 	fmt.Println("Create Cohort")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	createCohortResponse := models.CreateCohortHTTP{}
 	courseId := c.Param("courseId")
 	body, err := ioutil.ReadAll(c.Request.Body)
@@ -72,6 +79,10 @@ func (h *Handler) CreateCohort(c *gin.Context) {
 
 func (h *Handler) AddStudent(c *gin.Context) {
 	fmt.Println("Add Student")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
 	tempCohortId := c.Param("cohortId")
 	cohortId, _ := strconv.Atoi(tempCohortId)
 	courseId := c.Param("courseId")

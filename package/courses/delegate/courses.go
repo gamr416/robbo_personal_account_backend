@@ -2,18 +2,17 @@ package delegate
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/edx"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"go.uber.org/fx"
 	"log"
+	"strconv"
 )
 
 type CourseDelegateImpl struct {
-	courses.UseCase
-	edx.CourseUseCase
-	edx.UserUseCase
+	CoursesUseCase courses.UseCase
+	EdxUseCase     edx.UseCase
 }
 
 type CourseDelegateModule struct {
@@ -21,102 +20,121 @@ type CourseDelegateModule struct {
 	courses.Delegate
 }
 
-func SetupCourseDelegate(usecase courses.UseCase, edxCourse edx.CourseUseCase, edxUser edx.UserUseCase) CourseDelegateModule {
+func SetupCourseDelegate(coursesUsecase courses.UseCase, edxUsecase edx.UseCase) CourseDelegateModule {
 	return CourseDelegateModule{
 		Delegate: &CourseDelegateImpl{
-			usecase,
-			edxCourse,
-			edxUser,
+			coursesUsecase,
+			edxUsecase,
 		},
 	}
 }
 
 func (p *CourseDelegateImpl) CreateCourse(course *models.CourseHTTP, courseId string) (id string, err error) {
-	body, err := p.CourseUseCase.GetCourseContent(courseId)
+	body, err := p.EdxUseCase.GetCourseContent(courseId)
 	if err != nil {
-		return "", err
+		return "", courses.ErrBadRequest
 	}
 	err = json.Unmarshal(body, course)
-	fmt.Println(course)
 	if err != nil {
-		return "", err
+		return "", courses.ErrInternalServer
 	}
 	courseCore := course.ToCore()
-	return p.UseCase.CreateCourse(courseCore)
+	return p.CoursesUseCase.CreateCourse(courseCore)
 }
 
 func (p *CourseDelegateImpl) DeleteCourse(courseId string) (err error) {
-	return p.UseCase.DeleteCourse(courseId)
+	return p.CoursesUseCase.DeleteCourse(courseId)
 }
 
 func (p *CourseDelegateImpl) UpdateCourse(course *models.CourseHTTP) (err error) {
 	courseCore := course.ToCore()
-	return p.UseCase.UpdateCourse(courseCore)
+	return p.CoursesUseCase.UpdateCourse(courseCore)
 }
 
-func (p *CourseDelegateImpl) GetCourseContent(courseId string) (respBody []byte, err error) {
-	body, err := p.CourseUseCase.GetCourseContent(courseId)
+func (p *CourseDelegateImpl) GetCourseContent(courseId string) (courseHTTP *models.CourseHTTP, err error) {
+	body, err := p.EdxUseCase.GetCourseContent(courseId)
 	if err != nil {
-		return nil, err
+		return nil, courses.ErrBadRequest
 	}
-	return body, nil
-}
-func (p *CourseDelegateImpl) GetCoursesByUser() (respBody []byte, err error) {
-	body, err := p.CourseUseCase.GetCoursesByUser()
+	err = json.Unmarshal(body, &courseHTTP)
 	if err != nil {
-		return nil, err
+		return nil, courses.ErrInternalServer
 	}
-	return body, nil
+	return courseHTTP, nil
 }
 
-func (p *CourseDelegateImpl) GetEnrollments(username string) (respBody []byte, err error) {
-	body, err := p.CourseUseCase.GetEnrollments(username)
+func (p *CourseDelegateImpl) GetCoursesByUser() (coursesListHTTP *models.CoursesListHTTP, err error) {
+	body, err := p.EdxUseCase.GetCoursesByUser()
 	if err != nil {
-		return nil, err
+		return nil, courses.ErrBadRequest
 	}
-	return body, nil
+	err = json.Unmarshal(body, &coursesListHTTP)
+	if err != nil {
+		return nil, courses.ErrInternalServer
+	}
+	return coursesListHTTP, nil
 }
 
-func (p *CourseDelegateImpl) GetAllPublicCourses(pageNumber int) (respBody []byte, err error) {
-	body, err := p.CourseUseCase.GetAllPublicCourses(pageNumber)
+func (p *CourseDelegateImpl) GetEnrollments(username string) (enrollmentsListHTTP *models.EnrollmentsListHTTP, err error) {
+	body, err := p.EdxUseCase.GetEnrollments(username)
 	if err != nil {
-		return nil, err
+		return nil, courses.ErrBadRequest
 	}
-	return body, nil
+	err = json.Unmarshal(body, &enrollmentsListHTTP)
+	if err != nil {
+		return nil, courses.ErrInternalServer
+	}
+	return enrollmentsListHTTP, nil
+}
+
+func (p *CourseDelegateImpl) GetAllPublicCourses(pageNumber string) (coursesListHTTP *models.CoursesListHTTP, err error) {
+	pN, err := strconv.Atoi(pageNumber)
+	if err != nil {
+		return nil, courses.ErrBadRequest
+	}
+	body, err := p.EdxUseCase.GetAllPublicCourses(pN)
+	if err != nil {
+		return nil, courses.ErrBadRequest
+	}
+	err = json.Unmarshal(body, &coursesListHTTP)
+	if err != nil {
+		return nil, courses.ErrInternalServer
+	}
+	return coursesListHTTP, nil
 }
 
 func (p *CourseDelegateImpl) PostEnrollment(postEnrollmentHTTP *models.PostEnrollmentHTTP) (err error) {
-	_, err = p.CourseUseCase.PostEnrollment(postEnrollmentHTTP.Message)
+	_, err = p.EdxUseCase.PostEnrollment(postEnrollmentHTTP.Message)
 	if err != nil {
 		log.Println(err)
-		return err
+		return courses.ErrBadRequest
 	}
 	return
 }
 
 func (p *CourseDelegateImpl) PostUnenroll(postUnenrollHTTP *models.PostEnrollmentHTTP) (err error) {
-	_, err = p.CourseUseCase.PostEnrollment(postUnenrollHTTP.Message)
+	_, err = p.EdxUseCase.PostEnrollment(postUnenrollHTTP.Message)
 	if err != nil {
 		log.Println(err)
-		return err
+		return courses.ErrBadRequest
 	}
 	return
 }
 
 func (p *CourseDelegateImpl) Login(email, password string) (err error) {
-	_, err = p.UserUseCase.Login(email, password)
+	_, err = p.EdxUseCase.Login(email, password)
 	if err != nil {
 		log.Println(err)
-		return err
+		return courses.ErrBadRequest
 	}
 	return
 }
 
 func (p *CourseDelegateImpl) Registration(userForm *edx.RegistrationForm) (err error) {
-	_, err = p.UserUseCase.PostRegistration(*userForm)
+	_, err = p.EdxUseCase.PostRegistration(*userForm)
 	if err != nil {
 		log.Println(err)
-		return err
+		return courses.ErrBadRequest
 	}
 	return
 }

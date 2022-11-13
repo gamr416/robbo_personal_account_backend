@@ -55,29 +55,6 @@ type CourseDB struct {
 	StrCourseID      string
 }
 
-type CourseHTTP struct {
-	ID               string                       `json:"id"`
-	BlocksUrl        string                       `json:"blocks_url"`
-	Effort           string                       `json:"effort"`
-	End              time.Time                    `json:"end"`
-	EnrollmentStart  time.Time                    `json:"enrollment_start"`
-	EnrollmentEnd    time.Time                    `json:"enrollment_end"`
-	Media            CourseApiMediaCollectionHTTP `json:"media"`
-	Name             string                       `json:"name"`
-	Number           string                       `json:"number"`
-	Org              string                       `json:"org"`
-	ShortDescription string                       `json:"short_description"`
-	Start            time.Time                    `json:"start"`
-	StartDisplay     string                       `json:"start_display"`
-	StartType        string                       `json:"start_type"`
-	Pacing           string                       `json:"pacing"`
-	MobileAvailable  bool                         `json:"mobile_available"`
-	Hidden           bool                         `json:"hidden"`
-	InvitationOnly   bool                         `json:"invitation_only"`
-	CourseID         string                       `json:"course_id"`
-	Overview         interface{}                  `json:"overview"`
-}
-
 func (em *CourseDB) ToCore() *CourseCore {
 	return &CourseCore{
 		ID:               strconv.FormatUint(uint64(em.ID), 10),
@@ -124,15 +101,15 @@ func (em *CourseDB) FromCore(course *CourseCore) {
 
 func (ht *CourseHTTP) FromCore(course *CourseCore) {
 	ht.ID = course.ID
-	ht.BlocksUrl = course.BlocksUrl
+	ht.BlocksURL = course.BlocksUrl
 	ht.Effort = course.Effort
-	ht.EnrollmentStart = course.EnrollmentStart
-	ht.EnrollmentEnd = course.EnrollmentEnd
+	ht.EnrollmentStart = course.EnrollmentStart.String()
+	ht.EnrollmentEnd = course.EnrollmentEnd.String()
 	ht.Name = course.Name
 	ht.Number = course.Number
 	ht.Org = course.Org
 	ht.ShortDescription = course.ShortDescription
-	ht.Start = course.Start
+	ht.Start = course.Start.String()
 	ht.StartDisplay = course.StartDisplay
 	ht.StartType = course.StartType
 	ht.Pacing = course.Pacing
@@ -140,24 +117,28 @@ func (ht *CourseHTTP) FromCore(course *CourseCore) {
 	ht.Hidden = course.Hidden
 	ht.InvitationOnly = course.InvitationOnly
 	ht.CourseID = course.CourseID
-	ht.End = course.End
+	ht.End = course.End.String()
 	ht.Media.FromCore(&course.Media)
 }
 
 func (ht *CourseHTTP) ToCore() *CourseCore {
 	mediaCore := &CourseApiMediaCollectionCore{}
 	mediaCore = ht.Media.ToCore()
+	timeEnrollmentStart, _ := time.Parse("2006-Jan-02", ht.EnrollmentStart)
+	timeEnrollmentEnd, _ := time.Parse("2006-Jan-02", ht.EnrollmentEnd)
+	timeStart, _ := time.Parse("2006-Jan-02", ht.Start)
+	timeEnd, _ := time.Parse("2006-Jan-02", ht.End)
 	return &CourseCore{
 		ID:               ht.ID,
-		BlocksUrl:        ht.BlocksUrl,
+		BlocksUrl:        ht.BlocksURL,
 		Effort:           ht.Effort,
-		EnrollmentStart:  ht.EnrollmentStart,
-		EnrollmentEnd:    ht.EnrollmentEnd,
+		EnrollmentStart:  timeEnrollmentStart,
+		EnrollmentEnd:    timeEnrollmentEnd,
 		Name:             ht.Name,
 		Number:           ht.Number,
 		Org:              ht.Org,
 		ShortDescription: ht.ShortDescription,
-		Start:            ht.Start,
+		Start:            timeStart,
 		StartDisplay:     ht.StartDisplay,
 		StartType:        ht.StartType,
 		Pacing:           ht.Pacing,
@@ -165,7 +146,7 @@ func (ht *CourseHTTP) ToCore() *CourseCore {
 		Hidden:           ht.Hidden,
 		InvitationOnly:   ht.InvitationOnly,
 		CourseID:         ht.CourseID,
-		End:              ht.End,
+		End:              timeEnd,
 		Media:            *mediaCore,
 	}
 }

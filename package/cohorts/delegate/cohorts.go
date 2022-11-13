@@ -10,8 +10,8 @@ import (
 )
 
 type CohortDelegateImpl struct {
-	cohorts.UseCase
-	edx.CohortUseCase
+	CohortUseCase cohorts.UseCase
+	EdxUseCase    edx.UseCase
 }
 
 type CohortDelegateModule struct {
@@ -19,7 +19,7 @@ type CohortDelegateModule struct {
 	cohorts.Delegate
 }
 
-func SetupCohortDelegate(usecase cohorts.UseCase, edx edx.CohortUseCase) CohortDelegateModule {
+func SetupCohortDelegate(usecase cohorts.UseCase, edx edx.UseCase) CohortDelegateModule {
 	return CohortDelegateModule{
 		Delegate: &CohortDelegateImpl{
 			usecase,
@@ -29,7 +29,7 @@ func SetupCohortDelegate(usecase cohorts.UseCase, edx edx.CohortUseCase) CohortD
 }
 
 func (p *CohortDelegateImpl) CreateCohort(cohort *models.CohortHTTP, createCohort *models.CreateCohortHTTP, courseId string) (id string, err error) {
-	body, err := p.CohortUseCase.CreateCohort(courseId, createCohort.Message)
+	body, err := p.EdxUseCase.CreateCohort(courseId, createCohort.Message)
 	if err != nil {
 		return "", err
 	}
@@ -42,7 +42,7 @@ func (p *CohortDelegateImpl) CreateCohort(cohort *models.CohortHTTP, createCohor
 }
 
 func (p *CohortDelegateImpl) AddStudent(username, courseId string, cohortId int) (err error) {
-	_, err = p.CohortUseCase.AddStudent(username, courseId, cohortId)
+	_, err = p.EdxUseCase.AddStudent(username, courseId, cohortId)
 	if err != nil {
 		return err
 	}

@@ -2,57 +2,28 @@ package server
 
 import (
 	"context"
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/gin-gonic/gin"
+	"github.com/rs/cors"
+	"github.com/skinnykaen/robbo_student_personal_account.git/app/modules"
+	"github.com/skinnykaen/robbo_student_personal_account.git/graph/generated"
+	"github.com/spf13/viper"
+	"go.uber.org/fx"
 	"log"
 	"net/http"
 	"time"
-
-	"github.com/gin-gonic/gin"
-	"github.com/rs/cors"
-	authhttp "github.com/skinnykaen/robbo_student_personal_account.git/package/auth/http"
-	cohortshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/cohorts/http"
-	coursepackethttp "github.com/skinnykaen/robbo_student_personal_account.git/package/coursePacket/http"
-	courseshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/courses/http"
-	projectpagehttp "github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage/http"
-	projectshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/projects/http"
-	robbogrouphttp "github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup/http"
-	robbounitshttp "github.com/skinnykaen/robbo_student_personal_account.git/package/robboUnits/http"
-	usershtpp "github.com/skinnykaen/robbo_student_personal_account.git/package/users/http"
-	"github.com/spf13/viper"
-	"go.uber.org/fx"
 )
 
-type Server struct {
-	httpServer *http.Server
-}
-
-func NewServer(lifecycle fx.Lifecycle,
-	authhandler authhttp.Handler,
-	projecthttp projectshttp.Handler,
-	projectpagehttp projectpagehttp.Handler,
-	coursehttp courseshttp.Handler,
-	cohortshttp cohortshttp.Handler,
-	usershttp usershtpp.Handler,
-	robbounitshttp robbounitshttp.Handler,
-	robbogrouphttp robbogrouphttp.Handler,
-	coursepackethttp coursepackethttp.Handler,
-) {
+func NewServer(lifecycle fx.Lifecycle, graphQLModule modules.GraphQLModule, handlers modules.HandlerModule) {
 	lifecycle.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) (err error) {
-				router := gin.Default()
-				router.Use(
-					gin.Recovery(),
-					gin.Logger(),
-				)
-				authhandler.InitAuthRoutes(router)
-				projecthttp.InitProjectRoutes(router)
-				projectpagehttp.InitProjectRoutes(router)
-				coursehttp.InitCourseRoutes(router)
-				cohortshttp.InitCohortRoutes(router)
-				usershttp.InitUsersRoutes(router)
-				robbounitshttp.InitRobboUnitsRoutes(router)
-				robbogrouphttp.InitRobboGroupRoutes(router)
-				coursepackethttp.InitCoursePacketRoutes(router)
+				router := SetupGinRouter(handlers)
+				router.GET("/", playgroundHandler())
+				router.POST("/query", graphqlHandler(graphQLModule))
+				//router.Use()
+
 				server := &http.Server{
 					Addr: viper.GetString("server.address"),
 					Handler: cors.New(
@@ -73,9 +44,11 @@ func NewServer(lifecycle fx.Lifecycle,
 					WriteTimeout:   10 * time.Second,
 					MaxHeaderBytes: 1 << 20,
 				}
+
+				log.Printf("connect to http://localhost:%s/ for GraphQL playground", 8000)
 				go func() {
-					if err := server.ListenAndServe(); err != nil {
-						log.Fatalf("Failed to listen and serve", err)
+					if err = server.ListenAndServe(); err != nil {
+						log.Fatalf("Failed to listen adn serve")
 					}
 				}()
 				return
@@ -84,4 +57,51 @@ func NewServer(lifecycle fx.Lifecycle,
 				return nil
 			},
 		})
+}
+
+func SetupGinRouter(handlers modules.HandlerModule) *gin.Engine {
+	router := gin.Default()
+	router.Use(
+		gin.Recovery(),
+		gin.Logger(),
+		GinContextToContextMiddleware(),
+	)
+	handlers.AuthHandler.InitAuthRoutes(router)
+	handlers.ProjectsHandler.InitProjectRoutes(router)
+	handlers.ProjectPageHandler.InitProjectRoutes(router)
+	handlers.CoursesHandler.InitCourseRoutes(router)
+	handlers.CohortsHandler.InitCohortRoutes(router)
+	handlers.UsersHandler.InitUsersRoutes(router)
+	handlers.RobboUnitsHandler.InitRobboUnitsRoutes(router)
+	handlers.RobboGroupHandler.InitRobboGroupRoutes(router)
+	handlers.CoursePacketHandler.InitCoursePacketRoutes(router)
+	return router
+}
+
+func playgroundHandler() gin.HandlerFunc {
+	h := playground.Handler("GraphQL", "/query")
+
+	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+func graphqlHandler(graphQLModule modules.GraphQLModule) gin.HandlerFunc {
+	h := handler.NewDefaultServer(
+		generated.NewExecutableSchema(
+			generated.Config{
+				Resolvers: &graphQLModule.UsersResolver},
+		))
+
+	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+func GinContextToContextMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := context.WithValue(c.Request.Context(), "GinContextKey", c)
+		c.Request = c.Request.WithContext(ctx)
+		c.Next()
+	}
 }

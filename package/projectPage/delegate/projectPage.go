@@ -36,8 +36,8 @@ func (p *ProjectPageDelegateImpl) UpdateProjectPage(projectPage *models.ProjectP
 	return p.UseCase.UpdateProjectPage(projectPageCore)
 }
 
-func (p *ProjectPageDelegateImpl) GetProjectPageById(projectId string) (projectPage models.ProjectPageHTTP, err error) {
-	projectPageCore, err := p.UseCase.GetProjectPageById(projectId)
+func (p *ProjectPageDelegateImpl) GetProjectPageById(projectPageId string) (projectPage models.ProjectPageHTTP, err error) {
+	projectPageCore, err := p.UseCase.GetProjectPageById(projectPageId)
 	if err != nil {
 		return
 	}
@@ -45,8 +45,8 @@ func (p *ProjectPageDelegateImpl) GetProjectPageById(projectId string) (projectP
 	return
 }
 
-func (p *ProjectPageDelegateImpl) GetAllProjectPages(authorId string) (projectPages []*models.ProjectPageHTTP, err error) {
-	projectPagesCore, err := p.UseCase.GetAllProjectPage(authorId)
+func (p *ProjectPageDelegateImpl) GetAllProjectPagesByUserId(authorId string) (projectPages []*models.ProjectPageHTTP, err error) {
+	projectPagesCore, err := p.UseCase.GetAllProjectPageByUserId(authorId)
 	if err != nil {
 		return
 	}

@@ -18,11 +18,6 @@ type MediaDB struct {
 	CourseApiMediaCollection   CourseApiMediaCollectionDB `gorm:"foreignKey:CourseApiMediaCollectionID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
-type MediaHTTP struct {
-	ID  string `json:"id"`
-	Uri string `json:"uri"`
-}
-
 func (em *MediaDB) ToCore() *MediaCore {
 	return &MediaCore{
 		ID:                         strconv.FormatUint(uint64(em.ID), 10),
@@ -42,11 +37,11 @@ func (em *MediaDB) FromCore(media *MediaCore) {
 func (ht *MediaHTTP) ToCore() *MediaCore {
 	return &MediaCore{
 		ID:  ht.ID,
-		Uri: ht.Uri,
+		Uri: ht.URI,
 	}
 }
 
 func (ht *MediaHTTP) FromCore(media *MediaCore) {
 	ht.ID = media.ID
-	ht.Uri = media.Uri
+	ht.URI = media.Uri
 }

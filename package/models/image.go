@@ -22,13 +22,6 @@ type ImageDB struct {
 	CourseApiMediaCollection   CourseApiMediaCollectionDB `gorm:"foreignKey:CourseApiMediaCollectionID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
-type ImageHTTP struct {
-	ID    string `json:"id"`
-	Raw   string `json:"raw"`
-	Small string `json:"small"`
-	Large string `json:"large"`
-}
-
 func (em *ImageDB) ToCore() *ImageCore {
 	return &ImageCore{
 		ID:                         strconv.FormatUint(uint64(em.ID), 10),

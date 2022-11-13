@@ -20,14 +20,6 @@ type CourseApiMediaCollectionDB struct {
 	Course   CourseDB `gorm:"foreignKey:CourseID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
-type CourseApiMediaCollectionHTTP struct {
-	ID          string            `json:"id"`
-	BannerImage AbsoluteMediaHTTP `json:"banner_image"`
-	CourseImage MediaHTTP         `json:"course_image"`
-	CourseVideo MediaHTTP         `json:"course_video"`
-	Image       ImageHTTP         `json:"image"`
-}
-
 func (em *CourseApiMediaCollectionDB) ToCore() *CourseApiMediaCollectionCore {
 	return &CourseApiMediaCollectionCore{
 		ID:       strconv.FormatUint(uint64(em.ID), 10),
@@ -42,7 +34,7 @@ func (em *CourseApiMediaCollectionDB) FromCore(courseApiMediaCollection *CourseA
 	em.CourseID = uint(courseId)
 }
 
-func (ht *CourseApiMediaCollectionHTTP) ToCore() *CourseApiMediaCollectionCore {
+func (ht *CourseAPIMediaCollectionHTTP) ToCore() *CourseApiMediaCollectionCore {
 	bannerImageCore := &AbsoluteMediaCore{}
 	bannerImageCore = ht.BannerImage.ToCore()
 	courseImageCore := &MediaCore{}
@@ -60,7 +52,7 @@ func (ht *CourseApiMediaCollectionHTTP) ToCore() *CourseApiMediaCollectionCore {
 	}
 }
 
-func (ht *CourseApiMediaCollectionHTTP) FromCore(courseApiMediaCollection *CourseApiMediaCollectionCore) {
+func (ht *CourseAPIMediaCollectionHTTP) FromCore(courseApiMediaCollection *CourseApiMediaCollectionCore) {
 	ht.ID = courseApiMediaCollection.ID
 	ht.BannerImage.FromCore(&courseApiMediaCollection.BannerImage)
 	ht.CourseImage.FromCore(&courseApiMediaCollection.CourseImage)

@@ -14,15 +14,18 @@ type RobboGroupGatewayImpl struct {
 	PostgresClient *db_client.PostgresClient
 }
 
-type RobboGroupGatewayModule struct {
-	fx.Out
-	robboGroup.Gateway
-}
-
-func SetupRobboGroupGateway(postgresClient db_client.PostgresClient) RobboGroupGatewayModule {
-	return RobboGroupGatewayModule{
-		Gateway: &RobboGroupGatewayImpl{PostgresClient: &postgresClient},
+func (r *RobboGroupGatewayImpl) SearchRobboGroupsByTitle(title string) (robboGroups []*models.RobboGroupCore, err error) {
+	var robboGroupsDB []*models.RobboGroupDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Limit(10).Where("name LIKE ?", title).Find(&robboGroupsDB).Error; err != nil {
+			return
+		}
+		return
+	})
+	for _, robboGroupDB := range robboGroupsDB {
+		robboGroups = append(robboGroups, robboGroupDB.ToCore())
 	}
+	return
 }
 
 func (r *RobboGroupGatewayImpl) CreateRobboGroup(robboGroup *models.RobboGroupCore) (robboGroupId string, err error) {
@@ -76,4 +79,80 @@ func (r *RobboGroupGatewayImpl) GetRobboGroupById(robboGroupId string) (robboGro
 	})
 	robboGroup = robboGroupDB.ToCore()
 	return
+}
+
+func (r *RobboGroupGatewayImpl) SetTeacherForRobboGroup(relation *models.TeachersRobboGroupsCore) (err error) {
+	relationDb := models.TeachersRobboGroupsDB{}
+	relationDb.FromCore(relation)
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Create(&relationDb).Error
+		return
+	})
+
+	return
+}
+
+func (r *RobboGroupGatewayImpl) DeleteTeacherForRobboGroup(relation *models.TeachersRobboGroupsCore) (err error) {
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Delete(&models.TeachersRobboGroupsDB{}, relation).Error
+		return
+	})
+	return
+}
+
+func (r *RobboGroupGatewayImpl) DeleteRelationByRobboGroupId(robboGroupId string) (err error) {
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Where("robbo_group_id = ?", robboGroupId).Delete(&models.TeachersRobboGroupsDB{}).Error
+		return
+	})
+	return
+}
+
+func (r *RobboGroupGatewayImpl) DeleteRelationByTeacherId(teacherId string) (err error) {
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Where("teacher_id = ?", teacherId).Delete(&models.TeachersRobboGroupsDB{}).Error
+		return
+	})
+	return
+}
+
+func (r *RobboGroupGatewayImpl) GetRelationByRobboGroupId(robboGroupId string) (relations []*models.TeachersRobboGroupsCore, err error) {
+	var relationsDB []*models.TeachersRobboGroupsDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("robbo_group_id = ?", robboGroupId).Find(&relationsDB).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, relationDB := range relationsDB {
+		relations = append(relations, relationDB.ToCore())
+	}
+	return
+}
+
+func (r *RobboGroupGatewayImpl) GetRelationByTeacherId(teacherId string) (relations []*models.TeachersRobboGroupsCore, err error) {
+	var relationsDB []*models.TeachersRobboGroupsDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("teacher_id = ?", teacherId).Find(&relationsDB).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, relationDB := range relationsDB {
+		relations = append(relations, relationDB.ToCore())
+	}
+	return
+}
+
+type RobboGroupGatewayModule struct {
+	fx.Out
+	robboGroup.Gateway
+}
+
+func SetupRobboGroupGateway(postgresClient db_client.PostgresClient) RobboGroupGatewayModule {
+	return RobboGroupGatewayModule{
+		Gateway: &RobboGroupGatewayImpl{PostgresClient: &postgresClient},
+	}
 }

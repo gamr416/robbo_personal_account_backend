@@ -387,7 +387,7 @@ func (r *queryResolver) GetStudentByID(ctx context.Context, studentID string) (*
 }
 
 // SearchStudentsByEmail is the resolver for the SearchStudentsByEmail field.
-func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string) ([]*models.StudentHTTP, error) {
+func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string, parentID string) ([]*models.StudentHTTP, error) {
 	ginContext, err := GinContextFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -396,7 +396,7 @@ func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string)
 	if identityErr != nil {
 		return nil, identityErr
 	}
-	return r.usersDelegate.SearchStudentByEmail(email)
+	return r.usersDelegate.SearchStudentByEmail(email, parentID)
 }
 
 // GetAllTeachers is the resolver for the GetAllTeachers field.

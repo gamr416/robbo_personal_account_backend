@@ -6,7 +6,7 @@ type UseCase interface {
 	GetStudentById(studentId string) (student *models.StudentCore, err error)
 	GetStudentByParentId(parentId string) (students []*models.StudentCore, err error)
 	//GetStudent(email, password string) (student *models.StudentCore, err error)
-	SearchStudentByEmail(email string) (students []*models.StudentCore, err error)
+	SearchStudentByEmail(email string, parentId string) (students []*models.StudentCore, err error)
 	CreateStudent(student *models.StudentCore, parentId string) (id string, err error)
 	DeleteStudent(studentId uint) (err error)
 	UpdateStudent(student *models.StudentCore) (err error)

@@ -59,8 +59,8 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 		users.POST("/student", h.CreateStudent)
 		users.DELETE("/student/:studentId", h.DeleteStudent)
 		users.GET("/student/:studentId", h.GetStudentById)
-		users.GET("/student/search/:studentEmail", h.SearchStudentByEmail)
-		users.GET("students/:parentId", h.GetStudentByParentId)
+		users.GET("/student/search/:parentId/:studentEmail", h.SearchStudentByEmail)
+		users.GET("/students/:parentId", h.GetStudentByParentId)
 		users.PUT("/student", h.UpdateStudent)
 		users.POST("/student/:studentId/robboGroup/:robboGroupId", h.SetRobboGroupIdForStudent)
 		//users.DELETE("/student/:studentId/robboGroup/:robboGroupId", h.SetRobboGroupIdForStudent)
@@ -162,8 +162,8 @@ func (h *Handler) GetUser(c *gin.Context) {
 func (h *Handler) SearchStudentByEmail(c *gin.Context) {
 	fmt.Println("GetStudentByEmail")
 	studentEmail := c.Param("studentEmail")
-
-	students, err := h.usersDelegate.SearchStudentByEmail(studentEmail)
+	parentId := c.Param("parentId")
+	students, err := h.usersDelegate.SearchStudentByEmail(studentEmail, parentId)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return

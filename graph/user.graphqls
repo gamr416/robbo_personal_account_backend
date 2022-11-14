@@ -142,7 +142,7 @@ type Mutation {
 type Query {
     GetStudentsByParentId(parentId: String!): [StudentHttp!]!
     GetStudentById(studentId: String!): StudentHttp!
-    SearchStudentsByEmail(email: String!): [StudentHttp!]!
+    SearchStudentsByEmail(email: String!, parentId: String!): [StudentHttp!]!
     GetAllTeachers: [TeacherHttp!]!
     GetTeacherById(teacherId: String!): TeacherHttp!
     GetAllParents: [ParentHttp!]!

@@ -180,7 +180,7 @@ type ComplexityRoot struct {
 		GetUnitAdminByID            func(childComplexity int, unitAdminID string) int
 		GetUnitAdminsByRobboUnitID  func(childComplexity int, robboUnitID string) int
 		SearchGroupsByName          func(childComplexity int, name string) int
-		SearchStudentsByEmail       func(childComplexity int, email string) int
+		SearchStudentsByEmail       func(childComplexity int, email string, parentID string) int
 		SearchUnitAdminsByEmail     func(childComplexity int, email string) int
 	}
 
@@ -252,7 +252,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	GetStudentsByParentID(ctx context.Context, parentID string) ([]*models.StudentHTTP, error)
 	GetStudentByID(ctx context.Context, studentID string) (*models.StudentHTTP, error)
-	SearchStudentsByEmail(ctx context.Context, email string) ([]*models.StudentHTTP, error)
+	SearchStudentsByEmail(ctx context.Context, email string, parentID string) ([]*models.StudentHTTP, error)
 	GetAllTeachers(ctx context.Context) ([]*models.TeacherHTTP, error)
 	GetTeacherByID(ctx context.Context, teacherID string) (*models.TeacherHTTP, error)
 	GetAllParents(ctx context.Context) ([]*models.ParentHTTP, error)
@@ -1171,7 +1171,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.SearchStudentsByEmail(childComplexity, args["email"].(string)), true
+		return e.complexity.Query.SearchStudentsByEmail(childComplexity, args["email"].(string), args["parentId"].(string)), true
 
 	case "Query.SearchUnitAdminsByEmail":
 		if e.complexity.Query.SearchUnitAdminsByEmail == nil {
@@ -1702,7 +1702,7 @@ type Mutation {
 type Query {
     GetStudentsByParentId(parentId: String!): [StudentHttp!]!
     GetStudentById(studentId: String!): StudentHttp!
-    SearchStudentsByEmail(email: String!): [StudentHttp!]!
+    SearchStudentsByEmail(email: String!, parentId: String!): [StudentHttp!]!
     GetAllTeachers: [TeacherHttp!]!
     GetTeacherById(teacherId: String!): TeacherHttp!
     GetAllParents: [ParentHttp!]!
@@ -2305,6 +2305,15 @@ func (ec *executionContext) field_Query_SearchStudentsByEmail_args(ctx context.C
 		}
 	}
 	args["email"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["parentId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("parentId"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["parentId"] = arg1
 	return args, nil
 }
 
@@ -6167,7 +6176,7 @@ func (ec *executionContext) _Query_SearchStudentsByEmail(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().SearchStudentsByEmail(rctx, fc.Args["email"].(string))
+		return ec.resolvers.Query().SearchStudentsByEmail(rctx, fc.Args["email"].(string), fc.Args["parentId"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

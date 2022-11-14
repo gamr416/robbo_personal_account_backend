@@ -51,7 +51,7 @@ func (r *UsersGatewayImpl) GetStudent(email, password string) (student *models.S
 	return
 }
 
-func (r *UsersGatewayImpl) SearchStudentByEmail(email string) (students []*models.StudentCore, err error) {
+func (r *UsersGatewayImpl) SearchStudentsByEmail(email string, parentId string) (students []*models.StudentCore, err error) {
 	var studentsDb []*models.StudentDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Limit(10).Where("email LIKE ?", email).Find(&studentsDb).Error; err != nil {
@@ -61,8 +61,27 @@ func (r *UsersGatewayImpl) SearchStudentByEmail(email string) (students []*model
 		}
 		return
 	})
+
 	//student = studentsDb.ToCore()
 	for _, studentDb := range studentsDb {
+		var countRow int64
+		err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+			tx.Where("parent_id = ? AND child_id = ?", parentId, studentDb.ID).Model(&models.ChildrenOfParentDB{}).Count(&countRow)
+			return
+		})
+		if countRow != 0 {
+			continue
+		}
+
+		var countParents int64
+		err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+			tx.Where("child_id = ?", studentDb.ID).Model(&models.ChildrenOfParentDB{}).Count(&countParents)
+			return
+		})
+		if countParents >= 2 {
+			continue
+		}
+
 		students = append(students, studentDb.ToCore())
 	}
 	return

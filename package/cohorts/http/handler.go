@@ -44,7 +44,9 @@ func (h *Handler) CreateCohort(c *gin.Context) {
 	fmt.Println("Create Cohort")
 	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
+		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
+		return
 	}
 	createCohortResponse := models.CreateCohortHTTP{}
 	courseId := c.Param("courseId")
@@ -81,7 +83,9 @@ func (h *Handler) AddStudent(c *gin.Context) {
 	fmt.Println("Add Student")
 	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
+		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
+		return
 	}
 	tempCohortId := c.Param("cohortId")
 	cohortId, _ := strconv.Atoi(tempCohortId)

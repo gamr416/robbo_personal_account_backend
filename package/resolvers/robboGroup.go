@@ -16,8 +16,8 @@ func (r *queryResolver) GetRobboGroupByID(ctx context.Context, id string) (*mode
 	if err != nil {
 		return nil, err
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role != models.Teacher && role < models.UnitAdmin || identityErr != nil {
 		return nil, identityErr
 	}
 	robboGroupsHttp, err := r.robboGroupDelegate.GetRobboGroupById(id)
@@ -47,8 +47,8 @@ func (r *queryResolver) GetRobboGroupsByRobboUnitID(ctx context.Context, robboUn
 		err := errors.New("internal server error")
 		return nil, err
 	}
-	_, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
+	if role != models.Teacher && role < models.UnitAdmin || userIdentityErr != nil {
 		err := errors.New("status unauthorized")
 		return nil, err
 	}
@@ -63,8 +63,8 @@ func (r *queryResolver) GetRobboGroupsByAccessToken(ctx context.Context) ([]*mod
 		err := errors.New("internal server error")
 		return nil, err
 	}
-	userId, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
+	userId, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
+	if role != models.Teacher || userIdentityErr != nil {
 		err := errors.New("status unauthorized")
 		return nil, err
 	}

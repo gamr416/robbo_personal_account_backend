@@ -17,8 +17,8 @@ func (r *queryResolver) GetCourseContent(ctx context.Context, courseID string) (
 		err := errors.New("internal server error")
 		return nil, err
 	}
-	_, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
+	if role == models.Parent || userIdentityErr != nil {
 		err := errors.New("status unauthorized")
 		return nil, err
 	}
@@ -77,8 +77,8 @@ func (r *queryResolver) GetEnrollments(ctx context.Context, username string) (*m
 		err := errors.New("internal server error")
 		return nil, err
 	}
-	_, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
+	if role < models.UnitAdmin || userIdentityErr != nil {
 		err := errors.New("status unauthorized")
 		return nil, err
 	}

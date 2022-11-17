@@ -17,8 +17,8 @@ func (r *mutationResolver) CreateProjectPage(ctx context.Context) (string, error
 		err := errors.New("internal server error")
 		return "", err
 	}
-	userID, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
+	userID, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
+	if role != models.Student && role < models.UnitAdmin || userIdentityErr != nil {
 		err := errors.New("status unauthorized")
 		return "", err
 	}
@@ -37,8 +37,8 @@ func (r *mutationResolver) UpdateProjectPage(ctx context.Context, input models.U
 		err := errors.New("internal server error")
 		return nil, err
 	}
-	_, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
+	if role != models.Student && role < models.UnitAdmin || userIdentityErr != nil {
 		err := errors.New("status unauthorized")
 		return nil, err
 	}
@@ -67,8 +67,8 @@ func (r *mutationResolver) DeleteProjectPage(ctx context.Context, projectID stri
 		err := errors.New("internal server error")
 		return "", err
 	}
-	_, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
+	if role != models.Student && role < models.UnitAdmin || userIdentityErr != nil {
 		err := errors.New("status unauthorized")
 		return "", err
 	}
@@ -87,8 +87,8 @@ func (r *queryResolver) GetProjectPageByID(ctx context.Context, projectPageID st
 		err := errors.New("internal server error")
 		return nil, err
 	}
-	_, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
+	if role != models.Student && role < models.UnitAdmin || userIdentityErr != nil {
 		err := errors.New("status unauthorized")
 		return nil, err
 	}
@@ -107,8 +107,8 @@ func (r *queryResolver) GetAllProjectPageByUserID(ctx context.Context) ([]*model
 		err := errors.New("internal server error")
 		return nil, err
 	}
-	userID, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
+	userID, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
+	if role != models.Student && role < models.UnitAdmin || userIdentityErr != nil {
 		err := errors.New("status unauthorized")
 		return nil, err
 	}

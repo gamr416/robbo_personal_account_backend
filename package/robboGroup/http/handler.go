@@ -40,8 +40,8 @@ func (h *Handler) InitRobboGroupRoutes(router *gin.Engine) {
 
 func (h *Handler) CreateRobboGroup(c *gin.Context) {
 	log.Println("Create Robbo Unit")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -71,8 +71,8 @@ func (h *Handler) CreateRobboGroup(c *gin.Context) {
 
 func (h *Handler) GetRobboGroupById(c *gin.Context) {
 	log.Println("Get RobboUnit By Id")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.Teacher && role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -92,8 +92,8 @@ func (h *Handler) GetRobboGroupById(c *gin.Context) {
 
 func (h *Handler) GetRobboGroupsByRobboUnitId(c *gin.Context) {
 	log.Println("Get all robboUnits")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.Teacher && role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -112,8 +112,8 @@ func (h *Handler) GetRobboGroupsByRobboUnitId(c *gin.Context) {
 
 func (h *Handler) DeleteRobboGroup(c *gin.Context) {
 	log.Println("Delete RobboGroup")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -135,8 +135,8 @@ type SetTeacherForRobboGroupInput struct {
 
 func (h *Handler) SetTeacherForRobboGroup(c *gin.Context) {
 	log.Println("Set Teacher For RobboGroup")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -162,8 +162,8 @@ func (h *Handler) SetTeacherForRobboGroup(c *gin.Context) {
 
 func (h *Handler) DeleteTeacherForRobboGroup(c *gin.Context) {
 	log.Println("Delete Teacher For RobboGroup")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return

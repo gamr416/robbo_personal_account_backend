@@ -163,10 +163,10 @@ func (h *Handler) GetUser(c *gin.Context) {
 
 func (h *Handler) SearchStudentByEmail(c *gin.Context) {
 	log.Println("Get Student By Email")
-	_, _, err := h.authDelegate.UserIdentity(c)
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 
-	if err != nil {
-		log.Println(err)
+	if role < models.UnitAdmin || userIdentityErr != nil {
+		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
@@ -182,10 +182,10 @@ func (h *Handler) SearchStudentByEmail(c *gin.Context) {
 }
 
 func (h *Handler) GetStudentById(c *gin.Context) {
-	fmt.Println("Get Student By Id")
-	_, _, err := h.authDelegate.UserIdentity(c)
-	if err != nil {
-		log.Println(err)
+	log.Println("Get Student By Id")
+	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
@@ -206,15 +206,15 @@ func (h *Handler) GetStudentById(c *gin.Context) {
 }
 
 func (h *Handler) GetStudentByParentId(c *gin.Context) {
-	fmt.Println("Get Student By Parent Id")
-	parentId := c.Param("parentId")
-
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	log.Println("Get Student By Parent Id")
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
+
+	parentId := c.Param("parentId")
 	students, err := h.usersDelegate.GetStudentByParentId(parentId)
 
 	if err != nil {
@@ -236,7 +236,6 @@ func (h *Handler) CreateStudent(c *gin.Context) {
 
 	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if role < models.UnitAdmin || userIdentityErr != nil {
-		log.Println(role)
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -265,8 +264,8 @@ func (h *Handler) CreateStudent(c *gin.Context) {
 
 func (h *Handler) UpdateStudent(c *gin.Context) {
 	log.Println("Update Student")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -296,8 +295,8 @@ func (h *Handler) UpdateStudent(c *gin.Context) {
 
 func (h *Handler) DeleteStudent(c *gin.Context) {
 	log.Println("Delete Student")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -321,8 +320,8 @@ type SetRobboGroupIdForStudentInput struct {
 
 func (h *Handler) SetRobboGroupIdForStudent(c *gin.Context) {
 	log.Println("Set RobboGroupId For Student")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -350,8 +349,8 @@ func (h *Handler) SetRobboGroupIdForStudent(c *gin.Context) {
 
 func (h *Handler) CreateTeacher(c *gin.Context) {
 	log.Println("Create Teacher")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -385,8 +384,8 @@ func (h *Handler) CreateTeacher(c *gin.Context) {
 
 func (h *Handler) DeleteTeacher(c *gin.Context) {
 	log.Println("Delete Teacher")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -430,8 +429,8 @@ func (h *Handler) GetTeacherById(c *gin.Context) {
 
 func (h *Handler) GetAllTeachers(c *gin.Context) {
 	log.Println("Get All Teachers")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -452,8 +451,8 @@ type updateTeacherInput struct {
 
 func (h *Handler) UpdateTeacher(c *gin.Context) {
 	log.Println("Update Teacher")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -505,8 +504,8 @@ func (h *Handler) GetParentById(c *gin.Context) {
 
 func (h *Handler) GetAllParent(c *gin.Context) {
 	log.Println("Get All Parents")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -524,7 +523,7 @@ func (h *Handler) GetAllParent(c *gin.Context) {
 func (h *Handler) CreateParent(c *gin.Context) {
 	log.Println("Create Parent")
 	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if role != models.SuperAdmin || userIdentityErr != nil {
+	if role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -557,8 +556,8 @@ func (h *Handler) CreateParent(c *gin.Context) {
 
 func (h *Handler) DeleteParent(c *gin.Context) {
 	log.Println("Delete Parent")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -583,8 +582,8 @@ type updateParentInput struct {
 
 func (h *Handler) UpdateParent(c *gin.Context) {
 	fmt.Println("Update Parent")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -751,8 +750,8 @@ func (h *Handler) GetUnitAdminByID(c *gin.Context) {
 
 func (h *Handler) GetUnitAdminsByRobboUnitId(c *gin.Context) {
 	log.Println("Get UnitAdmins By RobboUnitId")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.SuperAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -772,8 +771,8 @@ func (h *Handler) GetUnitAdminsByRobboUnitId(c *gin.Context) {
 
 func (h *Handler) GetAllUnitAdmins(c *gin.Context) {
 	log.Println("Get All UnitAdmins")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.SuperAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -794,8 +793,8 @@ type updateUnitAdminInput struct {
 
 func (h *Handler) UpdateUnitAdmin(c *gin.Context) {
 	log.Println("Update Unit Admin")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.SuperAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -824,8 +823,8 @@ func (h *Handler) UpdateUnitAdmin(c *gin.Context) {
 
 func (h *Handler) CreateUnitAdmin(c *gin.Context) {
 	log.Println("Create Unit Admin")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.SuperAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -858,8 +857,8 @@ func (h *Handler) CreateUnitAdmin(c *gin.Context) {
 
 func (h *Handler) DeleteUnitAdmin(c *gin.Context) {
 	log.Println("Delete Unit Admin")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.SuperAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -879,8 +878,8 @@ func (h *Handler) DeleteUnitAdmin(c *gin.Context) {
 
 func (h *Handler) SearchUnitAdminByEmail(c *gin.Context) {
 	log.Println("Search Unit Admin By Email")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.SuperAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -897,8 +896,8 @@ func (h *Handler) SearchUnitAdminByEmail(c *gin.Context) {
 
 func (h *Handler) GetSuperAdminById(c *gin.Context) {
 	log.Println("Get Super Admin By Id")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.SuperAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -924,8 +923,8 @@ type updateSuperAdminInput struct {
 
 func (h *Handler) UpdateSuperAdmin(c *gin.Context) {
 	log.Println("Update Super Admin")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.SuperAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -954,8 +953,8 @@ func (h *Handler) UpdateSuperAdmin(c *gin.Context) {
 
 func (h *Handler) DeleteSuperAdmin(c *gin.Context) {
 	log.Println("Delete Super Admin")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.SuperAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -979,8 +978,8 @@ type createRelation struct {
 
 func (h *Handler) CreateRelation(c *gin.Context) {
 	log.Println("Create Relation")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -1011,8 +1010,8 @@ type setNewUnitAdminForRobboUnitRequest struct {
 
 func (h *Handler) SetNewUnitAdminForRobboUnit(c *gin.Context) {
 	log.Println("Set NewUnitAdmin For RobboUnit")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.SuperAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -1037,8 +1036,8 @@ func (h *Handler) SetNewUnitAdminForRobboUnit(c *gin.Context) {
 
 func (h *Handler) DeleteUnitAdminForRobboUnit(c *gin.Context) {
 	log.Println("Delete UnitAdmin For RobboUnit")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.SuperAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return

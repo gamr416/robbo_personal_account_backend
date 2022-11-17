@@ -6,7 +6,6 @@ package resolvers
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strconv"
 
 	"github.com/skinnykaen/robbo_student_personal_account.git/graph/generated"
@@ -19,8 +18,8 @@ func (r *mutationResolver) CreateStudent(ctx context.Context, input models.NewSt
 	if err != nil {
 		return nil, err
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role < models.UnitAdmin || identityErr != nil {
 		return nil, identityErr
 	}
 
@@ -48,8 +47,8 @@ func (r *mutationResolver) UpdateStudent(ctx context.Context, input models.Updat
 		return nil, err
 	}
 
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role < models.UnitAdmin || identityErr != nil {
 		return nil, identityErr
 	}
 
@@ -74,8 +73,8 @@ func (r *mutationResolver) DeleteStudent(ctx context.Context, studentID string) 
 		return "", err
 	}
 
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role < models.UnitAdmin || identityErr != nil {
 		return "", identityErr
 	}
 
@@ -90,8 +89,8 @@ func (r *mutationResolver) SetRobboGroupIDForStudent(ctx context.Context, studen
 	if err != nil {
 		return "", err
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role < models.UnitAdmin || identityErr != nil {
 		return "", identityErr
 	}
 
@@ -106,8 +105,8 @@ func (r *mutationResolver) CreateTeacher(ctx context.Context, input models.NewTe
 		return nil, err
 	}
 
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role < models.UnitAdmin || identityErr != nil {
 		return nil, identityErr
 	}
 
@@ -134,8 +133,8 @@ func (r *mutationResolver) UpdateTeacher(ctx context.Context, input models.Updat
 	if err != nil {
 		return nil, err
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role < models.UnitAdmin || identityErr != nil {
 		return nil, identityErr
 	}
 
@@ -160,8 +159,8 @@ func (r *mutationResolver) DeleteTeacher(ctx context.Context, teacherID string) 
 		return "", err
 	}
 
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role < models.UnitAdmin || identityErr != nil {
 		return "", identityErr
 	}
 	id, _ := strconv.ParseUint(teacherID, 10, 64)
@@ -175,8 +174,8 @@ func (r *mutationResolver) CreateParent(ctx context.Context, input models.NewPar
 	if err != nil {
 		return nil, err
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role < models.UnitAdmin || identityErr != nil {
 		return nil, identityErr
 	}
 	parentInput := models.ParentHTTP{
@@ -202,8 +201,8 @@ func (r *mutationResolver) AddChildToParent(ctx context.Context, parentID string
 	if err != nil {
 		return "", err
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role < models.UnitAdmin || identityErr != nil {
 		return "", identityErr
 	}
 	err = r.usersDelegate.CreateRelation(parentID, childID)
@@ -216,8 +215,8 @@ func (r *mutationResolver) UpdateParent(ctx context.Context, input models.Update
 	if err != nil {
 		return nil, err
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role < models.UnitAdmin || identityErr != nil {
 		return nil, identityErr
 	}
 	updateParentInput := &models.ParentHTTP{
@@ -236,8 +235,16 @@ func (r *mutationResolver) UpdateParent(ctx context.Context, input models.Update
 
 // DeleteParent is the resolver for the deleteParent field.
 func (r *mutationResolver) DeleteParent(ctx context.Context, parentID string) (string, error) {
+	ginContext, err := GinContextFromContext(ctx)
+	if err != nil {
+		return "", err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role < models.UnitAdmin || identityErr != nil {
+		return "", identityErr
+	}
 	id, _ := strconv.ParseUint(parentID, 10, 64)
-	err := r.usersDelegate.DeleteParent(uint(id))
+	err = r.usersDelegate.DeleteParent(uint(id))
 	return parentID, err
 }
 
@@ -247,8 +254,8 @@ func (r *mutationResolver) CreateUnitAdmin(ctx context.Context, input models.New
 	if err != nil {
 		return nil, err
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role != models.SuperAdmin || identityErr != nil {
 		return nil, identityErr
 	}
 	unitAdminInput := models.UnitAdminHTTP{
@@ -273,9 +280,8 @@ func (r *mutationResolver) UpdateUnitAdmin(ctx context.Context, input models.Upd
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(err)
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role != models.SuperAdmin || identityErr != nil {
 		return nil, identityErr
 	}
 	updateUnitAdminInput := &models.UnitAdminHTTP{
@@ -298,8 +304,8 @@ func (r *mutationResolver) DeleteUnitAdmin(ctx context.Context, unitAdminID stri
 	if err != nil {
 		return "", err
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role != models.SuperAdmin || identityErr != nil {
 		return "", identityErr
 	}
 	id, _ := strconv.ParseUint(unitAdminID, 10, 64)
@@ -313,8 +319,8 @@ func (r *mutationResolver) SetNewUnitAdminForRobboUnit(ctx context.Context, unit
 	if err != nil {
 		return "", err
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role != models.SuperAdmin || identityErr != nil {
 		return "", identityErr
 	}
 	err = r.usersDelegate.SetNewUnitAdminForRobboUnit(unitAdminID, robboUnitID)
@@ -327,8 +333,8 @@ func (r *mutationResolver) DeleteUnitAdminForRobboUnit(ctx context.Context, unit
 	if err != nil {
 		return "", err
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role != models.SuperAdmin || identityErr != nil {
 		return "", identityErr
 	}
 	err = r.usersDelegate.DeleteUnitAdminForRobboUnit(unitAdminID, robboUnitID)
@@ -341,8 +347,8 @@ func (r *mutationResolver) UpdateSuperAdmin(ctx context.Context, input models.Up
 	if err != nil {
 		return nil, err
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role != models.SuperAdmin || identityErr != nil {
 		return nil, identityErr
 	}
 	updateSuperAdminInput := &models.SuperAdminHTTP{
@@ -365,8 +371,8 @@ func (r *queryResolver) GetStudentsByParentID(ctx context.Context, parentID stri
 	if err != nil {
 		return nil, err
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role < models.UnitAdmin || identityErr != nil {
 		return nil, identityErr
 	}
 	return r.usersDelegate.GetStudentByParentId(parentID)
@@ -392,8 +398,8 @@ func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string,
 	if err != nil {
 		return nil, err
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role < models.UnitAdmin || identityErr != nil {
 		return nil, identityErr
 	}
 	return r.usersDelegate.SearchStudentByEmail(email, parentID)
@@ -405,8 +411,8 @@ func (r *queryResolver) GetAllTeachers(ctx context.Context) ([]*models.TeacherHT
 	if err != nil {
 		return nil, err
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role < models.UnitAdmin || identityErr != nil {
 		return nil, identityErr
 	}
 	return r.usersDelegate.GetAllTeachers()
@@ -433,8 +439,8 @@ func (r *queryResolver) GetAllParents(ctx context.Context) ([]*models.ParentHTTP
 		err := errors.New("internal server error")
 		return nil, err
 	}
-	_, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role < models.UnitAdmin || identityErr != nil {
 		err := errors.New("status unauthorized")
 		return nil, err
 	}
@@ -463,9 +469,8 @@ func (r *queryResolver) GetAllUnitAdmins(ctx context.Context) ([]*models.UnitAdm
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(err)
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role != models.SuperAdmin || identityErr != nil {
 		return nil, identityErr
 	}
 	return r.usersDelegate.GetAllUnitAdmins()
@@ -477,8 +482,8 @@ func (r *queryResolver) GetUnitAdminsByRobboUnitID(ctx context.Context, robboUni
 	if err != nil {
 		return nil, err
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role != models.SuperAdmin || identityErr != nil {
 		return nil, identityErr
 	}
 	return r.usersDelegate.GetUnitAdminByRobboUnitId(robboUnitID)
@@ -504,8 +509,8 @@ func (r *queryResolver) SearchUnitAdminsByEmail(ctx context.Context, email strin
 	if err != nil {
 		return nil, err
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role != models.SuperAdmin || identityErr != nil {
 		return nil, identityErr
 	}
 	return r.usersDelegate.SearchUnitAdminByEmail(email)
@@ -517,8 +522,8 @@ func (r *queryResolver) GetSuperAdminByID(ctx context.Context, superAdminID stri
 	if err != nil {
 		return nil, err
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role != models.SuperAdmin || identityErr != nil {
 		return nil, identityErr
 	}
 	superAdmin, err := r.usersDelegate.GetSuperAdminById(superAdminID)

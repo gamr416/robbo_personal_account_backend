@@ -38,8 +38,8 @@ func (h *Handler) InitRobboUnitsRoutes(router *gin.Engine) {
 
 func (h *Handler) CreateRobboUnit(c *gin.Context) {
 	log.Println("Create Robbo Unit")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -66,8 +66,8 @@ func (h *Handler) CreateRobboUnit(c *gin.Context) {
 
 func (h *Handler) GetRobboUnitById(c *gin.Context) {
 	log.Println("Get RobboUnit By Id")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.Teacher && role < models.UnitAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -86,8 +86,8 @@ func (h *Handler) GetRobboUnitById(c *gin.Context) {
 
 func (h *Handler) GetAllRobboUnits(c *gin.Context) {
 	log.Println("Get All RobboUnits")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.SuperAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -106,7 +106,7 @@ func (h *Handler) GetRobboUnitsByUnitAdminId(c *gin.Context) {
 	log.Println("Get RobboUnits By UnitAdminId")
 
 	id, role, identityErr := h.authDelegate.UserIdentity(c)
-
+	//TODO: add access to superAdmin
 	if identityErr != nil || role != models.UnitAdmin {
 		log.Println(identityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
@@ -125,8 +125,8 @@ func (h *Handler) GetRobboUnitsByUnitAdminId(c *gin.Context) {
 
 func (h *Handler) UpdateRobboUnit(c *gin.Context) {
 	log.Println("Update RobboUnit")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.SuperAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -151,8 +151,8 @@ func (h *Handler) UpdateRobboUnit(c *gin.Context) {
 
 func (h *Handler) DeleteRobboUnit(c *gin.Context) {
 	log.Println("Delete RobboUnit")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.SuperAdmin || userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return

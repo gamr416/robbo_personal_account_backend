@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
@@ -79,8 +80,14 @@ func (h *Handler) UpdateCourse(c *gin.Context) {
 
 func (h *Handler) CreateCourse(c *gin.Context) {
 	log.Println("Create Course")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role < models.UnitAdmin || userIdentityErr != nil {
+		//if added to avoid panic
+		if role < models.UnitAdmin && userIdentityErr == nil {
+			err := errors.New("No access")
+			ErrorHandling(err, c)
+			return
+		}
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
 		return
@@ -102,8 +109,14 @@ func (h *Handler) CreateCourse(c *gin.Context) {
 
 func (h *Handler) GetCourseContent(c *gin.Context) {
 	log.Println("Get Course Content")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role == models.Parent || userIdentityErr != nil {
+		//if added to avoid panic
+		if role == models.Parent && userIdentityErr == nil {
+			err := errors.New("No access")
+			ErrorHandling(err, c)
+			return
+		}
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
 		return
@@ -156,8 +169,14 @@ func (h *Handler) GetAllPublicCourses(c *gin.Context) {
 
 func (h *Handler) GetEnrollments(c *gin.Context) {
 	log.Println("Get Enrollments")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role < models.UnitAdmin || userIdentityErr != nil {
+		//if added to avoid panic
+		if role < models.UnitAdmin && userIdentityErr == nil {
+			err := errors.New("No access")
+			ErrorHandling(err, c)
+			return
+		}
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
 		return

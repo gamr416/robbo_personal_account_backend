@@ -1,6 +1,7 @@
 package http
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
@@ -45,8 +46,14 @@ type createProjectPageResponse struct {
 
 func (h *Handler) CreateProjectPage(c *gin.Context) {
 	log.Println("Create Project Page")
-	userId, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	userId, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.Student && role < models.UnitAdmin || userIdentityErr != nil {
+		//if added to avoid panic
+		if role != models.Student && role < models.UnitAdmin && userIdentityErr == nil {
+			err := errors.New("No access")
+			ErrorHandling(err, c)
+			return
+		}
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
 		return
@@ -70,8 +77,14 @@ type getProjectPageResponse struct {
 
 func (h *Handler) GetProjectPageById(c *gin.Context) {
 	log.Println("Get Project Page By ID")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.Student && role < models.UnitAdmin || userIdentityErr != nil {
+		//if added to avoid panic
+		if role != models.Student && role < models.UnitAdmin && userIdentityErr == nil {
+			err := errors.New("No access")
+			ErrorHandling(err, c)
+			return
+		}
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
 		return
@@ -95,8 +108,14 @@ type getAllProjectPageResponse struct {
 
 func (h *Handler) GetAllProjectPageByUserId(c *gin.Context) {
 	log.Println("Get All Project Page By User ID")
-	userId, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	userId, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.Student && role < models.UnitAdmin || userIdentityErr != nil {
+		//if added to avoid panic
+		if role != models.Student && role < models.UnitAdmin && userIdentityErr == nil {
+			err := errors.New("No access")
+			ErrorHandling(err, c)
+			return
+		}
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
 		return
@@ -119,8 +138,14 @@ type updateProjectPageInput struct {
 
 func (h *Handler) UpdateProjectPage(c *gin.Context) {
 	log.Println("Update Project Page")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.Student && role < models.UnitAdmin || userIdentityErr != nil {
+		//if added to avoid panic
+		if role != models.Student && role < models.UnitAdmin && userIdentityErr == nil {
+			err := errors.New("No access")
+			ErrorHandling(err, c)
+			return
+		}
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
 		return
@@ -145,8 +170,14 @@ func (h *Handler) UpdateProjectPage(c *gin.Context) {
 
 func (h *Handler) DeleteProjectPage(c *gin.Context) {
 	log.Println("Delete Project Page")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if role != models.Student && role < models.UnitAdmin || userIdentityErr != nil {
+		//if added to avoid panic
+		if role != models.Student && role < models.UnitAdmin && userIdentityErr == nil {
+			err := errors.New("No access")
+			ErrorHandling(err, c)
+			return
+		}
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
 		return

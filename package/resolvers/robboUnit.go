@@ -15,8 +15,8 @@ func (r *queryResolver) GetRobboUnitByID(ctx context.Context, id string) (*model
 	if err != nil {
 		return nil, err
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role != models.Teacher && role < models.UnitAdmin || identityErr != nil {
 		return nil, identityErr
 	}
 
@@ -30,8 +30,8 @@ func (r *queryResolver) GetAllRobboUnits(ctx context.Context) ([]*models.RobboUn
 	if err != nil {
 		return nil, err
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if role != models.SuperAdmin || identityErr != nil {
 		return nil, identityErr
 	}
 	robboUnitsHttp, err := r.robboUnitsDelegate.GetAllRobboUnit()
@@ -45,6 +45,7 @@ func (r *queryResolver) GetRobboUnitsByUnitAdminID(ctx context.Context, unitAdmi
 		return nil, err
 	}
 	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
+	//TODO: add access to superAdmin
 	if identityErr != nil {
 		return nil, identityErr
 	}

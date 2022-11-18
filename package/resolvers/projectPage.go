@@ -18,8 +18,14 @@ func (r *mutationResolver) CreateProjectPage(ctx context.Context) (string, error
 		return "", err
 	}
 	userID, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if role != models.Student && role < models.UnitAdmin || userIdentityErr != nil {
+	if userIdentityErr != nil {
 		err := errors.New("status unauthorized")
+		return "", err
+	}
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
 		return "", err
 	}
 	projectId, createProjectPageErr := r.projectPageDelegate.CreateProjectPage(userID)
@@ -38,8 +44,14 @@ func (r *mutationResolver) UpdateProjectPage(ctx context.Context, input models.U
 		return nil, err
 	}
 	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if role != models.Student && role < models.UnitAdmin || userIdentityErr != nil {
+	if userIdentityErr != nil {
 		err := errors.New("status unauthorized")
+		return nil, err
+	}
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
 		return nil, err
 	}
 	updateProjectPageInput := &models.ProjectPageHTTP{
@@ -68,8 +80,14 @@ func (r *mutationResolver) DeleteProjectPage(ctx context.Context, projectID stri
 		return "", err
 	}
 	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if role != models.Student && role < models.UnitAdmin || userIdentityErr != nil {
+	if userIdentityErr != nil {
 		err := errors.New("status unauthorized")
+		return "", err
+	}
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
 		return "", err
 	}
 	deleteProjectPageErr := r.projectPageDelegate.DeleteProjectPage(projectID)
@@ -88,8 +106,14 @@ func (r *queryResolver) GetProjectPageByID(ctx context.Context, projectPageID st
 		return nil, err
 	}
 	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if role != models.Student && role < models.UnitAdmin || userIdentityErr != nil {
+	if userIdentityErr != nil {
 		err := errors.New("status unauthorized")
+		return nil, err
+	}
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
 		return nil, err
 	}
 	projectPageHttp, getProjectPageByIDErr := r.projectPageDelegate.GetProjectPageById(projectPageID)
@@ -108,8 +132,14 @@ func (r *queryResolver) GetAllProjectPageByUserID(ctx context.Context) ([]*model
 		return nil, err
 	}
 	userID, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if role != models.Student && role < models.UnitAdmin || userIdentityErr != nil {
+	if userIdentityErr != nil {
 		err := errors.New("status unauthorized")
+		return nil, err
+	}
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
 		return nil, err
 	}
 	projectPageListHttp, getAllProjectPagesErr := r.projectPageDelegate.GetAllProjectPagesByUserId(userID)

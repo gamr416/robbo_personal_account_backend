@@ -31,11 +31,11 @@ func SetupCohortDelegate(usecase cohorts.UseCase, edx edx.UseCase) CohortDelegat
 func (p *CohortDelegateImpl) CreateCohort(cohort *models.CohortHTTP, createCohort *models.CreateCohortHTTP, courseId string) (id string, err error) {
 	body, err := p.EdxUseCase.CreateCohort(courseId, createCohort.Message)
 	if err != nil {
-		return "", err
+		return "", cohorts.ErrBadRequest
 	}
 	err = json.Unmarshal(body, cohort)
 	if err != nil {
-		return "", err
+		return "", cohorts.ErrInternalServerLevel
 	}
 	id = strconv.FormatUint(uint64(cohort.ID), 10)
 	return
@@ -44,7 +44,7 @@ func (p *CohortDelegateImpl) CreateCohort(cohort *models.CohortHTTP, createCohor
 func (p *CohortDelegateImpl) AddStudent(username, courseId string, cohortId int) (err error) {
 	_, err = p.EdxUseCase.AddStudent(username, courseId, cohortId)
 	if err != nil {
-		return err
+		return cohorts.ErrBadRequest
 	}
 	return
 }

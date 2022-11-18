@@ -48,29 +48,30 @@ func (h *Handler) UpdateCoursePacket(c *gin.Context) {
 	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
-		c.AbortWithStatus(http.StatusUnauthorized)
+		ErrorHandling(userIdentityErr, c)
 		return
 	}
 	coursePacketHTTP := models.CoursePacketHTTP{}
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
+		err = coursePacket.ErrBadRequestBody
 		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		ErrorHandling(err, c)
 		return
 	}
 
 	err = json.Unmarshal(body, &coursePacketHTTP)
 	fmt.Println(coursePacketHTTP)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
 		log.Println(err)
+		ErrorHandling(err, c)
 		return
 	}
 
 	err = h.coursePacketDelegate.UpdateCoursePacket(&coursePacketHTTP)
 	if err != nil {
 		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		ErrorHandling(err, c)
 		return
 	}
 
@@ -82,7 +83,7 @@ func (h *Handler) CreateCoursePacket(c *gin.Context) {
 	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
-		c.AbortWithStatus(http.StatusUnauthorized)
+		ErrorHandling(userIdentityErr, c)
 		return
 	}
 	courseId := c.Param("coursePacketId")
@@ -91,7 +92,8 @@ func (h *Handler) CreateCoursePacket(c *gin.Context) {
 
 	if err != nil {
 		log.Println(err)
-		c.AbortWithStatus(http.StatusBadRequest)
+		err = coursePacket.ErrBadRequest
+		ErrorHandling(err, c)
 		return
 	}
 
@@ -105,20 +107,20 @@ func (h *Handler) GetCoursePacketById(c *gin.Context) {
 	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
-		c.AbortWithStatus(http.StatusUnauthorized)
+		ErrorHandling(userIdentityErr, c)
 		return
 	}
 	coursePacketId := c.Param("coursePacketId")
 
-	coursePacket, err := h.coursePacketDelegate.GetCoursePacketById(coursePacketId)
+	crsPacket, err := h.coursePacketDelegate.GetCoursePacketById(coursePacketId)
 
 	if err != nil {
 		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		ErrorHandling(err, c)
 		return
 	}
 
-	c.JSON(http.StatusOK, coursePacket)
+	c.JSON(http.StatusOK, crsPacket)
 }
 
 func (h *Handler) GetAllCoursePackets(c *gin.Context) {
@@ -126,13 +128,13 @@ func (h *Handler) GetAllCoursePackets(c *gin.Context) {
 	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
-		c.AbortWithStatus(http.StatusUnauthorized)
+		ErrorHandling(userIdentityErr, c)
 		return
 	}
 	coursePackets, err := h.coursePacketDelegate.GetAllCoursePackets()
 	if err != nil {
 		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		ErrorHandling(err, c)
 		return
 	}
 
@@ -144,7 +146,7 @@ func (h *Handler) DeleteCoursePacket(c *gin.Context) {
 	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
-		c.AbortWithStatus(http.StatusUnauthorized)
+		ErrorHandling(userIdentityErr, c)
 		return
 	}
 	courseId := c.Param("coursePacketId")
@@ -152,7 +154,26 @@ func (h *Handler) DeleteCoursePacket(c *gin.Context) {
 
 	if err != nil {
 		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		ErrorHandling(err, c)
 		return
+	}
+}
+
+func ErrorHandling(err error, c *gin.Context) {
+	switch err {
+	case coursePacket.ErrBadRequest:
+		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+	case coursePacket.ErrInternalServerLevel:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+	case coursePacket.ErrBadRequestBody:
+		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+	case auth.ErrInvalidAccessToken:
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+	case auth.ErrTokenNotFound:
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+	case auth.ErrNotAccess:
+		c.AbortWithStatusJSON(http.StatusForbidden, err.Error())
+	default:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	}
 }

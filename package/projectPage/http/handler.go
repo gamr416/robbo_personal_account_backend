@@ -1,7 +1,6 @@
 package http
 
 import (
-	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
@@ -47,17 +46,19 @@ type createProjectPageResponse struct {
 func (h *Handler) CreateProjectPage(c *gin.Context) {
 	log.Println("Create Project Page")
 	userId, role, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if role != models.Student && role < models.UnitAdmin || userIdentityErr != nil {
-		//if added to avoid panic
-		if role != models.Student && role < models.UnitAdmin && userIdentityErr == nil {
-			err := errors.New("No access")
-			ErrorHandling(err, c)
-			return
-		}
+	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
 		return
 	}
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
+		return
+	}
+
 	projectId, err := h.projectPageDelegate.CreateProjectPage(userId)
 
 	if err != nil {
@@ -78,15 +79,16 @@ type getProjectPageResponse struct {
 func (h *Handler) GetProjectPageById(c *gin.Context) {
 	log.Println("Get Project Page By ID")
 	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if role != models.Student && role < models.UnitAdmin || userIdentityErr != nil {
-		//if added to avoid panic
-		if role != models.Student && role < models.UnitAdmin && userIdentityErr == nil {
-			err := errors.New("No access")
-			ErrorHandling(err, c)
-			return
-		}
+	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
 		return
 	}
 	projectPageId := c.Param("projectPageId")
@@ -109,15 +111,16 @@ type getAllProjectPageResponse struct {
 func (h *Handler) GetAllProjectPageByUserId(c *gin.Context) {
 	log.Println("Get All Project Page By User ID")
 	userId, role, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if role != models.Student && role < models.UnitAdmin || userIdentityErr != nil {
-		//if added to avoid panic
-		if role != models.Student && role < models.UnitAdmin && userIdentityErr == nil {
-			err := errors.New("No access")
-			ErrorHandling(err, c)
-			return
-		}
+	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
 		return
 	}
 
@@ -139,15 +142,16 @@ type updateProjectPageInput struct {
 func (h *Handler) UpdateProjectPage(c *gin.Context) {
 	log.Println("Update Project Page")
 	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if role != models.Student && role < models.UnitAdmin || userIdentityErr != nil {
-		//if added to avoid panic
-		if role != models.Student && role < models.UnitAdmin && userIdentityErr == nil {
-			err := errors.New("No access")
-			ErrorHandling(err, c)
-			return
-		}
+	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
 		return
 	}
 
@@ -171,15 +175,16 @@ func (h *Handler) UpdateProjectPage(c *gin.Context) {
 func (h *Handler) DeleteProjectPage(c *gin.Context) {
 	log.Println("Delete Project Page")
 	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if role != models.Student && role < models.UnitAdmin || userIdentityErr != nil {
-		//if added to avoid panic
-		if role != models.Student && role < models.UnitAdmin && userIdentityErr == nil {
-			err := errors.New("No access")
-			ErrorHandling(err, c)
-			return
-		}
+	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
 		return
 	}
 	projectId := c.Param("projectId")
@@ -207,6 +212,8 @@ func ErrorHandling(err error, c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
 	case auth.ErrTokenNotFound:
 		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+	case auth.ErrNotAccess:
+		c.AbortWithStatusJSON(http.StatusForbidden, err.Error())
 	default:
 		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	}

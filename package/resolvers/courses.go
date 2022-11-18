@@ -6,7 +6,6 @@ package resolvers
 import (
 	"context"
 	"errors"
-
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 )
 
@@ -18,8 +17,14 @@ func (r *queryResolver) GetCourseContent(ctx context.Context, courseID string) (
 		return nil, err
 	}
 	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if role == models.Parent || userIdentityErr != nil {
+	if userIdentityErr != nil {
 		err := errors.New("status unauthorized")
+		return nil, err
+	}
+	allowedRoles := []models.Role{models.Student, models.FreeListener, models.Teacher, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
 		return nil, err
 	}
 	courseHttp, getCourseContentErr := r.coursesDelegate.GetCourseContent(courseID)
@@ -78,8 +83,14 @@ func (r *queryResolver) GetEnrollments(ctx context.Context, username string) (*m
 		return nil, err
 	}
 	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if role < models.UnitAdmin || userIdentityErr != nil {
+	if userIdentityErr != nil {
 		err := errors.New("status unauthorized")
+		return nil, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
 		return nil, err
 	}
 	enrollmentListHttp, GetEnrollmentsErr := r.coursesDelegate.GetEnrollments(username)

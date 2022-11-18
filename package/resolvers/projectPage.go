@@ -30,8 +30,8 @@ func (r *queryResolver) GetProjectPageByID(ctx context.Context, projectPageID st
 	return &projectPageHttp, nil
 }
 
-// GetAllProjectPageByUserID is the resolver for the GetAllProjectPageByUserID field.
-func (r *queryResolver) GetAllProjectPageByUserID(ctx context.Context, userID string) ([]*models.ProjectPageHTTP, error) {
+// GetAllProjectPagesByUserID is the resolver for the GetAllProjectPagesByUserID field.
+func (r *queryResolver) GetAllProjectPagesByUserID(ctx context.Context, userID string) ([]*models.ProjectPageHTTP, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -43,6 +43,26 @@ func (r *queryResolver) GetAllProjectPageByUserID(ctx context.Context, userID st
 		return nil, err
 	}
 	projectPageListHttp, getAllProjectPagesErr := r.projectPageDelegate.GetAllProjectPagesByUserId(userID)
+	if getAllProjectPagesErr != nil {
+		err := errors.New("baq request")
+		return nil, err
+	}
+	return projectPageListHttp, nil
+}
+
+// GetAllProjectPagesByAccessToken is the resolver for the GetAllProjectPagesByAccessToken field.
+func (r *queryResolver) GetAllProjectPagesByAccessToken(ctx context.Context) ([]*models.ProjectPageHTTP, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return nil, err
+	}
+	userId, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
+	if userIdentityErr != nil {
+		err := errors.New("status unauthorized")
+		return nil, err
+	}
+	projectPageListHttp, getAllProjectPagesErr := r.projectPageDelegate.GetAllProjectPagesByUserId(userId)
 	if getAllProjectPagesErr != nil {
 		err := errors.New("baq request")
 		return nil, err

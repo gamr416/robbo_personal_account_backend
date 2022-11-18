@@ -2,17 +2,19 @@ package models
 
 import (
 	"gorm.io/gorm"
+	"strconv"
 )
 
 type ProjectPageCore struct {
-	LastModified string
-	Title        string
-	ProjectId    string
-	Instruction  string
-	Notes        string
-	Preview      string
-	LinkScratch  string
-	IsShared     bool
+	ProjectPageId string
+	LastModified  string
+	Title         string
+	ProjectId     string
+	Instruction   string
+	Notes         string
+	Preview       string
+	LinkScratch   string
+	IsShared      bool
 }
 
 type ProjectPageDB struct {
@@ -30,47 +32,52 @@ type ProjectPageDB struct {
 
 func (em *ProjectPageDB) ToCore() *ProjectPageCore {
 	return &ProjectPageCore{
-		LastModified: em.UpdatedAt.String(),
-		Title:        em.Title,
-		ProjectId:    em.ProjectId,
-		Instruction:  em.Instruction,
-		Notes:        em.Notes,
-		Preview:      em.Preview,
-		LinkScratch:  em.LinkScratch,
-		IsShared:     em.IsShared,
+		ProjectPageId: strconv.FormatUint(uint64(em.ID), 10),
+		LastModified:  em.UpdatedAt.String(),
+		Title:         em.Title,
+		ProjectId:     em.ProjectId,
+		Instruction:   em.Instruction,
+		Notes:         em.Notes,
+		Preview:       em.Preview,
+		LinkScratch:   em.LinkScratch,
+		IsShared:      em.IsShared,
 	}
 }
 
-func (em *ProjectPageDB) FromCore(pp *ProjectPageCore) {
-	em.ProjectId = pp.ProjectId
-	em.Instruction = pp.Instruction
-	em.Notes = pp.Notes
-	em.Preview = pp.Preview
-	em.LinkScratch = pp.LinkScratch
-	em.Title = pp.Title
-	em.IsShared = pp.IsShared
+func (em *ProjectPageDB) FromCore(projectPage *ProjectPageCore) {
+	id, _ := strconv.ParseUint(projectPage.ProjectPageId, 10, 64)
+	em.ID = uint(id)
+	em.ProjectId = projectPage.ProjectId
+	em.Instruction = projectPage.Instruction
+	em.Notes = projectPage.Notes
+	em.Preview = projectPage.Preview
+	em.LinkScratch = projectPage.LinkScratch
+	em.Title = projectPage.Title
+	em.IsShared = projectPage.IsShared
 }
 
 func (ht *ProjectPageHTTP) ToCore() *ProjectPageCore {
 	return &ProjectPageCore{
-		LastModified: ht.LastModified,
-		Title:        ht.Title,
-		ProjectId:    ht.ProjectID,
-		Instruction:  ht.Instruction,
-		Notes:        ht.Notes,
-		Preview:      ht.Preview,
-		LinkScratch:  ht.LinkScratch,
-		IsShared:     ht.IsShared,
+		ProjectPageId: ht.ProjectPageID,
+		LastModified:  ht.LastModified,
+		Title:         ht.Title,
+		ProjectId:     ht.ProjectID,
+		Instruction:   ht.Instruction,
+		Notes:         ht.Notes,
+		Preview:       ht.Preview,
+		LinkScratch:   ht.LinkScratch,
+		IsShared:      ht.IsShared,
 	}
 }
 
-func (ht *ProjectPageHTTP) FromCore(pp *ProjectPageCore) {
-	ht.LastModified = pp.LastModified
-	ht.ProjectID = pp.ProjectId
-	ht.Instruction = pp.Instruction
-	ht.Notes = pp.Notes
-	ht.Preview = pp.Preview
-	ht.LinkScratch = pp.LinkScratch
-	ht.Title = pp.Title
-	ht.IsShared = pp.IsShared
+func (ht *ProjectPageHTTP) FromCore(projectPage *ProjectPageCore) {
+	ht.ProjectPageID = projectPage.ProjectPageId
+	ht.LastModified = projectPage.LastModified
+	ht.ProjectID = projectPage.ProjectId
+	ht.Instruction = projectPage.Instruction
+	ht.Notes = projectPage.Notes
+	ht.Preview = projectPage.Preview
+	ht.LinkScratch = projectPage.LinkScratch
+	ht.Title = projectPage.Title
+	ht.IsShared = projectPage.IsShared
 }

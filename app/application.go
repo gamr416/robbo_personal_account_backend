@@ -6,9 +6,8 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/logger"
 	"github.com/skinnykaen/robbo_student_personal_account.git/server"
-	"log"
-
 	"go.uber.org/fx"
+	"log"
 )
 
 func InvokeWith(options ...fx.Option) *fx.App {

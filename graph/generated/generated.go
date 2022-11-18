@@ -145,43 +145,45 @@ type ComplexityRoot struct {
 	}
 
 	ProjectPageHttp struct {
-		Instruction  func(childComplexity int) int
-		IsShared     func(childComplexity int) int
-		LastModified func(childComplexity int) int
-		LinkScratch  func(childComplexity int) int
-		Notes        func(childComplexity int) int
-		Preview      func(childComplexity int) int
-		ProjectID    func(childComplexity int) int
-		Title        func(childComplexity int) int
+		Instruction   func(childComplexity int) int
+		IsShared      func(childComplexity int) int
+		LastModified  func(childComplexity int) int
+		LinkScratch   func(childComplexity int) int
+		Notes         func(childComplexity int) int
+		Preview       func(childComplexity int) int
+		ProjectID     func(childComplexity int) int
+		ProjectPageID func(childComplexity int) int
+		Title         func(childComplexity int) int
 	}
 
 	Query struct {
-		GetAllParents               func(childComplexity int) int
-		GetAllProjectPageByUserID   func(childComplexity int, userID string) int
-		GetAllPublicCourses         func(childComplexity int, pageNumber string) int
-		GetAllRobboUnits            func(childComplexity int) int
-		GetAllTeachers              func(childComplexity int) int
-		GetAllUnitAdmins            func(childComplexity int) int
-		GetCourseContent            func(childComplexity int, courseID string) int
-		GetCoursesByUser            func(childComplexity int) int
-		GetEnrollments              func(childComplexity int, username string) int
-		GetParentByID               func(childComplexity int, parentID string) int
-		GetProjectPageByID          func(childComplexity int, projectPageID string) int
-		GetRobboGroupByID           func(childComplexity int, id string) int
-		GetRobboGroupsByAccessToken func(childComplexity int) int
-		GetRobboGroupsByRobboUnitID func(childComplexity int, robboUnitID string) int
-		GetRobboGroupsByTeacherID   func(childComplexity int, teacherID string) int
-		GetRobboUnitByID            func(childComplexity int, id string) int
-		GetRobboUnitsByUnitAdminID  func(childComplexity int, unitAdminID string) int
-		GetStudentByID              func(childComplexity int, studentID string) int
-		GetStudentsByParentID       func(childComplexity int, parentID string) int
-		GetSuperAdminByID           func(childComplexity int, superAdminID string) int
-		GetTeacherByID              func(childComplexity int, teacherID string) int
-		GetUnitAdminByID            func(childComplexity int, unitAdminID string) int
-		GetUnitAdminsByRobboUnitID  func(childComplexity int, robboUnitID string) int
-		SearchGroupsByName          func(childComplexity int, name string) int
-		SearchStudentsByEmail       func(childComplexity int, email string) int
-		SearchUnitAdminsByEmail     func(childComplexity int, email string) int
+		GetAllParents                   func(childComplexity int) int
+		GetAllProjectPagesByAccessToken func(childComplexity int) int
+		GetAllProjectPagesByUserID      func(childComplexity int, userID string) int
+		GetAllPublicCourses             func(childComplexity int, pageNumber string) int
+		GetAllRobboUnits                func(childComplexity int) int
+		GetAllTeachers                  func(childComplexity int) int
+		GetAllUnitAdmins                func(childComplexity int) int
+		GetCourseContent                func(childComplexity int, courseID string) int
+		GetCoursesByUser                func(childComplexity int) int
+		GetEnrollments                  func(childComplexity int, username string) int
+		GetParentByID                   func(childComplexity int, parentID string) int
+		GetProjectPageByID              func(childComplexity int, projectPageID string) int
+		GetRobboGroupByID               func(childComplexity int, id string) int
+		GetRobboGroupsByAccessToken     func(childComplexity int) int
+		GetRobboGroupsByRobboUnitID     func(childComplexity int, robboUnitID string) int
+		GetRobboGroupsByTeacherID       func(childComplexity int, teacherID string) int
+		GetRobboUnitByID                func(childComplexity int, id string) int
+		GetRobboUnitsByUnitAdminID      func(childComplexity int, unitAdminID string) int
+		GetStudentByID                  func(childComplexity int, studentID string) int
+		GetStudentsByParentID           func(childComplexity int, parentID string) int
+		GetSuperAdminByID               func(childComplexity int, superAdminID string) int
+		GetTeacherByID                  func(childComplexity int, teacherID string) int
+		GetUnitAdminByID                func(childComplexity int, unitAdminID string) int
+		GetUnitAdminsByRobboUnitID      func(childComplexity int, robboUnitID string) int
+		SearchGroupsByName              func(childComplexity int, name string) int
+		SearchStudentsByEmail           func(childComplexity int, email string) int
+		SearchUnitAdminsByEmail         func(childComplexity int, email string) int
 	}
 
 	RobboGroupHttp struct {
@@ -267,7 +269,8 @@ type QueryResolver interface {
 	GetAllPublicCourses(ctx context.Context, pageNumber string) (*models.CoursesListHTTP, error)
 	GetEnrollments(ctx context.Context, username string) (*models.EnrollmentsListHTTP, error)
 	GetProjectPageByID(ctx context.Context, projectPageID string) (*models.ProjectPageHTTP, error)
-	GetAllProjectPageByUserID(ctx context.Context, userID string) ([]*models.ProjectPageHTTP, error)
+	GetAllProjectPagesByUserID(ctx context.Context, userID string) ([]*models.ProjectPageHTTP, error)
+	GetAllProjectPagesByAccessToken(ctx context.Context) ([]*models.ProjectPageHTTP, error)
 	GetRobboGroupByID(ctx context.Context, id string) (*models.RobboGroupHTTP, error)
 	GetRobboGroupsByTeacherID(ctx context.Context, teacherID string) ([]*models.RobboGroupHTTP, error)
 	GetRobboGroupsByRobboUnitID(ctx context.Context, robboUnitID string) ([]*models.RobboGroupHTTP, error)
@@ -847,56 +850,63 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ParentHttp.UserHTTP(childComplexity), true
 
-	case "ProjectPageHttp.Instruction":
+	case "ProjectPageHttp.instruction":
 		if e.complexity.ProjectPageHttp.Instruction == nil {
 			break
 		}
 
 		return e.complexity.ProjectPageHttp.Instruction(childComplexity), true
 
-	case "ProjectPageHttp.IsShared":
+	case "ProjectPageHttp.isShared":
 		if e.complexity.ProjectPageHttp.IsShared == nil {
 			break
 		}
 
 		return e.complexity.ProjectPageHttp.IsShared(childComplexity), true
 
-	case "ProjectPageHttp.LastModified":
+	case "ProjectPageHttp.lastModified":
 		if e.complexity.ProjectPageHttp.LastModified == nil {
 			break
 		}
 
 		return e.complexity.ProjectPageHttp.LastModified(childComplexity), true
 
-	case "ProjectPageHttp.LinkScratch":
+	case "ProjectPageHttp.linkScratch":
 		if e.complexity.ProjectPageHttp.LinkScratch == nil {
 			break
 		}
 
 		return e.complexity.ProjectPageHttp.LinkScratch(childComplexity), true
 
-	case "ProjectPageHttp.Notes":
+	case "ProjectPageHttp.notes":
 		if e.complexity.ProjectPageHttp.Notes == nil {
 			break
 		}
 
 		return e.complexity.ProjectPageHttp.Notes(childComplexity), true
 
-	case "ProjectPageHttp.Preview":
+	case "ProjectPageHttp.preview":
 		if e.complexity.ProjectPageHttp.Preview == nil {
 			break
 		}
 
 		return e.complexity.ProjectPageHttp.Preview(childComplexity), true
 
-	case "ProjectPageHttp.ProjectID":
+	case "ProjectPageHttp.projectId":
 		if e.complexity.ProjectPageHttp.ProjectID == nil {
 			break
 		}
 
 		return e.complexity.ProjectPageHttp.ProjectID(childComplexity), true
 
-	case "ProjectPageHttp.Title":
+	case "ProjectPageHttp.projectPageId":
+		if e.complexity.ProjectPageHttp.ProjectPageID == nil {
+			break
+		}
+
+		return e.complexity.ProjectPageHttp.ProjectPageID(childComplexity), true
+
+	case "ProjectPageHttp.title":
 		if e.complexity.ProjectPageHttp.Title == nil {
 			break
 		}
@@ -910,17 +920,24 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetAllParents(childComplexity), true
 
-	case "Query.GetAllProjectPageByUserID":
-		if e.complexity.Query.GetAllProjectPageByUserID == nil {
+	case "Query.GetAllProjectPagesByAccessToken":
+		if e.complexity.Query.GetAllProjectPagesByAccessToken == nil {
 			break
 		}
 
-		args, err := ec.field_Query_GetAllProjectPageByUserID_args(context.TODO(), rawArgs)
+		return e.complexity.Query.GetAllProjectPagesByAccessToken(childComplexity), true
+
+	case "Query.GetAllProjectPagesByUserID":
+		if e.complexity.Query.GetAllProjectPagesByUserID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetAllProjectPagesByUserID_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.GetAllProjectPageByUserID(childComplexity, args["userID"].(string)), true
+		return e.complexity.Query.GetAllProjectPagesByUserID(childComplexity, args["userID"].(string)), true
 
 	case "Query.GetAllPublicCourses":
 		if e.complexity.Query.GetAllPublicCourses == nil {
@@ -1517,19 +1534,21 @@ extend type Query {
     GetEnrollments(username: String!): EnrollmentsListHttp!
 }`, BuiltIn: false},
 	{Name: "../projectPage.graphqls", Input: `type ProjectPageHttp {
-    LastModified: String!
-    ProjectID: String!
-    Instruction: String!
-    Notes: String!
-    Preview: String!
-    LinkScratch: String!
-    Title: String!
-    IsShared: Boolean!
+    projectPageId: String!
+    lastModified: String!
+    projectId: String!
+    instruction: String!
+    notes: String!
+    preview: String!
+    linkScratch: String!
+    title: String!
+    isShared: Boolean!
 }
 
 extend type Query {
     GetProjectPageById(projectPageID: String!): ProjectPageHttp!
-    GetAllProjectPageByUserID(userID: String!): [ProjectPageHttp!]!
+    GetAllProjectPagesByUserID(userID: String!): [ProjectPageHttp!]!
+    GetAllProjectPagesByAccessToken: [ProjectPageHttp!]!
 }`, BuiltIn: false},
 	{Name: "../robboGroup.graphqls", Input: `type RobboGroupHttp {
 	id: String!
@@ -2023,7 +2042,7 @@ func (ec *executionContext) field_Mutation_updateUnitAdmin_args(ctx context.Cont
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_GetAllProjectPageByUserID_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_GetAllProjectPagesByUserID_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -5675,8 +5694,52 @@ func (ec *executionContext) fieldContext_ParentHttp_children(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _ProjectPageHttp_LastModified(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ProjectPageHttp_LastModified(ctx, field)
+func (ec *executionContext) _ProjectPageHttp_projectPageId(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectPageHttp_projectPageId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProjectPageID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProjectPageHttp_projectPageId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProjectPageHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProjectPageHttp_lastModified(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectPageHttp_lastModified(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5706,7 +5769,7 @@ func (ec *executionContext) _ProjectPageHttp_LastModified(ctx context.Context, f
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ProjectPageHttp_LastModified(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ProjectPageHttp_lastModified(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ProjectPageHttp",
 		Field:      field,
@@ -5719,8 +5782,8 @@ func (ec *executionContext) fieldContext_ProjectPageHttp_LastModified(ctx contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ProjectPageHttp_ProjectID(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ProjectPageHttp_ProjectID(ctx, field)
+func (ec *executionContext) _ProjectPageHttp_projectId(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectPageHttp_projectId(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5750,7 +5813,7 @@ func (ec *executionContext) _ProjectPageHttp_ProjectID(ctx context.Context, fiel
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ProjectPageHttp_ProjectID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ProjectPageHttp_projectId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ProjectPageHttp",
 		Field:      field,
@@ -5763,8 +5826,8 @@ func (ec *executionContext) fieldContext_ProjectPageHttp_ProjectID(ctx context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _ProjectPageHttp_Instruction(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ProjectPageHttp_Instruction(ctx, field)
+func (ec *executionContext) _ProjectPageHttp_instruction(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectPageHttp_instruction(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5794,7 +5857,7 @@ func (ec *executionContext) _ProjectPageHttp_Instruction(ctx context.Context, fi
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ProjectPageHttp_Instruction(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ProjectPageHttp_instruction(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ProjectPageHttp",
 		Field:      field,
@@ -5807,8 +5870,8 @@ func (ec *executionContext) fieldContext_ProjectPageHttp_Instruction(ctx context
 	return fc, nil
 }
 
-func (ec *executionContext) _ProjectPageHttp_Notes(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ProjectPageHttp_Notes(ctx, field)
+func (ec *executionContext) _ProjectPageHttp_notes(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectPageHttp_notes(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5838,7 +5901,7 @@ func (ec *executionContext) _ProjectPageHttp_Notes(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ProjectPageHttp_Notes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ProjectPageHttp_notes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ProjectPageHttp",
 		Field:      field,
@@ -5851,8 +5914,8 @@ func (ec *executionContext) fieldContext_ProjectPageHttp_Notes(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _ProjectPageHttp_Preview(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ProjectPageHttp_Preview(ctx, field)
+func (ec *executionContext) _ProjectPageHttp_preview(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectPageHttp_preview(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5882,7 +5945,7 @@ func (ec *executionContext) _ProjectPageHttp_Preview(ctx context.Context, field 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ProjectPageHttp_Preview(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ProjectPageHttp_preview(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ProjectPageHttp",
 		Field:      field,
@@ -5895,8 +5958,8 @@ func (ec *executionContext) fieldContext_ProjectPageHttp_Preview(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _ProjectPageHttp_LinkScratch(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ProjectPageHttp_LinkScratch(ctx, field)
+func (ec *executionContext) _ProjectPageHttp_linkScratch(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectPageHttp_linkScratch(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5926,7 +5989,7 @@ func (ec *executionContext) _ProjectPageHttp_LinkScratch(ctx context.Context, fi
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ProjectPageHttp_LinkScratch(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ProjectPageHttp_linkScratch(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ProjectPageHttp",
 		Field:      field,
@@ -5939,8 +6002,8 @@ func (ec *executionContext) fieldContext_ProjectPageHttp_LinkScratch(ctx context
 	return fc, nil
 }
 
-func (ec *executionContext) _ProjectPageHttp_Title(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ProjectPageHttp_Title(ctx, field)
+func (ec *executionContext) _ProjectPageHttp_title(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectPageHttp_title(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5970,7 +6033,7 @@ func (ec *executionContext) _ProjectPageHttp_Title(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ProjectPageHttp_Title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ProjectPageHttp_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ProjectPageHttp",
 		Field:      field,
@@ -5983,8 +6046,8 @@ func (ec *executionContext) fieldContext_ProjectPageHttp_Title(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _ProjectPageHttp_IsShared(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ProjectPageHttp_IsShared(ctx, field)
+func (ec *executionContext) _ProjectPageHttp_isShared(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectPageHttp_isShared(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -6014,7 +6077,7 @@ func (ec *executionContext) _ProjectPageHttp_IsShared(ctx context.Context, field
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ProjectPageHttp_IsShared(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ProjectPageHttp_isShared(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ProjectPageHttp",
 		Field:      field,
@@ -7028,22 +7091,24 @@ func (ec *executionContext) fieldContext_Query_GetProjectPageById(ctx context.Co
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "LastModified":
-				return ec.fieldContext_ProjectPageHttp_LastModified(ctx, field)
-			case "ProjectID":
-				return ec.fieldContext_ProjectPageHttp_ProjectID(ctx, field)
-			case "Instruction":
-				return ec.fieldContext_ProjectPageHttp_Instruction(ctx, field)
-			case "Notes":
-				return ec.fieldContext_ProjectPageHttp_Notes(ctx, field)
-			case "Preview":
-				return ec.fieldContext_ProjectPageHttp_Preview(ctx, field)
-			case "LinkScratch":
-				return ec.fieldContext_ProjectPageHttp_LinkScratch(ctx, field)
-			case "Title":
-				return ec.fieldContext_ProjectPageHttp_Title(ctx, field)
-			case "IsShared":
-				return ec.fieldContext_ProjectPageHttp_IsShared(ctx, field)
+			case "projectPageId":
+				return ec.fieldContext_ProjectPageHttp_projectPageId(ctx, field)
+			case "lastModified":
+				return ec.fieldContext_ProjectPageHttp_lastModified(ctx, field)
+			case "projectId":
+				return ec.fieldContext_ProjectPageHttp_projectId(ctx, field)
+			case "instruction":
+				return ec.fieldContext_ProjectPageHttp_instruction(ctx, field)
+			case "notes":
+				return ec.fieldContext_ProjectPageHttp_notes(ctx, field)
+			case "preview":
+				return ec.fieldContext_ProjectPageHttp_preview(ctx, field)
+			case "linkScratch":
+				return ec.fieldContext_ProjectPageHttp_linkScratch(ctx, field)
+			case "title":
+				return ec.fieldContext_ProjectPageHttp_title(ctx, field)
+			case "isShared":
+				return ec.fieldContext_ProjectPageHttp_isShared(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProjectPageHttp", field.Name)
 		},
@@ -7062,8 +7127,8 @@ func (ec *executionContext) fieldContext_Query_GetProjectPageById(ctx context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_GetAllProjectPageByUserID(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_GetAllProjectPageByUserID(ctx, field)
+func (ec *executionContext) _Query_GetAllProjectPagesByUserID(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetAllProjectPagesByUserID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -7076,7 +7141,7 @@ func (ec *executionContext) _Query_GetAllProjectPageByUserID(ctx context.Context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetAllProjectPageByUserID(rctx, fc.Args["userID"].(string))
+		return ec.resolvers.Query().GetAllProjectPagesByUserID(rctx, fc.Args["userID"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7093,7 +7158,7 @@ func (ec *executionContext) _Query_GetAllProjectPageByUserID(ctx context.Context
 	return ec.marshalNProjectPageHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPageHTTPᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_GetAllProjectPageByUserID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_GetAllProjectPagesByUserID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -7101,22 +7166,24 @@ func (ec *executionContext) fieldContext_Query_GetAllProjectPageByUserID(ctx con
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "LastModified":
-				return ec.fieldContext_ProjectPageHttp_LastModified(ctx, field)
-			case "ProjectID":
-				return ec.fieldContext_ProjectPageHttp_ProjectID(ctx, field)
-			case "Instruction":
-				return ec.fieldContext_ProjectPageHttp_Instruction(ctx, field)
-			case "Notes":
-				return ec.fieldContext_ProjectPageHttp_Notes(ctx, field)
-			case "Preview":
-				return ec.fieldContext_ProjectPageHttp_Preview(ctx, field)
-			case "LinkScratch":
-				return ec.fieldContext_ProjectPageHttp_LinkScratch(ctx, field)
-			case "Title":
-				return ec.fieldContext_ProjectPageHttp_Title(ctx, field)
-			case "IsShared":
-				return ec.fieldContext_ProjectPageHttp_IsShared(ctx, field)
+			case "projectPageId":
+				return ec.fieldContext_ProjectPageHttp_projectPageId(ctx, field)
+			case "lastModified":
+				return ec.fieldContext_ProjectPageHttp_lastModified(ctx, field)
+			case "projectId":
+				return ec.fieldContext_ProjectPageHttp_projectId(ctx, field)
+			case "instruction":
+				return ec.fieldContext_ProjectPageHttp_instruction(ctx, field)
+			case "notes":
+				return ec.fieldContext_ProjectPageHttp_notes(ctx, field)
+			case "preview":
+				return ec.fieldContext_ProjectPageHttp_preview(ctx, field)
+			case "linkScratch":
+				return ec.fieldContext_ProjectPageHttp_linkScratch(ctx, field)
+			case "title":
+				return ec.fieldContext_ProjectPageHttp_title(ctx, field)
+			case "isShared":
+				return ec.fieldContext_ProjectPageHttp_isShared(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProjectPageHttp", field.Name)
 		},
@@ -7128,9 +7195,73 @@ func (ec *executionContext) fieldContext_Query_GetAllProjectPageByUserID(ctx con
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_GetAllProjectPageByUserID_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_GetAllProjectPagesByUserID_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetAllProjectPagesByAccessToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetAllProjectPagesByAccessToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetAllProjectPagesByAccessToken(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*models.ProjectPageHTTP)
+	fc.Result = res
+	return ec.marshalNProjectPageHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPageHTTPᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetAllProjectPagesByAccessToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "projectPageId":
+				return ec.fieldContext_ProjectPageHttp_projectPageId(ctx, field)
+			case "lastModified":
+				return ec.fieldContext_ProjectPageHttp_lastModified(ctx, field)
+			case "projectId":
+				return ec.fieldContext_ProjectPageHttp_projectId(ctx, field)
+			case "instruction":
+				return ec.fieldContext_ProjectPageHttp_instruction(ctx, field)
+			case "notes":
+				return ec.fieldContext_ProjectPageHttp_notes(ctx, field)
+			case "preview":
+				return ec.fieldContext_ProjectPageHttp_preview(ctx, field)
+			case "linkScratch":
+				return ec.fieldContext_ProjectPageHttp_linkScratch(ctx, field)
+			case "title":
+				return ec.fieldContext_ProjectPageHttp_title(ctx, field)
+			case "isShared":
+				return ec.fieldContext_ProjectPageHttp_isShared(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProjectPageHttp", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -12057,58 +12188,65 @@ func (ec *executionContext) _ProjectPageHttp(ctx context.Context, sel ast.Select
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ProjectPageHttp")
-		case "LastModified":
+		case "projectPageId":
 
-			out.Values[i] = ec._ProjectPageHttp_LastModified(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "ProjectID":
-
-			out.Values[i] = ec._ProjectPageHttp_ProjectID(ctx, field, obj)
+			out.Values[i] = ec._ProjectPageHttp_projectPageId(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Instruction":
+		case "lastModified":
 
-			out.Values[i] = ec._ProjectPageHttp_Instruction(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "Notes":
-
-			out.Values[i] = ec._ProjectPageHttp_Notes(ctx, field, obj)
+			out.Values[i] = ec._ProjectPageHttp_lastModified(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Preview":
+		case "projectId":
 
-			out.Values[i] = ec._ProjectPageHttp_Preview(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "LinkScratch":
-
-			out.Values[i] = ec._ProjectPageHttp_LinkScratch(ctx, field, obj)
+			out.Values[i] = ec._ProjectPageHttp_projectId(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Title":
+		case "instruction":
 
-			out.Values[i] = ec._ProjectPageHttp_Title(ctx, field, obj)
+			out.Values[i] = ec._ProjectPageHttp_instruction(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "IsShared":
+		case "notes":
 
-			out.Values[i] = ec._ProjectPageHttp_IsShared(ctx, field, obj)
+			out.Values[i] = ec._ProjectPageHttp_notes(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "preview":
+
+			out.Values[i] = ec._ProjectPageHttp_preview(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "linkScratch":
+
+			out.Values[i] = ec._ProjectPageHttp_linkScratch(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "title":
+
+			out.Values[i] = ec._ProjectPageHttp_title(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "isShared":
+
+			out.Values[i] = ec._ProjectPageHttp_isShared(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -12534,7 +12672,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "GetAllProjectPageByUserID":
+		case "GetAllProjectPagesByUserID":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -12543,7 +12681,30 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_GetAllProjectPageByUserID(ctx, field)
+				res = ec._Query_GetAllProjectPagesByUserID(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetAllProjectPagesByAccessToken":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetAllProjectPagesByAccessToken(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

@@ -77,8 +77,8 @@ func (h *Handler) GetProjectPageById(c *gin.Context) {
 	projectPageId := c.Param("projectPageId")
 	projectPage, err := h.projectPageDelegate.GetProjectPageById(projectPageId)
 	if err != nil {
-		log.Println(userIdentityErr)
-		ErrorHandling(userIdentityErr, c)
+		log.Println(err)
+		ErrorHandling(err, c)
 		return
 	}
 

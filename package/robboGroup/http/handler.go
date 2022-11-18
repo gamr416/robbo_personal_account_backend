@@ -31,7 +31,7 @@ func (h *Handler) InitRobboGroupRoutes(router *gin.Engine) {
 		robboGroup.POST("/", h.CreateRobboGroup)
 		robboGroup.GET("/:robboGroupId", h.GetRobboGroupById)
 		robboGroup.GET("/", h.GetRobboGroupsByRobboUnitId)
-		robboGroup.DELETE("/:robboGroupId", h.DeleteRobboUnit)
+		robboGroup.DELETE("/:robboGroupId", h.DeleteRobboGroup)
 		//robboGroup.POST("/robboGroupId", h.GetRobboGroupsByRobboUnitId)
 		robboGroup.POST("/setTeacher", h.SetTeacherForRobboGroup)
 		robboGroup.DELETE("/:robboGroupId/deleteTeacher/:teacherId", h.DeleteTeacherForRobboGroup)
@@ -103,8 +103,8 @@ func (h *Handler) GetRobboGroupsByRobboUnitId(c *gin.Context) {
 	c.JSON(http.StatusOK, robboGroups)
 }
 
-func (h *Handler) DeleteRobboUnit(c *gin.Context) {
-	fmt.Println("Delete RobboUnit")
+func (h *Handler) DeleteRobboGroup(c *gin.Context) {
+	fmt.Println("Delete RobboGroup")
 	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)

@@ -224,6 +224,7 @@ func (h *Handler) DeleteTeacherForRobboGroup(c *gin.Context) {
 
 	deleteTeacherForRobboGroupErr := h.robboGroupDelegate.DeleteTeacherForRobboGroup(deleteTeacherForRobboGroupInput.TeacherId, deleteTeacherForRobboGroupInput.RobboGroupId)
 
+
 	if deleteTeacherForRobboGroupErr != nil {
 		log.Println(deleteTeacherForRobboGroupErr)
 		ErrorHandling(deleteTeacherForRobboGroupErr, c)

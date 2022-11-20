@@ -443,7 +443,7 @@ func (r *UsersGatewayImpl) UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (err
 	return
 }
 
-func (r *UsersGatewayImpl) SearchUnitAdminByEmail(email string) (unitAdmins []*models.UnitAdminCore, err error) {
+func (r *UsersGatewayImpl) SearchUnitAdminByEmail(email string, robboUnitId string) (unitAdmins []*models.UnitAdminCore, err error) {
 	var unitAdminsDb []*models.UnitAdminDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Limit(10).Where("email LIKE ?", email).Find(&unitAdminsDb).Error; err != nil {
@@ -454,6 +454,14 @@ func (r *UsersGatewayImpl) SearchUnitAdminByEmail(email string) (unitAdmins []*m
 		return
 	})
 	for _, unitAdminDb := range unitAdminsDb {
+		var countRow int64
+		err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+			tx.Where("robbo_unit_id = ? AND unit_admin_id = ?", robboUnitId, unitAdminDb.ID).Model(&models.UnitAdminsRobboUnitsDB{}).Count(&countRow)
+			return
+		})
+		if countRow != 0 {
+			continue
+		}
 		unitAdmins = append(unitAdmins, unitAdminDb.ToCore())
 	}
 	return

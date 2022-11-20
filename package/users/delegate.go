@@ -38,7 +38,7 @@ type Delegate interface {
 	DeleteUnitAdmin(unitAdminId uint) (err error)
 	GetUnitAdminById(unitAdminId string) (unitAdmin models.UnitAdminHTTP, err error)
 	GetAllUnitAdmins() (unitAdmins []*models.UnitAdminHTTP, err error)
-	SearchUnitAdminByEmail(email string) (unitAdmins []*models.UnitAdminHTTP, err error)
+	SearchUnitAdminByEmail(email string, robboUnitId string) (unitAdmins []*models.UnitAdminHTTP, err error)
 	GetUnitAdminByRobboUnitId(robboUnitId string) (unitAdmins []*models.UnitAdminHTTP, err error)
 
 	//GetSuperAdmin(email, password string) (superAdmin models.SuperAdminHTTP, err error)

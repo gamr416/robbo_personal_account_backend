@@ -88,7 +88,7 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 		users.GET("/unitAdmin/:unitAdminId", h.GetUnitAdminByID)
 		users.GET("/unitAdmins/:robboUnitId", h.GetUnitAdminsByRobboUnitId)
 		users.GET("/unitAdmins", h.GetAllUnitAdmins)
-		users.GET("/unitAdmin/search/:unitAdminEmail", h.SearchUnitAdminByEmail)
+		users.GET("/unitAdmin/search/:robboUnitId/:unitAdminEmail", h.SearchUnitAdminByEmail)
 		users.POST("/unitAdmin/setRelation", h.SetNewUnitAdminForRobboUnit)
 		users.POST("/unitAdmin/deleteRelation", h.DeleteUnitAdminForRobboUnit)
 
@@ -1081,8 +1081,8 @@ func (h *Handler) SearchUnitAdminByEmail(c *gin.Context) {
 		return
 	}
 	unitAdminEmail := c.Param("unitAdminEmail")
-
-	unitAdmins, err := h.usersDelegate.SearchUnitAdminByEmail(unitAdminEmail)
+	robboUnitId := c.Param("robboUnitId")
+	unitAdmins, err := h.usersDelegate.SearchUnitAdminByEmail(unitAdminEmail, robboUnitId)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)

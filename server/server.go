@@ -22,7 +22,6 @@ func NewServer(lifecycle fx.Lifecycle, graphQLModule modules.GraphQLModule, hand
 				router := SetupGinRouter(handlers)
 				router.GET("/", playgroundHandler())
 				router.POST("/query", graphqlHandler(graphQLModule))
-				//router.Use()
 
 				server := &http.Server{
 					Addr: viper.GetString("server.address"),

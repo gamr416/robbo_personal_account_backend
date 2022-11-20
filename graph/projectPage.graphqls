@@ -1,12 +1,13 @@
 type ProjectPageHttp {
-    LastModified: String!
-    ProjectID: String!
-    Instruction: String!
-    Notes: String!
-    Preview: String!
-    LinkScratch: String!
-    Title: String!
-    IsShared: Boolean!
+    projectPageId: String!
+    lastModified: String!
+    projectId: String!
+    instruction: String!
+    notes: String!
+    preview: String!
+    linkScratch: String!
+    title: String!
+    isShared: Boolean!
 }
 
 input UpdateProjectPage {
@@ -27,5 +28,6 @@ extend type Mutation {
 
 extend type Query {
     GetProjectPageById(projectPageID: String!): ProjectPageHttp!
-    GetAllProjectPageByUserID: [ProjectPageHttp!]!
+    GetAllProjectPagesByUserID(userID: String!): [ProjectPageHttp!]!
+    GetAllProjectPagesByAccessToken: [ProjectPageHttp!]!
 }

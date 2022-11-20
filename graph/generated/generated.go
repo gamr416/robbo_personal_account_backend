@@ -185,9 +185,8 @@ type ComplexityRoot struct {
 		GetUnitAdminByID                func(childComplexity int, unitAdminID string) int
 		GetUnitAdminsByRobboUnitID      func(childComplexity int, robboUnitID string) int
 		SearchGroupsByName              func(childComplexity int, name string) int
-		SearchStudentsByEmail           func(childComplexity int, email string) int
+		SearchStudentsByEmail           func(childComplexity int, email string, parentID string) int
 		SearchUnitAdminsByEmail         func(childComplexity int, email string) int
-
 	}
 
 	RobboGroupHttp struct {
@@ -278,7 +277,6 @@ type QueryResolver interface {
 	GetProjectPageByID(ctx context.Context, projectPageID string) (*models.ProjectPageHTTP, error)
 	GetAllProjectPagesByUserID(ctx context.Context, userID string) ([]*models.ProjectPageHTTP, error)
 	GetAllProjectPagesByAccessToken(ctx context.Context) ([]*models.ProjectPageHTTP, error)
-
 	GetRobboGroupByID(ctx context.Context, id string) (*models.RobboGroupHTTP, error)
 	GetRobboGroupsByTeacherID(ctx context.Context, teacherID string) ([]*models.RobboGroupHTTP, error)
 	GetRobboGroupsByRobboUnitID(ctx context.Context, robboUnitID string) ([]*models.RobboGroupHTTP, error)
@@ -978,7 +976,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetAllProjectPagesByUserID(childComplexity, args["userID"].(string)), true
 
-
 	case "Query.GetAllPublicCourses":
 		if e.complexity.Query.GetAllPublicCourses == nil {
 			break
@@ -1606,7 +1603,6 @@ extend type Query {
     GetProjectPageById(projectPageID: String!): ProjectPageHttp!
     GetAllProjectPagesByUserID(userID: String!): [ProjectPageHttp!]!
     GetAllProjectPagesByAccessToken: [ProjectPageHttp!]!
-
 }`, BuiltIn: false},
 	{Name: "../robboGroup.graphqls", Input: `type RobboGroupHttp {
 	id: String!
@@ -5582,22 +5578,24 @@ func (ec *executionContext) fieldContext_Mutation_UpdateProjectPage(ctx context.
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "LastModified":
-				return ec.fieldContext_ProjectPageHttp_LastModified(ctx, field)
-			case "ProjectID":
-				return ec.fieldContext_ProjectPageHttp_ProjectID(ctx, field)
-			case "Instruction":
-				return ec.fieldContext_ProjectPageHttp_Instruction(ctx, field)
-			case "Notes":
-				return ec.fieldContext_ProjectPageHttp_Notes(ctx, field)
-			case "Preview":
-				return ec.fieldContext_ProjectPageHttp_Preview(ctx, field)
-			case "LinkScratch":
-				return ec.fieldContext_ProjectPageHttp_LinkScratch(ctx, field)
-			case "Title":
-				return ec.fieldContext_ProjectPageHttp_Title(ctx, field)
-			case "IsShared":
-				return ec.fieldContext_ProjectPageHttp_IsShared(ctx, field)
+			case "projectPageId":
+				return ec.fieldContext_ProjectPageHttp_projectPageId(ctx, field)
+			case "lastModified":
+				return ec.fieldContext_ProjectPageHttp_lastModified(ctx, field)
+			case "projectId":
+				return ec.fieldContext_ProjectPageHttp_projectId(ctx, field)
+			case "instruction":
+				return ec.fieldContext_ProjectPageHttp_instruction(ctx, field)
+			case "notes":
+				return ec.fieldContext_ProjectPageHttp_notes(ctx, field)
+			case "preview":
+				return ec.fieldContext_ProjectPageHttp_preview(ctx, field)
+			case "linkScratch":
+				return ec.fieldContext_ProjectPageHttp_linkScratch(ctx, field)
+			case "title":
+				return ec.fieldContext_ProjectPageHttp_title(ctx, field)
+			case "isShared":
+				return ec.fieldContext_ProjectPageHttp_isShared(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProjectPageHttp", field.Name)
 		},

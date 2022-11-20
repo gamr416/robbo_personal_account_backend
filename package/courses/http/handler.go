@@ -54,8 +54,8 @@ func (h *Handler) UpdateCourse(c *gin.Context) {
 	courseHTTP := models.CourseHTTP{}
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
-		log.Println(err)
 		err = courses.ErrBadRequestBody
+		log.Println(err)
 		ErrorHandling(err, c)
 		return
 	}
@@ -79,10 +79,17 @@ func (h *Handler) UpdateCourse(c *gin.Context) {
 
 func (h *Handler) CreateCourse(c *gin.Context) {
 	log.Println("Create Course")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
 		return
 	}
 	courseId := c.Param("courseId")
@@ -102,12 +109,20 @@ func (h *Handler) CreateCourse(c *gin.Context) {
 
 func (h *Handler) GetCourseContent(c *gin.Context) {
 	log.Println("Get Course Content")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
 		return
 	}
+	allowedRoles := []models.Role{models.Student, models.FreeListener, models.Teacher, models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
+		return
+	}
+
 	courseId := c.Param("courseId")
 	courseHTTP, err := h.coursesDelegate.GetCourseContent(courseId)
 	if err != nil {
@@ -126,6 +141,7 @@ func (h *Handler) GetCoursesByUser(c *gin.Context) {
 		ErrorHandling(userIdentityErr, c)
 		return
 	}
+
 	coursesHTTP, err := h.coursesDelegate.GetCoursesByUser()
 	if err != nil {
 		log.Println(err)
@@ -143,6 +159,7 @@ func (h *Handler) GetAllPublicCourses(c *gin.Context) {
 		ErrorHandling(userIdentityErr, c)
 		return
 	}
+
 	pageNumber := c.Param("pageNumber")
 	coursesListHTTP, err := h.coursesDelegate.GetAllPublicCourses(pageNumber)
 
@@ -156,12 +173,20 @@ func (h *Handler) GetAllPublicCourses(c *gin.Context) {
 
 func (h *Handler) GetEnrollments(c *gin.Context) {
 	log.Println("Get Enrollments")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
 		return
 	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
+		return
+	}
+
 	username := c.Param("username")
 
 	enrollmentsHTTP, err := h.coursesDelegate.GetEnrollments(username)
@@ -181,6 +206,7 @@ func (h *Handler) DeleteCourse(c *gin.Context) {
 		ErrorHandling(userIdentityErr, c)
 		return
 	}
+
 	courseId := c.Param("courseId")
 	err := h.coursesDelegate.DeleteCourse(courseId)
 
@@ -195,7 +221,7 @@ func ErrorHandling(err error, c *gin.Context) {
 	switch err {
 	case courses.ErrBadRequest:
 		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
-	case courses.ErrInternalServer:
+	case courses.ErrInternalServerLevel:
 		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	case courses.ErrBadRequestBody:
 		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
@@ -203,6 +229,8 @@ func ErrorHandling(err error, c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
 	case auth.ErrTokenNotFound:
 		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+	case auth.ErrNotAccess:
+		c.AbortWithStatusJSON(http.StatusForbidden, err.Error())
 	default:
 		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	}

@@ -172,6 +172,16 @@ type UpdateParentInput struct {
 	ParentHTTP *UpdateParentHTTP `json:"parentHttp"`
 }
 
+type UpdateProjectPage struct {
+	ProjectID   string `json:"ProjectID"`
+	Instruction string `json:"Instruction"`
+	Notes       string `json:"Notes"`
+	Preview     string `json:"Preview"`
+	LinkScratch string `json:"LinkScratch"`
+	Title       string `json:"Title"`
+	IsShared    bool   `json:"IsShared"`
+}
+
 type UpdateStudentHTTP struct {
 	UserHTTP *UpdateUserHTTP `json:"userHttp"`
 }

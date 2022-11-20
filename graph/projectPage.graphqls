@@ -10,6 +10,22 @@ type ProjectPageHttp {
     isShared: Boolean!
 }
 
+input UpdateProjectPage {
+    ProjectID: String!
+    Instruction: String!
+    Notes: String!
+    Preview: String!
+    LinkScratch: String!
+    Title: String!
+    IsShared: Boolean!
+}
+
+extend type Mutation {
+    CreateProjectPage: String!
+    UpdateProjectPage(input: UpdateProjectPage!): ProjectPageHttp!
+    DeleteProjectPage(projectID: String!): String!
+}
+
 extend type Query {
     GetProjectPageById(projectPageID: String!): ProjectPageHttp!
     GetAllProjectPagesByUserID(userID: String!): [ProjectPageHttp!]!

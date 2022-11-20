@@ -44,21 +44,24 @@ func (h *Handler) CreateCohort(c *gin.Context) {
 	fmt.Println("Create Cohort")
 	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		log.Println(userIdentityErr)
+		ErrorHandling(userIdentityErr, c)
+		return
 	}
 	createCohortResponse := models.CreateCohortHTTP{}
 	courseId := c.Param("courseId")
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
+		err = cohorts.ErrBadRequestBody
 		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		ErrorHandling(err, c)
 		return
 	}
 	err = json.Unmarshal(body, &createCohortResponse)
 	fmt.Println(createCohortResponse)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
 		log.Println(err)
+		ErrorHandling(err, c)
 		return
 	}
 	cohortHTTP := models.CohortHTTP{}
@@ -68,7 +71,7 @@ func (h *Handler) CreateCohort(c *gin.Context) {
 	fmt.Println(cohortHTTP)
 	if err != nil {
 		log.Println(err)
-		c.AbortWithStatus(http.StatusBadRequest)
+		ErrorHandling(err, c)
 		return
 	}
 
@@ -81,17 +84,43 @@ func (h *Handler) AddStudent(c *gin.Context) {
 	fmt.Println("Add Student")
 	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		log.Println(userIdentityErr)
+		ErrorHandling(userIdentityErr, c)
+		return
 	}
 	tempCohortId := c.Param("cohortId")
-	cohortId, _ := strconv.Atoi(tempCohortId)
+	cohortId, atoiErr := strconv.Atoi(tempCohortId)
+	if atoiErr != nil {
+		atoiErr = cohorts.ErrBadRequest
+		ErrorHandling(atoiErr, c)
+		return
+	}
 	courseId := c.Param("courseId")
 	username := c.Param("username")
 	err := h.cohortsDelegate.AddStudent(username, courseId, cohortId)
 	if err != nil {
 		log.Println(err)
-		c.AbortWithStatus(http.StatusBadRequest)
+		ErrorHandling(err, c)
 		return
 	}
 	c.Status(http.StatusOK)
+}
+
+func ErrorHandling(err error, c *gin.Context) {
+	switch err {
+	case cohorts.ErrBadRequest:
+		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+	case cohorts.ErrInternalServerLevel:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+	case cohorts.ErrBadRequestBody:
+		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+	case auth.ErrInvalidAccessToken:
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+	case auth.ErrTokenNotFound:
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+	case auth.ErrNotAccess:
+		c.AbortWithStatusJSON(http.StatusForbidden, err.Error())
+	default:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+	}
 }

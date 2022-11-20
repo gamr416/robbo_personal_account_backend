@@ -64,6 +64,16 @@ func (s *AuthDelegateImpl) UserIdentity(c *gin.Context) (id string, role models.
 	return claims.Id, claims.Role, nil
 }
 
+func (s *AuthDelegateImpl) UserAccess(currentRole models.Role, roles []models.Role) (err error) {
+	for _, role := range roles {
+		if currentRole == role {
+			return nil
+		}
+	}
+	err = auth.ErrNotAccess
+	return
+}
+
 //func (s *AuthDelegateImpl) UserIdentityGraphQL(c *context.Context) (id string, role models.Role, err error) {
 //	header := c.(authorizationHeader)
 //	if header == "" {

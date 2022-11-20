@@ -36,7 +36,7 @@ func (p *CourseDelegateImpl) CreateCourse(course *models.CourseHTTP, courseId st
 	}
 	err = json.Unmarshal(body, course)
 	if err != nil {
-		return "", courses.ErrInternalServer
+		return "", courses.ErrInternalServerLevel
 	}
 	courseCore := course.ToCore()
 	return p.CoursesUseCase.CreateCourse(courseCore)
@@ -58,7 +58,7 @@ func (p *CourseDelegateImpl) GetCourseContent(courseId string) (courseHTTP *mode
 	}
 	err = json.Unmarshal(body, &courseHTTP)
 	if err != nil {
-		return nil, courses.ErrInternalServer
+		return nil, courses.ErrInternalServerLevel
 	}
 	return courseHTTP, nil
 }
@@ -70,7 +70,7 @@ func (p *CourseDelegateImpl) GetCoursesByUser() (coursesListHTTP *models.Courses
 	}
 	err = json.Unmarshal(body, &coursesListHTTP)
 	if err != nil {
-		return nil, courses.ErrInternalServer
+		return nil, courses.ErrInternalServerLevel
 	}
 	return coursesListHTTP, nil
 }
@@ -82,7 +82,7 @@ func (p *CourseDelegateImpl) GetEnrollments(username string) (enrollmentsListHTT
 	}
 	err = json.Unmarshal(body, &enrollmentsListHTTP)
 	if err != nil {
-		return nil, courses.ErrInternalServer
+		return nil, courses.ErrInternalServerLevel
 	}
 	return enrollmentsListHTTP, nil
 }
@@ -98,7 +98,7 @@ func (p *CourseDelegateImpl) GetAllPublicCourses(pageNumber string) (coursesList
 	}
 	err = json.Unmarshal(body, &coursesListHTTP)
 	if err != nil {
-		return nil, courses.ErrInternalServer
+		return nil, courses.ErrInternalServerLevel
 	}
 	return coursesListHTTP, nil
 }

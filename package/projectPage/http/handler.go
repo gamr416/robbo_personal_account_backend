@@ -205,9 +205,11 @@ func ErrorHandling(err error, c *gin.Context) {
 	case projectPage.ErrInternalServerLevel:
 		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	case projectPage.ErrPageNotFound:
-		c.AbortWithStatusJSON(http.StatusNotFound, err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	case projectPage.ErrBadRequestBody:
 		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+	case projects.ErrProjectNotFound:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	case auth.ErrInvalidAccessToken:
 		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
 	case auth.ErrTokenNotFound:

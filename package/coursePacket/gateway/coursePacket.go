@@ -27,9 +27,9 @@ func SetupCoursePacketGateway(postgresClient db_client.PostgresClient) CoursePac
 	}
 }
 
-func (r *CoursePacketGatewayImpl) CreateCoursePacket(coursePacket *models.CoursePacketCore) (id string, err error) {
+func (r *CoursePacketGatewayImpl) CreateCoursePacket(coursePacketCore *models.CoursePacketCore) (id string, err error) {
 	coursePacketDb := models.CoursePacketDB{}
-	coursePacketDb.FromCore(coursePacket)
+	coursePacketDb.FromCore(coursePacketCore)
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Create(&coursePacketDb).Error
@@ -66,9 +66,9 @@ func (r CoursePacketGatewayImpl) DeleteCoursePacket(coursePacketId string) (id s
 	return
 }
 
-func (r *CoursePacketGatewayImpl) UpdateCoursePacket(crsPacket *models.CoursePacketCore) (err error) {
+func (r *CoursePacketGatewayImpl) UpdateCoursePacket(coursePacketCore *models.CoursePacketCore) (err error) {
 	coursePacketDb := models.CoursePacketDB{}
-	coursePacketDb.FromCore(crsPacket)
+	coursePacketDb.FromCore(coursePacketCore)
 	fmt.Println(coursePacketDb)
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Model(&coursePacketDb).Where("ID = ?", coursePacketDb.ID).First(&models.CoursePacketDB{}).Updates(coursePacketDb).Error
@@ -86,7 +86,7 @@ func (r *CoursePacketGatewayImpl) UpdateCoursePacket(crsPacket *models.CoursePac
 	return
 }
 
-func (r *CoursePacketGatewayImpl) GetAllCoursePackets() (coursePackets []*models.CoursePacketCore, err error) {
+func (r *CoursePacketGatewayImpl) GetAllCoursePackets() (coursePacketsCore []*models.CoursePacketCore, err error) {
 	var coursePacketsDB []*models.CoursePacketDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Find(&coursePacketsDB).Error; err != nil {
@@ -96,12 +96,12 @@ func (r *CoursePacketGatewayImpl) GetAllCoursePackets() (coursePackets []*models
 	})
 
 	for _, coursePacketDB := range coursePacketsDB {
-		coursePackets = append(coursePackets, coursePacketDB.ToCore())
+		coursePacketsCore = append(coursePacketsCore, coursePacketDB.ToCore())
 	}
 	return
 }
 
-func (r *CoursePacketGatewayImpl) GetCoursePacketById(coursePacketId string) (crsPacket *models.CoursePacketCore, err error) {
+func (r *CoursePacketGatewayImpl) GetCoursePacketById(coursePacketId string) (coursePacketCore *models.CoursePacketCore, err error) {
 	var coursePacketDb models.CoursePacketDB
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
@@ -112,6 +112,6 @@ func (r *CoursePacketGatewayImpl) GetCoursePacketById(coursePacketId string) (cr
 		}
 		return
 	})
-	crsPacket = coursePacketDb.ToCore()
+	coursePacketCore = coursePacketDb.ToCore()
 	return
 }

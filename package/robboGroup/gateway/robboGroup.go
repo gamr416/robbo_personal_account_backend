@@ -14,6 +14,17 @@ type RobboGroupGatewayImpl struct {
 	PostgresClient *db_client.PostgresClient
 }
 
+func (r *RobboGroupGatewayImpl) UpdateRobboGroup(robboGroup *models.RobboGroupCore) (err error) {
+	robboGroupDb := models.RobboGroupDB{}
+	robboGroupDb.FromCore(robboGroup)
+
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Model(&robboGroupDb).Where("id = ?", robboGroupDb.ID).Updates(robboGroupDb).Error
+		return
+	})
+	return
+}
+
 func (r *RobboGroupGatewayImpl) SearchRobboGroupsByTitle(title string) (robboGroups []*models.RobboGroupCore, err error) {
 	var robboGroupsDB []*models.RobboGroupDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {

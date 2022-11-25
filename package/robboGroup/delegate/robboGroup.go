@@ -10,6 +10,11 @@ type RobboGroupDelegateImpl struct {
 	UseCase robboGroup.UseCase
 }
 
+func (r *RobboGroupDelegateImpl) UpdateRobboGroup(robboGroup *models.RobboGroupHTTP) (err error) {
+	robboGroupCore := robboGroup.ToCore()
+	return r.UseCase.UpdateRobboGroup(robboGroupCore)
+}
+
 func (r *RobboGroupDelegateImpl) GetRobboGroupsByTeacherId(teacherId string) (robboGroups []*models.RobboGroupHTTP, err error) {
 	robboGroupsCore, err := r.UseCase.GetRobboGroupsByTeacherId(teacherId)
 	for _, robboGroupCore := range robboGroupsCore {

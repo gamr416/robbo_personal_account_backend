@@ -53,8 +53,8 @@ type getFreeListener struct {
 func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 	users := router.Group("/users")
 	{
-		users.GET("/", h.GetUser)
-
+		users.GET("/", h.GetUserByAccessToken)
+		users.GET("/:userId", h.GetUserById)
 		// TODO refactor
 		users.POST("/student", h.CreateStudent)
 		users.DELETE("/student/:studentId", h.DeleteStudent)
@@ -101,8 +101,8 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 	}
 }
 
-func (h *Handler) GetUser(c *gin.Context) {
-	log.Println("Get User")
+func (h *Handler) GetUserByAccessToken(c *gin.Context) {
+	log.Println("Get User by access token")
 	userId, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
@@ -1316,6 +1316,74 @@ func (h *Handler) DeleteUnitAdminForRobboUnit(c *gin.Context) {
 	}
 
 	c.Status(http.StatusOK)
+}
+
+func (h *Handler) GetUserById(c *gin.Context) {
+	log.Println("Get User by id")
+	_, role, errUserIdentityErr := h.authDelegate.UserIdentity(c)
+	if errUserIdentityErr != nil {
+		log.Println(errUserIdentityErr)
+		ErrorHandling(errUserIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.SuperAdmin, models.UnitAdmin, models.Teacher}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
+		return
+	}
+	userId := c.Param("userId")
+	userRole, _ := strconv.Atoi(c.Query("role"))
+
+	switch models.Role(userRole) {
+	case models.Student:
+		student, getStudentErr := h.usersDelegate.GetStudentById(userId)
+		if getStudentErr != nil {
+			ErrorHandling(getStudentErr, c)
+			return
+		}
+		c.JSON(http.StatusOK, student)
+	case models.Teacher:
+		teacher, getTeacherErr := h.usersDelegate.GetTeacherById(userId)
+		if getTeacherErr != nil {
+			ErrorHandling(getTeacherErr, c)
+			return
+		}
+		c.JSON(http.StatusOK, teacher)
+		return
+	case models.Parent:
+		parent, getParentErr := h.usersDelegate.GetParentById(userId)
+		if getParentErr != nil {
+			ErrorHandling(getParentErr, c)
+			return
+		}
+		c.JSON(http.StatusOK, parent)
+		return
+	case models.FreeListener:
+		freeListener, getFreeListenerErr := h.usersDelegate.GetFreeListenerById(userId)
+		if getFreeListenerErr != nil {
+			ErrorHandling(getFreeListenerErr, c)
+			return
+		}
+		c.JSON(http.StatusOK, freeListener)
+	case models.UnitAdmin:
+		unitAdmin, getUnitAdminErr := h.usersDelegate.GetUnitAdminById(userId)
+		if getUnitAdminErr != nil {
+			ErrorHandling(getUnitAdminErr, c)
+			return
+		}
+		c.JSON(http.StatusOK, unitAdmin)
+		return
+	case models.SuperAdmin:
+		superAdmin, getSuperAdminErr := h.usersDelegate.GetSuperAdminById(userId)
+		if getSuperAdminErr != nil {
+			ErrorHandling(getSuperAdminErr, c)
+			return
+		}
+		c.JSON(http.StatusOK, superAdmin)
+		return
+	}
 }
 
 func ErrorHandling(err error, c *gin.Context) {

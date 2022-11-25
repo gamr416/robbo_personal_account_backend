@@ -30,6 +30,7 @@ func (h *Handler) InitRobboGroupRoutes(router *gin.Engine) {
 	{
 		robboGroup.POST("/", h.CreateRobboGroup)
 		robboGroup.GET("/:robboGroupId", h.GetRobboGroupById)
+		robboGroup.PUT("/", h.UpdateRobboGroup)
 		robboGroup.GET("/", h.GetRobboGroupsByRobboUnitId)
 		robboGroup.DELETE("/:robboGroupId", h.DeleteRobboGroup)
 		//robboGroup.POST("/robboGroupId", h.GetRobboGroupsByRobboUnitId)
@@ -132,6 +133,39 @@ func (h *Handler) GetRobboGroupsByRobboUnitId(c *gin.Context) {
 	c.JSON(http.StatusOK, robboGroups)
 }
 
+func (h *Handler) UpdateRobboGroup(c *gin.Context) {
+	log.Println("Update RobboGroup")
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		log.Println(userIdentityErr)
+		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
+		return
+	}
+
+	robboGroupHttp := models.RobboGroupHTTP{}
+	if err := c.BindJSON(&robboGroupHttp); err != nil {
+		err = robboGroup.ErrBadRequestBody
+		log.Println(err)
+		ErrorHandling(err, c)
+		return
+	}
+
+	err := h.robboGroupDelegate.UpdateRobboGroup(&robboGroupHttp)
+	if err != nil {
+		log.Println(err)
+		ErrorHandling(err, c)
+		return
+	}
+	c.Status(http.StatusOK)
+}
+
 func (h *Handler) DeleteRobboGroup(c *gin.Context) {
 	log.Println("Delete RobboGroup")
 	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
@@ -223,7 +257,6 @@ func (h *Handler) DeleteTeacherForRobboGroup(c *gin.Context) {
 	}
 
 	deleteTeacherForRobboGroupErr := h.robboGroupDelegate.DeleteTeacherForRobboGroup(deleteTeacherForRobboGroupInput.TeacherId, deleteTeacherForRobboGroupInput.RobboGroupId)
-
 
 	if deleteTeacherForRobboGroupErr != nil {
 		log.Println(deleteTeacherForRobboGroupErr)

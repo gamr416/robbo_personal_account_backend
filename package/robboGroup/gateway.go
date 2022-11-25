@@ -7,7 +7,7 @@ type Gateway interface {
 	DeleteRobboGroup(robboGroupId string) (err error)
 	GetRobboGroupsByRobboUnitId(robboUnitId string) (robboGroups []*models.RobboGroupCore, err error)
 	GetRobboGroupById(robboGroupId string) (robboGroup *models.RobboGroupCore, err error)
-	//UpdateRobboUnit(robboUnit *models.RobboGroupCore) (err error)
+	UpdateRobboGroup(robboGroup *models.RobboGroupCore) (err error)
 	SetTeacherForRobboGroup(relation *models.TeachersRobboGroupsCore) (err error)
 	DeleteTeacherForRobboGroup(relation *models.TeachersRobboGroupsCore) (err error)
 	DeleteRelationByRobboGroupId(robboGroupId string) (err error)

@@ -120,14 +120,15 @@ type ParentHTTP struct {
 }
 
 type ProjectPageHTTP struct {
-	LastModified string `json:"LastModified"`
-	ProjectID    string `json:"ProjectID"`
-	Instruction  string `json:"Instruction"`
-	Notes        string `json:"Notes"`
-	Preview      string `json:"Preview"`
-	LinkScratch  string `json:"LinkScratch"`
-	Title        string `json:"Title"`
-	IsShared     bool   `json:"IsShared"`
+	ProjectPageID string `json:"projectPageId"`
+	LastModified  string `json:"lastModified"`
+	ProjectID     string `json:"projectId"`
+	Instruction   string `json:"instruction"`
+	Notes         string `json:"notes"`
+	Preview       string `json:"preview"`
+	LinkScratch   string `json:"linkScratch"`
+	Title         string `json:"title"`
+	IsShared      bool   `json:"isShared"`
 }
 
 type RobboGroupHTTP struct {
@@ -169,6 +170,16 @@ type UpdateParentHTTP struct {
 
 type UpdateParentInput struct {
 	ParentHTTP *UpdateParentHTTP `json:"parentHttp"`
+}
+
+type UpdateProjectPage struct {
+	ProjectID   string `json:"ProjectID"`
+	Instruction string `json:"Instruction"`
+	Notes       string `json:"Notes"`
+	Preview     string `json:"Preview"`
+	LinkScratch string `json:"LinkScratch"`
+	Title       string `json:"Title"`
+	IsShared    bool   `json:"IsShared"`
 }
 
 type UpdateStudentHTTP struct {

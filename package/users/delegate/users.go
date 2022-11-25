@@ -47,8 +47,8 @@ func (p *UsersDelegateImpl) GetStudentById(studentId string) (student *models.St
 	return
 }
 
-func (p *UsersDelegateImpl) SearchStudentByEmail(email string) (students []*models.StudentHTTP, err error) {
-	studentsCore, err := p.UseCase.SearchStudentByEmail(email)
+func (p *UsersDelegateImpl) SearchStudentByEmail(email string, parentId string) (students []*models.StudentHTTP, err error) {
+	studentsCore, err := p.UseCase.SearchStudentByEmail(email, parentId)
 	if err != nil {
 		return
 	}

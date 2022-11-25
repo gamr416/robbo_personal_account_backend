@@ -10,5 +10,6 @@ type Delegate interface {
 	SignUp(userHttp *models.UserHTTP) (accessToken string, refreshToken string, err error)
 	//ParseToken(token string, key []byte) (claims *models.UserClaims, err error)
 	UserIdentity(c *gin.Context) (id string, role models.Role, err error)
+	UserAccess(currentRole models.Role, roles []models.Role) (err error)
 	RefreshToken(refreshToken string) (newAccessToken string, err error)
 }

@@ -1,5 +1,16 @@
 type ProjectPageHttp {
-    LastModified: String!
+    projectPageId: String!
+    lastModified: String!
+    projectId: String!
+    instruction: String!
+    notes: String!
+    preview: String!
+    linkScratch: String!
+    title: String!
+    isShared: Boolean!
+}
+
+input UpdateProjectPage {
     ProjectID: String!
     Instruction: String!
     Notes: String!
@@ -9,7 +20,14 @@ type ProjectPageHttp {
     IsShared: Boolean!
 }
 
+extend type Mutation {
+    CreateProjectPage: String!
+    UpdateProjectPage(input: UpdateProjectPage!): ProjectPageHttp!
+    DeleteProjectPage(projectID: String!): String!
+}
+
 extend type Query {
     GetProjectPageById(projectPageID: String!): ProjectPageHttp!
-    GetAllProjectPageByUserID(userID: String!): [ProjectPageHttp!]!
+    GetAllProjectPagesByUserID(userID: String!): [ProjectPageHttp!]!
+    GetAllProjectPagesByAccessToken: [ProjectPageHttp!]!
 }

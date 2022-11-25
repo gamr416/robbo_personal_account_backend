@@ -39,6 +39,10 @@ type RobboGroupUseCaseImpl struct {
 	usersGateway      users.Gateway
 }
 
+func (r *RobboGroupUseCaseImpl) UpdateRobboGroup(robboGroup *models.RobboGroupCore) (err error) {
+	return r.robboGroupGateway.UpdateRobboGroup(robboGroup)
+}
+
 func (r *RobboGroupUseCaseImpl) SearchRobboGroupsByTitle(title string) (robboGroups []*models.RobboGroupCore, err error) {
 	titleCondition := "%" + title + "%"
 	return r.robboGroupGateway.SearchRobboGroupsByTitle(titleCondition)

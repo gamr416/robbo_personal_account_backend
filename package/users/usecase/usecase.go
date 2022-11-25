@@ -36,9 +36,9 @@ func (p *UsersUseCaseImpl) GetStudentById(studentId string) (student *models.Stu
 	return p.Gateway.GetStudentById(studentId)
 }
 
-func (p *UsersUseCaseImpl) SearchStudentByEmail(email string) (students []*models.StudentCore, err error) {
+func (p *UsersUseCaseImpl) SearchStudentByEmail(email string, parentId string) (students []*models.StudentCore, err error) {
 	emailCondition := "%" + email + "%"
-	return p.Gateway.SearchStudentByEmail(emailCondition)
+	return p.Gateway.SearchStudentsByEmail(emailCondition, parentId)
 }
 
 func (p *UsersUseCaseImpl) GetStudentByParentId(parentId string) (students []*models.StudentCore, err error) {

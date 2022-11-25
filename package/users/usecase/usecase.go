@@ -15,6 +15,10 @@ type UsersUseCaseImpl struct {
 	Gateway users.Gateway
 }
 
+func (p *UsersUseCaseImpl) GetStudentsByRobboGroupId(robboGroupId string) (students []*models.StudentCore, err error) {
+	return p.Gateway.GetStudentsByRobboGroupId(robboGroupId)
+}
+
 type UsersUseCaseModule struct {
 	fx.Out
 	users.UseCase

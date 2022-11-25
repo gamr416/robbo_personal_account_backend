@@ -9,6 +9,7 @@ type Delegate interface {
 	CreateStudent(student *models.StudentHTTP, parentId string) (id string, err error)
 	DeleteStudent(studentId uint) (err error)
 	GetStudentById(studentId string) (student *models.StudentHTTP, err error)
+	GetStudentsByRobboGroupId(robboGroupId string) (students []*models.StudentHTTP, err error)
 	GetStudentByParentId(parentId string) (students []*models.StudentHTTP, err error)
 	UpdateStudent(student *models.StudentHTTP) (err error)
 	AddStudentToRobboGroup(studentId string, robboGroupId string, robboUnitId string) (err error)

@@ -25,6 +25,16 @@ func (r *RobboGroupDelegateImpl) GetRobboGroupsByTeacherId(teacherId string) (ro
 	return
 }
 
+func (r *RobboGroupDelegateImpl) GetAllRobboGroups() (robboGroups []*models.RobboGroupHTTP, err error) {
+	robboGroupsCore, err := r.UseCase.GetAllRobboGroups()
+	for _, robboGroupCore := range robboGroupsCore {
+		var robboGroupTemp models.RobboGroupHTTP
+		robboGroupTemp.FromCore(robboGroupCore)
+		robboGroups = append(robboGroups, &robboGroupTemp)
+	}
+	return
+}
+
 func (r *RobboGroupDelegateImpl) SearchRobboGroupByName(name string) (robboGroups []*models.RobboGroupHTTP, err error) {
 	robboGroupsCore, err := r.UseCase.SearchRobboGroupsByTitle(name)
 	for _, robboGroupCore := range robboGroupsCore {

@@ -20,6 +20,10 @@ func (r *RobboGroupUseCaseImpl) GetRobboGroupsByRobboUnitId(robboUnitId string) 
 	return r.robboGroupGateway.GetRobboGroupsByRobboUnitId(robboUnitId)
 }
 
+func (r *RobboGroupUseCaseImpl) GetAllRobboGroups() (robboGroups []*models.RobboGroupCore, err error) {
+	return r.robboGroupGateway.GetAllRobboGroups()
+}
+
 func (r *RobboGroupUseCaseImpl) GetRobboGroupById(robboGroupId string) (robboGroup *models.RobboGroupCore, err error) {
 	robboGroup, err = r.robboGroupGateway.GetRobboGroupById(robboGroupId)
 	if err != nil {

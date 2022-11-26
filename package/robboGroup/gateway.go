@@ -5,9 +5,10 @@ import "github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 type Gateway interface {
 	CreateRobboGroup(robboGroupCore *models.RobboGroupCore) (robboGroupId string, err error)
 	DeleteRobboGroup(robboGroupId string) (err error)
-	GetRobboGroupsByRobboUnitId(robboUnitId string) (robboGroupsCore []*models.RobboGroupCore, err error)
-	GetRobboGroupById(robboGroupId string) (robboGroupCore *models.RobboGroupCore, err error)
-	//UpdateRobboUnit(robboUnit *models.RobboGroupCore) (err error)
+	GetAllRobboGroups() (robboGroups []*models.RobboGroupCore, err error)
+	GetRobboGroupsByRobboUnitId(robboUnitId string) (robboGroups []*models.RobboGroupCore, err error)
+	GetRobboGroupById(robboGroupId string) (robboGroup *models.RobboGroupCore, err error)
+	UpdateRobboGroup(robboGroup *models.RobboGroupCore) (err error)
 	SetTeacherForRobboGroup(relation *models.TeachersRobboGroupsCore) (err error)
 	DeleteTeacherForRobboGroup(relation *models.TeachersRobboGroupsCore) (err error)
 	DeleteRelationByRobboGroupId(robboGroupId string) (err error)

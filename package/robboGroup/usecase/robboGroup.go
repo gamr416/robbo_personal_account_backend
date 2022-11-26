@@ -20,6 +20,10 @@ func (r *RobboGroupUseCaseImpl) GetRobboGroupsByRobboUnitId(robboUnitId string) 
 	return r.robboGroupGateway.GetRobboGroupsByRobboUnitId(robboUnitId)
 }
 
+func (r *RobboGroupUseCaseImpl) GetAllRobboGroups() (robboGroups []*models.RobboGroupCore, err error) {
+	return r.robboGroupGateway.GetAllRobboGroups()
+}
+
 func (r *RobboGroupUseCaseImpl) GetRobboGroupById(robboGroupId string) (robboGroup *models.RobboGroupCore, err error) {
 	robboGroup, err = r.robboGroupGateway.GetRobboGroupById(robboGroupId)
 	if err != nil {
@@ -37,6 +41,10 @@ func (r *RobboGroupUseCaseImpl) GetRobboGroupById(robboGroupId string) (robboGro
 type RobboGroupUseCaseImpl struct {
 	robboGroupGateway robboGroup.Gateway
 	usersGateway      users.Gateway
+}
+
+func (r *RobboGroupUseCaseImpl) UpdateRobboGroup(robboGroup *models.RobboGroupCore) (err error) {
+	return r.robboGroupGateway.UpdateRobboGroup(robboGroup)
 }
 
 func (r *RobboGroupUseCaseImpl) SearchRobboGroupsByTitle(title string) (robboGroups []*models.RobboGroupCore, err error) {

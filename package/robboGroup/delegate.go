@@ -5,6 +5,8 @@ import "github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 type Delegate interface {
 	CreateRobboGroup(robboGroup *models.RobboGroupHTTP) (robboGroupId string, err error)
 	DeleteRobboGroup(robboGroupId string) (err error)
+	GetAllRobboGroups() (robboGroups []*models.RobboGroupHTTP, err error)
+	UpdateRobboGroup(robboGroup *models.RobboGroupHTTP) (err error)
 	GetRobboGroupsByRobboUnitId(robboUnitId string) (robboGroups []*models.RobboGroupHTTP, err error)
 	GetRobboGroupById(robboGroupId string) (robboGroup models.RobboGroupHTTP, err error)
 	GetRobboGroupsByTeacherId(teacherId string) (robboGroups []*models.RobboGroupHTTP, err error)

@@ -561,7 +561,7 @@ func (r *queryResolver) GetStudentsByParentID(ctx context.Context, parentID stri
 		err := errors.New("status unauthorized")
 		return nil, err
 	}
-	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin, models.Parent}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")

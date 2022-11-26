@@ -83,7 +83,9 @@ func (h *Handler) GetAllRobboGroups(c *gin.Context) {
 	fmt.Println("Get all robboGroups")
 	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		log.Println(userIdentityErr)
+		ErrorHandling(userIdentityErr, c)
+		return
 	}
 	allowedRoles := []models.Role{models.SuperAdmin}
 	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
@@ -95,7 +97,8 @@ func (h *Handler) GetAllRobboGroups(c *gin.Context) {
 
 	robboGroups, err := h.robboGroupDelegate.GetAllRobboGroups()
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		log.Println(err)
+		ErrorHandling(err, c)
 		return
 	}
 

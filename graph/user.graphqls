@@ -151,7 +151,7 @@ type Query {
     GetAllUnitAdmins: [UnitAdminHttp!]!
     GetUnitAdminsByRobboUnitId(robboUnitId: String!): [UnitAdminHttp!]!
     GetUnitAdminById(unitAdminId: String!): UnitAdminHttp!
-    SearchUnitAdminsByEmail(email: String!): [UnitAdminHttp!]!
+    SearchUnitAdminsByEmail(email: String!, robboUnitId: String!): [UnitAdminHttp!]!
     GetSuperAdminById(superAdminId: String!): SuperAdminHttp!
 }
 

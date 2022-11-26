@@ -272,8 +272,8 @@ func (p *UsersDelegateImpl) DeleteUnitAdmin(unitAdminId uint) (err error) {
 	return p.UseCase.DeleteUnitAdmin(unitAdminId)
 }
 
-func (p *UsersDelegateImpl) SearchUnitAdminByEmail(email string) (unitAdmins []*models.UnitAdminHTTP, err error) {
-	unitAdminsCore, err := p.UseCase.SearchUnitAdminByEmail(email)
+func (p *UsersDelegateImpl) SearchUnitAdminByEmail(email string, robboUnitId string) (unitAdmins []*models.UnitAdminHTTP, err error) {
+	unitAdminsCore, err := p.UseCase.SearchUnitAdminByEmail(email, robboUnitId)
 	if err != nil {
 		return
 	}

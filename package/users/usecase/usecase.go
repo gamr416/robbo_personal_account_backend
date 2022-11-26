@@ -246,9 +246,9 @@ func (p *UsersUseCaseImpl) DeleteUnitAdmin(unitAdminId uint) (err error) {
 	return p.Gateway.DeleteUnitAdmin(unitAdminId)
 }
 
-func (p *UsersUseCaseImpl) SearchUnitAdminByEmail(email string) (unitAdmins []*models.UnitAdminCore, err error) {
+func (p *UsersUseCaseImpl) SearchUnitAdminByEmail(email string, robboUnitId string) (unitAdmins []*models.UnitAdminCore, err error) {
 	emailCondition := "%" + email + "%"
-	return p.Gateway.SearchUnitAdminByEmail(emailCondition)
+	return p.Gateway.SearchUnitAdminByEmail(emailCondition, robboUnitId)
 }
 
 func (p *UsersUseCaseImpl) GetUnitAdminByRobboUnitId(robboUnitId string) (unitAdmins []*models.UnitAdminCore, err error) {

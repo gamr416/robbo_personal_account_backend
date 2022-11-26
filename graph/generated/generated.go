@@ -164,6 +164,7 @@ type ComplexityRoot struct {
 		GetAllProjectPagesByAccessToken func(childComplexity int) int
 		GetAllProjectPagesByUserID      func(childComplexity int, userID string) int
 		GetAllPublicCourses             func(childComplexity int, pageNumber string) int
+		GetAllRobboGroups               func(childComplexity int) int
 		GetAllRobboUnits                func(childComplexity int) int
 		GetAllTeachers                  func(childComplexity int) int
 		GetAllUnitAdmins                func(childComplexity int) int
@@ -187,7 +188,7 @@ type ComplexityRoot struct {
 		GetUnitAdminsByRobboUnitID      func(childComplexity int, robboUnitID string) int
 		SearchGroupsByName              func(childComplexity int, name string) int
 		SearchStudentsByEmail           func(childComplexity int, email string, parentID string) int
-		SearchUnitAdminsByEmail         func(childComplexity int, email string) int
+		SearchUnitAdminsByEmail         func(childComplexity int, email string, robboUnitID string) int
 	}
 
 	RobboGroupHttp struct {
@@ -270,7 +271,7 @@ type QueryResolver interface {
 	GetAllUnitAdmins(ctx context.Context) ([]*models.UnitAdminHTTP, error)
 	GetUnitAdminsByRobboUnitID(ctx context.Context, robboUnitID string) ([]*models.UnitAdminHTTP, error)
 	GetUnitAdminByID(ctx context.Context, unitAdminID string) (*models.UnitAdminHTTP, error)
-	SearchUnitAdminsByEmail(ctx context.Context, email string) ([]*models.UnitAdminHTTP, error)
+	SearchUnitAdminsByEmail(ctx context.Context, email string, robboUnitID string) ([]*models.UnitAdminHTTP, error)
 	GetSuperAdminByID(ctx context.Context, superAdminID string) (*models.SuperAdminHTTP, error)
 	GetCourseContent(ctx context.Context, courseID string) (*models.CourseHTTP, error)
 	GetCoursesByUser(ctx context.Context) (*models.CoursesListHTTP, error)
@@ -282,6 +283,7 @@ type QueryResolver interface {
 	GetRobboGroupByID(ctx context.Context, id string) (*models.RobboGroupHTTP, error)
 	GetRobboGroupsByTeacherID(ctx context.Context, teacherID string) ([]*models.RobboGroupHTTP, error)
 	GetRobboGroupsByRobboUnitID(ctx context.Context, robboUnitID string) ([]*models.RobboGroupHTTP, error)
+	GetAllRobboGroups(ctx context.Context) ([]*models.RobboGroupHTTP, error)
 	GetRobboGroupsByAccessToken(ctx context.Context) ([]*models.RobboGroupHTTP, error)
 	SearchGroupsByName(ctx context.Context, name string) ([]*models.RobboGroupHTTP, error)
 	GetRobboUnitByID(ctx context.Context, id string) (*models.RobboUnitHTTP, error)
@@ -990,6 +992,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetAllPublicCourses(childComplexity, args["pageNumber"].(string)), true
 
+	case "Query.GetAllRobboGroups":
+		if e.complexity.Query.GetAllRobboGroups == nil {
+			break
+		}
+
+		return e.complexity.Query.GetAllRobboGroups(childComplexity), true
+
 	case "Query.GetAllRobboUnits":
 		if e.complexity.Query.GetAllRobboUnits == nil {
 			break
@@ -1251,7 +1260,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.SearchUnitAdminsByEmail(childComplexity, args["email"].(string)), true
+		return e.complexity.Query.SearchUnitAdminsByEmail(childComplexity, args["email"].(string), args["robboUnitId"].(string)), true
 
 	case "RobboGroupHttp.id":
 		if e.complexity.RobboGroupHttp.ID == nil {
@@ -1630,6 +1639,7 @@ extend type Query {
 	GetRobboGroupById(id: String!): RobboGroupHttp!
 	GetRobboGroupsByTeacherId(teacherId: String!): [RobboGroupHttp!]!
 	GetRobboGroupsByRobboUnitId(robboUnitId: String!): [RobboGroupHttp!]!
+	GetAllRobboGroups: [RobboGroupHttp!]!
 	GetRobboGroupsByAccessToken: [RobboGroupHttp!]!
 	SearchGroupsByName(name: String!): [RobboGroupHttp!]!
 }`, BuiltIn: false},
@@ -1798,7 +1808,7 @@ type Query {
     GetAllUnitAdmins: [UnitAdminHttp!]!
     GetUnitAdminsByRobboUnitId(robboUnitId: String!): [UnitAdminHttp!]!
     GetUnitAdminById(unitAdminId: String!): UnitAdminHttp!
-    SearchUnitAdminsByEmail(email: String!): [UnitAdminHttp!]!
+    SearchUnitAdminsByEmail(email: String!, robboUnitId: String!): [UnitAdminHttp!]!
     GetSuperAdminById(superAdminId: String!): SuperAdminHttp!
 }
 
@@ -2462,6 +2472,15 @@ func (ec *executionContext) field_Query_SearchUnitAdminsByEmail_args(ctx context
 		}
 	}
 	args["email"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["robboUnitId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["robboUnitId"] = arg1
 	return args, nil
 }
 
@@ -7037,7 +7056,7 @@ func (ec *executionContext) _Query_SearchUnitAdminsByEmail(ctx context.Context, 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().SearchUnitAdminsByEmail(rctx, fc.Args["email"].(string))
+		return ec.resolvers.Query().SearchUnitAdminsByEmail(rctx, fc.Args["email"].(string), fc.Args["robboUnitId"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7823,6 +7842,62 @@ func (ec *executionContext) fieldContext_Query_GetRobboGroupsByRobboUnitId(ctx c
 	if fc.Args, err = ec.field_Query_GetRobboGroupsByRobboUnitId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetAllRobboGroups(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetAllRobboGroups(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetAllRobboGroups(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*models.RobboGroupHTTP)
+	fc.Result = res
+	return ec.marshalNRobboGroupHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupHTTPᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetAllRobboGroups(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_RobboGroupHttp_id(ctx, field)
+			case "lastModified":
+				return ec.fieldContext_RobboGroupHttp_lastModified(ctx, field)
+			case "name":
+				return ec.fieldContext_RobboGroupHttp_name(ctx, field)
+			case "robboUnitId":
+				return ec.fieldContext_RobboGroupHttp_robboUnitId(ctx, field)
+			case "students":
+				return ec.fieldContext_RobboGroupHttp_students(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RobboGroupHttp", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -13260,6 +13335,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_GetRobboGroupsByRobboUnitId(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetAllRobboGroups":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetAllRobboGroups(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

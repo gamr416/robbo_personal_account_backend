@@ -187,7 +187,7 @@ type ComplexityRoot struct {
 		GetUnitAdminsByRobboUnitID      func(childComplexity int, robboUnitID string) int
 		SearchGroupsByName              func(childComplexity int, name string) int
 		SearchStudentsByEmail           func(childComplexity int, email string, parentID string) int
-		SearchUnitAdminsByEmail         func(childComplexity int, email string) int
+		SearchUnitAdminsByEmail         func(childComplexity int, email string, robboUnitID string) int
 	}
 
 	RobboGroupHttp struct {
@@ -269,7 +269,7 @@ type QueryResolver interface {
 	GetAllUnitAdmins(ctx context.Context) ([]*models.UnitAdminHTTP, error)
 	GetUnitAdminsByRobboUnitID(ctx context.Context, robboUnitID string) ([]*models.UnitAdminHTTP, error)
 	GetUnitAdminByID(ctx context.Context, unitAdminID string) (*models.UnitAdminHTTP, error)
-	SearchUnitAdminsByEmail(ctx context.Context, email string) ([]*models.UnitAdminHTTP, error)
+	SearchUnitAdminsByEmail(ctx context.Context, email string, robboUnitID string) ([]*models.UnitAdminHTTP, error)
 	GetSuperAdminByID(ctx context.Context, superAdminID string) (*models.SuperAdminHTTP, error)
 	GetCourseContent(ctx context.Context, courseID string) (*models.CourseHTTP, error)
 	GetCoursesByUser(ctx context.Context) (*models.CoursesListHTTP, error)
@@ -1246,7 +1246,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.SearchUnitAdminsByEmail(childComplexity, args["email"].(string)), true
+		return e.complexity.Query.SearchUnitAdminsByEmail(childComplexity, args["email"].(string), args["robboUnitId"].(string)), true
 
 	case "RobboGroupHttp.id":
 		if e.complexity.RobboGroupHttp.ID == nil {
@@ -1793,7 +1793,7 @@ type Query {
     GetAllUnitAdmins: [UnitAdminHttp!]!
     GetUnitAdminsByRobboUnitId(robboUnitId: String!): [UnitAdminHttp!]!
     GetUnitAdminById(unitAdminId: String!): UnitAdminHttp!
-    SearchUnitAdminsByEmail(email: String!): [UnitAdminHttp!]!
+    SearchUnitAdminsByEmail(email: String!, robboUnitId: String!): [UnitAdminHttp!]!
     GetSuperAdminById(superAdminId: String!): SuperAdminHttp!
 }
 
@@ -2442,6 +2442,15 @@ func (ec *executionContext) field_Query_SearchUnitAdminsByEmail_args(ctx context
 		}
 	}
 	args["email"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["robboUnitId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["robboUnitId"] = arg1
 	return args, nil
 }
 
@@ -6954,7 +6963,7 @@ func (ec *executionContext) _Query_SearchUnitAdminsByEmail(ctx context.Context, 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().SearchUnitAdminsByEmail(rctx, fc.Args["email"].(string))
+		return ec.resolvers.Query().SearchUnitAdminsByEmail(rctx, fc.Args["email"].(string), fc.Args["robboUnitId"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

@@ -3,7 +3,7 @@ package robboGroup
 import "github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 
 type Gateway interface {
-	CreateRobboGroup(robboGroup *models.RobboGroupCore) (robboGroupId string, err error)
+	CreateRobboGroup(robboGroupCore *models.RobboGroupCore) (robboGroupId string, err error)
 	DeleteRobboGroup(robboGroupId string) (err error)
 	GetAllRobboGroups() (robboGroups []*models.RobboGroupCore, err error)
 	GetRobboGroupsByRobboUnitId(robboUnitId string) (robboGroups []*models.RobboGroupCore, err error)
@@ -15,5 +15,5 @@ type Gateway interface {
 	DeleteRelationByTeacherId(teacherId string) (err error)
 	GetRelationByRobboGroupId(robboGroupId string) (relations []*models.TeachersRobboGroupsCore, err error)
 	GetRelationByTeacherId(teacherId string) (relations []*models.TeachersRobboGroupsCore, err error)
-	SearchRobboGroupsByTitle(title string) (robboGroups []*models.RobboGroupCore, err error)
+	SearchRobboGroupsByTitle(title string) (robboGroupsCore []*models.RobboGroupCore, err error)
 }

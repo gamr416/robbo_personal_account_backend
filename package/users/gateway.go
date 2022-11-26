@@ -38,7 +38,7 @@ type Gateway interface {
 	CreateUnitAdmin(unitAdmin *models.UnitAdminCore) (id string, err error)
 	DeleteUnitAdmin(superAdminId uint) (err error)
 	UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (err error)
-	SearchUnitAdminByEmail(email string) (unitAdmins []*models.UnitAdminCore, err error)
+	SearchUnitAdminByEmail(email string, robboUnitId string) (unitAdmins []*models.UnitAdminCore, err error)
 
 	GetSuperAdmin(email, password string) (superAdmin *models.SuperAdminCore, err error)
 	GetSuperAdminById(superAdminId string) (superAdmin *models.SuperAdminCore, err error)

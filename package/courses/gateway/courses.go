@@ -1,7 +1,6 @@
 package gateway
 
 import (
-	"fmt"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
@@ -127,14 +126,9 @@ func (r *CoursesGatewayImpl) CreateCourseApiMediaCollection(courseApiMediaCollec
 }
 
 func (r *CoursesGatewayImpl) DeleteCourseApiMediaCollection(courseId string) (id string, err error) {
-	courseApiMediaCollection := models.CourseApiMediaCollectionDB{}
+	courseApiMediaCollectionDb := models.CourseApiMediaCollectionDB{}
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Where("course_id = ?", courseId).First(&courseApiMediaCollection).Error
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		err = tx.Where("course_id = ?", courseId).Delete(&models.CourseApiMediaCollectionDB{}).Error
+		err = tx.Model(&courseApiMediaCollectionDb).Where("course_id = ?", courseId).First(&models.CourseApiMediaCollectionDB{}).Delete(&models.CourseApiMediaCollectionDB{}).Error
 		if err != nil {
 			log.Println(err)
 			return
@@ -145,13 +139,13 @@ func (r *CoursesGatewayImpl) DeleteCourseApiMediaCollection(courseId string) (id
 		log.Println(err)
 		return "", err
 	}
-	id = strconv.FormatUint(uint64(courseApiMediaCollection.ID), 10)
+	id = strconv.FormatUint(uint64(courseApiMediaCollectionDb.ID), 10)
 	return
 }
 
 func (r *CoursesGatewayImpl) DeleteAbsoluteMedia(courseApiMediaCollectionId string) (err error) {
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Where("course_api_media_collection_id = ?", courseApiMediaCollectionId).Delete(&models.AbsoluteMediaDB{}).Error
+		err = tx.Model(&models.AbsoluteMediaDB{}).Where("course_api_media_collection_id = ?", courseApiMediaCollectionId).First(&models.AbsoluteMediaDB{}).Delete(&models.AbsoluteMediaDB{}).Error
 		if err != nil {
 			log.Println(err)
 			return
@@ -167,7 +161,7 @@ func (r *CoursesGatewayImpl) DeleteAbsoluteMedia(courseApiMediaCollectionId stri
 
 func (r *CoursesGatewayImpl) DeleteImage(courseApiMediaCollectionId string) (err error) {
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Where("course_api_media_collection_id = ?", courseApiMediaCollectionId).Delete(&models.ImageDB{}).Error
+		err = tx.Model(&models.ImageDB{}).Where("course_api_media_collection_id = ?", courseApiMediaCollectionId).First(&models.ImageDB{}).Delete(&models.ImageDB{}).Error
 		if err != nil {
 			log.Println(err)
 			return
@@ -183,7 +177,7 @@ func (r *CoursesGatewayImpl) DeleteImage(courseApiMediaCollectionId string) (err
 
 func (r *CoursesGatewayImpl) DeleteMedia(courseApiMediaCollectionId string) (err error) {
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Where("course_api_media_collection_id = ?", courseApiMediaCollectionId).Delete(&models.MediaDB{}).Error
+		err = tx.Model(&models.MediaDB{}).Where("course_api_media_collection_id = ?", courseApiMediaCollectionId).First(&models.MediaDB{}).Delete(&models.MediaDB{}).Error
 		if err != nil {
 			log.Println(err)
 			return
@@ -198,16 +192,11 @@ func (r *CoursesGatewayImpl) DeleteMedia(courseApiMediaCollectionId string) (err
 }
 
 func (r CoursesGatewayImpl) DeleteCourse(courseId string) (id string, err error) {
-	course := models.CourseDB{}
+	courseDb := models.CourseDB{}
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Where("id = ?", courseId).First(&course).Error
+		err = tx.Model(&courseDb).Where("id = ?", courseId).First(&models.CourseDB{}).Delete(&models.CourseDB{}).Error
 		if err != nil {
-			log.Println(err)
-			return
-		}
-		fmt.Println(course)
-		err = tx.Model(&course).Where("id = ?", courseId).Delete(&models.CourseDB{}).Error
-		if err != nil {
+			err = courses.ErrCourseNotFound
 			log.Println(err)
 			return
 		}
@@ -217,17 +206,17 @@ func (r CoursesGatewayImpl) DeleteCourse(courseId string) (id string, err error)
 		log.Println(err)
 		return
 	}
-	id = strconv.FormatUint(uint64(course.ID), 10)
+	id = strconv.FormatUint(uint64(courseDb.ID), 10)
 	return
 }
 
 func (r *CoursesGatewayImpl) UpdateCourse(course *models.CourseCore) (err error) {
 	courseDb := models.CourseDB{}
 	courseDb.FromCore(course)
-	fmt.Println(courseDb)
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Model(&courseDb).Where("ID = ?", courseDb.ID).Updates(courseDb).Error
+		err = tx.Model(&courseDb).Where("ID = ?", courseDb.ID).First(&models.CourseDB{}).Updates(courseDb).Error
 		if err != nil {
+			err = courses.ErrCourseNotFound
 			log.Println(err)
 			return
 		}
@@ -245,7 +234,7 @@ func (r *CoursesGatewayImpl) UpdateCourseApiMediaCollection(courseApiMediaCollec
 	courseApiMediaCollectionDb.FromCore(courseApiMediaCollection)
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Model(&courseApiMediaCollectionDb).Where("ID = ?", courseApiMediaCollectionDb.ID).Updates(courseApiMediaCollectionDb).Error
+		err = tx.Model(&courseApiMediaCollectionDb).Where("ID = ?", courseApiMediaCollectionDb.ID).First(&models.CourseApiMediaCollectionDB{}).Updates(courseApiMediaCollectionDb).Error
 		if err != nil {
 			log.Println(err)
 			return
@@ -264,7 +253,7 @@ func (r *CoursesGatewayImpl) UpdateAbsoluteMedia(absoluteMedia *models.AbsoluteM
 	absoluteMediaDb.FromCore(absoluteMedia)
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Model(&absoluteMediaDb).Where("ID = ?", absoluteMediaDb.ID).Updates(absoluteMediaDb).Error
+		err = tx.Model(&absoluteMediaDb).Where("ID = ?", absoluteMediaDb.ID).First(&models.AbsoluteMediaDB{}).Updates(absoluteMediaDb).Error
 		if err != nil {
 			log.Println(err)
 			return
@@ -283,7 +272,7 @@ func (r *CoursesGatewayImpl) UpdateMedia(media *models.MediaCore) (err error) {
 	mediaDb.FromCore(media)
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Model(&mediaDb).Where("ID = ?", mediaDb.ID).Updates(mediaDb).Error
+		err = tx.Model(&mediaDb).Where("ID = ?", mediaDb.ID).First(&models.MediaDB{}).Updates(mediaDb).Error
 		if err != nil {
 			log.Println(err)
 			return
@@ -302,7 +291,7 @@ func (r *CoursesGatewayImpl) UpdateImage(image *models.ImageCore) (err error) {
 	imageDb.FromCore(image)
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Model(&imageDb).Where("ID = ?", imageDb.ID).Updates(imageDb).Error
+		err = tx.Model(&imageDb).Where("ID = ?", imageDb.ID).First(&models.ImageDB{}).Updates(imageDb).Error
 		if err != nil {
 			log.Println(err)
 			return

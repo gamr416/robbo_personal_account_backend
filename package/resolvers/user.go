@@ -743,7 +743,7 @@ func (r *queryResolver) GetUnitAdminByID(ctx context.Context, unitAdminID string
 }
 
 // SearchUnitAdminsByEmail is the resolver for the SearchUnitAdminsByEmail field.
-func (r *queryResolver) SearchUnitAdminsByEmail(ctx context.Context, email string) ([]*models.UnitAdminHTTP, error) {
+func (r *queryResolver) SearchUnitAdminsByEmail(ctx context.Context, email string, robboUnitID string) ([]*models.UnitAdminHTTP, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -760,7 +760,7 @@ func (r *queryResolver) SearchUnitAdminsByEmail(ctx context.Context, email strin
 		err := errors.New("no access")
 		return nil, err
 	}
-	return r.usersDelegate.SearchUnitAdminByEmail(email)
+	return r.usersDelegate.SearchUnitAdminByEmail(email, robboUnitID)
 }
 
 // GetSuperAdminByID is the resolver for the GetSuperAdminById field.

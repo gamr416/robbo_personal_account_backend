@@ -133,7 +133,6 @@ func (h *Handler) GetRobboUnitsByUnitAdminId(c *gin.Context) {
 		ErrorHandling(identityErr, c)
 		return
 	}
-	//TODO: add access to superAdmin
 	allowedRoles := []models.Role{models.UnitAdmin}
 	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {

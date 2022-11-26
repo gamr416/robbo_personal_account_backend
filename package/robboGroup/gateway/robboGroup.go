@@ -14,9 +14,9 @@ type RobboGroupGatewayImpl struct {
 	PostgresClient *db_client.PostgresClient
 }
 
-func (r *RobboGroupGatewayImpl) UpdateRobboGroup(robboGroup *models.RobboGroupCore) (err error) {
+func (r *RobboGroupGatewayImpl) UpdateRobboGroup(robboGroupCore *models.RobboGroupCore) (err error) {
 	robboGroupDb := models.RobboGroupDB{}
-	robboGroupDb.FromCore(robboGroup)
+	robboGroupDb.FromCore(robboGroupCore)
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Model(&robboGroupDb).Where("id = ?", robboGroupDb.ID).Updates(robboGroupDb).Error
@@ -25,7 +25,7 @@ func (r *RobboGroupGatewayImpl) UpdateRobboGroup(robboGroup *models.RobboGroupCo
 	return
 }
 
-func (r *RobboGroupGatewayImpl) SearchRobboGroupsByTitle(title string) (robboGroups []*models.RobboGroupCore, err error) {
+func (r *RobboGroupGatewayImpl) SearchRobboGroupsByTitle(title string) (robboGroupsCore []*models.RobboGroupCore, err error) {
 	var robboGroupsDB []*models.RobboGroupDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Limit(10).Where("name LIKE ?", title).Find(&robboGroupsDB).Error; err != nil {
@@ -53,7 +53,7 @@ func (r *RobboGroupGatewayImpl) CreateRobboGroup(robboGroupCore *models.RobboGro
 	return
 }
 
-func (r *RobboGroupGatewayImpl) GetAllRobboGroups() (robboGroups []*models.RobboGroupCore, err error) {
+func (r *RobboGroupGatewayImpl) GetAllRobboGroups() (robboGroupsCore []*models.RobboGroupCore, err error) {
 	var robboGroupsDB []*models.RobboGroupDB
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
@@ -64,7 +64,7 @@ func (r *RobboGroupGatewayImpl) GetAllRobboGroups() (robboGroups []*models.Robbo
 	})
 
 	for _, robboGroupDb := range robboGroupsDB {
-		robboGroups = append(robboGroups, robboGroupDb.ToCore())
+		robboGroupsCore = append(robboGroupsCore, robboGroupDb.ToCore())
 	}
 	return
 }

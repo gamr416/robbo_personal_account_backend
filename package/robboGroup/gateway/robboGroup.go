@@ -53,6 +53,22 @@ func (r *RobboGroupGatewayImpl) CreateRobboGroup(robboGroup *models.RobboGroupCo
 	return
 }
 
+func (r *RobboGroupGatewayImpl) GetAllRobboGroups() (robboGroups []*models.RobboGroupCore, err error) {
+	var robboGroupsDB []*models.RobboGroupDB
+
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Find(&robboGroupsDB).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, robboGroupDb := range robboGroupsDB {
+		robboGroups = append(robboGroups, robboGroupDb.ToCore())
+	}
+	return
+}
+
 func (r *RobboGroupGatewayImpl) DeleteRobboGroup(robboGroupId string) (err error) {
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Delete(&models.RobboGroupDB{}, robboGroupId).Error

@@ -146,6 +146,7 @@ type Query {
     SearchStudentsByEmail(email: String!, parentId: String!): [StudentHttp!]!
     GetAllTeachers: [TeacherHttp!]!
     GetTeacherById(teacherId: String!): TeacherHttp!
+    GetTeachersByRobboGroupId(robboGroupId: String!): [TeacherHttp!]!
     GetAllParents: [ParentHttp!]!
     GetParentById(parentId: String!): ParentHttp!
     GetAllUnitAdmins: [UnitAdminHttp!]!

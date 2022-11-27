@@ -20,6 +20,7 @@ type Delegate interface {
 	CreateTeacher(teacher *models.TeacherHTTP) (id string, err error)
 	UpdateTeacher(teacherHTTP *models.TeacherHTTP) (err error)
 	DeleteTeacher(teacherId uint) (err error)
+	GetTeacherByRobboGroupId(robboGroupId string) (teachers []*models.TeacherHTTP, err error)
 
 	CreateParent(parentHTTP *models.ParentHTTP) (id string, err error)
 	UpdateParent(parentHTTP *models.ParentHTTP) (err error)

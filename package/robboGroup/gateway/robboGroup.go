@@ -25,7 +25,7 @@ func (r *RobboGroupGatewayImpl) UpdateRobboGroup(robboGroup *models.RobboGroupCo
 	return
 }
 
-func (r *RobboGroupGatewayImpl) SearchRobboGroupsByTitle(title string) (robboGroups []*models.RobboGroupCore, err error) {
+func (r *RobboGroupGatewayImpl) SearchRobboGroupsByTitle(title string) (robboGroupsCore []*models.RobboGroupCore, err error) {
 	var robboGroupsDB []*models.RobboGroupDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Limit(10).Where("name LIKE ?", title).Find(&robboGroupsDB).Error; err != nil {

@@ -19,6 +19,7 @@ type UseCase interface {
 	CreateTeacher(teacher *models.TeacherCore) (id string, err error)
 	UpdateTeacher(teacher *models.TeacherCore) (err error)
 	DeleteTeacher(teacherId uint) (err error)
+	GetTeacherByRobboGroupId(robboGroupId string) (teachers []*models.TeacherCore, err error)
 
 	//GetParent(email, password string) (parent *models.ParentCore, err error)
 	GetParentById(parentId string) (parent *models.ParentCore, err error)

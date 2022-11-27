@@ -102,7 +102,7 @@ func SetupUseCase(gateway GatewayModule) UseCaseModule {
 		ProjectsUseCase:     prjusecase.SetupProjectUseCase(gateway.ProjectsGateway),
 		RobboGroupUseCase:   robboGroupusecase.SetupRobboGroupUseCase(gateway.RobboGroupGateway, gateway.UsersGateway),
 		RobboUnitsUseCase:   robboUnitsusecase.SetupRobboUnitsUseCase(gateway.RobboUnitsGateway, gateway.UsersGateway),
-		UsersUseCase:        usersusecase.SetupUsersUseCase(gateway.UsersGateway),
+		UsersUseCase:        usersusecase.SetupUsersUseCase(gateway.UsersGateway, gateway.RobboGroupGateway),
 	}
 }
 

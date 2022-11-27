@@ -487,10 +487,18 @@ func (h *Handler) DeleteTeacher(c *gin.Context) {
 
 func (h *Handler) GetTeacherById(c *gin.Context) {
 	log.Println("Get Teacher By Id")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
+		return
+	}
+
+	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
 		return
 	}
 	teacherId := c.Param("teacherId")
@@ -579,10 +587,18 @@ func (h *Handler) UpdateTeacher(c *gin.Context) {
 
 func (h *Handler) GetParentById(c *gin.Context) {
 	log.Println("Get Parent By Id")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
+		return
+	}
+
+	allowedRoles := []models.Role{models.Parent, models.Teacher, models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
 		return
 	}
 	parentId := c.Param("parentId")
@@ -902,10 +918,18 @@ func (h *Handler) UpdateFreeListener(c *gin.Context) {
 
 func (h *Handler) GetUnitAdminByID(c *gin.Context) {
 	log.Println("Get Unit Admin By ID")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
+		return
+	}
+
+	allowedRoles := []models.Role{models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
 		return
 	}
 	unitAdminId := c.Param("unitAdminId")

@@ -82,6 +82,32 @@ func (r *queryResolver) GetRobboGroupsByRobboUnitID(ctx context.Context, robboUn
 	return robboGroupsHttp, nil
 }
 
+// GetRobboGroupsByUnitAdminID is the resolver for the GetRobboGroupsByUnitAdminID field.
+func (r *queryResolver) GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdminID string) ([]*models.RobboGroupHTTP, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return nil, err
+	}
+	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
+	if userIdentityErr != nil {
+		err := errors.New("status unauthorized")
+		return nil, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return nil, err
+	}
+	robboGroupsHttp, getRobboGroupsByUnitAdminIDErr := r.robboGroupDelegate.GetRobboGroupsByUnitAdminId(unitAdminID)
+	if getRobboGroupsByUnitAdminIDErr != nil {
+		err := errors.New("baq request")
+		return nil, err
+	}
+	return robboGroupsHttp, nil
+}
+
 // GetAllRobboGroups is the resolver for the GetAllRobboGroups field.
 func (r *queryResolver) GetAllRobboGroups(ctx context.Context) ([]*models.RobboGroupHTTP, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)

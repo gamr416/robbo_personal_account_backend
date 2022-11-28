@@ -10,6 +10,7 @@ extend type Query {
 	GetRobboGroupById(id: String!): RobboGroupHttp!
 	GetRobboGroupsByTeacherId(teacherId: String!): [RobboGroupHttp!]!
 	GetRobboGroupsByRobboUnitId(robboUnitId: String!): [RobboGroupHttp!]!
+	GetRobboGroupsByUnitAdminID(unitAdminId: String!): [RobboGroupHttp!]!
 	GetAllRobboGroups: [RobboGroupHttp!]!
 	GetRobboGroupsByAccessToken: [RobboGroupHttp!]!
 	SearchGroupsByName(name: String!): [RobboGroupHttp!]!

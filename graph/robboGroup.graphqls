@@ -6,6 +6,16 @@ type RobboGroupHttp {
 	students: [StudentHttp!]
 }
 
+input NewRobboGroup {
+	name: String!
+	robboUnitId: String!
+}
+
+extend type Mutation {
+	CreateRobboGroup(input: NewRobboGroup!): String!
+	DeleteRobboGroup(robboGroupId: String!): String!
+}
+
 extend type Query {
 	GetRobboGroupById(id: String!): RobboGroupHttp!
 	GetRobboGroupsByTeacherId(teacherId: String!): [RobboGroupHttp!]!

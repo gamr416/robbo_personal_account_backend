@@ -6,9 +6,67 @@ package resolvers
 import (
 	"context"
 	"errors"
-
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 )
+
+// CreateRobboGroup is the resolver for the CreateRobboGroup field.
+func (r *mutationResolver) CreateRobboGroup(ctx context.Context, input models.NewRobboGroup) (string, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return "", err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := errors.New("status unauthorized")
+		return "", err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return "", err
+	}
+
+	robboGroupHttp := models.RobboGroupHTTP{
+		Name:        input.Name,
+		RobboUnitID: input.RobboUnitID,
+	}
+
+	robboGroupHttpId, createRobboGroupErr := r.robboGroupDelegate.CreateRobboGroup(&robboGroupHttp)
+	if createRobboGroupErr != nil {
+		err := errors.New("baq request")
+		return "", err
+	}
+	return robboGroupHttpId, nil
+}
+
+// DeleteRobboGroup is the resolver for the DeleteRobboGroup field.
+func (r *mutationResolver) DeleteRobboGroup(ctx context.Context, robboGroupID string) (string, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return "", err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := errors.New("status unauthorized")
+		return "", err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return "", err
+	}
+
+	deleteRobboGroupErr := r.robboGroupDelegate.DeleteRobboGroup(robboGroupID)
+	if deleteRobboGroupErr != nil {
+		err := errors.New("baq request")
+		return "", err
+	}
+	return robboGroupID, nil
+}
 
 // GetRobboGroupByID is the resolver for the GetRobboGroupById field.
 func (r *queryResolver) GetRobboGroupByID(ctx context.Context, id string) (*models.RobboGroupHTTP, error) {

@@ -79,6 +79,11 @@ type NewParent struct {
 	Middlename string `json:"middlename"`
 }
 
+type NewRobboGroup struct {
+	Name        string `json:"name"`
+	RobboUnitID string `json:"robboUnitId"`
+}
+
 type NewStudent struct {
 	Email      string `json:"email"`
 	Password   string `json:"password"`

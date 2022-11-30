@@ -157,9 +157,15 @@ func (r *queryResolver) GetAllProjectPagesByAccessToken(ctx context.Context) ([]
 		err := errors.New("internal server error")
 		return nil, err
 	}
-	userId, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
+	userId, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
 	if userIdentityErr != nil {
 		err := errors.New("status unauthorized")
+		return nil, err
+	}
+	allowedRoles := []models.Role{models.Student, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
 		return nil, err
 	}
 	projectPageListHttp, getAllProjectPagesErr := r.projectPageDelegate.GetAllProjectPagesByUserId(userId)

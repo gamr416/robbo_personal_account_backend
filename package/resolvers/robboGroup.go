@@ -41,6 +41,39 @@ func (r *mutationResolver) CreateRobboGroup(ctx context.Context, input models.Ne
 	return robboGroupHttpId, nil
 }
 
+// UpdateRobboGroup is the resolver for the UpdateRobboGroup field.
+func (r *mutationResolver) UpdateRobboGroup(ctx context.Context, input models.UpdateRobboGroup) (*models.RobboGroupHTTP, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return nil, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := errors.New("status unauthorized")
+		return nil, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return nil, err
+	}
+
+	updateRobboGroupInput := &models.RobboGroupHTTP{
+		ID:          input.ID,
+		Name:        input.Name,
+		RobboUnitID: input.RobboUnitID,
+	}
+
+	deleteRobboGroupErr := r.robboGroupDelegate.UpdateRobboGroup(updateRobboGroupInput)
+	if deleteRobboGroupErr != nil {
+		err := errors.New("baq request")
+		return nil, err
+	}
+	return updateRobboGroupInput, nil
+}
+
 // DeleteRobboGroup is the resolver for the DeleteRobboGroup field.
 func (r *mutationResolver) DeleteRobboGroup(ctx context.Context, robboGroupID string) (string, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)

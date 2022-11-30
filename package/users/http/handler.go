@@ -225,7 +225,7 @@ func (h *Handler) GetStudentByParentId(c *gin.Context) {
 		ErrorHandling(userIdentityErr, c)
 		return
 	}
-	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	allowedRoles := []models.Role{models.Parent, models.UnitAdmin, models.SuperAdmin}
 	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		log.Println(accessErr)

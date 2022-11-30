@@ -84,6 +84,11 @@ type NewRobboGroup struct {
 	RobboUnitID string `json:"robboUnitId"`
 }
 
+type NewRobboUnit struct {
+	Name string `json:"name"`
+	City string `json:"city"`
+}
+
 type NewStudent struct {
 	Email      string `json:"email"`
 	Password   string `json:"password"`

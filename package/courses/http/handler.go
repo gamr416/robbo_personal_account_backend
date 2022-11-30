@@ -142,10 +142,17 @@ func (h *Handler) GetCourseContent(c *gin.Context) {
 
 func (h *Handler) GetCoursesByUser(c *gin.Context) {
 	log.Println("Get Courses By User")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.Student, models.Parent, models.FreeListener, models.Teacher, models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
 		return
 	}
 

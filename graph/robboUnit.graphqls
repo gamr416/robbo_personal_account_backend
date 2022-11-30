@@ -10,8 +10,15 @@ input NewRobboUnit {
     city: String!
 }
 
+input UpdateRobboUnit {
+    id: String!
+    name: String!
+    city: String!
+}
+
 extend type Mutation {
     CreateRobboUnit(input: NewRobboUnit!): String!
+    UpdateRobboUnit(input: UpdateRobboUnit!): RobboUnitHttp!
     DeleteRobboUnit(robboUnitId: String!): String!
 }
 

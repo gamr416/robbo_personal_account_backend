@@ -192,6 +192,12 @@ type UpdateProjectPage struct {
 	IsShared    bool   `json:"IsShared"`
 }
 
+type UpdateRobboUnit struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	City string `json:"city"`
+}
+
 type UpdateStudentHTTP struct {
 	UserHTTP *UpdateUserHTTP `json:"userHttp"`
 }

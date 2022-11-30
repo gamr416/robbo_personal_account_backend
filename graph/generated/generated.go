@@ -133,6 +133,7 @@ type ComplexityRoot struct {
 		SetRobboGroupIDForStudent   func(childComplexity int, studentID string, robboGroupID string, robboUnitID string) int
 		UpdateParent                func(childComplexity int, input models.UpdateParentInput) int
 		UpdateProjectPage           func(childComplexity int, input models.UpdateProjectPage) int
+		UpdateRobboUnit             func(childComplexity int, input models.UpdateRobboUnit) int
 		UpdateStudent               func(childComplexity int, input models.UpdateStudentInput) int
 		UpdateSuperAdmin            func(childComplexity int, input models.UpdateSuperAdminInput) int
 		UpdateTeacher               func(childComplexity int, input models.UpdateTeacherInput) int
@@ -265,6 +266,7 @@ type MutationResolver interface {
 	CreateRobboGroup(ctx context.Context, input models.NewRobboGroup) (string, error)
 	DeleteRobboGroup(ctx context.Context, robboGroupID string) (string, error)
 	CreateRobboUnit(ctx context.Context, input models.NewRobboUnit) (string, error)
+	UpdateRobboUnit(ctx context.Context, input models.UpdateRobboUnit) (*models.RobboUnitHTTP, error)
 	DeleteRobboUnit(ctx context.Context, robboUnitID string) (string, error)
 }
 type QueryResolver interface {
@@ -856,6 +858,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateProjectPage(childComplexity, args["input"].(models.UpdateProjectPage)), true
+
+	case "Mutation.UpdateRobboUnit":
+		if e.complexity.Mutation.UpdateRobboUnit == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_UpdateRobboUnit_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateRobboUnit(childComplexity, args["input"].(models.UpdateRobboUnit)), true
 
 	case "Mutation.updateStudent":
 		if e.complexity.Mutation.UpdateStudent == nil {
@@ -1503,6 +1517,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateParentHttp,
 		ec.unmarshalInputUpdateParentInput,
 		ec.unmarshalInputUpdateProjectPage,
+		ec.unmarshalInputUpdateRobboUnit,
 		ec.unmarshalInputUpdateStudentHttp,
 		ec.unmarshalInputUpdateStudentInput,
 		ec.unmarshalInputUpdateSuperAdminHttp,
@@ -1724,8 +1739,15 @@ input NewRobboUnit {
     city: String!
 }
 
+input UpdateRobboUnit {
+    id: String!
+    name: String!
+    city: String!
+}
+
 extend type Mutation {
     CreateRobboUnit(input: NewRobboUnit!): String!
+    UpdateRobboUnit(input: UpdateRobboUnit!): RobboUnitHttp!
     DeleteRobboUnit(robboUnitId: String!): String!
 }
 
@@ -2005,6 +2027,21 @@ func (ec *executionContext) field_Mutation_UpdateProjectPage_args(ctx context.Co
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNUpdateProjectPage2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateProjectPage(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_UpdateRobboUnit_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.UpdateRobboUnit
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUpdateRobboUnit2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateRobboUnit(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -6006,6 +6043,71 @@ func (ec *executionContext) fieldContext_Mutation_CreateRobboUnit(ctx context.Co
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_CreateRobboUnit_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_UpdateRobboUnit(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_UpdateRobboUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateRobboUnit(rctx, fc.Args["input"].(models.UpdateRobboUnit))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.RobboUnitHTTP)
+	fc.Result = res
+	return ec.marshalNRobboUnitHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitHTTP(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_UpdateRobboUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_RobboUnitHttp_id(ctx, field)
+			case "lastModified":
+				return ec.fieldContext_RobboUnitHttp_lastModified(ctx, field)
+			case "name":
+				return ec.fieldContext_RobboUnitHttp_name(ctx, field)
+			case "city":
+				return ec.fieldContext_RobboUnitHttp_city(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RobboUnitHttp", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_UpdateRobboUnit_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -12089,6 +12191,50 @@ func (ec *executionContext) unmarshalInputUpdateProjectPage(ctx context.Context,
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUpdateRobboUnit(ctx context.Context, obj interface{}) (models.UpdateRobboUnit, error) {
+	var it models.UpdateRobboUnit
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "name", "city"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "city":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("city"))
+			it.City, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateStudentHttp(ctx context.Context, obj interface{}) (models.UpdateStudentHTTP, error) {
 	var it models.UpdateStudentHTTP
 	asMap := map[string]interface{}{}
@@ -13068,6 +13214,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_CreateRobboUnit(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "UpdateRobboUnit":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_UpdateRobboUnit(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -15253,6 +15408,11 @@ func (ec *executionContext) unmarshalNUpdateParentInput2githubᚗcomᚋskinnykae
 
 func (ec *executionContext) unmarshalNUpdateProjectPage2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateProjectPage(ctx context.Context, v interface{}) (models.UpdateProjectPage, error) {
 	res, err := ec.unmarshalInputUpdateProjectPage(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUpdateRobboUnit2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateRobboUnit(ctx context.Context, v interface{}) (models.UpdateRobboUnit, error) {
+	res, err := ec.unmarshalInputUpdateRobboUnit(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

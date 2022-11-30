@@ -60,24 +60,24 @@ func (r *queryResolver) GetAllRobboUnits(ctx context.Context) ([]*models.RobboUn
 }
 
 // GetRobboUnitsByUnitAdminID is the resolver for the GetRobboUnitsByUnitAdminId field.
-func (r *queryResolver) GetRobboUnitsByUnitAdminID(ctx context.Context, unitAdminID string) ([]*models.RobboUnitHTTP, error) {
+func (r *queryResolver) GetRobboUnitsByUnitAdminID(ctx context.Context) ([]*models.RobboUnitHTTP, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
 		return nil, err
 	}
-	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
+	userId, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
 	if userIdentityErr != nil {
 		err := errors.New("status unauthorized")
 		return nil, err
 	}
-	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	allowedRoles := []models.Role{models.UnitAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")
 		return nil, err
 	}
-	robboUnitsHttp, getRobboUnitsByUnitAdminIdErr := r.robboUnitsDelegate.GetRobboUnitsByUnitAdminId(unitAdminID)
+	robboUnitsHttp, getRobboUnitsByUnitAdminIdErr := r.robboUnitsDelegate.GetRobboUnitsByUnitAdminId(userId)
 	if getRobboUnitsByUnitAdminIdErr != nil {
 		err := errors.New("baq request")
 		return nil, err

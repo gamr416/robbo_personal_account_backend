@@ -8,5 +8,5 @@ type RobboUnitHttp {
 extend type Query {
     GetRobboUnitById(id: String!): RobboUnitHttp!
     GetAllRobboUnits: [RobboUnitHttp!]!
-    GetRobboUnitsByUnitAdminId(unitAdminId: String!): [RobboUnitHttp!]!
+    GetRobboUnitsByUnitAdminId: [RobboUnitHttp!]!
 }

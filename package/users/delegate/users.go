@@ -12,6 +12,24 @@ type UsersDelegateImpl struct {
 	UseCase users.UseCase
 }
 
+func (p *UsersDelegateImpl) GetStudentsByRobboUnitId(robboUnitId string) (students []*models.StudentHTTP, err error) {
+	studentsCore, getStudentsErr := p.UseCase.GetStudentsByRobboUnitId(robboUnitId)
+	if getStudentsErr != nil {
+		err = getStudentsErr
+		return
+	}
+	for _, studentCore := range studentsCore {
+		studentHttpTemp := models.StudentHTTP{
+			UserHTTP:     &models.UserHTTP{},
+			RobboGroupID: studentCore.RobboGroupId,
+			RobboUnitID:  robboUnitId,
+		}
+		studentHttpTemp.FromCore(studentCore)
+		students = append(students, &studentHttpTemp)
+	}
+	return
+}
+
 func (p *UsersDelegateImpl) GetTeacherByRobboGroupId(robboGroupId string) (teachers []*models.TeacherHTTP, err error) {
 	teachersCore, getTeacherErr := p.UseCase.GetTeacherByRobboGroupId(robboGroupId)
 	if getTeacherErr != nil {

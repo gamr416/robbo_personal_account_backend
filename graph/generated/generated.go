@@ -182,6 +182,7 @@ type ComplexityRoot struct {
 		GetStudentByID                  func(childComplexity int, studentID string) int
 		GetStudentsByParentID           func(childComplexity int, parentID string) int
 		GetStudentsByRobboGroup         func(childComplexity int, robboGroupID string) int
+		GetStudentsByRobboUnitID        func(childComplexity int, robboUnitID string) int
 		GetSuperAdminByID               func(childComplexity int, superAdminID string) int
 		GetTeacherByID                  func(childComplexity int, teacherID string) int
 		GetTeachersByRobboGroupID       func(childComplexity int, robboGroupID string) int
@@ -264,6 +265,7 @@ type QueryResolver interface {
 	GetStudentsByParentID(ctx context.Context, parentID string) ([]*models.StudentHTTP, error)
 	GetStudentByID(ctx context.Context, studentID string) (*models.StudentHTTP, error)
 	GetStudentsByRobboGroup(ctx context.Context, robboGroupID string) ([]*models.StudentHTTP, error)
+	GetStudentsByRobboUnitID(ctx context.Context, robboUnitID string) ([]*models.StudentHTTP, error)
 	SearchStudentsByEmail(ctx context.Context, email string, parentID string) ([]*models.StudentHTTP, error)
 	GetAllTeachers(ctx context.Context) ([]*models.TeacherHTTP, error)
 	GetTeacherByID(ctx context.Context, teacherID string) (*models.TeacherHTTP, error)
@@ -1180,6 +1182,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetStudentsByRobboGroup(childComplexity, args["robboGroupId"].(string)), true
 
+	case "Query.GetStudentsByRobboUnitId":
+		if e.complexity.Query.GetStudentsByRobboUnitID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetStudentsByRobboUnitId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetStudentsByRobboUnitID(childComplexity, args["robboUnitId"].(string)), true
+
 	case "Query.GetSuperAdminById":
 		if e.complexity.Query.GetSuperAdminByID == nil {
 			break
@@ -1814,6 +1828,7 @@ type Query {
     GetStudentsByParentId(parentId: String!): [StudentHttp!]!
     GetStudentById(studentId: String!): StudentHttp!
     GetStudentsByRobboGroup(robboGroupId: String!): [StudentHttp!]!
+    GetStudentsByRobboUnitId(robboUnitId: String!): [StudentHttp!]!
     SearchStudentsByEmail(email: String!, parentId: String!): [StudentHttp!]!
     GetAllTeachers: [TeacherHttp!]!
     GetTeacherById(teacherId: String!): TeacherHttp!
@@ -2373,6 +2388,21 @@ func (ec *executionContext) field_Query_GetStudentsByRobboGroup_args(ctx context
 		}
 	}
 	args["robboGroupId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetStudentsByRobboUnitId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["robboUnitId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["robboUnitId"] = arg0
 	return args, nil
 }
 
@@ -6619,6 +6649,69 @@ func (ec *executionContext) fieldContext_Query_GetStudentsByRobboGroup(ctx conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_GetStudentsByRobboGroup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetStudentsByRobboUnitId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetStudentsByRobboUnitId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetStudentsByRobboUnitID(rctx, fc.Args["robboUnitId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*models.StudentHTTP)
+	fc.Result = res
+	return ec.marshalNStudentHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTPᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetStudentsByRobboUnitId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "userHttp":
+				return ec.fieldContext_StudentHttp_userHttp(ctx, field)
+			case "robboGroupId":
+				return ec.fieldContext_StudentHttp_robboGroupId(ctx, field)
+			case "robboUnitId":
+				return ec.fieldContext_StudentHttp_robboUnitId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type StudentHttp", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetStudentsByRobboUnitId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -12964,6 +13057,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_GetStudentsByRobboGroup(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetStudentsByRobboUnitId":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetStudentsByRobboUnitId(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

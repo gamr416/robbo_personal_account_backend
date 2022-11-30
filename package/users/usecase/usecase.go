@@ -17,8 +17,11 @@ type UsersUseCaseImpl struct {
 	robboGroupGateway robboGroup.Gateway
 }
 
+func (p *UsersUseCaseImpl) GetStudentsByRobboUnitId(robboUnitId string) (students []*models.StudentCore, err error) {
+	return p.usersGateway.GetStudentsByRobboUnitId(robboUnitId)
+}
+
 func (p *UsersUseCaseImpl) GetTeacherByRobboGroupId(robboGroupId string) (teachers []*models.TeacherCore, err error) {
-	fmt.Println(p.robboGroupGateway)
 	relations, getRelationErr := p.robboGroupGateway.GetRelationByRobboGroupId(robboGroupId)
 	if getRelationErr != nil {
 		err = getRelationErr

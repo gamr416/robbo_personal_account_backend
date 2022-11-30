@@ -609,6 +609,28 @@ func (r *queryResolver) GetStudentsByRobboGroup(ctx context.Context, robboGroupI
 	return students, err
 }
 
+// GetStudentsByRobboUnitID is the resolver for the GetStudentsByRobboUnitId field.
+func (r *queryResolver) GetStudentsByRobboUnitID(ctx context.Context, robboUnitID string) ([]*models.StudentHTTP, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return nil, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := errors.New("status unauthorized")
+		return nil, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return nil, err
+	}
+	students, err := r.usersDelegate.GetStudentsByRobboUnitId(robboUnitID)
+	return students, err
+}
+
 // SearchStudentsByEmail is the resolver for the SearchStudentsByEmail field.
 func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string, parentID string) ([]*models.StudentHTTP, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)

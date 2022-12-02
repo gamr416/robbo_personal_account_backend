@@ -43,9 +43,15 @@ func (r *queryResolver) GetCoursesByUser(ctx context.Context) (*models.CoursesLi
 		err := errors.New("internal server error")
 		return nil, err
 	}
-	_, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
+	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
 	if userIdentityErr != nil {
 		err := errors.New("status unauthorized")
+		return nil, err
+	}
+	allowedRoles := []models.Role{models.Student, models.Parent, models.FreeListener, models.Teacher, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
 		return nil, err
 	}
 	coursesListHttp, getCoursesByUserErr := r.coursesDelegate.GetCoursesByUser()
@@ -63,9 +69,15 @@ func (r *queryResolver) GetAllPublicCourses(ctx context.Context, pageNumber stri
 		err := errors.New("internal server error")
 		return nil, err
 	}
-	_, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
+	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
 	if userIdentityErr != nil {
 		err := errors.New("status unauthorized")
+		return nil, err
+	}
+	allowedRoles := []models.Role{models.Student, models.Parent, models.FreeListener, models.Teacher, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
 		return nil, err
 	}
 	coursesListHttp, getAllPublicCoursesErr := r.coursesDelegate.GetAllPublicCourses(pageNumber)

@@ -45,10 +45,17 @@ func (h *Handler) InitCoursePacketRoutes(router *gin.Engine) {
 
 func (h *Handler) UpdateCoursePacket(c *gin.Context) {
 	log.Println("Update Course Packet")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
 		return
 	}
 	coursePacketHTTP := models.CoursePacketHTTP{}
@@ -80,10 +87,17 @@ func (h *Handler) UpdateCoursePacket(c *gin.Context) {
 
 func (h *Handler) CreateCoursePacket(c *gin.Context) {
 	log.Println("Create Course Packet")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
 		return
 	}
 	courseId := c.Param("coursePacketId")
@@ -104,10 +118,17 @@ func (h *Handler) CreateCoursePacket(c *gin.Context) {
 
 func (h *Handler) GetCoursePacketById(c *gin.Context) {
 	fmt.Println("Get CoursePacket By Id")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
 		return
 	}
 	coursePacketId := c.Param("coursePacketId")
@@ -125,10 +146,17 @@ func (h *Handler) GetCoursePacketById(c *gin.Context) {
 
 func (h *Handler) GetAllCoursePackets(c *gin.Context) {
 	log.Println("Get all CoursePackets")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
 		return
 	}
 	coursePackets, err := h.coursePacketDelegate.GetAllCoursePackets()
@@ -143,10 +171,17 @@ func (h *Handler) GetAllCoursePackets(c *gin.Context) {
 
 func (h *Handler) DeleteCoursePacket(c *gin.Context) {
 	log.Println("Delete Course Packet")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
 		return
 	}
 	courseId := c.Param("coursePacketId")

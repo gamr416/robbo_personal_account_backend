@@ -123,7 +123,8 @@ func (r *queryResolver) GetRobboGroupsByAccessToken(ctx context.Context) ([]*mod
 		err := errors.New("status unauthorized")
 		return nil, err
 	}
-	allowedRoles := []models.Role{models.Student, models.Teacher, models.Parent, models.UnitAdmin, models.SuperAdmin}
+	//todo: add admins
+	allowedRoles := []models.Role{models.Teacher}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")

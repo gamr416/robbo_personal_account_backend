@@ -30,6 +30,7 @@ func (h *Handler) InitRobboGroupRoutes(router *gin.Engine) {
 	{
 		robboGroup.POST("/", h.CreateRobboGroup)
 		robboGroup.GET("/allRobboGroups", h.GetAllRobboGroups)
+		robboGroup.GET("/byUnitAdminId/:unitAdminId", h.GetRobboGroupsByUnitAdminId)
 		robboGroup.GET("/:robboGroupId", h.GetRobboGroupById)
 		robboGroup.PUT("/", h.UpdateRobboGroup)
 		robboGroup.GET("/", h.GetRobboGroupsByRobboUnitId)
@@ -41,7 +42,7 @@ func (h *Handler) InitRobboGroupRoutes(router *gin.Engine) {
 }
 
 func (h *Handler) CreateRobboGroup(c *gin.Context) {
-	log.Println("Create Robbo Unit")
+	log.Println("Create Robbo Group")
 	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
@@ -106,7 +107,7 @@ func (h *Handler) GetAllRobboGroups(c *gin.Context) {
 }
 
 func (h *Handler) GetRobboGroupById(c *gin.Context) {
-	log.Println("Get RobboUnit By Id")
+	log.Println("Get RobboGroup By Id")
 	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
@@ -131,6 +132,34 @@ func (h *Handler) GetRobboGroupById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, robboGroup)
+}
+
+func (h *Handler) GetRobboGroupsByUnitAdminId(c *gin.Context) {
+	log.Println("Get RobboGroups By UnitAdminId")
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		log.Println(userIdentityErr)
+		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
+		return
+	}
+	unitAdminId := c.Param("unitAdminId")
+
+	robboGroups, err := h.robboGroupDelegate.GetRobboGroupsByUnitAdminId(unitAdminId)
+
+	if err != nil {
+		log.Println(err)
+		ErrorHandling(err, c)
+		return
+	}
+
+	c.JSON(http.StatusOK, robboGroups)
 }
 
 func (h *Handler) GetRobboGroupsByRobboUnitId(c *gin.Context) {

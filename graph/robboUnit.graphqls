@@ -5,6 +5,23 @@ type RobboUnitHttp {
     city: String!
 }
 
+input NewRobboUnit {
+    name: String!
+    city: String!
+}
+
+input UpdateRobboUnit {
+    id: String!
+    name: String!
+    city: String!
+}
+
+extend type Mutation {
+    CreateRobboUnit(input: NewRobboUnit!): String!
+    UpdateRobboUnit(input: UpdateRobboUnit!): RobboUnitHttp!
+    DeleteRobboUnit(robboUnitId: String!): String!
+}
+
 extend type Query {
     GetRobboUnitById(id: String!): RobboUnitHttp!
     GetAllRobboUnits: [RobboUnitHttp!]!

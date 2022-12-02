@@ -79,6 +79,16 @@ type NewParent struct {
 	Middlename string `json:"middlename"`
 }
 
+type NewRobboGroup struct {
+	Name        string `json:"name"`
+	RobboUnitID string `json:"robboUnitId"`
+}
+
+type NewRobboUnit struct {
+	Name string `json:"name"`
+	City string `json:"city"`
+}
+
 type NewStudent struct {
 	Email      string `json:"email"`
 	Password   string `json:"password"`
@@ -180,6 +190,18 @@ type UpdateProjectPage struct {
 	LinkScratch string `json:"LinkScratch"`
 	Title       string `json:"Title"`
 	IsShared    bool   `json:"IsShared"`
+}
+
+type UpdateRobboGroup struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	RobboUnitID string `json:"robboUnitId"`
+}
+
+type UpdateRobboUnit struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	City string `json:"city"`
 }
 
 type UpdateStudentHTTP struct {

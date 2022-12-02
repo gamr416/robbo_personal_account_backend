@@ -75,6 +75,19 @@ func (r *RobboGroupDelegateImpl) GetRobboGroupsByRobboUnitId(robboUnitId string)
 	return
 }
 
+func (r *RobboGroupDelegateImpl) GetRobboGroupsByUnitAdminId(unitAdminId string) (robboGroups []*models.RobboGroupHTTP, err error) {
+	robboGroupsCore, err := r.UseCase.GetRobboGroupsByUnitAdminId(unitAdminId)
+	if err != nil {
+		return
+	}
+	for _, robboGroupCore := range robboGroupsCore {
+		var robboGroupTemp models.RobboGroupHTTP
+		robboGroupTemp.FromCore(robboGroupCore)
+		robboGroups = append(robboGroups, &robboGroupTemp)
+	}
+	return
+}
+
 func (r *RobboGroupDelegateImpl) GetRobboGroupById(robboGroupId string) (robboGroup models.RobboGroupHTTP, err error) {
 	robboGroupCore, err := r.UseCase.GetRobboGroupById(robboGroupId)
 	if err != nil {

@@ -10,6 +10,7 @@ type Gateway interface {
 	DeleteStudent(studentId uint) (err error)
 	GetStudentById(studentId string) (student *models.StudentCore, err error)
 	GetStudentsByRobboGroupId(robboGroupId string) (students []*models.StudentCore, err error)
+	GetStudentsByRobboUnitId(robboUnitId string) (students []*models.StudentCore, err error)
 	UpdateStudent(student *models.StudentCore) (err error)
 
 	GetTeacher(email, password string) (teacher models.TeacherCore, err error)

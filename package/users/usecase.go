@@ -6,6 +6,7 @@ type UseCase interface {
 	GetStudentById(studentId string) (student *models.StudentCore, err error)
 	GetStudentByParentId(parentId string) (students []*models.StudentCore, err error)
 	GetStudentsByRobboGroupId(robboGroupId string) (students []*models.StudentCore, err error)
+	GetStudentsByRobboUnitId(robboUnitId string) (students []*models.StudentCore, err error)
 	//GetStudent(email, password string) (student *models.StudentCore, err error)
 	SearchStudentByEmail(email string, parentId string) (students []*models.StudentCore, err error)
 	CreateStudent(student *models.StudentCore, parentId string) (id string, err error)
@@ -19,6 +20,7 @@ type UseCase interface {
 	CreateTeacher(teacher *models.TeacherCore) (id string, err error)
 	UpdateTeacher(teacher *models.TeacherCore) (err error)
 	DeleteTeacher(teacherId uint) (err error)
+	GetTeacherByRobboGroupId(robboGroupId string) (teachers []*models.TeacherCore, err error)
 
 	//GetParent(email, password string) (parent *models.ParentCore, err error)
 	GetParentById(parentId string) (parent *models.ParentCore, err error)

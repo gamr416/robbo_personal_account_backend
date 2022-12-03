@@ -63,7 +63,6 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 		users.GET("/students/:parentId", h.GetStudentByParentId)
 		users.PUT("/student", h.UpdateStudent)
 		users.POST("/student/:studentId/robboGroup/:robboGroupId", h.SetRobboGroupIdForStudent)
-		//users.DELETE("/student/:studentId/robboGroup/:robboGroupId", h.SetRobboGroupIdForStudent)
 
 		users.POST("/teacher", h.CreateTeacher)
 		users.GET("/teachers", h.GetAllTeachers)

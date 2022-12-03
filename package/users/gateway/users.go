@@ -16,6 +16,22 @@ type UsersGatewayImpl struct {
 	PostgresClient *db_client.PostgresClient
 }
 
+func (r *UsersGatewayImpl) GetStudentsByRobboUnitId(robboUnitId string) (students []*models.StudentCore, err error) {
+	var studentsDb []*models.StudentDB
+
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("robbo_unit_id = ?", robboUnitId).Find(&studentsDb).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, studentDb := range studentsDb {
+		students = append(students, studentDb.ToCore())
+	}
+	return
+}
+
 type UsersGatewayModule struct {
 	fx.Out
 	users.Gateway

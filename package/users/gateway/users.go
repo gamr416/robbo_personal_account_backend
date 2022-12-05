@@ -1,7 +1,9 @@
 package gateway
 
 import (
+	"errors"
 	"fmt"
+	"github.com/jackc/pgconn"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
@@ -93,6 +95,10 @@ func (r *UsersGatewayImpl) CreateStudent(student *models.StudentCore) (id string
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Create(&studentDb).Error
+		var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+		if errors.As(err, &duplicateEntryError) {
+			return auth.ErrUserAlreadyExist
+		}
 		return
 	})
 
@@ -201,6 +207,10 @@ func (r *UsersGatewayImpl) CreateTeacher(teacher *models.TeacherCore) (id string
 	teacherDb.FromCore(teacher)
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Create(&teacherDb).Error
+		var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+		if errors.As(err, &duplicateEntryError) {
+			return auth.ErrUserAlreadyExist
+		}
 		return
 	})
 	id = strconv.FormatUint(uint64(teacherDb.ID), 10)
@@ -278,6 +288,10 @@ func (r *UsersGatewayImpl) CreateParent(parent *models.ParentCore) (id string, e
 	parentDb.FromCore(parent)
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Create(&parentDb).Error
+		var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+		if errors.As(err, &duplicateEntryError) {
+			return auth.ErrUserAlreadyExist
+		}
 		return
 	})
 	id = strconv.FormatUint(uint64(parentDb.ID), 10)
@@ -339,6 +353,10 @@ func (r *UsersGatewayImpl) CreateFreeListener(freeListener *models.FreeListenerC
 	freeListenerDb.FromCore(freeListener)
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Create(&freeListenerDb).Error
+		var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+		if errors.As(err, &duplicateEntryError) {
+			return auth.ErrUserAlreadyExist
+		}
 		return
 	})
 
@@ -415,6 +433,10 @@ func (r *UsersGatewayImpl) CreateUnitAdmin(unitAdmin *models.UnitAdminCore) (id 
 	unitAdminDb.FromCore(unitAdmin)
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Create(&unitAdminDb).Error
+		var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+		if errors.As(err, &duplicateEntryError) {
+			return auth.ErrUserAlreadyExist
+		}
 		return
 	})
 

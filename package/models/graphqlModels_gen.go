@@ -44,6 +44,10 @@ type CoursesListHTTP struct {
 	Pagination *Pagination   `json:"Pagination"`
 }
 
+type DeletedRobboGroup struct {
+	RobboGroupID string `json:"robboGroupId"`
+}
+
 type EnrollmentHTTP struct {
 	Created  string `json:"Created"`
 	Mode     string `json:"Mode"`

@@ -17,10 +17,14 @@ input UpdateRobboGroup {
 	robboUnitId: String!
 }
 
+type DeletedRobboGroup {
+	robboGroupId: String!
+}
+
 extend type Mutation {
-	CreateRobboGroup(input: NewRobboGroup!): String!
+	CreateRobboGroup(input: NewRobboGroup!): RobboGroupHttp!
 	UpdateRobboGroup(input: UpdateRobboGroup!): RobboGroupHttp!
-	DeleteRobboGroup(robboGroupId: String!): String!
+	DeleteRobboGroup(robboGroupId: String!): DeletedRobboGroup!
 }
 
 extend type Query {

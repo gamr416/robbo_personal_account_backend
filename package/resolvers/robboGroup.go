@@ -10,22 +10,22 @@ import (
 )
 
 // CreateRobboGroup is the resolver for the CreateRobboGroup field.
-func (r *mutationResolver) CreateRobboGroup(ctx context.Context, input models.NewRobboGroup) (string, error) {
+func (r *mutationResolver) CreateRobboGroup(ctx context.Context, input models.NewRobboGroup) (*models.RobboGroupHTTP, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return "", err
+		return nil, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
 		err := errors.New("status unauthorized")
-		return "", err
+		return nil, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")
-		return "", err
+		return nil, err
 	}
 
 	robboGroupHttp := models.RobboGroupHTTP{
@@ -33,12 +33,12 @@ func (r *mutationResolver) CreateRobboGroup(ctx context.Context, input models.Ne
 		RobboUnitID: input.RobboUnitID,
 	}
 
-	robboGroupHttpId, createRobboGroupErr := r.robboGroupDelegate.CreateRobboGroup(&robboGroupHttp)
+	newRobboGroup, createRobboGroupErr := r.robboGroupDelegate.CreateRobboGroup(&robboGroupHttp)
 	if createRobboGroupErr != nil {
 		err := errors.New("baq request")
-		return "", err
+		return nil, err
 	}
-	return robboGroupHttpId, nil
+	return &newRobboGroup, nil
 }
 
 // UpdateRobboGroup is the resolver for the UpdateRobboGroup field.
@@ -66,39 +66,39 @@ func (r *mutationResolver) UpdateRobboGroup(ctx context.Context, input models.Up
 		RobboUnitID: input.RobboUnitID,
 	}
 
-	deleteRobboGroupErr := r.robboGroupDelegate.UpdateRobboGroup(updateRobboGroupInput)
+	robboGroupUpdated, deleteRobboGroupErr := r.robboGroupDelegate.UpdateRobboGroup(updateRobboGroupInput)
 	if deleteRobboGroupErr != nil {
 		err := errors.New("baq request")
 		return nil, err
 	}
-	return updateRobboGroupInput, nil
+	return &robboGroupUpdated, nil
 }
 
 // DeleteRobboGroup is the resolver for the DeleteRobboGroup field.
-func (r *mutationResolver) DeleteRobboGroup(ctx context.Context, robboGroupID string) (string, error) {
+func (r *mutationResolver) DeleteRobboGroup(ctx context.Context, robboGroupID string) (*models.DeletedRobboGroup, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return "", err
+		return &models.DeletedRobboGroup{RobboGroupID: ""}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
 		err := errors.New("status unauthorized")
-		return "", err
+		return &models.DeletedRobboGroup{RobboGroupID: ""}, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")
-		return "", err
+		return &models.DeletedRobboGroup{RobboGroupID: ""}, err
 	}
 
 	deleteRobboGroupErr := r.robboGroupDelegate.DeleteRobboGroup(robboGroupID)
 	if deleteRobboGroupErr != nil {
 		err := errors.New("baq request")
-		return "", err
+		return &models.DeletedRobboGroup{RobboGroupID: ""}, err
 	}
-	return robboGroupID, nil
+	return &models.DeletedRobboGroup{RobboGroupID: robboGroupID}, nil
 }
 
 // GetRobboGroupByID is the resolver for the GetRobboGroupById field.

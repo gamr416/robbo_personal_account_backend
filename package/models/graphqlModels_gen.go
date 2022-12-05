@@ -48,6 +48,10 @@ type DeletedRobboGroup struct {
 	RobboGroupID string `json:"robboGroupId"`
 }
 
+type DeletedRobboUnit struct {
+	RobboUnitID string `json:"robboUnitId"`
+}
+
 type EnrollmentHTTP struct {
 	Created  string `json:"Created"`
 	Mode     string `json:"Mode"`

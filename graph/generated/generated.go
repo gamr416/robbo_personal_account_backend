@@ -90,6 +90,10 @@ type ComplexityRoot struct {
 		RobboGroupID func(childComplexity int) int
 	}
 
+	DeletedRobboUnit struct {
+		RobboUnitID func(childComplexity int) int
+	}
+
 	EnrollmentHttp struct {
 		CourseID func(childComplexity int) int
 		Created  func(childComplexity int) int
@@ -274,9 +278,9 @@ type MutationResolver interface {
 	CreateRobboGroup(ctx context.Context, input models.NewRobboGroup) (*models.RobboGroupHTTP, error)
 	UpdateRobboGroup(ctx context.Context, input models.UpdateRobboGroup) (*models.RobboGroupHTTP, error)
 	DeleteRobboGroup(ctx context.Context, robboGroupID string) (*models.DeletedRobboGroup, error)
-	CreateRobboUnit(ctx context.Context, input models.NewRobboUnit) (string, error)
+	CreateRobboUnit(ctx context.Context, input models.NewRobboUnit) (*models.RobboUnitHTTP, error)
 	UpdateRobboUnit(ctx context.Context, input models.UpdateRobboUnit) (*models.RobboUnitHTTP, error)
-	DeleteRobboUnit(ctx context.Context, robboUnitID string) (string, error)
+	DeleteRobboUnit(ctx context.Context, robboUnitID string) (*models.DeletedRobboUnit, error)
 }
 type QueryResolver interface {
 	GetStudentsByParentID(ctx context.Context, parentID string) ([]*models.StudentHTTP, error)
@@ -544,6 +548,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.DeletedRobboGroup.RobboGroupID(childComplexity), true
+
+	case "DeletedRobboUnit.robboUnitId":
+		if e.complexity.DeletedRobboUnit.RobboUnitID == nil {
+			break
+		}
+
+		return e.complexity.DeletedRobboUnit.RobboUnitID(childComplexity), true
 
 	case "EnrollmentHttp.Course_ID":
 		if e.complexity.EnrollmentHttp.CourseID == nil {
@@ -1819,10 +1830,14 @@ input UpdateRobboUnit {
     city: String!
 }
 
+type DeletedRobboUnit {
+    robboUnitId: String!
+}
+
 extend type Mutation {
-    CreateRobboUnit(input: NewRobboUnit!): String!
+    CreateRobboUnit(input: NewRobboUnit!): RobboUnitHttp!
     UpdateRobboUnit(input: UpdateRobboUnit!): RobboUnitHttp!
-    DeleteRobboUnit(robboUnitId: String!): String!
+    DeleteRobboUnit(robboUnitId: String!): DeletedRobboUnit!
 }
 
 extend type Query {
@@ -4277,6 +4292,50 @@ func (ec *executionContext) fieldContext_DeletedRobboGroup_robboGroupId(ctx cont
 	return fc, nil
 }
 
+func (ec *executionContext) _DeletedRobboUnit_robboUnitId(ctx context.Context, field graphql.CollectedField, obj *models.DeletedRobboUnit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeletedRobboUnit_robboUnitId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RobboUnitID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeletedRobboUnit_robboUnitId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeletedRobboUnit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _EnrollmentHttp_Created(ctx context.Context, field graphql.CollectedField, obj *models.EnrollmentHTTP) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_EnrollmentHttp_Created(ctx, field)
 	if err != nil {
@@ -6278,9 +6337,9 @@ func (ec *executionContext) _Mutation_CreateRobboUnit(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*models.RobboUnitHTTP)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNRobboUnitHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitHTTP(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_CreateRobboUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6290,7 +6349,17 @@ func (ec *executionContext) fieldContext_Mutation_CreateRobboUnit(ctx context.Co
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_RobboUnitHttp_id(ctx, field)
+			case "lastModified":
+				return ec.fieldContext_RobboUnitHttp_lastModified(ctx, field)
+			case "name":
+				return ec.fieldContext_RobboUnitHttp_name(ctx, field)
+			case "city":
+				return ec.fieldContext_RobboUnitHttp_city(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RobboUnitHttp", field.Name)
 		},
 	}
 	defer func() {
@@ -6398,9 +6467,9 @@ func (ec *executionContext) _Mutation_DeleteRobboUnit(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*models.DeletedRobboUnit)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNDeletedRobboUnit2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐDeletedRobboUnit(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_DeleteRobboUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6410,7 +6479,11 @@ func (ec *executionContext) fieldContext_Mutation_DeleteRobboUnit(ctx context.Co
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "robboUnitId":
+				return ec.fieldContext_DeletedRobboUnit_robboUnitId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeletedRobboUnit", field.Name)
 		},
 	}
 	defer func() {
@@ -13318,6 +13391,34 @@ func (ec *executionContext) _DeletedRobboGroup(ctx context.Context, sel ast.Sele
 	return out
 }
 
+var deletedRobboUnitImplementors = []string{"DeletedRobboUnit"}
+
+func (ec *executionContext) _DeletedRobboUnit(ctx context.Context, sel ast.SelectionSet, obj *models.DeletedRobboUnit) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deletedRobboUnitImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeletedRobboUnit")
+		case "robboUnitId":
+
+			out.Values[i] = ec._DeletedRobboUnit_robboUnitId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var enrollmentHttpImplementors = []string{"EnrollmentHttp"}
 
 func (ec *executionContext) _EnrollmentHttp(ctx context.Context, sel ast.SelectionSet, obj *models.EnrollmentHTTP) graphql.Marshaler {
@@ -15446,6 +15547,20 @@ func (ec *executionContext) marshalNDeletedRobboGroup2ᚖgithubᚗcomᚋskinnyka
 		return graphql.Null
 	}
 	return ec._DeletedRobboGroup(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNDeletedRobboUnit2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐDeletedRobboUnit(ctx context.Context, sel ast.SelectionSet, v models.DeletedRobboUnit) graphql.Marshaler {
+	return ec._DeletedRobboUnit(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNDeletedRobboUnit2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐDeletedRobboUnit(ctx context.Context, sel ast.SelectionSet, v *models.DeletedRobboUnit) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DeletedRobboUnit(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNEnrollmentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐEnrollmentHTTP(ctx context.Context, sel ast.SelectionSet, v *models.EnrollmentHTTP) graphql.Marshaler {

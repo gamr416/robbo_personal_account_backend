@@ -16,10 +16,14 @@ input UpdateRobboUnit {
     city: String!
 }
 
+type DeletedRobboUnit {
+    robboUnitId: String!
+}
+
 extend type Mutation {
-    CreateRobboUnit(input: NewRobboUnit!): String!
+    CreateRobboUnit(input: NewRobboUnit!): RobboUnitHttp!
     UpdateRobboUnit(input: UpdateRobboUnit!): RobboUnitHttp!
-    DeleteRobboUnit(robboUnitId: String!): String!
+    DeleteRobboUnit(robboUnitId: String!): DeletedRobboUnit!
 }
 
 extend type Query {

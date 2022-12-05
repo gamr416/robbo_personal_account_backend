@@ -12,6 +12,57 @@ type UsersDelegateImpl struct {
 	UseCase users.UseCase
 }
 
+func (p *UsersDelegateImpl) GetStudentsByRobboUnitId(robboUnitId string) (students []*models.StudentHTTP, err error) {
+	studentsCore, getStudentsErr := p.UseCase.GetStudentsByRobboUnitId(robboUnitId)
+	if getStudentsErr != nil {
+		err = getStudentsErr
+		return
+	}
+	for _, studentCore := range studentsCore {
+		studentHttpTemp := models.StudentHTTP{
+			UserHTTP:     &models.UserHTTP{},
+			RobboGroupID: studentCore.RobboGroupId,
+			RobboUnitID:  robboUnitId,
+		}
+		studentHttpTemp.FromCore(studentCore)
+		students = append(students, &studentHttpTemp)
+	}
+	return
+}
+
+func (p *UsersDelegateImpl) GetTeacherByRobboGroupId(robboGroupId string) (teachers []*models.TeacherHTTP, err error) {
+	teachersCore, getTeacherErr := p.UseCase.GetTeacherByRobboGroupId(robboGroupId)
+	if getTeacherErr != nil {
+		err = getTeacherErr
+		return
+	}
+	for _, teacherCore := range teachersCore {
+		teacherHttpTemp := models.TeacherHTTP{
+			UserHTTP: &models.UserHTTP{},
+		}
+		teacherHttpTemp.FromCore(teacherCore)
+		teachers = append(teachers, &teacherHttpTemp)
+	}
+	return
+}
+
+func (p *UsersDelegateImpl) GetStudentsByRobboGroupId(robboGroupId string) (students []*models.StudentHTTP, err error) {
+	studentsCore, err := p.UseCase.GetStudentsByRobboGroupId(robboGroupId)
+	if err != nil {
+		return
+	}
+	for _, studentCore := range studentsCore {
+		studentHttpTemp := models.StudentHTTP{
+			UserHTTP:     &models.UserHTTP{},
+			RobboGroupID: studentCore.RobboGroupId,
+			RobboUnitID:  studentCore.RobboUnitId,
+		}
+		studentHttpTemp.FromCore(studentCore)
+		students = append(students, &studentHttpTemp)
+	}
+	return
+}
+
 type UsersDelegateModule struct {
 	fx.Out
 	users.Delegate
@@ -255,8 +306,8 @@ func (p *UsersDelegateImpl) DeleteUnitAdmin(unitAdminId uint) (err error) {
 	return p.UseCase.DeleteUnitAdmin(unitAdminId)
 }
 
-func (p *UsersDelegateImpl) SearchUnitAdminByEmail(email string) (unitAdmins []*models.UnitAdminHTTP, err error) {
-	unitAdminsCore, err := p.UseCase.SearchUnitAdminByEmail(email)
+func (p *UsersDelegateImpl) SearchUnitAdminByEmail(email string, robboUnitId string) (unitAdmins []*models.UnitAdminHTTP, err error) {
+	unitAdminsCore, err := p.UseCase.SearchUnitAdminByEmail(email, robboUnitId)
 	if err != nil {
 		return
 	}

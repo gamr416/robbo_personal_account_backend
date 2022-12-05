@@ -10,6 +10,7 @@ type Gateway interface {
 	DeleteStudent(studentId uint) (err error)
 	GetStudentById(studentId string) (student *models.StudentCore, err error)
 	GetStudentsByRobboGroupId(robboGroupId string) (students []*models.StudentCore, err error)
+	GetStudentsByRobboUnitId(robboUnitId string) (students []*models.StudentCore, err error)
 	UpdateStudent(student *models.StudentCore) (err error)
 
 	GetTeacher(email, password string) (teacher models.TeacherCore, err error)
@@ -38,7 +39,7 @@ type Gateway interface {
 	CreateUnitAdmin(unitAdmin *models.UnitAdminCore) (id string, err error)
 	DeleteUnitAdmin(superAdminId uint) (err error)
 	UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (err error)
-	SearchUnitAdminByEmail(email string) (unitAdmins []*models.UnitAdminCore, err error)
+	SearchUnitAdminByEmail(email string, robboUnitId string) (unitAdmins []*models.UnitAdminCore, err error)
 
 	GetSuperAdmin(email, password string) (superAdmin *models.SuperAdminCore, err error)
 	GetSuperAdminById(superAdminId string) (superAdmin *models.SuperAdminCore, err error)

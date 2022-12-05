@@ -42,10 +42,17 @@ func (h *Handler) InitCohortRoutes(router *gin.Engine) {
 
 func (h *Handler) CreateCohort(c *gin.Context) {
 	fmt.Println("Create Cohort")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
 		return
 	}
 	createCohortResponse := models.CreateCohortHTTP{}
@@ -82,10 +89,17 @@ func (h *Handler) CreateCohort(c *gin.Context) {
 
 func (h *Handler) AddStudent(c *gin.Context) {
 	fmt.Println("Add Student")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
 		return
 	}
 	tempCohortId := c.Param("cohortId")

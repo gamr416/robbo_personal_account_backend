@@ -133,7 +133,6 @@ func (h *Handler) GetRobboUnitsByUnitAdminId(c *gin.Context) {
 		ErrorHandling(identityErr, c)
 		return
 	}
-	//TODO: add access to superAdmin
 	allowedRoles := []models.Role{models.UnitAdmin}
 	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
@@ -220,6 +219,8 @@ func ErrorHandling(err error, c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	case robboUnits.ErrBadRequestBody:
 		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+	case robboUnits.ErrRobboUnitNotFound:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	case auth.ErrInvalidAccessToken:
 		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
 	case auth.ErrTokenNotFound:

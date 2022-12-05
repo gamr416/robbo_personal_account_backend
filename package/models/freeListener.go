@@ -1,16 +1,12 @@
 package models
 
-import (
-	"gorm.io/gorm"
-	"strconv"
-)
+import "strconv"
 
 type FreeListenerCore struct {
 	UserCore
 }
 
 type FreeListenerDB struct {
-	gorm.Model
 	UserDB
 }
 
@@ -27,7 +23,7 @@ func (em *FreeListenerDB) ToCore() *FreeListenerCore {
 func (em *FreeListenerDB) FromCore(freeListener *FreeListenerCore) {
 	id, _ := strconv.ParseUint(freeListener.Id, 10, 64)
 	em.ID = uint(id)
-	em.UserDB.ToCore()
+	em.UserDB.FromCore(&freeListener.UserCore)
 }
 
 func (ht *FreeListenerHttp) ToCore() *FreeListenerCore {

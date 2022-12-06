@@ -86,6 +86,10 @@ type ComplexityRoot struct {
 		Results    func(childComplexity int) int
 	}
 
+	DeletedProjectPage struct {
+		ProjectPageID func(childComplexity int) int
+	}
+
 	DeletedRobboGroup struct {
 		RobboGroupID func(childComplexity int) int
 	}
@@ -106,6 +110,11 @@ type ComplexityRoot struct {
 		Next     func(childComplexity int) int
 		Previous func(childComplexity int) int
 		Results  func(childComplexity int) int
+	}
+
+	Error struct {
+		Code    func(childComplexity int) int
+		Message func(childComplexity int) int
 	}
 
 	ImageHttp struct {
@@ -171,6 +180,10 @@ type ComplexityRoot struct {
 		ProjectID     func(childComplexity int) int
 		ProjectPageID func(childComplexity int) int
 		Title         func(childComplexity int) int
+	}
+
+	ProjectPageHttpList struct {
+		ProjectPages func(childComplexity int) int
 	}
 
 	Query struct {
@@ -272,9 +285,9 @@ type MutationResolver interface {
 	SetNewUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (string, error)
 	DeleteUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (string, error)
 	UpdateSuperAdmin(ctx context.Context, input models.UpdateSuperAdminInput) (*models.SuperAdminHTTP, error)
-	CreateProjectPage(ctx context.Context) (string, error)
-	UpdateProjectPage(ctx context.Context, input models.UpdateProjectPage) (*models.ProjectPageHTTP, error)
-	DeleteProjectPage(ctx context.Context, projectID string) (string, error)
+	CreateProjectPage(ctx context.Context) (models.ProjectPageResult, error)
+	UpdateProjectPage(ctx context.Context, input models.UpdateProjectPage) (models.ProjectPageResult, error)
+	DeleteProjectPage(ctx context.Context, projectID string) (*models.DeletedProjectPage, error)
 	CreateRobboGroup(ctx context.Context, input models.NewRobboGroup) (*models.RobboGroupHTTP, error)
 	UpdateRobboGroup(ctx context.Context, input models.UpdateRobboGroup) (*models.RobboGroupHTTP, error)
 	DeleteRobboGroup(ctx context.Context, robboGroupID string) (*models.DeletedRobboGroup, error)
@@ -302,9 +315,9 @@ type QueryResolver interface {
 	GetCoursesByUser(ctx context.Context) (*models.CoursesListHTTP, error)
 	GetAllPublicCourses(ctx context.Context, pageNumber string) (*models.CoursesListHTTP, error)
 	GetEnrollments(ctx context.Context, username string) (*models.EnrollmentsListHTTP, error)
-	GetProjectPageByID(ctx context.Context, projectPageID string) (*models.ProjectPageHTTP, error)
-	GetAllProjectPagesByUserID(ctx context.Context, userID string) ([]*models.ProjectPageHTTP, error)
-	GetAllProjectPagesByAccessToken(ctx context.Context) ([]*models.ProjectPageHTTP, error)
+	GetProjectPageByID(ctx context.Context, projectPageID string) (models.ProjectPageResult, error)
+	GetAllProjectPagesByUserID(ctx context.Context, userID string) (models.ProjectPageResult, error)
+	GetAllProjectPagesByAccessToken(ctx context.Context) (models.ProjectPageResult, error)
 	GetRobboGroupByID(ctx context.Context, id string) (*models.RobboGroupHTTP, error)
 	GetRobboGroupsByTeacherID(ctx context.Context, teacherID string) ([]*models.RobboGroupHTTP, error)
 	GetRobboGroupsByRobboUnitID(ctx context.Context, robboUnitID string) ([]*models.RobboGroupHTTP, error)
@@ -542,6 +555,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CoursesListHttp.Results(childComplexity), true
 
+	case "DeletedProjectPage.projectPageId":
+		if e.complexity.DeletedProjectPage.ProjectPageID == nil {
+			break
+		}
+
+		return e.complexity.DeletedProjectPage.ProjectPageID(childComplexity), true
+
 	case "DeletedRobboGroup.robboGroupId":
 		if e.complexity.DeletedRobboGroup.RobboGroupID == nil {
 			break
@@ -611,6 +631,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.EnrollmentsListHttp.Results(childComplexity), true
+
+	case "Error.code":
+		if e.complexity.Error.Code == nil {
+			break
+		}
+
+		return e.complexity.Error.Code(childComplexity), true
+
+	case "Error.message":
+		if e.complexity.Error.Message == nil {
+			break
+		}
+
+		return e.complexity.Error.Message(childComplexity), true
 
 	case "ImageHttp.ID":
 		if e.complexity.ImageHttp.ID == nil {
@@ -767,7 +801,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteProjectPage(childComplexity, args["projectID"].(string)), true
+		return e.complexity.Mutation.DeleteProjectPage(childComplexity, args["projectId"].(string)), true
 
 	case "Mutation.DeleteRobboGroup":
 		if e.complexity.Mutation.DeleteRobboGroup == nil {
@@ -1066,6 +1100,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ProjectPageHttp.Title(childComplexity), true
 
+	case "ProjectPageHttpList.projectPages":
+		if e.complexity.ProjectPageHttpList.ProjectPages == nil {
+			break
+		}
+
+		return e.complexity.ProjectPageHttpList.ProjectPages(childComplexity), true
+
 	case "Query.GetAllParents":
 		if e.complexity.Query.GetAllParents == nil {
 			break
@@ -1080,17 +1121,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetAllProjectPagesByAccessToken(childComplexity), true
 
-	case "Query.GetAllProjectPagesByUserID":
+	case "Query.GetAllProjectPagesByUserId":
 		if e.complexity.Query.GetAllProjectPagesByUserID == nil {
 			break
 		}
 
-		args, err := ec.field_Query_GetAllProjectPagesByUserID_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetAllProjectPagesByUserId_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.GetAllProjectPagesByUserID(childComplexity, args["userID"].(string)), true
+		return e.complexity.Query.GetAllProjectPagesByUserID(childComplexity, args["userId"].(string)), true
 
 	case "Query.GetAllPublicCourses":
 		if e.complexity.Query.GetAllPublicCourses == nil {
@@ -1185,7 +1226,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetProjectPageByID(childComplexity, args["projectPageID"].(string)), true
+		return e.complexity.Query.GetProjectPageByID(childComplexity, args["projectPageId"].(string)), true
 
 	case "Query.GetRobboGroupById":
 		if e.complexity.Query.GetRobboGroupByID == nil {
@@ -1741,6 +1782,10 @@ extend type Query {
     GetAllPublicCourses(pageNumber: String!): CoursesListHttp!
     GetEnrollments(username: String!): EnrollmentsListHttp!
 }`, BuiltIn: false},
+	{Name: "../error.graphqls", Input: `type Error {
+    code: Int!
+    message: String!
+}`, BuiltIn: false},
 	{Name: "../projectPage.graphqls", Input: `type ProjectPageHttp {
     projectPageId: String!
     lastModified: String!
@@ -1753,26 +1798,35 @@ extend type Query {
     isShared: Boolean!
 }
 
-input UpdateProjectPage {
-    ProjectID: String!
-    Instruction: String!
-    Notes: String!
-    Preview: String!
-    LinkScratch: String!
-    Title: String!
-    IsShared: Boolean!
+type ProjectPageHttpList {
+    projectPages: [ProjectPageHttp!]!
 }
 
+type DeletedProjectPage {
+    projectPageId: String!
+}
+
+input UpdateProjectPage {
+    projectId: String!
+    projectPageId: String!
+    instruction: String!
+    notes: String!
+    title: String!
+    isShared: Boolean!
+}
+
+union ProjectPageResult = ProjectPageHttp | ProjectPageHttpList | Error
+
 extend type Mutation {
-    CreateProjectPage: String!
-    UpdateProjectPage(input: UpdateProjectPage!): ProjectPageHttp!
-    DeleteProjectPage(projectID: String!): String!
+    CreateProjectPage: ProjectPageResult!
+    UpdateProjectPage(input: UpdateProjectPage!): ProjectPageResult!
+    DeleteProjectPage(projectId: String!): DeletedProjectPage!
 }
 
 extend type Query {
-    GetProjectPageById(projectPageID: String!): ProjectPageHttp!
-    GetAllProjectPagesByUserID(userID: String!): [ProjectPageHttp!]!
-    GetAllProjectPagesByAccessToken: [ProjectPageHttp!]!
+    GetProjectPageById(projectPageId: String!): ProjectPageResult!
+    GetAllProjectPagesByUserId(userId: String!): ProjectPageResult!
+    GetAllProjectPagesByAccessToken: ProjectPageResult!
 }`, BuiltIn: false},
 	{Name: "../robboGroup.graphqls", Input: `type RobboGroupHttp {
 	id: String!
@@ -2047,14 +2101,14 @@ func (ec *executionContext) field_Mutation_DeleteProjectPage_args(ctx context.Co
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["projectID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectID"))
+	if tmp, ok := rawArgs["projectId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["projectID"] = arg0
+	args["projectId"] = arg0
 	return args, nil
 }
 
@@ -2433,18 +2487,18 @@ func (ec *executionContext) field_Mutation_updateUnitAdmin_args(ctx context.Cont
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_GetAllProjectPagesByUserID_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_GetAllProjectPagesByUserId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["userID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userID"))
+	if tmp, ok := rawArgs["userId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["userID"] = arg0
+	args["userId"] = arg0
 	return args, nil
 }
 
@@ -2512,14 +2566,14 @@ func (ec *executionContext) field_Query_GetProjectPageById_args(ctx context.Cont
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["projectPageID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectPageID"))
+	if tmp, ok := rawArgs["projectPageId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectPageId"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["projectPageID"] = arg0
+	args["projectPageId"] = arg0
 	return args, nil
 }
 
@@ -4248,6 +4302,50 @@ func (ec *executionContext) fieldContext_CoursesListHttp_Pagination(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _DeletedProjectPage_projectPageId(ctx context.Context, field graphql.CollectedField, obj *models.DeletedProjectPage) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeletedProjectPage_projectPageId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProjectPageID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeletedProjectPage_projectPageId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeletedProjectPage",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _DeletedRobboGroup_robboGroupId(ctx context.Context, field graphql.CollectedField, obj *models.DeletedRobboGroup) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_DeletedRobboGroup_robboGroupId(ctx, field)
 	if err != nil {
@@ -4692,6 +4790,94 @@ func (ec *executionContext) fieldContext_EnrollmentsListHttp_Results(ctx context
 				return ec.fieldContext_EnrollmentHttp_Course_ID(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type EnrollmentHttp", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Error_code(ctx context.Context, field graphql.CollectedField, obj *models.Error) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Error_code(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Code, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Error_code(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Error",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Error_message(ctx context.Context, field graphql.CollectedField, obj *models.Error) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Error_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Error_message(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Error",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5970,9 +6156,9 @@ func (ec *executionContext) _Mutation_CreateProjectPage(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(models.ProjectPageResult)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNProjectPageResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPageResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_CreateProjectPage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5982,7 +6168,7 @@ func (ec *executionContext) fieldContext_Mutation_CreateProjectPage(ctx context.
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type ProjectPageResult does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6014,9 +6200,9 @@ func (ec *executionContext) _Mutation_UpdateProjectPage(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.ProjectPageHTTP)
+	res := resTmp.(models.ProjectPageResult)
 	fc.Result = res
-	return ec.marshalNProjectPageHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPageHTTP(ctx, field.Selections, res)
+	return ec.marshalNProjectPageResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPageResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_UpdateProjectPage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6026,27 +6212,7 @@ func (ec *executionContext) fieldContext_Mutation_UpdateProjectPage(ctx context.
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "projectPageId":
-				return ec.fieldContext_ProjectPageHttp_projectPageId(ctx, field)
-			case "lastModified":
-				return ec.fieldContext_ProjectPageHttp_lastModified(ctx, field)
-			case "projectId":
-				return ec.fieldContext_ProjectPageHttp_projectId(ctx, field)
-			case "instruction":
-				return ec.fieldContext_ProjectPageHttp_instruction(ctx, field)
-			case "notes":
-				return ec.fieldContext_ProjectPageHttp_notes(ctx, field)
-			case "preview":
-				return ec.fieldContext_ProjectPageHttp_preview(ctx, field)
-			case "linkScratch":
-				return ec.fieldContext_ProjectPageHttp_linkScratch(ctx, field)
-			case "title":
-				return ec.fieldContext_ProjectPageHttp_title(ctx, field)
-			case "isShared":
-				return ec.fieldContext_ProjectPageHttp_isShared(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ProjectPageHttp", field.Name)
+			return nil, errors.New("field of type ProjectPageResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -6077,7 +6243,7 @@ func (ec *executionContext) _Mutation_DeleteProjectPage(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteProjectPage(rctx, fc.Args["projectID"].(string))
+		return ec.resolvers.Mutation().DeleteProjectPage(rctx, fc.Args["projectId"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6089,9 +6255,9 @@ func (ec *executionContext) _Mutation_DeleteProjectPage(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*models.DeletedProjectPage)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNDeletedProjectPage2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐDeletedProjectPage(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_DeleteProjectPage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6101,7 +6267,11 @@ func (ec *executionContext) fieldContext_Mutation_DeleteProjectPage(ctx context.
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "projectPageId":
+				return ec.fieldContext_DeletedProjectPage_projectPageId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeletedProjectPage", field.Name)
 		},
 	}
 	defer func() {
@@ -7183,6 +7353,70 @@ func (ec *executionContext) fieldContext_ProjectPageHttp_isShared(ctx context.Co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProjectPageHttpList_projectPages(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTPList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectPageHttpList_projectPages(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProjectPages, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*models.ProjectPageHTTP)
+	fc.Result = res
+	return ec.marshalNProjectPageHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPageHTTPᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProjectPageHttpList_projectPages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProjectPageHttpList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "projectPageId":
+				return ec.fieldContext_ProjectPageHttp_projectPageId(ctx, field)
+			case "lastModified":
+				return ec.fieldContext_ProjectPageHttp_lastModified(ctx, field)
+			case "projectId":
+				return ec.fieldContext_ProjectPageHttp_projectId(ctx, field)
+			case "instruction":
+				return ec.fieldContext_ProjectPageHttp_instruction(ctx, field)
+			case "notes":
+				return ec.fieldContext_ProjectPageHttp_notes(ctx, field)
+			case "preview":
+				return ec.fieldContext_ProjectPageHttp_preview(ctx, field)
+			case "linkScratch":
+				return ec.fieldContext_ProjectPageHttp_linkScratch(ctx, field)
+			case "title":
+				return ec.fieldContext_ProjectPageHttp_title(ctx, field)
+			case "isShared":
+				return ec.fieldContext_ProjectPageHttp_isShared(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProjectPageHttp", field.Name)
 		},
 	}
 	return fc, nil
@@ -8349,7 +8583,7 @@ func (ec *executionContext) _Query_GetProjectPageById(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetProjectPageByID(rctx, fc.Args["projectPageID"].(string))
+		return ec.resolvers.Query().GetProjectPageByID(rctx, fc.Args["projectPageId"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8361,9 +8595,9 @@ func (ec *executionContext) _Query_GetProjectPageById(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.ProjectPageHTTP)
+	res := resTmp.(models.ProjectPageResult)
 	fc.Result = res
-	return ec.marshalNProjectPageHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPageHTTP(ctx, field.Selections, res)
+	return ec.marshalNProjectPageResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPageResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetProjectPageById(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8373,27 +8607,7 @@ func (ec *executionContext) fieldContext_Query_GetProjectPageById(ctx context.Co
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "projectPageId":
-				return ec.fieldContext_ProjectPageHttp_projectPageId(ctx, field)
-			case "lastModified":
-				return ec.fieldContext_ProjectPageHttp_lastModified(ctx, field)
-			case "projectId":
-				return ec.fieldContext_ProjectPageHttp_projectId(ctx, field)
-			case "instruction":
-				return ec.fieldContext_ProjectPageHttp_instruction(ctx, field)
-			case "notes":
-				return ec.fieldContext_ProjectPageHttp_notes(ctx, field)
-			case "preview":
-				return ec.fieldContext_ProjectPageHttp_preview(ctx, field)
-			case "linkScratch":
-				return ec.fieldContext_ProjectPageHttp_linkScratch(ctx, field)
-			case "title":
-				return ec.fieldContext_ProjectPageHttp_title(ctx, field)
-			case "isShared":
-				return ec.fieldContext_ProjectPageHttp_isShared(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ProjectPageHttp", field.Name)
+			return nil, errors.New("field of type ProjectPageResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -8410,8 +8624,8 @@ func (ec *executionContext) fieldContext_Query_GetProjectPageById(ctx context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_GetAllProjectPagesByUserID(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_GetAllProjectPagesByUserID(ctx, field)
+func (ec *executionContext) _Query_GetAllProjectPagesByUserId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetAllProjectPagesByUserId(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -8424,7 +8638,7 @@ func (ec *executionContext) _Query_GetAllProjectPagesByUserID(ctx context.Contex
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetAllProjectPagesByUserID(rctx, fc.Args["userID"].(string))
+		return ec.resolvers.Query().GetAllProjectPagesByUserID(rctx, fc.Args["userId"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8436,39 +8650,19 @@ func (ec *executionContext) _Query_GetAllProjectPagesByUserID(ctx context.Contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*models.ProjectPageHTTP)
+	res := resTmp.(models.ProjectPageResult)
 	fc.Result = res
-	return ec.marshalNProjectPageHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPageHTTPᚄ(ctx, field.Selections, res)
+	return ec.marshalNProjectPageResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPageResult(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_GetAllProjectPagesByUserID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_GetAllProjectPagesByUserId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "projectPageId":
-				return ec.fieldContext_ProjectPageHttp_projectPageId(ctx, field)
-			case "lastModified":
-				return ec.fieldContext_ProjectPageHttp_lastModified(ctx, field)
-			case "projectId":
-				return ec.fieldContext_ProjectPageHttp_projectId(ctx, field)
-			case "instruction":
-				return ec.fieldContext_ProjectPageHttp_instruction(ctx, field)
-			case "notes":
-				return ec.fieldContext_ProjectPageHttp_notes(ctx, field)
-			case "preview":
-				return ec.fieldContext_ProjectPageHttp_preview(ctx, field)
-			case "linkScratch":
-				return ec.fieldContext_ProjectPageHttp_linkScratch(ctx, field)
-			case "title":
-				return ec.fieldContext_ProjectPageHttp_title(ctx, field)
-			case "isShared":
-				return ec.fieldContext_ProjectPageHttp_isShared(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ProjectPageHttp", field.Name)
+			return nil, errors.New("field of type ProjectPageResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -8478,7 +8672,7 @@ func (ec *executionContext) fieldContext_Query_GetAllProjectPagesByUserID(ctx co
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_GetAllProjectPagesByUserID_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_GetAllProjectPagesByUserId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -8511,9 +8705,9 @@ func (ec *executionContext) _Query_GetAllProjectPagesByAccessToken(ctx context.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*models.ProjectPageHTTP)
+	res := resTmp.(models.ProjectPageResult)
 	fc.Result = res
-	return ec.marshalNProjectPageHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPageHTTPᚄ(ctx, field.Selections, res)
+	return ec.marshalNProjectPageResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPageResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetAllProjectPagesByAccessToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8523,27 +8717,7 @@ func (ec *executionContext) fieldContext_Query_GetAllProjectPagesByAccessToken(c
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "projectPageId":
-				return ec.fieldContext_ProjectPageHttp_projectPageId(ctx, field)
-			case "lastModified":
-				return ec.fieldContext_ProjectPageHttp_lastModified(ctx, field)
-			case "projectId":
-				return ec.fieldContext_ProjectPageHttp_projectId(ctx, field)
-			case "instruction":
-				return ec.fieldContext_ProjectPageHttp_instruction(ctx, field)
-			case "notes":
-				return ec.fieldContext_ProjectPageHttp_notes(ctx, field)
-			case "preview":
-				return ec.fieldContext_ProjectPageHttp_preview(ctx, field)
-			case "linkScratch":
-				return ec.fieldContext_ProjectPageHttp_linkScratch(ctx, field)
-			case "title":
-				return ec.fieldContext_ProjectPageHttp_title(ctx, field)
-			case "isShared":
-				return ec.fieldContext_ProjectPageHttp_isShared(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ProjectPageHttp", field.Name)
+			return nil, errors.New("field of type ProjectPageResult does not have child fields")
 		},
 	}
 	return fc, nil
@@ -12627,65 +12801,57 @@ func (ec *executionContext) unmarshalInputUpdateProjectPage(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"ProjectID", "Instruction", "Notes", "Preview", "LinkScratch", "Title", "IsShared"}
+	fieldsInOrder := [...]string{"projectId", "projectPageId", "instruction", "notes", "title", "isShared"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "ProjectID":
+		case "projectId":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ProjectID"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
 			it.ProjectID, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "Instruction":
+		case "projectPageId":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Instruction"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectPageId"))
+			it.ProjectPageID, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "instruction":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("instruction"))
 			it.Instruction, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "Notes":
+		case "notes":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Notes"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("notes"))
 			it.Notes, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "Preview":
+		case "title":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Preview"))
-			it.Preview, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "LinkScratch":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("LinkScratch"))
-			it.LinkScratch, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "Title":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Title"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
 			it.Title, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "IsShared":
+		case "isShared":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("IsShared"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isShared"))
 			it.IsShared, err = ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
@@ -13080,6 +13246,36 @@ func (ec *executionContext) unmarshalInputUpdateUserHttp(ctx context.Context, ob
 
 // region    ************************** interface.gotpl ***************************
 
+func (ec *executionContext) _ProjectPageResult(ctx context.Context, sel ast.SelectionSet, obj models.ProjectPageResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case models.ProjectPageHTTP:
+		return ec._ProjectPageHttp(ctx, sel, &obj)
+	case *models.ProjectPageHTTP:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ProjectPageHttp(ctx, sel, obj)
+	case models.ProjectPageHTTPList:
+		return ec._ProjectPageHttpList(ctx, sel, &obj)
+	case *models.ProjectPageHTTPList:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ProjectPageHttpList(ctx, sel, obj)
+	case models.Error:
+		return ec._Error(ctx, sel, &obj)
+	case *models.Error:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Error(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
@@ -13363,6 +13559,34 @@ func (ec *executionContext) _CoursesListHttp(ctx context.Context, sel ast.Select
 	return out
 }
 
+var deletedProjectPageImplementors = []string{"DeletedProjectPage"}
+
+func (ec *executionContext) _DeletedProjectPage(ctx context.Context, sel ast.SelectionSet, obj *models.DeletedProjectPage) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deletedProjectPageImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeletedProjectPage")
+		case "projectPageId":
+
+			out.Values[i] = ec._DeletedProjectPage_projectPageId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var deletedRobboGroupImplementors = []string{"DeletedRobboGroup"}
 
 func (ec *executionContext) _DeletedRobboGroup(ctx context.Context, sel ast.SelectionSet, obj *models.DeletedRobboGroup) graphql.Marshaler {
@@ -13503,6 +13727,41 @@ func (ec *executionContext) _EnrollmentsListHttp(ctx context.Context, sel ast.Se
 
 			out.Values[i] = ec._EnrollmentsListHttp_Results(ctx, field, obj)
 
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var errorImplementors = []string{"Error", "ProjectPageResult"}
+
+func (ec *executionContext) _Error(ctx context.Context, sel ast.SelectionSet, obj *models.Error) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, errorImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Error")
+		case "code":
+
+			out.Values[i] = ec._Error_code(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "message":
+
+			out.Values[i] = ec._Error_message(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -13946,7 +14205,7 @@ func (ec *executionContext) _ParentHttp(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
-var projectPageHttpImplementors = []string{"ProjectPageHttp"}
+var projectPageHttpImplementors = []string{"ProjectPageHttp", "ProjectPageResult"}
 
 func (ec *executionContext) _ProjectPageHttp(ctx context.Context, sel ast.SelectionSet, obj *models.ProjectPageHTTP) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, projectPageHttpImplementors)
@@ -14015,6 +14274,34 @@ func (ec *executionContext) _ProjectPageHttp(ctx context.Context, sel ast.Select
 		case "isShared":
 
 			out.Values[i] = ec._ProjectPageHttp_isShared(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var projectPageHttpListImplementors = []string{"ProjectPageHttpList", "ProjectPageResult"}
+
+func (ec *executionContext) _ProjectPageHttpList(ctx context.Context, sel ast.SelectionSet, obj *models.ProjectPageHTTPList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, projectPageHttpListImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ProjectPageHttpList")
+		case "projectPages":
+
+			out.Values[i] = ec._ProjectPageHttpList_projectPages(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -14509,7 +14796,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "GetAllProjectPagesByUserID":
+		case "GetAllProjectPagesByUserId":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -14518,7 +14805,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_GetAllProjectPagesByUserID(ctx, field)
+				res = ec._Query_GetAllProjectPagesByUserId(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -15535,6 +15822,20 @@ func (ec *executionContext) marshalNCoursesListHttp2ᚖgithubᚗcomᚋskinnykaen
 	return ec._CoursesListHttp(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNDeletedProjectPage2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐDeletedProjectPage(ctx context.Context, sel ast.SelectionSet, v models.DeletedProjectPage) graphql.Marshaler {
+	return ec._DeletedProjectPage(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNDeletedProjectPage2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐDeletedProjectPage(ctx context.Context, sel ast.SelectionSet, v *models.DeletedProjectPage) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DeletedProjectPage(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNDeletedRobboGroup2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐDeletedRobboGroup(ctx context.Context, sel ast.SelectionSet, v models.DeletedRobboGroup) graphql.Marshaler {
 	return ec._DeletedRobboGroup(ctx, sel, &v)
 }
@@ -15715,10 +16016,6 @@ func (ec *executionContext) marshalNParentHttp2ᚖgithubᚗcomᚋskinnykaenᚋro
 	return ec._ParentHttp(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNProjectPageHttp2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPageHTTP(ctx context.Context, sel ast.SelectionSet, v models.ProjectPageHTTP) graphql.Marshaler {
-	return ec._ProjectPageHttp(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalNProjectPageHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPageHTTPᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.ProjectPageHTTP) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -15771,6 +16068,16 @@ func (ec *executionContext) marshalNProjectPageHttp2ᚖgithubᚗcomᚋskinnykaen
 		return graphql.Null
 	}
 	return ec._ProjectPageHttp(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNProjectPageResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPageResult(ctx context.Context, sel ast.SelectionSet, v models.ProjectPageResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ProjectPageResult(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNRobboGroupHttp2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupHTTP(ctx context.Context, sel ast.SelectionSet, v models.RobboGroupHTTP) graphql.Marshaler {

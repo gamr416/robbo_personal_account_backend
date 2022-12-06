@@ -2,6 +2,10 @@
 
 package models
 
+type ProjectPageResult interface {
+	IsProjectPageResult()
+}
+
 type AbsoluteMediaHTTP struct {
 	ID          string `json:"ID"`
 	URI         string `json:"URI"`
@@ -44,6 +48,10 @@ type CoursesListHTTP struct {
 	Pagination *Pagination   `json:"Pagination"`
 }
 
+type DeletedProjectPage struct {
+	ProjectPageID string `json:"projectPageId"`
+}
+
 type DeletedRobboGroup struct {
 	RobboGroupID string `json:"robboGroupId"`
 }
@@ -65,6 +73,13 @@ type EnrollmentsListHTTP struct {
 	Previous string            `json:"Previous"`
 	Results  []*EnrollmentHTTP `json:"Results"`
 }
+
+type Error struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+func (Error) IsProjectPageResult() {}
 
 type ImageHTTP struct {
 	ID    string `json:"ID"`
@@ -149,6 +164,14 @@ type ProjectPageHTTP struct {
 	IsShared      bool   `json:"isShared"`
 }
 
+func (ProjectPageHTTP) IsProjectPageResult() {}
+
+type ProjectPageHTTPList struct {
+	ProjectPages []*ProjectPageHTTP `json:"projectPages"`
+}
+
+func (ProjectPageHTTPList) IsProjectPageResult() {}
+
 type RobboGroupHTTP struct {
 	ID           string         `json:"id"`
 	LastModified string         `json:"lastModified"`
@@ -191,13 +214,12 @@ type UpdateParentInput struct {
 }
 
 type UpdateProjectPage struct {
-	ProjectID   string `json:"ProjectID"`
-	Instruction string `json:"Instruction"`
-	Notes       string `json:"Notes"`
-	Preview     string `json:"Preview"`
-	LinkScratch string `json:"LinkScratch"`
-	Title       string `json:"Title"`
-	IsShared    bool   `json:"IsShared"`
+	ProjectID     string `json:"projectId"`
+	ProjectPageID string `json:"projectPageId"`
+	Instruction   string `json:"instruction"`
+	Notes         string `json:"notes"`
+	Title         string `json:"title"`
+	IsShared      bool   `json:"isShared"`
 }
 
 type UpdateRobboGroup struct {

@@ -67,15 +67,15 @@ const emptyProjectJson = "{\"targets\":[{\"isStage\":true,\"name\":\"Stage\",\"v
 	"\":[],\"meta\":{\"semver\":\"3.0.0\",\"vm\":\"0.2.0-prerelease.20220519142410\",\"agent\":\"Mozilla/5.0 (X11;" +
 	" Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36\"}}"
 
-func (p *ProjectPageUseCaseImpl) CreateProjectPage(authorId string) (projectId string, err error) {
+func (p *ProjectPageUseCaseImpl) CreateProjectPage(authorId string) (newProjectPage *models.ProjectPageCore, err error) {
 	project := models.ProjectCore{}
 	project.AuthorId = authorId
 	project.Json = emptyProjectJson2
 	project.Name = "Untitled"
 
-	projectId, err = p.projectGateway.CreateProject(&project)
-	if err != nil {
-		return "", err
+	projectId, createProjectErr := p.projectGateway.CreateProject(&project)
+	if createProjectErr != nil {
+		return nil, createProjectErr
 	}
 
 	projectPage := &models.ProjectPageCore{
@@ -87,14 +87,11 @@ func (p *ProjectPageUseCaseImpl) CreateProjectPage(authorId string) (projectId s
 		LinkScratch: viper.GetString("projectPage.scratchLink") + "?#" + projectId,
 		IsShared:    false,
 	}
-	_, err = p.projectPageGateway.CreateProjectPage(projectPage)
-	if err != nil {
-		return "", err
-	}
+	newProjectPage, err = p.projectPageGateway.CreateProjectPage(projectPage)
 	return
 }
 
-func (p *ProjectPageUseCaseImpl) UpdateProjectPage(projectPage *models.ProjectPageCore) (err error) {
+func (p *ProjectPageUseCaseImpl) UpdateProjectPage(projectPage *models.ProjectPageCore) (projectPageUpdated *models.ProjectPageCore, err error) {
 	return p.projectPageGateway.UpdateProjectPage(projectPage)
 }
 

@@ -11,22 +11,22 @@ import (
 )
 
 // CreateRobboGroup is the resolver for the CreateRobboGroup field.
-func (r *mutationResolver) CreateRobboGroup(ctx context.Context, input models.NewRobboGroup) (*models.RobboGroupHTTP, error) {
+func (r *mutationResolver) CreateRobboGroup(ctx context.Context, input models.NewRobboGroup) (models.RobboGroupResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
 
 	robboGroupHttp := models.RobboGroupHTTP{
@@ -36,29 +36,29 @@ func (r *mutationResolver) CreateRobboGroup(ctx context.Context, input models.Ne
 
 	newRobboGroup, createRobboGroupErr := r.robboGroupDelegate.CreateRobboGroup(&robboGroupHttp)
 	if createRobboGroupErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := createRobboGroupErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	return &newRobboGroup, nil
 }
 
 // UpdateRobboGroup is the resolver for the UpdateRobboGroup field.
-func (r *mutationResolver) UpdateRobboGroup(ctx context.Context, input models.UpdateRobboGroup) (*models.RobboGroupHTTP, error) {
+func (r *mutationResolver) UpdateRobboGroup(ctx context.Context, input models.UpdateRobboGroup) (models.RobboGroupResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
 
 	updateRobboGroupInput := &models.RobboGroupHTTP{
@@ -67,10 +67,10 @@ func (r *mutationResolver) UpdateRobboGroup(ctx context.Context, input models.Up
 		RobboUnitID: input.RobboUnitID,
 	}
 
-	robboGroupUpdated, deleteRobboGroupErr := r.robboGroupDelegate.UpdateRobboGroup(updateRobboGroupInput)
-	if deleteRobboGroupErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+	robboGroupUpdated, updateRobboGroupErr := r.robboGroupDelegate.UpdateRobboGroup(updateRobboGroupInput)
+	if updateRobboGroupErr != nil {
+		err := updateRobboGroupErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	return &robboGroupUpdated, nil
 }
@@ -103,181 +103,197 @@ func (r *mutationResolver) DeleteRobboGroup(ctx context.Context, robboGroupID st
 }
 
 // GetRobboGroupByID is the resolver for the GetRobboGroupById field.
-func (r *queryResolver) GetRobboGroupByID(ctx context.Context, id string) (*models.RobboGroupHTTP, error) {
+func (r *queryResolver) GetRobboGroupByID(ctx context.Context, id string) (models.RobboGroupResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	robboGroupsHttp, getRobboGroupByIdErr := r.robboGroupDelegate.GetRobboGroupById(id)
+	robboGroup, getRobboGroupByIdErr := r.robboGroupDelegate.GetRobboGroupById(id)
 	if getRobboGroupByIdErr != nil {
-		err := errors.New("baq request")
+		err := getRobboGroupByIdErr
 		return nil, err
 	}
-	return &robboGroupsHttp, nil
+	return &robboGroup, nil
 }
 
 // GetRobboGroupsByTeacherID is the resolver for the GetRobboGroupsByTeacherId field.
-func (r *queryResolver) GetRobboGroupsByTeacherID(ctx context.Context, teacherID string) ([]*models.RobboGroupHTTP, error) {
+func (r *queryResolver) GetRobboGroupsByTeacherID(ctx context.Context, teacherID string) (models.RobboGroupResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
-	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	robboGroupsHttp, getRobboGroupsByTeacherIdErr := r.robboGroupDelegate.GetRobboGroupsByTeacherId(teacherID)
+	robboGroups, getRobboGroupsByTeacherIdErr := r.robboGroupDelegate.GetRobboGroupsByTeacherId(teacherID)
 	if getRobboGroupsByTeacherIdErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := getRobboGroupsByTeacherIdErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	return robboGroupsHttp, nil
+	return &models.RobboGroupHTTPList{
+		RobboGroups: robboGroups,
+	}, nil
 }
 
 // GetRobboGroupsByRobboUnitID is the resolver for the GetRobboGroupsByRobboUnitId field.
-func (r *queryResolver) GetRobboGroupsByRobboUnitID(ctx context.Context, robboUnitID string) ([]*models.RobboGroupHTTP, error) {
+func (r *queryResolver) GetRobboGroupsByRobboUnitID(ctx context.Context, robboUnitID string) (models.RobboGroupResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
-	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	robboGroupsHttp, getRobboGroupsByRobboUnitIdErr := r.robboGroupDelegate.GetRobboGroupsByRobboUnitId(robboUnitID)
+	robboGroups, getRobboGroupsByRobboUnitIdErr := r.robboGroupDelegate.GetRobboGroupsByRobboUnitId(robboUnitID)
 	if getRobboGroupsByRobboUnitIdErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := getRobboGroupsByRobboUnitIdErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	return robboGroupsHttp, nil
+	return &models.RobboGroupHTTPList{
+		RobboGroups: robboGroups,
+	}, nil
 }
 
 // GetRobboGroupsByUnitAdminID is the resolver for the GetRobboGroupsByUnitAdminID field.
-func (r *queryResolver) GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdminID string) ([]*models.RobboGroupHTTP, error) {
+func (r *queryResolver) GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdminID string) (models.RobboGroupResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
-	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	robboGroupsHttp, getRobboGroupsByUnitAdminIDErr := r.robboGroupDelegate.GetRobboGroupsByUnitAdminId(unitAdminID)
-	if getRobboGroupsByUnitAdminIDErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+	robboGroups, getRobboGroupsByUnitAdminIdErr := r.robboGroupDelegate.GetRobboGroupsByUnitAdminId(unitAdminID)
+	if getRobboGroupsByUnitAdminIdErr != nil {
+		err := getRobboGroupsByUnitAdminIdErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	return robboGroupsHttp, nil
+	return &models.RobboGroupHTTPList{
+		RobboGroups: robboGroups,
+	}, nil
 }
 
 // GetAllRobboGroups is the resolver for the GetAllRobboGroups field.
-func (r *queryResolver) GetAllRobboGroups(ctx context.Context) ([]*models.RobboGroupHTTP, error) {
+func (r *queryResolver) GetAllRobboGroups(ctx context.Context) (models.RobboGroupResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
-	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
 
-	robboGroupsHttp, err := r.robboGroupDelegate.GetAllRobboGroups()
-	return robboGroupsHttp, err
+	robboGroups, getAllRobboGroups := r.robboGroupDelegate.GetAllRobboGroups()
+	if getAllRobboGroups != nil {
+		err := getAllRobboGroups
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.RobboGroupHTTPList{
+		RobboGroups: robboGroups,
+	}, nil
 }
 
 // GetRobboGroupsByAccessToken is the resolver for the GetRobboGroupsByAccessToken field.
-func (r *queryResolver) GetRobboGroupsByAccessToken(ctx context.Context) ([]*models.RobboGroupHTTP, error) {
+func (r *queryResolver) GetRobboGroupsByAccessToken(ctx context.Context) (models.RobboGroupResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
-	userId, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+	userId, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	//todo: add admins
 	allowedRoles := []models.Role{models.Teacher}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	robboGroupsHttp, getRobboGroupsByTeacherIdErr := r.robboGroupDelegate.GetRobboGroupsByTeacherId(userId)
+	robboGroups, getRobboGroupsByTeacherIdErr := r.robboGroupDelegate.GetRobboGroupsByTeacherId(userId)
 	if getRobboGroupsByTeacherIdErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := getRobboGroupsByTeacherIdErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	return robboGroupsHttp, nil
+	return &models.RobboGroupHTTPList{
+		RobboGroups: robboGroups,
+	}, nil
 }
 
 // SearchGroupsByName is the resolver for the SearchGroupsByName field.
-func (r *queryResolver) SearchGroupsByName(ctx context.Context, name string) ([]*models.RobboGroupHTTP, error) {
+func (r *queryResolver) SearchGroupsByName(ctx context.Context, name string) (models.RobboGroupResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
-	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	robboGroupsHttp, searchRobboGroupByNameErr := r.robboGroupDelegate.SearchRobboGroupByName(name)
+	robboGroups, searchRobboGroupByNameErr := r.robboGroupDelegate.SearchRobboGroupByName(name)
 	if searchRobboGroupByNameErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := searchRobboGroupByNameErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	return robboGroupsHttp, nil
+	return &models.RobboGroupHTTPList{
+		RobboGroups: robboGroups,
+	}, nil
 }

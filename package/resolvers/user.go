@@ -141,6 +141,58 @@ func (r *mutationResolver) SetRobboGroupIDForStudent(ctx context.Context, studen
 	return "", nil
 }
 
+// CreateStudentTeacherRelation is the resolver for the createStudentTeacherRelation field.
+func (r *mutationResolver) CreateStudentTeacherRelation(ctx context.Context, studentID string, teacherID string) (string, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return "", err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := errors.New("status unauthorized")
+		return "", err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return "", err
+	}
+	createStudentTeacherRelationErr := r.usersDelegate.CreateStudentTeacherRelation(studentID, teacherID)
+	if createStudentTeacherRelationErr != nil {
+		err := errors.New("baq request")
+		return "", err
+	}
+	return "success", nil
+}
+
+// DeleteStudentTeacherRelation is the resolver for the deleteStudentTeacherRelation field.
+func (r *mutationResolver) DeleteStudentTeacherRelation(ctx context.Context, studentID string, teacherID string) (string, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return "", err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := errors.New("status unauthorized")
+		return "", err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return "", err
+	}
+	createStudentTeacherRelationErr := r.usersDelegate.DeleteStudentTeacherRelation(studentID, teacherID)
+	if createStudentTeacherRelationErr != nil {
+		err := errors.New("baq request")
+		return "", err
+	}
+	return "success", nil
+}
+
 // CreateTeacher is the resolver for the createTeacher field.
 func (r *mutationResolver) CreateTeacher(ctx context.Context, input models.NewTeacher) (*models.TeacherHTTP, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)

@@ -720,3 +720,67 @@ func (r *UsersGatewayImpl) DeleteUnitAdminForRobboUnit(relation *models.UnitAdmi
 	})
 	return
 }
+
+func (r *UsersGatewayImpl) CreateStudentTeacherRelation(relation *models.StudentsOfTeacherCore) (err error) {
+	relationDb := models.StudentsOfTeacherDB{}
+	relationDb.FromCore(relation)
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Create(&relationDb).Error
+		return
+	})
+	return
+}
+
+func (r *UsersGatewayImpl) DeleteStudentTeacherRelation(relation *models.StudentsOfTeacherCore) (err error) {
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Delete(&models.StudentsOfTeacherDB{}, relation).Error
+		return
+	})
+	return
+}
+
+func (r *UsersGatewayImpl) DeleteStudentTeacherRelationByTeacherId(teacherId string) (err error) {
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Where("teacher_id = ?", teacherId).Delete(&models.StudentsOfTeacherDB{}).Error
+		return
+	})
+	return
+}
+
+func (r *UsersGatewayImpl) DeleteStudentTeacherRelationByStudentId(studentId string) (err error) {
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Where("student_id = ?", studentId).Delete(&models.StudentsOfTeacherDB{}).Error
+		return
+	})
+	return
+}
+
+func (r *UsersGatewayImpl) GetStudentTeacherRelationsByTeacherId(teacherId string) (relations []*models.StudentsOfTeacherCore, err error) {
+	var relationsDB []*models.StudentsOfTeacherDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("teacher_id = ?", teacherId).Find(&relationsDB).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, relationDB := range relationsDB {
+		relations = append(relations, relationDB.ToCore())
+	}
+	return
+}
+
+func (r *UsersGatewayImpl) GetStudentTeacherRelationsByStudentId(studentId string) (relations []*models.StudentsOfTeacherCore, err error) {
+	var relationsDB []*models.StudentsOfTeacherDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("student_id = ?", studentId).Find(&relationsDB).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, relationDB := range relationsDB {
+		relations = append(relations, relationDB.ToCore())
+	}
+	return
+}

@@ -141,6 +141,14 @@ func (p *UsersDelegateImpl) AddStudentToRobboGroup(studentId string, robboGroupI
 	return p.UseCase.AddStudentToRobboGroup(studentId, robboGroupId, robboUnitId)
 }
 
+func (p *UsersDelegateImpl) CreateStudentTeacherRelation(teacherId, studentId string) (err error) {
+	return p.UseCase.CreateStudentTeacherRelation(studentId, teacherId)
+}
+
+func (p *UsersDelegateImpl) DeleteStudentTeacherRelation(teacherId, studentId string) (err error) {
+	return p.UseCase.DeleteStudentTeacherRelation(studentId, teacherId)
+}
+
 func (p *UsersDelegateImpl) GetTeacherById(teacherId string) (teacher *models.TeacherHTTP, err error) {
 	teacherCore, err := p.UseCase.GetTeacherById(teacherId)
 	if err != nil {

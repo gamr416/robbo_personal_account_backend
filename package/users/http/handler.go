@@ -64,6 +64,9 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 		users.PUT("/student", h.UpdateStudent)
 		users.POST("/student/:studentId/robboGroup/:robboGroupId", h.SetRobboGroupIdForStudent)
 
+		users.POST("/teacherStudentRel", h.CreateStudentTeacherRelation)
+		users.DELETE("/teacherStudentRel", h.DeleteStudentTeacherRelation)
+
 		users.POST("/teacher", h.CreateTeacher)
 		users.GET("/teachers", h.GetAllTeachers)
 		users.DELETE("/teacher/:teacherId", h.DeleteTeacher)
@@ -401,6 +404,83 @@ func (h *Handler) SetRobboGroupIdForStudent(c *gin.Context) {
 		ErrorHandling(err, c)
 		return
 	}
+	c.Status(http.StatusOK)
+}
+
+type StudentTeacherRelation struct {
+	StudentId string `json:"student_id"`
+	TeacherId string `json:"teacher_id"`
+}
+
+func (h *Handler) CreateStudentTeacherRelation(c *gin.Context) {
+	log.Println("Create StudentTeacherRelation")
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		log.Println(userIdentityErr)
+		ErrorHandling(userIdentityErr, c)
+		return
+	}
+
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
+		return
+	}
+	createRelationInput := new(StudentTeacherRelation)
+
+	if err := c.BindJSON(createRelationInput); err != nil {
+		err = users.ErrBadRequestBody
+		log.Println(err)
+		ErrorHandling(err, c)
+		return
+	}
+
+	createRelationErr := h.usersDelegate.CreateStudentTeacherRelation(createRelationInput.TeacherId, createRelationInput.StudentId)
+
+	if createRelationErr != nil {
+		log.Println(createRelationErr)
+		ErrorHandling(createRelationErr, c)
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+func (h *Handler) DeleteStudentTeacherRelation(c *gin.Context) {
+	log.Println("Delete StudentTeacherRelation")
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		log.Println(userIdentityErr)
+		ErrorHandling(userIdentityErr, c)
+		return
+	}
+
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
+		return
+	}
+	deleteRelationInput := new(StudentTeacherRelation)
+
+	if err := c.BindJSON(deleteRelationInput); err != nil {
+		err = users.ErrBadRequestBody
+		log.Println(err)
+		ErrorHandling(err, c)
+		return
+	}
+
+	deleteRelationErr := h.usersDelegate.DeleteStudentTeacherRelation(deleteRelationInput.TeacherId, deleteRelationInput.StudentId)
+
+	if deleteRelationErr != nil {
+		log.Println(deleteRelationErr)
+		ErrorHandling(deleteRelationErr, c)
+		return
+	}
+
 	c.Status(http.StatusOK)
 }
 

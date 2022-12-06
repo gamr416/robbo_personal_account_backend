@@ -124,6 +124,8 @@ type Mutation {
     updateStudent(input: UpdateStudentInput!): StudentHttp!
     deleteStudent(studentId: String!): String!
     setRobboGroupIdForStudent(studentId: String!, robboGroupId: String!, robboUnitId: String!): String!
+    createStudentTeacherRelation(studentId: String!, teacherId: String!): String!
+    deleteStudentTeacherRelation(studentId: String!, teacherId: String!): String!
     createTeacher(input: NewTeacher!): TeacherHttp!
     updateTeacher(input: UpdateTeacherInput!): TeacherHttp!
     deleteTeacher(teacherId: String!): String!

@@ -61,6 +61,7 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 		users.GET("/student/:studentId", h.GetStudentById)
 		users.GET("/student/search/:parentId/:studentEmail", h.SearchStudentByEmail)
 		users.GET("/students/:parentId", h.GetStudentByParentId)
+		users.GET("/student/byTeacherId/:teacherId", h.GetStudentsByTeacherId)
 		users.PUT("/student", h.UpdateStudent)
 		users.POST("/student/:studentId/robboGroup/:robboGroupId", h.SetRobboGroupIdForStudent)
 
@@ -72,6 +73,7 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 		users.DELETE("/teacher/:teacherId", h.DeleteTeacher)
 		users.PUT("/teacher", h.UpdateTeacher)
 		users.GET("/teacher/:teacherId", h.GetTeacherById)
+		users.GET("/teacher/byStudentId/:studentId", h.GetTeachersByStudentId)
 
 		users.POST("/parent", h.CreateParent)
 		users.GET("/parent/:parentId", h.GetParentById)
@@ -237,6 +239,34 @@ func (h *Handler) GetStudentByParentId(c *gin.Context) {
 
 	parentId := c.Param("parentId")
 	students, err := h.usersDelegate.GetStudentByParentId(parentId)
+
+	if err != nil {
+		log.Println(err)
+		ErrorHandling(err, c)
+		return
+	}
+
+	c.JSON(http.StatusOK, students)
+}
+
+func (h *Handler) GetStudentsByTeacherId(c *gin.Context) {
+	log.Println("Get Students By Teacher Id")
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		log.Println(userIdentityErr)
+		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
+		return
+	}
+
+	teacherId := c.Param("teacherId")
+	students, err := h.usersDelegate.GetStudentsByTeacherId(teacherId)
 
 	if err != nil {
 		log.Println(err)
@@ -593,6 +623,35 @@ func (h *Handler) GetTeacherById(c *gin.Context) {
 	c.JSON(http.StatusOK, getTeacherResponse{
 		*teacher,
 	})
+}
+
+func (h *Handler) GetTeachersByStudentId(c *gin.Context) {
+	log.Println("Get Teachers By Student Id")
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		log.Println(userIdentityErr)
+		ErrorHandling(userIdentityErr, c)
+		return
+	}
+
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
+		return
+	}
+	studentId := c.Param("studentId")
+
+	teachers, err := h.usersDelegate.GetTeachersByStudentId(studentId)
+
+	if err != nil {
+		log.Println(err)
+		ErrorHandling(err, c)
+		return
+	}
+
+	c.JSON(http.StatusOK, teachers)
 }
 
 func (h *Handler) GetAllTeachers(c *gin.Context) {

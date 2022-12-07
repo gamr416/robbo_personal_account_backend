@@ -700,6 +700,28 @@ func (r *queryResolver) GetStudentsByRobboUnitID(ctx context.Context, robboUnitI
 	return students, err
 }
 
+// GetStudentsByTeacherID is the resolver for the GetStudentsByTeacherId field.
+func (r *queryResolver) GetStudentsByTeacherID(ctx context.Context, teacherID string) ([]*models.StudentHTTP, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return nil, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := errors.New("status unauthorized")
+		return nil, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return nil, err
+	}
+	students, err := r.usersDelegate.GetStudentsByTeacherId(teacherID)
+	return students, err
+}
+
 // SearchStudentsByEmail is the resolver for the SearchStudentsByEmail field.
 func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string, parentID string) ([]*models.StudentHTTP, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
@@ -785,6 +807,28 @@ func (r *queryResolver) GetTeachersByRobboGroupID(ctx context.Context, robboGrou
 		return nil, err
 	}
 	teachers, err := r.usersDelegate.GetTeacherByRobboGroupId(robboGroupID)
+	return teachers, err
+}
+
+// GetTeachersByStudentID is the resolver for the GetTeachersByStudentId field.
+func (r *queryResolver) GetTeachersByStudentID(ctx context.Context, studentID string) ([]*models.TeacherHTTP, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return nil, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := errors.New("status unauthorized")
+		return nil, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return nil, err
+	}
+	teachers, err := r.usersDelegate.GetTeachersByStudentId(studentID)
 	return teachers, err
 }
 

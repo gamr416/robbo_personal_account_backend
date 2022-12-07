@@ -257,7 +257,7 @@ func (h *Handler) GetStudentsByTeacherId(c *gin.Context) {
 		ErrorHandling(userIdentityErr, c)
 		return
 	}
-	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
 	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		log.Println(accessErr)
@@ -451,7 +451,7 @@ func (h *Handler) CreateStudentTeacherRelation(c *gin.Context) {
 		return
 	}
 
-	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
 	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		log.Println(accessErr)
@@ -487,7 +487,7 @@ func (h *Handler) DeleteStudentTeacherRelation(c *gin.Context) {
 		return
 	}
 
-	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
 	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		log.Println(accessErr)
@@ -634,7 +634,7 @@ func (h *Handler) GetTeachersByStudentId(c *gin.Context) {
 		return
 	}
 
-	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
 	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		log.Println(accessErr)

@@ -153,7 +153,7 @@ func (r *mutationResolver) CreateStudentTeacherRelation(ctx context.Context, stu
 		err := errors.New("status unauthorized")
 		return "", err
 	}
-	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")
@@ -179,7 +179,7 @@ func (r *mutationResolver) DeleteStudentTeacherRelation(ctx context.Context, stu
 		err := errors.New("status unauthorized")
 		return "", err
 	}
-	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")
@@ -712,7 +712,7 @@ func (r *queryResolver) GetStudentsByTeacherID(ctx context.Context, teacherID st
 		err := errors.New("status unauthorized")
 		return nil, err
 	}
-	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")
@@ -822,7 +822,7 @@ func (r *queryResolver) GetTeachersByStudentID(ctx context.Context, studentID st
 		err := errors.New("status unauthorized")
 		return nil, err
 	}
-	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")

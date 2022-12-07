@@ -10,6 +10,10 @@ type RobboGroupResult interface {
 	IsRobboGroupResult()
 }
 
+type RobboUnitResult interface {
+	IsRobboUnitResult()
+}
+
 type AbsoluteMediaHTTP struct {
 	ID          string `json:"ID"`
 	URI         string `json:"URI"`
@@ -86,6 +90,8 @@ type Error struct {
 func (Error) IsProjectPageResult() {}
 
 func (Error) IsRobboGroupResult() {}
+
+func (Error) IsRobboUnitResult() {}
 
 type ImageHTTP struct {
 	ID    string `json:"ID"`
@@ -200,6 +206,14 @@ type RobboUnitHTTP struct {
 	Name         string `json:"name"`
 	City         string `json:"city"`
 }
+
+func (RobboUnitHTTP) IsRobboUnitResult() {}
+
+type RobboUnitHTTPList struct {
+	RobboUnits []*RobboUnitHTTP `json:"robboUnits"`
+}
+
+func (RobboUnitHTTPList) IsRobboUnitResult() {}
 
 type StudentHTTP struct {
 	UserHTTP     *UserHTTP `json:"userHttp"`

@@ -54,6 +54,6 @@ type UseCase interface {
 	SetNewUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error)
 	DeleteUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error)
 
-	CreateStudentTeacherRelation(studentId, teacherId string) (err error)
-	DeleteStudentTeacherRelation(studentId, teacherId string) (err error)
+	CreateStudentTeacherRelation(studentId, teacherId string) (student *models.StudentCore, err error)
+	DeleteStudentTeacherRelation(studentId, teacherId string) (student *models.StudentCore, err error)
 }

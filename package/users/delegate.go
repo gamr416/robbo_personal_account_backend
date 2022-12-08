@@ -16,8 +16,8 @@ type Delegate interface {
 	UpdateStudent(student *models.StudentHTTP) (err error)
 	AddStudentToRobboGroup(studentId string, robboGroupId string, robboUnitId string) (err error)
 
-	CreateStudentTeacherRelation(teacherId, studentId string) (err error)
-	DeleteStudentTeacherRelation(teacherId, studentId string) (err error)
+	CreateStudentTeacherRelation(studentId, teacherId string) (student *models.StudentHTTP, err error)
+	DeleteStudentTeacherRelation(studentId, teacherId string) (student *models.StudentHTTP, err error)
 
 	//GetTeacher(email, password string) (teacher models.TeacherHTTP, err error)
 	GetTeacherById(teacherId string) (teacher *models.TeacherHTTP, err error)

@@ -175,12 +175,28 @@ func (p *UsersDelegateImpl) AddStudentToRobboGroup(studentId string, robboGroupI
 	return p.UseCase.AddStudentToRobboGroup(studentId, robboGroupId, robboUnitId)
 }
 
-func (p *UsersDelegateImpl) CreateStudentTeacherRelation(teacherId, studentId string) (err error) {
-	return p.UseCase.CreateStudentTeacherRelation(studentId, teacherId)
+func (p *UsersDelegateImpl) CreateStudentTeacherRelation(studentId, teacherId string) (student *models.StudentHTTP, err error) {
+	studentCore, err := p.UseCase.CreateStudentTeacherRelation(studentId, teacherId)
+	if err != nil {
+		return
+	}
+	student = &models.StudentHTTP{
+		UserHTTP: &models.UserHTTP{},
+	}
+	student.FromCore(studentCore)
+	return
 }
 
-func (p *UsersDelegateImpl) DeleteStudentTeacherRelation(teacherId, studentId string) (err error) {
-	return p.UseCase.DeleteStudentTeacherRelation(studentId, teacherId)
+func (p *UsersDelegateImpl) DeleteStudentTeacherRelation(studentId, teacherId string) (student *models.StudentHTTP, err error) {
+	studentCore, err := p.UseCase.DeleteStudentTeacherRelation(studentId, teacherId)
+	if err != nil {
+		return
+	}
+	student = &models.StudentHTTP{
+		UserHTTP: &models.UserHTTP{},
+	}
+	student.FromCore(studentCore)
+	return
 }
 
 func (p *UsersDelegateImpl) GetTeacherById(teacherId string) (teacher *models.TeacherHTTP, err error) {

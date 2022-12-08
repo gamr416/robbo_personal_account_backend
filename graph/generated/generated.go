@@ -100,6 +100,11 @@ type ComplexityRoot struct {
 		Results  func(childComplexity int) int
 	}
 
+	Error struct {
+		Code    func(childComplexity int) int
+		Message func(childComplexity int) int
+	}
+
 	ImageHttp struct {
 		ID    func(childComplexity int) int
 		Large func(childComplexity int) int
@@ -225,6 +230,10 @@ type ComplexityRoot struct {
 		UserHTTP     func(childComplexity int) int
 	}
 
+	StudentHttpList struct {
+		Students func(childComplexity int) int
+	}
+
 	SuperAdminHttp struct {
 		UserHTTP func(childComplexity int) int
 	}
@@ -255,8 +264,8 @@ type MutationResolver interface {
 	UpdateStudent(ctx context.Context, input models.UpdateStudentInput) (*models.StudentHTTP, error)
 	DeleteStudent(ctx context.Context, studentID string) (string, error)
 	SetRobboGroupIDForStudent(ctx context.Context, studentID string, robboGroupID string, robboUnitID string) (string, error)
-	CreateStudentTeacherRelation(ctx context.Context, studentID string, teacherID string) (string, error)
-	DeleteStudentTeacherRelation(ctx context.Context, studentID string, teacherID string) (string, error)
+	CreateStudentTeacherRelation(ctx context.Context, studentID string, teacherID string) (models.StudentResult, error)
+	DeleteStudentTeacherRelation(ctx context.Context, studentID string, teacherID string) (models.StudentResult, error)
 	CreateTeacher(ctx context.Context, input models.NewTeacher) (*models.TeacherHTTP, error)
 	UpdateTeacher(ctx context.Context, input models.UpdateTeacherInput) (*models.TeacherHTTP, error)
 	DeleteTeacher(ctx context.Context, teacherID string) (string, error)
@@ -598,6 +607,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.EnrollmentsListHttp.Results(childComplexity), true
 
+	case "Error.code":
+		if e.complexity.Error.Code == nil {
+			break
+		}
+
+		return e.complexity.Error.Code(childComplexity), true
+
+	case "Error.message":
+		if e.complexity.Error.Message == nil {
+			break
+		}
+
+		return e.complexity.Error.Message(childComplexity), true
+
 	case "ImageHttp.ID":
 		if e.complexity.ImageHttp.ID == nil {
 			break
@@ -640,24 +663,24 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MediaHttp.URI(childComplexity), true
 
-	case "Mutation.addChildToParent":
+	case "Mutation.AddChildToParent":
 		if e.complexity.Mutation.AddChildToParent == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_addChildToParent_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_AddChildToParent_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
 		return e.complexity.Mutation.AddChildToParent(childComplexity, args["parentId"].(string), args["childId"].(string)), true
 
-	case "Mutation.createParent":
+	case "Mutation.CreateParent":
 		if e.complexity.Mutation.CreateParent == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createParent_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_CreateParent_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -695,60 +718,60 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateRobboUnit(childComplexity, args["input"].(models.NewRobboUnit)), true
 
-	case "Mutation.createStudent":
+	case "Mutation.CreateStudent":
 		if e.complexity.Mutation.CreateStudent == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createStudent_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_CreateStudent_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
 		return e.complexity.Mutation.CreateStudent(childComplexity, args["input"].(models.NewStudent)), true
 
-	case "Mutation.createStudentTeacherRelation":
+	case "Mutation.CreateStudentTeacherRelation":
 		if e.complexity.Mutation.CreateStudentTeacherRelation == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createStudentTeacherRelation_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_CreateStudentTeacherRelation_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
 		return e.complexity.Mutation.CreateStudentTeacherRelation(childComplexity, args["studentId"].(string), args["teacherId"].(string)), true
 
-	case "Mutation.createTeacher":
+	case "Mutation.CreateTeacher":
 		if e.complexity.Mutation.CreateTeacher == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createTeacher_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_CreateTeacher_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
 		return e.complexity.Mutation.CreateTeacher(childComplexity, args["input"].(models.NewTeacher)), true
 
-	case "Mutation.createUnitAdmin":
+	case "Mutation.CreateUnitAdmin":
 		if e.complexity.Mutation.CreateUnitAdmin == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createUnitAdmin_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_CreateUnitAdmin_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
 		return e.complexity.Mutation.CreateUnitAdmin(childComplexity, args["input"].(models.NewUnitAdmin)), true
 
-	case "Mutation.deleteParent":
+	case "Mutation.DeleteParent":
 		if e.complexity.Mutation.DeleteParent == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteParent_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_DeleteParent_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -791,48 +814,48 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteRobboUnit(childComplexity, args["robboUnitId"].(string)), true
 
-	case "Mutation.deleteStudent":
+	case "Mutation.DeleteStudent":
 		if e.complexity.Mutation.DeleteStudent == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteStudent_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_DeleteStudent_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
 		return e.complexity.Mutation.DeleteStudent(childComplexity, args["studentId"].(string)), true
 
-	case "Mutation.deleteStudentTeacherRelation":
+	case "Mutation.DeleteStudentTeacherRelation":
 		if e.complexity.Mutation.DeleteStudentTeacherRelation == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteStudentTeacherRelation_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_DeleteStudentTeacherRelation_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
 		return e.complexity.Mutation.DeleteStudentTeacherRelation(childComplexity, args["studentId"].(string), args["teacherId"].(string)), true
 
-	case "Mutation.deleteTeacher":
+	case "Mutation.DeleteTeacher":
 		if e.complexity.Mutation.DeleteTeacher == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteTeacher_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_DeleteTeacher_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
 		return e.complexity.Mutation.DeleteTeacher(childComplexity, args["teacherId"].(string)), true
 
-	case "Mutation.deleteUnitAdmin":
+	case "Mutation.DeleteUnitAdmin":
 		if e.complexity.Mutation.DeleteUnitAdmin == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteUnitAdmin_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_DeleteUnitAdmin_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -851,36 +874,36 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteUnitAdminForRobboUnit(childComplexity, args["unitAdminId"].(string), args["robboUnitId"].(string)), true
 
-	case "Mutation.setNewUnitAdminForRobboUnit":
+	case "Mutation.SetNewUnitAdminForRobboUnit":
 		if e.complexity.Mutation.SetNewUnitAdminForRobboUnit == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_setNewUnitAdminForRobboUnit_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_SetNewUnitAdminForRobboUnit_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
 		return e.complexity.Mutation.SetNewUnitAdminForRobboUnit(childComplexity, args["unitAdminId"].(string), args["robboUnitId"].(string)), true
 
-	case "Mutation.setRobboGroupIdForStudent":
+	case "Mutation.SetRobboGroupIdForStudent":
 		if e.complexity.Mutation.SetRobboGroupIDForStudent == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_setRobboGroupIdForStudent_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_SetRobboGroupIdForStudent_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
 		return e.complexity.Mutation.SetRobboGroupIDForStudent(childComplexity, args["studentId"].(string), args["robboGroupId"].(string), args["robboUnitId"].(string)), true
 
-	case "Mutation.updateParent":
+	case "Mutation.UpdateParent":
 		if e.complexity.Mutation.UpdateParent == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateParent_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_UpdateParent_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -923,48 +946,48 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateRobboUnit(childComplexity, args["input"].(models.UpdateRobboUnit)), true
 
-	case "Mutation.updateStudent":
+	case "Mutation.UpdateStudent":
 		if e.complexity.Mutation.UpdateStudent == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateStudent_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_UpdateStudent_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
 		return e.complexity.Mutation.UpdateStudent(childComplexity, args["input"].(models.UpdateStudentInput)), true
 
-	case "Mutation.updateSuperAdmin":
+	case "Mutation.UpdateSuperAdmin":
 		if e.complexity.Mutation.UpdateSuperAdmin == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateSuperAdmin_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_UpdateSuperAdmin_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
 		return e.complexity.Mutation.UpdateSuperAdmin(childComplexity, args["input"].(models.UpdateSuperAdminInput)), true
 
-	case "Mutation.updateTeacher":
+	case "Mutation.UpdateTeacher":
 		if e.complexity.Mutation.UpdateTeacher == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateTeacher_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_UpdateTeacher_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
 		return e.complexity.Mutation.UpdateTeacher(childComplexity, args["input"].(models.UpdateTeacherInput)), true
 
-	case "Mutation.updateUnitAdmin":
+	case "Mutation.UpdateUnitAdmin":
 		if e.complexity.Mutation.UpdateUnitAdmin == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateUnitAdmin_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_UpdateUnitAdmin_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -1523,6 +1546,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.StudentHttp.UserHTTP(childComplexity), true
 
+	case "StudentHttpList.students":
+		if e.complexity.StudentHttpList.Students == nil {
+			break
+		}
+
+		return e.complexity.StudentHttpList.Students(childComplexity), true
+
 	case "SuperAdminHttp.userHttp":
 		if e.complexity.SuperAdminHttp.UserHTTP == nil {
 			break
@@ -1992,26 +2022,37 @@ input UpdateSuperAdminInput {
     superAdminHttp: UpdateSuperAdminHttp!
 }
 
+type StudentHttpList {
+    students: [StudentHttp!]
+}
+
+type Error {
+    code: Int!
+    message: String!
+}
+
+union StudentResult = StudentHttp | Error
+
 type Mutation {
-    createStudent(input: NewStudent!): StudentHttp!
-    updateStudent(input: UpdateStudentInput!): StudentHttp!
-    deleteStudent(studentId: String!): String!
-    setRobboGroupIdForStudent(studentId: String!, robboGroupId: String!, robboUnitId: String!): String!
-    createStudentTeacherRelation(studentId: String!, teacherId: String!): String!
-    deleteStudentTeacherRelation(studentId: String!, teacherId: String!): String!
-    createTeacher(input: NewTeacher!): TeacherHttp!
-    updateTeacher(input: UpdateTeacherInput!): TeacherHttp!
-    deleteTeacher(teacherId: String!): String!
-    createParent(input: NewParent!): ParentHttp!
-    addChildToParent(parentId: String!, childId: String!): String!
-    updateParent(input: UpdateParentInput!): ParentHttp!
-    deleteParent(parentId: String!): String!
-    createUnitAdmin(input: NewUnitAdmin!): UnitAdminHttp!
-    updateUnitAdmin(input: UpdateUnitAdminInput!): UnitAdminHttp!
-    deleteUnitAdmin(UnitAdminId: String!): String!
-    setNewUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
+    CreateStudent(input: NewStudent!): StudentHttp!
+    UpdateStudent(input: UpdateStudentInput!): StudentHttp!
+    DeleteStudent(studentId: String!): String!
+    SetRobboGroupIdForStudent(studentId: String!, robboGroupId: String!, robboUnitId: String!): String!
+    CreateStudentTeacherRelation(studentId: String!, teacherId: String!): StudentResult!
+    DeleteStudentTeacherRelation(studentId: String!, teacherId: String!): StudentResult!
+    CreateTeacher(input: NewTeacher!): TeacherHttp!
+    UpdateTeacher(input: UpdateTeacherInput!): TeacherHttp!
+    DeleteTeacher(teacherId: String!): String!
+    CreateParent(input: NewParent!): ParentHttp!
+    AddChildToParent(parentId: String!, childId: String!): String!
+    UpdateParent(input: UpdateParentInput!): ParentHttp!
+    DeleteParent(parentId: String!): String!
+    CreateUnitAdmin(input: NewUnitAdmin!): UnitAdminHttp!
+    UpdateUnitAdmin(input: UpdateUnitAdminInput!): UnitAdminHttp!
+    DeleteUnitAdmin(UnitAdminId: String!): String!
+    SetNewUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
     DeleteUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
-    updateSuperAdmin(input: UpdateSuperAdminInput!): SuperAdminHttp!
+    UpdateSuperAdmin(input: UpdateSuperAdminInput!): SuperAdminHttp!
 }
 
 type Query {
@@ -2043,6 +2084,45 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
+func (ec *executionContext) field_Mutation_AddChildToParent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["parentId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("parentId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["parentId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["childId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("childId"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["childId"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_CreateParent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.NewParent
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNNewParent2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewParent(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_CreateRobboGroup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -2070,6 +2150,90 @@ func (ec *executionContext) field_Mutation_CreateRobboUnit_args(ctx context.Cont
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_CreateStudentTeacherRelation_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["studentId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("studentId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["studentId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["teacherId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teacherId"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["teacherId"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_CreateStudent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.NewStudent
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNNewStudent2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewStudent(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_CreateTeacher_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.NewTeacher
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNNewTeacher2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewTeacher(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_CreateUnitAdmin_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.NewUnitAdmin
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNNewUnitAdmin2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewUnitAdmin(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_DeleteParent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["parentId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("parentId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["parentId"] = arg0
 	return args, nil
 }
 
@@ -2118,6 +2282,60 @@ func (ec *executionContext) field_Mutation_DeleteRobboUnit_args(ctx context.Cont
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_DeleteStudentTeacherRelation_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["studentId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("studentId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["studentId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["teacherId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teacherId"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["teacherId"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_DeleteStudent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["studentId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("studentId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["studentId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_DeleteTeacher_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["teacherId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teacherId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["teacherId"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_DeleteUnitAdminForRobboUnit_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -2139,6 +2357,93 @@ func (ec *executionContext) field_Mutation_DeleteUnitAdminForRobboUnit_args(ctx 
 		}
 	}
 	args["robboUnitId"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_DeleteUnitAdmin_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["UnitAdminId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("UnitAdminId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["UnitAdminId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_SetNewUnitAdminForRobboUnit_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["unitAdminId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unitAdminId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["unitAdminId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["robboUnitId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["robboUnitId"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_SetRobboGroupIdForStudent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["studentId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("studentId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["studentId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["robboGroupId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboGroupId"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["robboGroupId"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["robboUnitId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["robboUnitId"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_UpdateParent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.UpdateParentInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUpdateParentInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateParentInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -2187,271 +2492,7 @@ func (ec *executionContext) field_Mutation_UpdateRobboUnit_args(ctx context.Cont
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_addChildToParent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["parentId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("parentId"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["parentId"] = arg0
-	var arg1 string
-	if tmp, ok := rawArgs["childId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("childId"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["childId"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_createParent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 models.NewParent
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNNewParent2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewParent(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_createStudentTeacherRelation_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["studentId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("studentId"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["studentId"] = arg0
-	var arg1 string
-	if tmp, ok := rawArgs["teacherId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teacherId"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["teacherId"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_createStudent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 models.NewStudent
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNNewStudent2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewStudent(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_createTeacher_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 models.NewTeacher
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNNewTeacher2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewTeacher(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_createUnitAdmin_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 models.NewUnitAdmin
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNNewUnitAdmin2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewUnitAdmin(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_deleteParent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["parentId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("parentId"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["parentId"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_deleteStudentTeacherRelation_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["studentId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("studentId"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["studentId"] = arg0
-	var arg1 string
-	if tmp, ok := rawArgs["teacherId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teacherId"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["teacherId"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_deleteStudent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["studentId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("studentId"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["studentId"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_deleteTeacher_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["teacherId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teacherId"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["teacherId"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_deleteUnitAdmin_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["UnitAdminId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("UnitAdminId"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["UnitAdminId"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_setNewUnitAdminForRobboUnit_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["unitAdminId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unitAdminId"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["unitAdminId"] = arg0
-	var arg1 string
-	if tmp, ok := rawArgs["robboUnitId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["robboUnitId"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_setRobboGroupIdForStudent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["studentId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("studentId"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["studentId"] = arg0
-	var arg1 string
-	if tmp, ok := rawArgs["robboGroupId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboGroupId"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["robboGroupId"] = arg1
-	var arg2 string
-	if tmp, ok := rawArgs["robboUnitId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
-		arg2, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["robboUnitId"] = arg2
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_updateParent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 models.UpdateParentInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateParentInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateParentInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_updateStudent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_UpdateStudent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 models.UpdateStudentInput
@@ -2466,7 +2507,7 @@ func (ec *executionContext) field_Mutation_updateStudent_args(ctx context.Contex
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updateSuperAdmin_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_UpdateSuperAdmin_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 models.UpdateSuperAdminInput
@@ -2481,7 +2522,7 @@ func (ec *executionContext) field_Mutation_updateSuperAdmin_args(ctx context.Con
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updateTeacher_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_UpdateTeacher_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 models.UpdateTeacherInput
@@ -2496,7 +2537,7 @@ func (ec *executionContext) field_Mutation_updateTeacher_args(ctx context.Contex
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updateUnitAdmin_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_UpdateUnitAdmin_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 models.UpdateUnitAdminInput
@@ -4717,6 +4758,94 @@ func (ec *executionContext) fieldContext_EnrollmentsListHttp_Results(ctx context
 	return fc, nil
 }
 
+func (ec *executionContext) _Error_code(ctx context.Context, field graphql.CollectedField, obj *models.Error) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Error_code(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Code, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Error_code(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Error",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Error_message(ctx context.Context, field graphql.CollectedField, obj *models.Error) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Error_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Error_message(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Error",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ImageHttp_ID(ctx context.Context, field graphql.CollectedField, obj *models.ImageHTTP) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ImageHttp_ID(ctx, field)
 	if err != nil {
@@ -4981,8 +5110,8 @@ func (ec *executionContext) fieldContext_MediaHttp_URI(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createStudent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createStudent(ctx, field)
+func (ec *executionContext) _Mutation_CreateStudent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_CreateStudent(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5012,7 +5141,7 @@ func (ec *executionContext) _Mutation_createStudent(ctx context.Context, field g
 	return ec.marshalNStudentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTP(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createStudent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_CreateStudent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -5037,15 +5166,15 @@ func (ec *executionContext) fieldContext_Mutation_createStudent(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createStudent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_CreateStudent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_updateStudent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateStudent(ctx, field)
+func (ec *executionContext) _Mutation_UpdateStudent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_UpdateStudent(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5075,7 +5204,7 @@ func (ec *executionContext) _Mutation_updateStudent(ctx context.Context, field g
 	return ec.marshalNStudentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTP(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_updateStudent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_UpdateStudent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -5100,15 +5229,15 @@ func (ec *executionContext) fieldContext_Mutation_updateStudent(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateStudent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_UpdateStudent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_deleteStudent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_deleteStudent(ctx, field)
+func (ec *executionContext) _Mutation_DeleteStudent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_DeleteStudent(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5138,7 +5267,7 @@ func (ec *executionContext) _Mutation_deleteStudent(ctx context.Context, field g
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_deleteStudent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_DeleteStudent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -5155,15 +5284,15 @@ func (ec *executionContext) fieldContext_Mutation_deleteStudent(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_deleteStudent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_DeleteStudent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_setRobboGroupIdForStudent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_setRobboGroupIdForStudent(ctx, field)
+func (ec *executionContext) _Mutation_SetRobboGroupIdForStudent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_SetRobboGroupIdForStudent(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5193,7 +5322,7 @@ func (ec *executionContext) _Mutation_setRobboGroupIdForStudent(ctx context.Cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_setRobboGroupIdForStudent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_SetRobboGroupIdForStudent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -5210,15 +5339,15 @@ func (ec *executionContext) fieldContext_Mutation_setRobboGroupIdForStudent(ctx 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_setRobboGroupIdForStudent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_SetRobboGroupIdForStudent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createStudentTeacherRelation(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createStudentTeacherRelation(ctx, field)
+func (ec *executionContext) _Mutation_CreateStudentTeacherRelation(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_CreateStudentTeacherRelation(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5243,19 +5372,19 @@ func (ec *executionContext) _Mutation_createStudentTeacherRelation(ctx context.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(models.StudentResult)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNStudentResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentResult(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createStudentTeacherRelation(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_CreateStudentTeacherRelation(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type StudentResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -5265,15 +5394,15 @@ func (ec *executionContext) fieldContext_Mutation_createStudentTeacherRelation(c
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createStudentTeacherRelation_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_CreateStudentTeacherRelation_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_deleteStudentTeacherRelation(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_deleteStudentTeacherRelation(ctx, field)
+func (ec *executionContext) _Mutation_DeleteStudentTeacherRelation(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_DeleteStudentTeacherRelation(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5298,19 +5427,19 @@ func (ec *executionContext) _Mutation_deleteStudentTeacherRelation(ctx context.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(models.StudentResult)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNStudentResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentResult(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_deleteStudentTeacherRelation(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_DeleteStudentTeacherRelation(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type StudentResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -5320,15 +5449,15 @@ func (ec *executionContext) fieldContext_Mutation_deleteStudentTeacherRelation(c
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_deleteStudentTeacherRelation_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_DeleteStudentTeacherRelation_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createTeacher(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createTeacher(ctx, field)
+func (ec *executionContext) _Mutation_CreateTeacher(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_CreateTeacher(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5358,7 +5487,7 @@ func (ec *executionContext) _Mutation_createTeacher(ctx context.Context, field g
 	return ec.marshalNTeacherHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐTeacherHTTP(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createTeacher(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_CreateTeacher(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -5379,15 +5508,15 @@ func (ec *executionContext) fieldContext_Mutation_createTeacher(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createTeacher_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_CreateTeacher_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_updateTeacher(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateTeacher(ctx, field)
+func (ec *executionContext) _Mutation_UpdateTeacher(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_UpdateTeacher(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5417,7 +5546,7 @@ func (ec *executionContext) _Mutation_updateTeacher(ctx context.Context, field g
 	return ec.marshalNTeacherHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐTeacherHTTP(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_updateTeacher(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_UpdateTeacher(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -5438,15 +5567,15 @@ func (ec *executionContext) fieldContext_Mutation_updateTeacher(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateTeacher_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_UpdateTeacher_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_deleteTeacher(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_deleteTeacher(ctx, field)
+func (ec *executionContext) _Mutation_DeleteTeacher(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_DeleteTeacher(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5476,7 +5605,7 @@ func (ec *executionContext) _Mutation_deleteTeacher(ctx context.Context, field g
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_deleteTeacher(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_DeleteTeacher(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -5493,15 +5622,15 @@ func (ec *executionContext) fieldContext_Mutation_deleteTeacher(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_deleteTeacher_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_DeleteTeacher_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createParent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createParent(ctx, field)
+func (ec *executionContext) _Mutation_CreateParent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_CreateParent(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5531,7 +5660,7 @@ func (ec *executionContext) _Mutation_createParent(ctx context.Context, field gr
 	return ec.marshalNParentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐParentHTTP(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createParent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_CreateParent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -5554,15 +5683,15 @@ func (ec *executionContext) fieldContext_Mutation_createParent(ctx context.Conte
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createParent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_CreateParent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_addChildToParent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_addChildToParent(ctx, field)
+func (ec *executionContext) _Mutation_AddChildToParent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_AddChildToParent(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5592,7 +5721,7 @@ func (ec *executionContext) _Mutation_addChildToParent(ctx context.Context, fiel
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_addChildToParent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_AddChildToParent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -5609,15 +5738,15 @@ func (ec *executionContext) fieldContext_Mutation_addChildToParent(ctx context.C
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_addChildToParent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_AddChildToParent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_updateParent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateParent(ctx, field)
+func (ec *executionContext) _Mutation_UpdateParent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_UpdateParent(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5647,7 +5776,7 @@ func (ec *executionContext) _Mutation_updateParent(ctx context.Context, field gr
 	return ec.marshalNParentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐParentHTTP(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_updateParent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_UpdateParent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -5670,15 +5799,15 @@ func (ec *executionContext) fieldContext_Mutation_updateParent(ctx context.Conte
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateParent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_UpdateParent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_deleteParent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_deleteParent(ctx, field)
+func (ec *executionContext) _Mutation_DeleteParent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_DeleteParent(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5708,7 +5837,7 @@ func (ec *executionContext) _Mutation_deleteParent(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_deleteParent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_DeleteParent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -5725,15 +5854,15 @@ func (ec *executionContext) fieldContext_Mutation_deleteParent(ctx context.Conte
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_deleteParent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_DeleteParent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createUnitAdmin(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createUnitAdmin(ctx, field)
+func (ec *executionContext) _Mutation_CreateUnitAdmin(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_CreateUnitAdmin(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5763,7 +5892,7 @@ func (ec *executionContext) _Mutation_createUnitAdmin(ctx context.Context, field
 	return ec.marshalNUnitAdminHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUnitAdminHTTP(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createUnitAdmin(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_CreateUnitAdmin(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -5784,15 +5913,15 @@ func (ec *executionContext) fieldContext_Mutation_createUnitAdmin(ctx context.Co
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createUnitAdmin_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_CreateUnitAdmin_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_updateUnitAdmin(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateUnitAdmin(ctx, field)
+func (ec *executionContext) _Mutation_UpdateUnitAdmin(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_UpdateUnitAdmin(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5822,7 +5951,7 @@ func (ec *executionContext) _Mutation_updateUnitAdmin(ctx context.Context, field
 	return ec.marshalNUnitAdminHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUnitAdminHTTP(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_updateUnitAdmin(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_UpdateUnitAdmin(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -5843,15 +5972,15 @@ func (ec *executionContext) fieldContext_Mutation_updateUnitAdmin(ctx context.Co
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateUnitAdmin_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_UpdateUnitAdmin_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_deleteUnitAdmin(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_deleteUnitAdmin(ctx, field)
+func (ec *executionContext) _Mutation_DeleteUnitAdmin(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_DeleteUnitAdmin(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5881,7 +6010,7 @@ func (ec *executionContext) _Mutation_deleteUnitAdmin(ctx context.Context, field
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_deleteUnitAdmin(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_DeleteUnitAdmin(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -5898,15 +6027,15 @@ func (ec *executionContext) fieldContext_Mutation_deleteUnitAdmin(ctx context.Co
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_deleteUnitAdmin_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_DeleteUnitAdmin_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_setNewUnitAdminForRobboUnit(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_setNewUnitAdminForRobboUnit(ctx, field)
+func (ec *executionContext) _Mutation_SetNewUnitAdminForRobboUnit(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_SetNewUnitAdminForRobboUnit(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5936,7 +6065,7 @@ func (ec *executionContext) _Mutation_setNewUnitAdminForRobboUnit(ctx context.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_setNewUnitAdminForRobboUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_SetNewUnitAdminForRobboUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -5953,7 +6082,7 @@ func (ec *executionContext) fieldContext_Mutation_setNewUnitAdminForRobboUnit(ct
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_setNewUnitAdminForRobboUnit_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_SetNewUnitAdminForRobboUnit_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -6015,8 +6144,8 @@ func (ec *executionContext) fieldContext_Mutation_DeleteUnitAdminForRobboUnit(ct
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_updateSuperAdmin(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateSuperAdmin(ctx, field)
+func (ec *executionContext) _Mutation_UpdateSuperAdmin(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_UpdateSuperAdmin(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -6046,7 +6175,7 @@ func (ec *executionContext) _Mutation_updateSuperAdmin(ctx context.Context, fiel
 	return ec.marshalNSuperAdminHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐSuperAdminHTTP(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_updateSuperAdmin(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_UpdateSuperAdmin(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -6067,7 +6196,7 @@ func (ec *executionContext) fieldContext_Mutation_updateSuperAdmin(ctx context.C
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateSuperAdmin_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_UpdateSuperAdmin_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -10073,6 +10202,55 @@ func (ec *executionContext) fieldContext_StudentHttp_robboUnitId(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _StudentHttpList_students(ctx context.Context, field graphql.CollectedField, obj *models.StudentHTTPList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_StudentHttpList_students(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Students, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*models.StudentHTTP)
+	fc.Result = res
+	return ec.marshalOStudentHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTPᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_StudentHttpList_students(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "StudentHttpList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "userHttp":
+				return ec.fieldContext_StudentHttp_userHttp(ctx, field)
+			case "robboGroupId":
+				return ec.fieldContext_StudentHttp_robboGroupId(ctx, field)
+			case "robboUnitId":
+				return ec.fieldContext_StudentHttp_robboUnitId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type StudentHttp", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SuperAdminHttp_userHttp(ctx context.Context, field graphql.CollectedField, obj *models.SuperAdminHTTP) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SuperAdminHttp_userHttp(ctx, field)
 	if err != nil {
@@ -13302,6 +13480,29 @@ func (ec *executionContext) unmarshalInputUpdateUserHttp(ctx context.Context, ob
 
 // region    ************************** interface.gotpl ***************************
 
+func (ec *executionContext) _StudentResult(ctx context.Context, sel ast.SelectionSet, obj models.StudentResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case models.StudentHTTP:
+		return ec._StudentHttp(ctx, sel, &obj)
+	case *models.StudentHTTP:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._StudentHttp(ctx, sel, obj)
+	case models.Error:
+		return ec._Error(ctx, sel, &obj)
+	case *models.Error:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Error(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
@@ -13680,6 +13881,41 @@ func (ec *executionContext) _EnrollmentsListHttp(ctx context.Context, sel ast.Se
 	return out
 }
 
+var errorImplementors = []string{"Error", "StudentResult"}
+
+func (ec *executionContext) _Error(ctx context.Context, sel ast.SelectionSet, obj *models.Error) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, errorImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Error")
+		case "code":
+
+			out.Values[i] = ec._Error_code(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "message":
+
+			out.Values[i] = ec._Error_message(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var imageHttpImplementors = []string{"ImageHttp"}
 
 func (ec *executionContext) _ImageHttp(ctx context.Context, sel ast.SelectionSet, obj *models.ImageHTTP) graphql.Marshaler {
@@ -13783,154 +14019,154 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "createStudent":
+		case "CreateStudent":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createStudent(ctx, field)
+				return ec._Mutation_CreateStudent(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "updateStudent":
+		case "UpdateStudent":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateStudent(ctx, field)
+				return ec._Mutation_UpdateStudent(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "deleteStudent":
+		case "DeleteStudent":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_deleteStudent(ctx, field)
+				return ec._Mutation_DeleteStudent(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "setRobboGroupIdForStudent":
+		case "SetRobboGroupIdForStudent":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_setRobboGroupIdForStudent(ctx, field)
+				return ec._Mutation_SetRobboGroupIdForStudent(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "createStudentTeacherRelation":
+		case "CreateStudentTeacherRelation":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createStudentTeacherRelation(ctx, field)
+				return ec._Mutation_CreateStudentTeacherRelation(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "deleteStudentTeacherRelation":
+		case "DeleteStudentTeacherRelation":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_deleteStudentTeacherRelation(ctx, field)
+				return ec._Mutation_DeleteStudentTeacherRelation(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "createTeacher":
+		case "CreateTeacher":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createTeacher(ctx, field)
+				return ec._Mutation_CreateTeacher(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "updateTeacher":
+		case "UpdateTeacher":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateTeacher(ctx, field)
+				return ec._Mutation_UpdateTeacher(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "deleteTeacher":
+		case "DeleteTeacher":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_deleteTeacher(ctx, field)
+				return ec._Mutation_DeleteTeacher(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "createParent":
+		case "CreateParent":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createParent(ctx, field)
+				return ec._Mutation_CreateParent(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "addChildToParent":
+		case "AddChildToParent":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_addChildToParent(ctx, field)
+				return ec._Mutation_AddChildToParent(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "updateParent":
+		case "UpdateParent":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateParent(ctx, field)
+				return ec._Mutation_UpdateParent(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "deleteParent":
+		case "DeleteParent":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_deleteParent(ctx, field)
+				return ec._Mutation_DeleteParent(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "createUnitAdmin":
+		case "CreateUnitAdmin":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createUnitAdmin(ctx, field)
+				return ec._Mutation_CreateUnitAdmin(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "updateUnitAdmin":
+		case "UpdateUnitAdmin":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateUnitAdmin(ctx, field)
+				return ec._Mutation_UpdateUnitAdmin(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "deleteUnitAdmin":
+		case "DeleteUnitAdmin":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_deleteUnitAdmin(ctx, field)
+				return ec._Mutation_DeleteUnitAdmin(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "setNewUnitAdminForRobboUnit":
+		case "SetNewUnitAdminForRobboUnit":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_setNewUnitAdminForRobboUnit(ctx, field)
+				return ec._Mutation_SetNewUnitAdminForRobboUnit(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -13945,10 +14181,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "updateSuperAdmin":
+		case "UpdateSuperAdmin":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateSuperAdmin(ctx, field)
+				return ec._Mutation_UpdateSuperAdmin(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -15140,7 +15376,7 @@ func (ec *executionContext) _RobboUnitHttp(ctx context.Context, sel ast.Selectio
 	return out
 }
 
-var studentHttpImplementors = []string{"StudentHttp"}
+var studentHttpImplementors = []string{"StudentHttp", "StudentResult"}
 
 func (ec *executionContext) _StudentHttp(ctx context.Context, sel ast.SelectionSet, obj *models.StudentHTTP) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, studentHttpImplementors)
@@ -15171,6 +15407,31 @@ func (ec *executionContext) _StudentHttp(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var studentHttpListImplementors = []string{"StudentHttpList"}
+
+func (ec *executionContext) _StudentHttpList(ctx context.Context, sel ast.SelectionSet, obj *models.StudentHTTPList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, studentHttpListImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("StudentHttpList")
+		case "students":
+
+			out.Values[i] = ec._StudentHttpList_students(ctx, field, obj)
+
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -16162,6 +16423,16 @@ func (ec *executionContext) marshalNStudentHttp2ᚖgithubᚗcomᚋskinnykaenᚋr
 		return graphql.Null
 	}
 	return ec._StudentHttp(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNStudentResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentResult(ctx context.Context, sel ast.SelectionSet, v models.StudentResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._StudentResult(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNSuperAdminHttp2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐSuperAdminHTTP(ctx context.Context, sel ast.SelectionSet, v models.SuperAdminHTTP) graphql.Marshaler {

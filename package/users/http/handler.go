@@ -467,7 +467,7 @@ func (h *Handler) CreateStudentTeacherRelation(c *gin.Context) {
 		return
 	}
 
-	createRelationErr := h.usersDelegate.CreateStudentTeacherRelation(createRelationInput.TeacherId, createRelationInput.StudentId)
+	student, createRelationErr := h.usersDelegate.CreateStudentTeacherRelation(createRelationInput.TeacherId, createRelationInput.StudentId)
 
 	if createRelationErr != nil {
 		log.Println(createRelationErr)
@@ -475,7 +475,9 @@ func (h *Handler) CreateStudentTeacherRelation(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, getStudentResponse{
+		*student,
+	})
 }
 
 func (h *Handler) DeleteStudentTeacherRelation(c *gin.Context) {
@@ -503,7 +505,7 @@ func (h *Handler) DeleteStudentTeacherRelation(c *gin.Context) {
 		return
 	}
 
-	deleteRelationErr := h.usersDelegate.DeleteStudentTeacherRelation(deleteRelationInput.TeacherId, deleteRelationInput.StudentId)
+	student, deleteRelationErr := h.usersDelegate.DeleteStudentTeacherRelation(deleteRelationInput.TeacherId, deleteRelationInput.StudentId)
 
 	if deleteRelationErr != nil {
 		log.Println(deleteRelationErr)
@@ -511,7 +513,9 @@ func (h *Handler) DeleteStudentTeacherRelation(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, getStudentResponse{
+		*student,
+	})
 }
 
 func (h *Handler) CreateTeacher(c *gin.Context) {

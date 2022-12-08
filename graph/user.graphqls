@@ -119,26 +119,37 @@ input UpdateSuperAdminInput {
     superAdminHttp: UpdateSuperAdminHttp!
 }
 
+type StudentHttpList {
+    students: [StudentHttp!]
+}
+
+type Error {
+    code: Int!
+    message: String!
+}
+
+union StudentResult = StudentHttp | Error
+
 type Mutation {
-    createStudent(input: NewStudent!): StudentHttp!
-    updateStudent(input: UpdateStudentInput!): StudentHttp!
-    deleteStudent(studentId: String!): String!
-    setRobboGroupIdForStudent(studentId: String!, robboGroupId: String!, robboUnitId: String!): String!
-    createStudentTeacherRelation(studentId: String!, teacherId: String!): String!
-    deleteStudentTeacherRelation(studentId: String!, teacherId: String!): String!
-    createTeacher(input: NewTeacher!): TeacherHttp!
-    updateTeacher(input: UpdateTeacherInput!): TeacherHttp!
-    deleteTeacher(teacherId: String!): String!
-    createParent(input: NewParent!): ParentHttp!
-    addChildToParent(parentId: String!, childId: String!): String!
-    updateParent(input: UpdateParentInput!): ParentHttp!
-    deleteParent(parentId: String!): String!
-    createUnitAdmin(input: NewUnitAdmin!): UnitAdminHttp!
-    updateUnitAdmin(input: UpdateUnitAdminInput!): UnitAdminHttp!
-    deleteUnitAdmin(UnitAdminId: String!): String!
-    setNewUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
+    CreateStudent(input: NewStudent!): StudentHttp!
+    UpdateStudent(input: UpdateStudentInput!): StudentHttp!
+    DeleteStudent(studentId: String!): String!
+    SetRobboGroupIdForStudent(studentId: String!, robboGroupId: String!, robboUnitId: String!): String!
+    CreateStudentTeacherRelation(studentId: String!, teacherId: String!): StudentResult!
+    DeleteStudentTeacherRelation(studentId: String!, teacherId: String!): StudentResult!
+    CreateTeacher(input: NewTeacher!): TeacherHttp!
+    UpdateTeacher(input: UpdateTeacherInput!): TeacherHttp!
+    DeleteTeacher(teacherId: String!): String!
+    CreateParent(input: NewParent!): ParentHttp!
+    AddChildToParent(parentId: String!, childId: String!): String!
+    UpdateParent(input: UpdateParentInput!): ParentHttp!
+    DeleteParent(parentId: String!): String!
+    CreateUnitAdmin(input: NewUnitAdmin!): UnitAdminHttp!
+    UpdateUnitAdmin(input: UpdateUnitAdminInput!): UnitAdminHttp!
+    DeleteUnitAdmin(UnitAdminId: String!): String!
+    SetNewUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
     DeleteUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
-    updateSuperAdmin(input: UpdateSuperAdminInput!): SuperAdminHttp!
+    UpdateSuperAdmin(input: UpdateSuperAdminInput!): SuperAdminHttp!
 }
 
 type Query {

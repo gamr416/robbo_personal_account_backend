@@ -12,6 +12,19 @@ type UsersDelegateImpl struct {
 	UseCase users.UseCase
 }
 
+type UsersDelegateModule struct {
+	fx.Out
+	users.Delegate
+}
+
+func SetupUsersDelegate(usecase users.UseCase) UsersDelegateModule {
+	return UsersDelegateModule{
+		Delegate: &UsersDelegateImpl{
+			usecase,
+		},
+	}
+}
+
 func (p *UsersDelegateImpl) GetStudentsByRobboUnitId(robboUnitId string) (students []*models.StudentHTTP, err error) {
 	studentsCore, getStudentsErr := p.UseCase.GetStudentsByRobboUnitId(robboUnitId)
 	if getStudentsErr != nil {
@@ -63,25 +76,21 @@ func (p *UsersDelegateImpl) GetStudentsByRobboGroupId(robboGroupId string) (stud
 	return
 }
 
-type UsersDelegateModule struct {
-	fx.Out
-	users.Delegate
-}
-
-func SetupUsersDelegate(usecase users.UseCase) UsersDelegateModule {
-	return UsersDelegateModule{
-		Delegate: &UsersDelegateImpl{
-			usecase,
-		},
-	}
-}
-
-func (p *UsersDelegateImpl) CreateStudent(student *models.StudentHTTP, parentId string) (id string, err error) {
+func (p *UsersDelegateImpl) CreateStudent(student *models.StudentHTTP, parentId string) (newStudent *models.StudentHTTP, err error) {
 	studentCore := student.ToCore()
-	return p.UseCase.CreateStudent(studentCore, parentId)
+	newStudentCore, err := p.UseCase.CreateStudent(studentCore, parentId)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	newStudent = &models.StudentHTTP{
+		UserHTTP: &models.UserHTTP{},
+	}
+	newStudent.FromCore(newStudentCore)
+	return
 }
 
-func (p *UsersDelegateImpl) DeleteStudent(studentId uint) (err error) {
+func (p *UsersDelegateImpl) DeleteStudent(studentId string) (err error) {
 	return p.UseCase.DeleteStudent(studentId)
 }
 
@@ -132,9 +141,18 @@ func (p *UsersDelegateImpl) GetStudentByParentId(parentId string) (students []*m
 	return
 }
 
-func (p *UsersDelegateImpl) UpdateStudent(studentHTTP *models.StudentHTTP) (err error) {
+func (p *UsersDelegateImpl) UpdateStudent(studentHTTP *models.StudentHTTP) (studentUpdated *models.StudentHTTP, err error) {
 	studentCore := studentHTTP.ToCore()
-	return p.UseCase.UpdateStudent(studentCore)
+	studentUpdatedCore, err := p.UseCase.UpdateStudent(studentCore)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	studentUpdated = &models.StudentHTTP{
+		UserHTTP: &models.UserHTTP{},
+	}
+	studentUpdated.FromCore(studentUpdatedCore)
+	return
 }
 
 func (p *UsersDelegateImpl) AddStudentToRobboGroup(studentId string, robboGroupId string, robboUnitId string) (err error) {
@@ -169,17 +187,35 @@ func (p *UsersDelegateImpl) GetAllTeachers() (teachers []*models.TeacherHTTP, er
 	return
 }
 
-func (p *UsersDelegateImpl) UpdateTeacher(teacherHTTP *models.TeacherHTTP) (err error) {
+func (p *UsersDelegateImpl) UpdateTeacher(teacherHTTP *models.TeacherHTTP) (teacherUpdated models.TeacherHTTP, err error) {
 	teacherCore := teacherHTTP.ToCore()
-	return p.UseCase.UpdateTeacher(teacherCore)
+	teacherUpdatedCore, err := p.UseCase.UpdateTeacher(teacherCore)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	teacherUpdated = models.TeacherHTTP{
+		UserHTTP: &models.UserHTTP{},
+	}
+	teacherUpdated.FromCore(&teacherUpdatedCore)
+	return
 }
 
-func (p *UsersDelegateImpl) CreateTeacher(teacherHTTP *models.TeacherHTTP) (id string, err error) {
+func (p *UsersDelegateImpl) CreateTeacher(teacherHTTP *models.TeacherHTTP) (newTeacher models.TeacherHTTP, err error) {
 	teacherCore := teacherHTTP.ToCore()
-	return p.UseCase.CreateTeacher(teacherCore)
+	newTeacherCore, err := p.UseCase.CreateTeacher(teacherCore)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	newTeacher = models.TeacherHTTP{
+		UserHTTP: &models.UserHTTP{},
+	}
+	newTeacher.FromCore(&newTeacherCore)
+	return
 }
 
-func (p *UsersDelegateImpl) DeleteTeacher(teacherId uint) (err error) {
+func (p *UsersDelegateImpl) DeleteTeacher(teacherId string) (err error) {
 	return p.UseCase.DeleteTeacher(teacherId)
 }
 
@@ -211,18 +247,38 @@ func (p *UsersDelegateImpl) GetAllParent() (parents []*models.ParentHTTP, err er
 	return
 }
 
-func (p *UsersDelegateImpl) CreateParent(parentHTTP *models.ParentHTTP) (id string, err error) {
+func (p *UsersDelegateImpl) CreateParent(parentHTTP *models.ParentHTTP) (newParent *models.ParentHTTP, err error) {
 	parentCore := parentHTTP.ToCore()
-	return p.UseCase.CreateParent(parentCore)
+	newParentCore, err := p.UseCase.CreateParent(parentCore)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	newParent = &models.ParentHTTP{
+		UserHTTP: &models.UserHTTP{},
+		Children: []*models.StudentHTTP{},
+	}
+	newParent.FromCore(*newParentCore)
+	return
 }
 
-func (p *UsersDelegateImpl) DeleteParent(parentId uint) (err error) {
+func (p *UsersDelegateImpl) DeleteParent(parentId string) (err error) {
 	return p.UseCase.DeleteParent(parentId)
 }
 
-func (p *UsersDelegateImpl) UpdateParent(parentHTTP *models.ParentHTTP) (err error) {
+func (p *UsersDelegateImpl) UpdateParent(parentHTTP *models.ParentHTTP) (parentUpdated *models.ParentHTTP, err error) {
 	parentCore := parentHTTP.ToCore()
-	return p.UseCase.UpdateParent(parentCore)
+	parentUpdatedCore, err := p.UseCase.UpdateParent(parentCore)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	parentUpdated = &models.ParentHTTP{
+		UserHTTP: &models.UserHTTP{},
+		Children: []*models.StudentHTTP{},
+	}
+	parentUpdated.FromCore(*parentUpdatedCore)
+	return
 }
 
 func (p *UsersDelegateImpl) GetFreeListenerById(freeListenerId string) (freeListener models.FreeListenerHttp, err error) {
@@ -235,18 +291,36 @@ func (p *UsersDelegateImpl) GetFreeListenerById(freeListenerId string) (freeList
 	return
 }
 
-func (p *UsersDelegateImpl) CreateFreeListener(freeListenerHTTP *models.FreeListenerHttp) (id string, err error) {
+func (p *UsersDelegateImpl) CreateFreeListener(freeListenerHTTP *models.FreeListenerHttp) (newFreeListener *models.FreeListenerHttp, err error) {
 	freeListenerCore := freeListenerHTTP.ToCore()
-	return p.UseCase.CreateFreeListener(freeListenerCore)
+	newFreeListenerCore, err := p.UseCase.CreateFreeListener(freeListenerCore)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	newFreeListener = &models.FreeListenerHttp{
+		UserHTTP: models.UserHTTP{},
+	}
+	newFreeListener.FromCore(newFreeListenerCore)
+	return
 }
 
-func (p *UsersDelegateImpl) DeleteFreeListener(freeListenerId uint) (err error) {
+func (p *UsersDelegateImpl) DeleteFreeListener(freeListenerId string) (err error) {
 	return p.UseCase.DeleteFreeListener(freeListenerId)
 }
 
-func (p *UsersDelegateImpl) UpdateFreeListener(freeListenerHTTP *models.FreeListenerHttp) (err error) {
+func (p *UsersDelegateImpl) UpdateFreeListener(freeListenerHTTP *models.FreeListenerHttp) (freeListenerUpdated *models.FreeListenerHttp, err error) {
 	freeListenerCore := freeListenerHTTP.ToCore()
-	return p.UseCase.UpdateFreeListener(freeListenerCore)
+	freeListenerUpdatedCore, err := p.UseCase.UpdateFreeListener(freeListenerCore)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	freeListenerUpdated = &models.FreeListenerHttp{
+		UserHTTP: models.UserHTTP{},
+	}
+	freeListenerUpdated.FromCore(freeListenerUpdatedCore)
+	return
 }
 
 func (p *UsersDelegateImpl) GetUnitAdminById(unitAdminId string) (unitAdmin models.UnitAdminHTTP, err error) {
@@ -292,17 +366,35 @@ func (p *UsersDelegateImpl) GetUnitAdminByRobboUnitId(robboUnitId string) (unitA
 	return
 }
 
-func (p *UsersDelegateImpl) CreateUnitAdmin(unitAdminHTTP *models.UnitAdminHTTP) (id string, err error) {
+func (p *UsersDelegateImpl) CreateUnitAdmin(unitAdminHTTP *models.UnitAdminHTTP) (newUnitAdmin *models.UnitAdminHTTP, err error) {
 	unitAdminCore := unitAdminHTTP.ToCore()
-	return p.UseCase.CreateUnitAdmin(unitAdminCore)
+	newUnitAdminCore, err := p.UseCase.CreateUnitAdmin(unitAdminCore)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	newUnitAdmin = &models.UnitAdminHTTP{
+		UserHTTP: &models.UserHTTP{},
+	}
+	newUnitAdmin.FromCore(newUnitAdminCore)
+	return
 }
 
-func (p *UsersDelegateImpl) UpdateUnitAdmin(unitAdminHTTP *models.UnitAdminHTTP) (err error) {
+func (p *UsersDelegateImpl) UpdateUnitAdmin(unitAdminHTTP *models.UnitAdminHTTP) (unitAdminUpdated *models.UnitAdminHTTP, err error) {
 	unitAdminCore := unitAdminHTTP.ToCore()
-	return p.UseCase.UpdateUnitAdmin(unitAdminCore)
+	unitAdminUpdatedCore, err := p.UseCase.UpdateUnitAdmin(unitAdminCore)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	unitAdminUpdated = &models.UnitAdminHTTP{
+		UserHTTP: &models.UserHTTP{},
+	}
+	unitAdminUpdated.FromCore(unitAdminUpdatedCore)
+	return
 }
 
-func (p *UsersDelegateImpl) DeleteUnitAdmin(unitAdminId uint) (err error) {
+func (p *UsersDelegateImpl) DeleteUnitAdmin(unitAdminId string) (err error) {
 	return p.UseCase.DeleteUnitAdmin(unitAdminId)
 }
 
@@ -334,11 +426,21 @@ func (p *UsersDelegateImpl) GetSuperAdminById(superAdminId string) (superAdmin m
 	return
 }
 
-func (p *UsersDelegateImpl) UpdateSuperAdmin(superAdminHTTP *models.SuperAdminHTTP) (err error) {
+func (p *UsersDelegateImpl) UpdateSuperAdmin(superAdminHTTP *models.SuperAdminHTTP) (superAdminUpdated *models.SuperAdminHTTP, err error) {
 	superAdminCore := superAdminHTTP.ToCore()
-	return p.UseCase.UpdateSuperAdmin(superAdminCore)
+	superAdminUpdatedCore, err := p.UseCase.UpdateSuperAdmin(superAdminCore)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	superAdminUpdated = &models.SuperAdminHTTP{
+		UserHTTP: &models.UserHTTP{},
+	}
+	superAdminUpdated.FromCore(superAdminUpdatedCore)
+	return
 }
-func (p *UsersDelegateImpl) DeleteSuperAdmin(superAdminId uint) (err error) {
+
+func (p *UsersDelegateImpl) DeleteSuperAdmin(superAdminId string) (err error) {
 	return p.UseCase.DeleteSuperAdmin(superAdminId)
 }
 

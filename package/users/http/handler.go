@@ -8,7 +8,6 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 type Handler struct {
@@ -249,6 +248,10 @@ type createStudentInput struct {
 	ParentId string              `json:"parentId"`
 }
 
+type createStudentResponse struct {
+	Student *models.StudentHTTP `json:"student"`
+}
+
 func (h *Handler) CreateStudent(c *gin.Context) {
 	log.Println("Create Student")
 
@@ -274,17 +277,15 @@ func (h *Handler) CreateStudent(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(input.ParentId)
-
-	studentId, err := h.usersDelegate.CreateStudent(input.Student, input.ParentId)
+	student, err := h.usersDelegate.CreateStudent(input.Student, input.ParentId)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"studentId": studentId,
+	c.JSON(http.StatusOK, createStudentResponse{
+		student,
 	})
 }
 
@@ -317,7 +318,7 @@ func (h *Handler) UpdateStudent(c *gin.Context) {
 		UserHTTP: &userHttp,
 	}
 
-	err := h.usersDelegate.UpdateStudent(studentHttp)
+	_, err := h.usersDelegate.UpdateStudent(studentHttp)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
@@ -345,14 +346,7 @@ func (h *Handler) DeleteStudent(c *gin.Context) {
 	}
 
 	studentId := c.Param("studentId")
-	id, atoiErr := strconv.Atoi(studentId)
-	if atoiErr != nil {
-		atoiErr = users.ErrBadRequest
-		log.Println(atoiErr)
-		ErrorHandling(atoiErr, c)
-		return
-	}
-	err := h.usersDelegate.DeleteStudent(uint(id))
+	err := h.usersDelegate.DeleteStudent(studentId)
 
 	if err != nil {
 		log.Println(err)
@@ -404,6 +398,10 @@ func (h *Handler) SetRobboGroupIdForStudent(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+type createTeacherResponse struct {
+	Teacher *models.TeacherHTTP `json: "teacher"`
+}
+
 func (h *Handler) CreateTeacher(c *gin.Context) {
 	log.Println("Create Teacher")
 	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
@@ -435,15 +433,15 @@ func (h *Handler) CreateTeacher(c *gin.Context) {
 		UserHTTP: &userHttp,
 	}
 
-	teacherId, err := h.usersDelegate.CreateTeacher(teacherHttp)
+	teacher, err := h.usersDelegate.CreateTeacher(teacherHttp)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"teacherId": teacherId,
+	c.JSON(http.StatusOK, createTeacherResponse{
+		&teacher,
 	})
 
 }
@@ -466,14 +464,7 @@ func (h *Handler) DeleteTeacher(c *gin.Context) {
 	}
 
 	teacherId := c.Param("teacherId")
-	id, atoiErr := strconv.Atoi(teacherId)
-	if atoiErr != nil {
-		atoiErr = users.ErrBadRequest
-		log.Println(atoiErr)
-		ErrorHandling(atoiErr, c)
-		return
-	}
-	err := h.usersDelegate.DeleteTeacher(uint(id))
+	err := h.usersDelegate.DeleteTeacher(teacherId)
 
 	if err != nil {
 		log.Println(err)
@@ -574,7 +565,7 @@ func (h *Handler) UpdateTeacher(c *gin.Context) {
 		UserHTTP: &userHttp,
 	}
 
-	err := h.usersDelegate.UpdateTeacher(teacherHttp)
+	_, err := h.usersDelegate.UpdateTeacher(teacherHttp)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
@@ -642,6 +633,10 @@ func (h *Handler) GetAllParent(c *gin.Context) {
 	c.JSON(http.StatusOK, parents)
 }
 
+type createParentResponse struct {
+	Parent *models.ParentHTTP `json:"parent"`
+}
+
 func (h *Handler) CreateParent(c *gin.Context) {
 	log.Println("Create Parent")
 	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
@@ -672,15 +667,15 @@ func (h *Handler) CreateParent(c *gin.Context) {
 		UserHTTP: &userHttp,
 	}
 
-	parentId, err := h.usersDelegate.CreateParent(parentHttp)
+	parent, err := h.usersDelegate.CreateParent(parentHttp)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"parentId": parentId,
+	c.JSON(http.StatusOK, createParentResponse{
+		parent,
 	})
 
 }
@@ -703,14 +698,7 @@ func (h *Handler) DeleteParent(c *gin.Context) {
 	}
 
 	parentId := c.Param("parentId")
-	id, atoiErr := strconv.Atoi(parentId)
-	if atoiErr != nil {
-		atoiErr = users.ErrBadRequest
-		log.Println(atoiErr)
-		ErrorHandling(atoiErr, c)
-		return
-	}
-	err := h.usersDelegate.DeleteParent(uint(id))
+	err := h.usersDelegate.DeleteParent(parentId)
 
 	if err != nil {
 		log.Println(err)
@@ -754,7 +742,7 @@ func (h *Handler) UpdateParent(c *gin.Context) {
 		UserHTTP: &userHttp,
 	}
 
-	err := h.usersDelegate.UpdateParent(parentHttp)
+	_, err := h.usersDelegate.UpdateParent(parentHttp)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
@@ -780,7 +768,6 @@ func (h *Handler) GetFreeListenerById(c *gin.Context) {
 		return
 	}
 	freeListenerId := c.Param("freeListenerId")
-
 	freeListener, err := h.usersDelegate.GetFreeListenerById(freeListenerId)
 
 	if err != nil {
@@ -792,6 +779,10 @@ func (h *Handler) GetFreeListenerById(c *gin.Context) {
 	c.JSON(http.StatusOK, getFreeListener{
 		freeListener,
 	})
+}
+
+type createFreeListenerResponse struct {
+	FreeListener *models.FreeListenerHttp `json:"freeListener"`
 }
 
 func (h *Handler) CreateFreeListener(c *gin.Context) {
@@ -821,19 +812,19 @@ func (h *Handler) CreateFreeListener(c *gin.Context) {
 		return
 	}
 
-	freeListener := &models.FreeListenerHttp{
+	freeListenerHttp := &models.FreeListenerHttp{
 		UserHTTP: userHttp,
 	}
 
-	freeListenerId, err := h.usersDelegate.CreateFreeListener(freeListener)
+	freeListener, err := h.usersDelegate.CreateFreeListener(freeListenerHttp)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"freeListenerId": freeListenerId,
+	c.JSON(http.StatusOK, createFreeListenerResponse{
+		freeListener,
 	})
 
 }
@@ -855,14 +846,7 @@ func (h *Handler) DeleteFreeListener(c *gin.Context) {
 	}
 
 	freeListenerId := c.Param("freeListenerId")
-	id, atoiErr := strconv.Atoi(freeListenerId)
-	if atoiErr != nil {
-		atoiErr = users.ErrBadRequest
-		log.Println(atoiErr)
-		ErrorHandling(atoiErr, c)
-		return
-	}
-	err := h.usersDelegate.DeleteFreeListener(uint(id))
+	err := h.usersDelegate.DeleteFreeListener(freeListenerId)
 
 	if err != nil {
 		log.Println(err)
@@ -905,7 +889,7 @@ func (h *Handler) UpdateFreeListener(c *gin.Context) {
 		UserHTTP: userHttp,
 	}
 
-	err := h.usersDelegate.UpdateFreeListener(freeListenerHttp)
+	_, err := h.usersDelegate.UpdateFreeListener(freeListenerHttp)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
@@ -1034,7 +1018,7 @@ func (h *Handler) UpdateUnitAdmin(c *gin.Context) {
 		UserHTTP: &userHttp,
 	}
 
-	err := h.usersDelegate.UpdateUnitAdmin(unitAdminHttp)
+	_, err := h.usersDelegate.UpdateUnitAdmin(unitAdminHttp)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
@@ -1042,6 +1026,10 @@ func (h *Handler) UpdateUnitAdmin(c *gin.Context) {
 	}
 
 	c.Status(http.StatusOK)
+}
+
+type createUnitAdminResponse struct {
+	UnitAdmin *models.UnitAdminHTTP `json:"unitAdmin"`
 }
 
 func (h *Handler) CreateUnitAdmin(c *gin.Context) {
@@ -1075,15 +1063,15 @@ func (h *Handler) CreateUnitAdmin(c *gin.Context) {
 		UserHTTP: &userHttp,
 	}
 
-	unitAdminId, err := h.usersDelegate.CreateUnitAdmin(unitAdminHttp)
+	unitAdmin, err := h.usersDelegate.CreateUnitAdmin(unitAdminHttp)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"unitAdminId": unitAdminId,
+	c.JSON(http.StatusOK, createUnitAdminResponse{
+		unitAdmin,
 	})
 }
 
@@ -1105,14 +1093,7 @@ func (h *Handler) DeleteUnitAdmin(c *gin.Context) {
 	}
 
 	unitAdminId := c.Param("unitAdminId")
-	id, atoiErr := strconv.Atoi(unitAdminId)
-	if atoiErr != nil {
-		atoiErr = users.ErrBadRequest
-		log.Println(atoiErr)
-		ErrorHandling(atoiErr, c)
-		return
-	}
-	err := h.usersDelegate.DeleteUnitAdmin(uint(id))
+	err := h.usersDelegate.DeleteUnitAdmin(unitAdminId)
 
 	if err != nil {
 		log.Println(err)
@@ -1213,7 +1194,7 @@ func (h *Handler) UpdateSuperAdmin(c *gin.Context) {
 		UserHTTP: &userHttp,
 	}
 
-	err := h.usersDelegate.UpdateSuperAdmin(superAdminHTTP)
+	_, err := h.usersDelegate.UpdateSuperAdmin(superAdminHTTP)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
@@ -1240,13 +1221,7 @@ func (h *Handler) DeleteSuperAdmin(c *gin.Context) {
 		return
 	}
 	superAdminId := c.Param("superAdminId")
-	id, atoiErr := strconv.Atoi(superAdminId)
-	if atoiErr != nil {
-		log.Println(atoiErr)
-		ErrorHandling(atoiErr, c)
-		return
-	}
-	err := h.usersDelegate.DeleteSuperAdmin(uint(id))
+	err := h.usersDelegate.DeleteSuperAdmin(superAdminId)
 
 	if err != nil {
 		log.Println(err)

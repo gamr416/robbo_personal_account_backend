@@ -126,38 +126,38 @@ func (a *AuthUseCaseImpl) SignUp(userCore *models.UserCore) (accessToken, refres
 		student := &models.StudentCore{
 			UserCore: *userCore,
 		}
-		id, createStudentErr := a.Gateway.CreateStudent(student)
+		newStudent, createStudentErr := a.Gateway.CreateStudent(student)
 		if createStudentErr != nil {
 			return "", "", createStudentErr
 		}
-		userCore.Id = id
+		userCore.Id = newStudent.Id
 	case models.Teacher:
 		teacher := &models.TeacherCore{
 			UserCore: *userCore,
 		}
-		id, createTeacherErr := a.Gateway.CreateTeacher(teacher)
+		newTeacher, createTeacherErr := a.Gateway.CreateTeacher(teacher)
 		if createTeacherErr != nil {
 			return "", "", createTeacherErr
 		}
-		userCore.Id = id
+		userCore.Id = newTeacher.Id
 	case models.Parent:
 		parent := &models.ParentCore{
 			UserCore: *userCore,
 		}
-		id, createParentErr := a.Gateway.CreateParent(parent)
+		newParent, createParentErr := a.Gateway.CreateParent(parent)
 		if createParentErr != nil {
 			return "", "", createParentErr
 		}
-		userCore.Id = id
+		userCore.Id = newParent.Id
 	case models.FreeListener:
 		freeListener := &models.FreeListenerCore{
 			UserCore: *userCore,
 		}
-		id, createFreeListenerErr := a.Gateway.CreateFreeListener(freeListener)
+		newFreeListener, createFreeListenerErr := a.Gateway.CreateFreeListener(freeListener)
 		if createFreeListenerErr != nil {
 			return "", "", createFreeListenerErr
 		}
-		userCore.Id = id
+		userCore.Id = newFreeListener.Id
 	default:
 		err = auth.ErrUserNotFound
 	}

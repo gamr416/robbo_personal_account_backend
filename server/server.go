@@ -33,10 +33,10 @@ func NewServer(lifecycle fx.Lifecycle, graphQLModule modules.GraphQLModule, hand
 							AllowedMethods: []string{
 								http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions, http.MethodOptions,
 							},
-							//AllowedHeaders: []string{"*"},
-							AllowedHeaders: []string{
-								"Origin", "X-Requested-With", "Content-Type", "Accept", "Set-Cookie", "Authorization",
-							},
+							AllowedHeaders: []string{"*"},
+							//AllowedHeaders: []string{
+							//	"Origin", "X-Requested-With", "Content-Type", "Accept", "Set-Cookie", "Authorization",
+							//},
 						},
 					).Handler(router),
 					ReadTimeout:    10 * time.Second,

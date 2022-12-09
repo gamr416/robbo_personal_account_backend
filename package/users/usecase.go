@@ -7,6 +7,7 @@ type UseCase interface {
 	GetStudentByParentId(parentId string) (students []*models.StudentCore, err error)
 	GetStudentsByRobboGroupId(robboGroupId string) (students []*models.StudentCore, err error)
 	GetStudentsByRobboUnitId(robboUnitId string) (students []*models.StudentCore, err error)
+	GetStudentsByTeacherId(teacherId string) (students []*models.StudentCore, err error)
 	//GetStudent(email, password string) (student *models.StudentCore, err error)
 	SearchStudentByEmail(email string, parentId string) (students []*models.StudentCore, err error)
 	CreateStudent(student *models.StudentCore, parentId string) (id string, err error)
@@ -21,6 +22,7 @@ type UseCase interface {
 	UpdateTeacher(teacher *models.TeacherCore) (err error)
 	DeleteTeacher(teacherId uint) (err error)
 	GetTeacherByRobboGroupId(robboGroupId string) (teachers []*models.TeacherCore, err error)
+	GetTeachersByStudentId(studentId string) (teachers []*models.TeacherCore, err error)
 
 	//GetParent(email, password string) (parent *models.ParentCore, err error)
 	GetParentById(parentId string) (parent *models.ParentCore, err error)
@@ -51,4 +53,7 @@ type UseCase interface {
 	CreateRelation(parentId, childrenId string) (err error)
 	SetNewUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error)
 	DeleteUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error)
+
+	CreateStudentTeacherRelation(studentId, teacherId string) (student *models.StudentCore, err error)
+	DeleteStudentTeacherRelation(studentId, teacherId string) (student *models.StudentCore, err error)
 }

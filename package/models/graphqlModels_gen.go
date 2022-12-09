@@ -2,6 +2,10 @@
 
 package models
 
+type StudentResult interface {
+	IsStudentResult()
+}
+
 type AbsoluteMediaHTTP struct {
 	ID          string `json:"ID"`
 	URI         string `json:"URI"`
@@ -57,6 +61,13 @@ type EnrollmentsListHTTP struct {
 	Previous string            `json:"Previous"`
 	Results  []*EnrollmentHTTP `json:"Results"`
 }
+
+type Error struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+func (Error) IsStudentResult() {}
 
 type ImageHTTP struct {
 	ID    string `json:"ID"`
@@ -160,6 +171,12 @@ type StudentHTTP struct {
 	UserHTTP     *UserHTTP `json:"userHttp"`
 	RobboGroupID string    `json:"robboGroupId"`
 	RobboUnitID  string    `json:"robboUnitId"`
+}
+
+func (StudentHTTP) IsStudentResult() {}
+
+type StudentHTTPList struct {
+	Students []*StudentHTTP `json:"students"`
 }
 
 type SuperAdminHTTP struct {

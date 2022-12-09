@@ -141,6 +141,58 @@ func (r *mutationResolver) SetRobboGroupIDForStudent(ctx context.Context, studen
 	return "", nil
 }
 
+// CreateStudentTeacherRelation is the resolver for the createStudentTeacherRelation field.
+func (r *mutationResolver) CreateStudentTeacherRelation(ctx context.Context, studentID string, teacherID string) (models.StudentResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := errors.New("status unauthorized")
+		return &models.Error{Message: "status unauthorized"}, err
+	}
+	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return &models.Error{Message: "no access"}, err
+	}
+	student, createStudentTeacherRelationErr := r.usersDelegate.CreateStudentTeacherRelation(studentID, teacherID)
+	if createStudentTeacherRelationErr != nil {
+		err := errors.New("baq request")
+		return &models.Error{Message: "baq request"}, err
+	}
+	return student, nil
+}
+
+// DeleteStudentTeacherRelation is the resolver for the deleteStudentTeacherRelation field.
+func (r *mutationResolver) DeleteStudentTeacherRelation(ctx context.Context, studentID string, teacherID string) (models.StudentResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := errors.New("status unauthorized")
+		return &models.Error{Message: "status unauthorized"}, err
+	}
+	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return &models.Error{Message: "no access"}, err
+	}
+	student, createStudentTeacherRelationErr := r.usersDelegate.DeleteStudentTeacherRelation(studentID, teacherID)
+	if createStudentTeacherRelationErr != nil {
+		err := errors.New("baq request")
+		return &models.Error{Message: "baq request"}, err
+	}
+	return student, nil
+}
+
 // CreateTeacher is the resolver for the createTeacher field.
 func (r *mutationResolver) CreateTeacher(ctx context.Context, input models.NewTeacher) (*models.TeacherHTTP, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
@@ -648,6 +700,28 @@ func (r *queryResolver) GetStudentsByRobboUnitID(ctx context.Context, robboUnitI
 	return students, err
 }
 
+// GetStudentsByTeacherID is the resolver for the GetStudentsByTeacherId field.
+func (r *queryResolver) GetStudentsByTeacherID(ctx context.Context, teacherID string) ([]*models.StudentHTTP, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return nil, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := errors.New("status unauthorized")
+		return nil, err
+	}
+	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return nil, err
+	}
+	students, err := r.usersDelegate.GetStudentsByTeacherId(teacherID)
+	return students, err
+}
+
 // SearchStudentsByEmail is the resolver for the SearchStudentsByEmail field.
 func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string, parentID string) ([]*models.StudentHTTP, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
@@ -733,6 +807,28 @@ func (r *queryResolver) GetTeachersByRobboGroupID(ctx context.Context, robboGrou
 		return nil, err
 	}
 	teachers, err := r.usersDelegate.GetTeacherByRobboGroupId(robboGroupID)
+	return teachers, err
+}
+
+// GetTeachersByStudentID is the resolver for the GetTeachersByStudentId field.
+func (r *queryResolver) GetTeachersByStudentID(ctx context.Context, studentID string) ([]*models.TeacherHTTP, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return nil, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := errors.New("status unauthorized")
+		return nil, err
+	}
+	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return nil, err
+	}
+	teachers, err := r.usersDelegate.GetTeachersByStudentId(studentID)
 	return teachers, err
 }
 

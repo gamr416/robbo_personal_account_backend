@@ -6,7 +6,6 @@ package resolvers
 import (
 	"context"
 	"errors"
-
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 )
 
@@ -158,7 +157,35 @@ func (r *queryResolver) GetAllRobboUnits(ctx context.Context) (models.RobboUnitR
 }
 
 // GetRobboUnitsByUnitAdminID is the resolver for the GetRobboUnitsByUnitAdminId field.
-func (r *queryResolver) GetRobboUnitsByUnitAdminID(ctx context.Context) (models.RobboUnitResult, error) {
+func (r *queryResolver) GetRobboUnitsByUnitAdminID(ctx context.Context, unitAdminID string) (models.RobboUnitResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	robboUnits, getRobboUnitsByUnitAdminIdErr := r.robboUnitsDelegate.GetRobboUnitsByUnitAdminId(unitAdminID)
+	if getRobboUnitsByUnitAdminIdErr != nil {
+		err := getRobboUnitsByUnitAdminIdErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.RobboUnitHTTPList{
+		RobboUnits: robboUnits,
+	}, nil
+}
+
+// GetRobboUnitsByAccessToken is the resolver for the GetRobboUnitsByAccessToken field.
+func (r *queryResolver) GetRobboUnitsByAccessToken(ctx context.Context) (models.RobboUnitResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")

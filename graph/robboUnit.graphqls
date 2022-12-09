@@ -35,5 +35,6 @@ extend type Mutation {
 extend type Query {
     GetRobboUnitById(id: String!): RobboUnitResult!
     GetAllRobboUnits: RobboUnitResult!
-    GetRobboUnitsByUnitAdminId: RobboUnitResult!
+    GetRobboUnitsByUnitAdminId(unitAdminId: String!): RobboUnitResult!
+    GetRobboUnitsByAccessToken: RobboUnitResult!
 }

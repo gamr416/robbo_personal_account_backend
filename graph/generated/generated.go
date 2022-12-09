@@ -226,7 +226,8 @@ type ComplexityRoot struct {
 		GetRobboGroupsByTeacherID       func(childComplexity int, teacherID string) int
 		GetRobboGroupsByUnitAdminID     func(childComplexity int, unitAdminID string) int
 		GetRobboUnitByID                func(childComplexity int, id string) int
-		GetRobboUnitsByUnitAdminID      func(childComplexity int) int
+		GetRobboUnitsByAccessToken      func(childComplexity int) int
+		GetRobboUnitsByUnitAdminID      func(childComplexity int, unitAdminID string) int
 		GetStudentByID                  func(childComplexity int, studentID string) int
 		GetStudentsByParentID           func(childComplexity int, parentID string) int
 		GetStudentsByRobboGroup         func(childComplexity int, robboGroupID string) int
@@ -367,7 +368,8 @@ type QueryResolver interface {
 	SearchGroupsByName(ctx context.Context, name string) (models.RobboGroupResult, error)
 	GetRobboUnitByID(ctx context.Context, id string) (models.RobboUnitResult, error)
 	GetAllRobboUnits(ctx context.Context) (models.RobboUnitResult, error)
-	GetRobboUnitsByUnitAdminID(ctx context.Context) (models.RobboUnitResult, error)
+	GetRobboUnitsByUnitAdminID(ctx context.Context, unitAdminID string) (models.RobboUnitResult, error)
+	GetRobboUnitsByAccessToken(ctx context.Context) (models.RobboUnitResult, error)
 }
 
 type executableSchema struct {
@@ -1370,12 +1372,24 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetRobboUnitByID(childComplexity, args["id"].(string)), true
 
+	case "Query.GetRobboUnitsByAccessToken":
+		if e.complexity.Query.GetRobboUnitsByAccessToken == nil {
+			break
+		}
+
+		return e.complexity.Query.GetRobboUnitsByAccessToken(childComplexity), true
+
 	case "Query.GetRobboUnitsByUnitAdminId":
 		if e.complexity.Query.GetRobboUnitsByUnitAdminID == nil {
 			break
 		}
 
-		return e.complexity.Query.GetRobboUnitsByUnitAdminID(childComplexity), true
+		args, err := ec.field_Query_GetRobboUnitsByUnitAdminId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetRobboUnitsByUnitAdminID(childComplexity, args["unitAdminId"].(string)), true
 
 	case "Query.GetStudentById":
 		if e.complexity.Query.GetStudentByID == nil {
@@ -2023,7 +2037,8 @@ extend type Mutation {
 extend type Query {
     GetRobboUnitById(id: String!): RobboUnitResult!
     GetAllRobboUnits: RobboUnitResult!
-    GetRobboUnitsByUnitAdminId: RobboUnitResult!
+    GetRobboUnitsByUnitAdminId(unitAdminId: String!): RobboUnitResult!
+    GetRobboUnitsByAccessToken: RobboUnitResult!
 }`, BuiltIn: false},
 	{Name: "../user.graphqls", Input: `type UserHttp {
     id: String!
@@ -2814,6 +2829,21 @@ func (ec *executionContext) field_Query_GetRobboUnitById_args(ctx context.Contex
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetRobboUnitsByUnitAdminId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["unitAdminId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unitAdminId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["unitAdminId"] = arg0
 	return args, nil
 }
 
@@ -9368,7 +9398,7 @@ func (ec *executionContext) _Query_GetRobboUnitsByUnitAdminId(ctx context.Contex
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetRobboUnitsByUnitAdminID(rctx)
+		return ec.resolvers.Query().GetRobboUnitsByUnitAdminID(rctx, fc.Args["unitAdminId"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9386,6 +9416,61 @@ func (ec *executionContext) _Query_GetRobboUnitsByUnitAdminId(ctx context.Contex
 }
 
 func (ec *executionContext) fieldContext_Query_GetRobboUnitsByUnitAdminId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type RobboUnitResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetRobboUnitsByUnitAdminId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetRobboUnitsByAccessToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetRobboUnitsByAccessToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetRobboUnitsByAccessToken(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.RobboUnitResult)
+	fc.Result = res
+	return ec.marshalNRobboUnitResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetRobboUnitsByAccessToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -15768,6 +15853,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_GetRobboUnitsByUnitAdminId(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetRobboUnitsByAccessToken":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetRobboUnitsByAccessToken(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

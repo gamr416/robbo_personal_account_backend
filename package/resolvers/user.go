@@ -6,6 +6,7 @@ package resolvers
 import (
 	"context"
 	"errors"
+
 	"github.com/skinnykaen/robbo_student_personal_account.git/graph/generated"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 )

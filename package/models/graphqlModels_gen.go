@@ -157,6 +157,8 @@ func (Error) IsUnitAdminResult() {}
 
 func (Error) IsSuperAdminResult() {}
 
+func (Error) IsStudentResult() {}
+
 type ImageHTTP struct {
 	ID    string `json:"id"`
 	Raw   string `json:"raw"`

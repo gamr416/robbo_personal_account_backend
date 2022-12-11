@@ -33,6 +33,23 @@ func (p *UsersUseCaseImpl) GetStudentsByRobboUnitId(robboUnitId string) (student
 	return p.usersGateway.GetStudentsByRobboUnitId(robboUnitId)
 }
 
+func (p *UsersUseCaseImpl) GetStudentsByTeacherId(teacherId string) (students []*models.StudentCore, err error) {
+	relations, getRelationErr := p.usersGateway.GetStudentTeacherRelationsByTeacherId(teacherId)
+	if getRelationErr != nil {
+		err = getRelationErr
+		return
+	}
+	for _, relation := range relations {
+		student, getTeacherErr := p.usersGateway.GetStudentById(relation.StudentId)
+		if getTeacherErr != nil {
+			err = getTeacherErr
+			return
+		}
+		students = append(students, student)
+	}
+	return
+}
+
 func (p *UsersUseCaseImpl) GetTeacherByRobboGroupId(robboGroupId string) (teachers []*models.TeacherCore, err error) {
 	relations, getRelationErr := p.robboGroupGateway.GetRelationByRobboGroupId(robboGroupId)
 	if getRelationErr != nil {
@@ -120,6 +137,23 @@ func (p *UsersUseCaseImpl) AddStudentToRobboGroup(studentId string, robboGroupId
 
 func (p *UsersUseCaseImpl) GetTeacherById(teacherId string) (teacher models.TeacherCore, err error) {
 	return p.usersGateway.GetTeacherById(teacherId)
+}
+
+func (p *UsersUseCaseImpl) GetTeachersByStudentId(studentId string) (teachers []*models.TeacherCore, err error) {
+	relations, getRelationErr := p.usersGateway.GetStudentTeacherRelationsByStudentId(studentId)
+	if getRelationErr != nil {
+		err = getRelationErr
+		return
+	}
+	for _, relation := range relations {
+		teacher, getTeacherErr := p.usersGateway.GetTeacherById(relation.TeacherId)
+		if getTeacherErr != nil {
+			err = getTeacherErr
+			return
+		}
+		teachers = append(teachers, &teacher)
+	}
+	return
 }
 
 //func (p *UsersUseCaseImpl) GetTeacher(email, password string) (teacher *models.TeacherCore, err error) {
@@ -297,4 +331,38 @@ func (p *UsersUseCaseImpl) DeleteUnitAdminForRobboUnit(unitAdminId, robboUnitId 
 		RobboUnitId: robboUnitId,
 	}
 	return p.usersGateway.DeleteUnitAdminForRobboUnit(relationCore)
+}
+
+func (p *UsersUseCaseImpl) CreateStudentTeacherRelation(studentId, teacherId string) (student *models.StudentCore, err error) {
+	relationCore := &models.StudentsOfTeacherCore{
+		StudentId: studentId,
+		TeacherId: teacherId,
+	}
+	if createRelationErr := p.usersGateway.CreateStudentTeacherRelation(relationCore); createRelationErr != nil {
+		err = createRelationErr
+		return
+	}
+	student, getStudentErr := p.usersGateway.GetStudentById(studentId)
+	if getStudentErr != nil {
+		err = getStudentErr
+		return
+	}
+	return
+}
+
+func (p *UsersUseCaseImpl) DeleteStudentTeacherRelation(studentId, teacherId string) (student *models.StudentCore, err error) {
+	relationCore := &models.StudentsOfTeacherCore{
+		StudentId: studentId,
+		TeacherId: teacherId,
+	}
+	if deleteRelationErr := p.usersGateway.DeleteStudentTeacherRelation(relationCore); deleteRelationErr != nil {
+		err = deleteRelationErr
+		return
+	}
+	student, getStudentErr := p.usersGateway.GetStudentById(studentId)
+	if getStudentErr != nil {
+		err = getStudentErr
+		return
+	}
+	return
 }

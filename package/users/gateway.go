@@ -59,4 +59,11 @@ type Gateway interface {
 	DeleteRelationByUnitAdminId(unitAdminId string) (err error)
 	GetRelationByRobboUnitId(robboUnitId string) (relations []*models.UnitAdminsRobboUnitsCore, err error)
 	GetRelationByUnitAdminId(unitAdminId string) (relations []*models.UnitAdminsRobboUnitsCore, err error)
+
+	CreateStudentTeacherRelation(relation *models.StudentsOfTeacherCore) (err error)
+	DeleteStudentTeacherRelation(relation *models.StudentsOfTeacherCore) (err error)
+	DeleteStudentTeacherRelationByTeacherId(teacherId string) (err error)
+	DeleteStudentTeacherRelationByStudentId(studentId string) (err error)
+	GetStudentTeacherRelationsByTeacherId(teacherId string) (relations []*models.StudentsOfTeacherCore, err error)
+	GetStudentTeacherRelationsByStudentId(studentId string) (relations []*models.StudentsOfTeacherCore, err error)
 }

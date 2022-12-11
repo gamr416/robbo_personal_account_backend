@@ -40,7 +40,7 @@ func (h *Handler) InitProjectRoutes(router *gin.Engine) {
 }
 
 type createProjectPageResponse struct {
-	ProjectId string `json:"projectId"`
+	ProjectPage *models.ProjectPageHTTP `json:"projectPage"`
 }
 
 func (h *Handler) CreateProjectPage(c *gin.Context) {
@@ -59,7 +59,7 @@ func (h *Handler) CreateProjectPage(c *gin.Context) {
 		return
 	}
 
-	projectId, err := h.projectPageDelegate.CreateProjectPage(userId)
+	projectPage, err := h.projectPageDelegate.CreateProjectPage(userId)
 
 	if err != nil {
 		log.Println(err)
@@ -68,7 +68,7 @@ func (h *Handler) CreateProjectPage(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, createProjectPageResponse{
-		projectId,
+		&projectPage,
 	})
 }
 
@@ -163,7 +163,7 @@ func (h *Handler) UpdateProjectPage(c *gin.Context) {
 		return
 	}
 	log.Println(inp)
-	err := h.projectPageDelegate.UpdateProjectPage(inp.ProjectPage)
+	_, err := h.projectPageDelegate.UpdateProjectPage(inp.ProjectPage)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)

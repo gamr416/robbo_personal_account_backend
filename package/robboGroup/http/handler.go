@@ -41,6 +41,10 @@ func (h *Handler) InitRobboGroupRoutes(router *gin.Engine) {
 	}
 }
 
+type createRobboGroupResponse struct {
+	RobboGroup *models.RobboGroupHTTP
+}
+
 func (h *Handler) CreateRobboGroup(c *gin.Context) {
 	log.Println("Create Robbo Group")
 	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
@@ -68,15 +72,15 @@ func (h *Handler) CreateRobboGroup(c *gin.Context) {
 	fmt.Println(robboGroupHttp)
 
 	robboGroupHttp.RobboUnitID = robboUnitId
-	robboGroupId, err := h.robboGroupDelegate.CreateRobboGroup(&robboGroupHttp)
+	robboGroup, err := h.robboGroupDelegate.CreateRobboGroup(&robboGroupHttp)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"robboGroupId": robboGroupId,
+	c.JSON(http.StatusOK, createRobboGroupResponse{
+		&robboGroup,
 	})
 }
 
@@ -213,7 +217,7 @@ func (h *Handler) UpdateRobboGroup(c *gin.Context) {
 		return
 	}
 
-	err := h.robboGroupDelegate.UpdateRobboGroup(&robboGroupHttp)
+	_, err := h.robboGroupDelegate.UpdateRobboGroup(&robboGroupHttp)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)

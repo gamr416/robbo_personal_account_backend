@@ -7,21 +7,24 @@ import (
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 	"log"
-	"strconv"
 )
 
 type RobboGroupGatewayImpl struct {
 	PostgresClient *db_client.PostgresClient
 }
 
-func (r *RobboGroupGatewayImpl) UpdateRobboGroup(robboGroupCore *models.RobboGroupCore) (err error) {
+func (r *RobboGroupGatewayImpl) UpdateRobboGroup(robboGroupCore *models.RobboGroupCore) (robboGroupUpdated *models.RobboGroupCore, err error) {
 	robboGroupDb := models.RobboGroupDB{}
 	robboGroupDb.FromCore(robboGroupCore)
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Model(&robboGroupDb).Where("id = ?", robboGroupDb.ID).Updates(robboGroupDb).Error
+		if err = tx.Model(&robboGroupDb).Where("id = ?", robboGroupDb.ID).First(&models.RobboGroupDB{}).Updates(robboGroupDb).Error; err != nil {
+			err = robboGroup.ErrRobboGroupNotFound
+			return
+		}
 		return
 	})
+	robboGroupUpdated = robboGroupDb.ToCore()
 	return
 }
 
@@ -39,7 +42,7 @@ func (r *RobboGroupGatewayImpl) SearchRobboGroupsByTitle(title string) (robboGro
 	return
 }
 
-func (r *RobboGroupGatewayImpl) CreateRobboGroup(robboGroupCore *models.RobboGroupCore) (robboGroupId string, err error) {
+func (r *RobboGroupGatewayImpl) CreateRobboGroup(robboGroupCore *models.RobboGroupCore) (newRobboGroup *models.RobboGroupCore, err error) {
 	robboGroupDb := models.RobboGroupDB{}
 	robboGroupDb.FromCore(robboGroupCore)
 
@@ -48,8 +51,7 @@ func (r *RobboGroupGatewayImpl) CreateRobboGroup(robboGroupCore *models.RobboGro
 		return
 	})
 
-	robboGroupId = strconv.FormatUint(uint64(robboGroupDb.ID), 10)
-
+	newRobboGroup = robboGroupDb.ToCore()
 	return
 }
 

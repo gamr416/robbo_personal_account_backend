@@ -36,6 +36,10 @@ func (h *Handler) InitRobboUnitsRoutes(router *gin.Engine) {
 	}
 }
 
+type createRobboUnitResponse struct {
+	RobboUnit *models.RobboUnitHTTP
+}
+
 func (h *Handler) CreateRobboUnit(c *gin.Context) {
 	log.Println("Create Robbo Unit")
 	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
@@ -60,15 +64,15 @@ func (h *Handler) CreateRobboUnit(c *gin.Context) {
 		return
 	}
 
-	robboUnitId, err := h.robboUnitsDelegate.CreateRobboUnit(&robboUnitHttp)
+	robboUnit, err := h.robboUnitsDelegate.CreateRobboUnit(&robboUnitHttp)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"robboUnitId": robboUnitId,
+	c.JSON(http.StatusOK, createRobboUnitResponse{
+		&robboUnit,
 	})
 }
 
@@ -176,7 +180,7 @@ func (h *Handler) UpdateRobboUnit(c *gin.Context) {
 		return
 	}
 
-	err := h.robboUnitsDelegate.UpdateRobboUnit(&robboUnitHttp)
+	_, err := h.robboUnitsDelegate.UpdateRobboUnit(&robboUnitHttp)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)

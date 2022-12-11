@@ -4,15 +4,22 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup"
 	"go.uber.org/fx"
+	"log"
 )
 
 type RobboGroupDelegateImpl struct {
 	UseCase robboGroup.UseCase
 }
 
-func (r *RobboGroupDelegateImpl) UpdateRobboGroup(robboGroup *models.RobboGroupHTTP) (err error) {
+func (r *RobboGroupDelegateImpl) UpdateRobboGroup(robboGroup *models.RobboGroupHTTP) (robboGroupUpdated models.RobboGroupHTTP, err error) {
 	robboGroupCore := robboGroup.ToCore()
-	return r.UseCase.UpdateRobboGroup(robboGroupCore)
+	robboGroupUpdatedCore, err := r.UseCase.UpdateRobboGroup(robboGroupCore)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	robboGroupUpdated.FromCore(robboGroupUpdatedCore)
+	return
 }
 
 func (r *RobboGroupDelegateImpl) GetRobboGroupsByTeacherId(teacherId string) (robboGroups []*models.RobboGroupHTTP, err error) {
@@ -53,9 +60,15 @@ func (r *RobboGroupDelegateImpl) DeleteTeacherForRobboGroup(teacherId, robboGrou
 	return r.UseCase.DeleteTeacherForRobboGroup(teacherId, robboGroupId)
 }
 
-func (r *RobboGroupDelegateImpl) CreateRobboGroup(robboGroup *models.RobboGroupHTTP) (robboGroupId string, err error) {
+func (r *RobboGroupDelegateImpl) CreateRobboGroup(robboGroup *models.RobboGroupHTTP) (newRobboGroup models.RobboGroupHTTP, err error) {
 	robboGroupCore := robboGroup.ToCore()
-	return r.UseCase.CreateRobboGroup(robboGroupCore)
+	newRobboGroupCore, err := r.UseCase.CreateRobboGroup(robboGroupCore)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	newRobboGroup.FromCore(newRobboGroupCore)
+	return
 }
 
 func (r *RobboGroupDelegateImpl) DeleteRobboGroup(robboGroupId string) (err error) {

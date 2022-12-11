@@ -26,7 +26,7 @@ func SetupRobboUnitsUseCase(robboUnitsGateway robboUnits.Gateway, usersGateway u
 	}
 }
 
-func (p *RobboUnitsUseCaseImpl) CreateRobboUnit(robboUnit *models.RobboUnitCore) (robboUnitId string, err error) {
+func (p *RobboUnitsUseCaseImpl) CreateRobboUnit(robboUnit *models.RobboUnitCore) (newRobboUnit *models.RobboUnitCore, err error) {
 	return p.robboUnitsGateway.CreateRobboUnit(robboUnit)
 }
 
@@ -60,6 +60,6 @@ func (p *RobboUnitsUseCaseImpl) GetRobboUnitsByUnitAdminId(unitAdminId string) (
 	return
 }
 
-func (p *RobboUnitsUseCaseImpl) UpdateRobboUnit(robboUnit *models.RobboUnitCore) (err error) {
+func (p *RobboUnitsUseCaseImpl) UpdateRobboUnit(robboUnit *models.RobboUnitCore) (robboUnitUpdated *models.RobboUnitCore, err error) {
 	return p.robboUnitsGateway.UpdateRobboUnit(robboUnit)
 }

@@ -10,24 +10,33 @@ type ProjectPageHttp {
     isShared: Boolean!
 }
 
-input UpdateProjectPage {
-    ProjectID: String!
-    Instruction: String!
-    Notes: String!
-    Preview: String!
-    LinkScratch: String!
-    Title: String!
-    IsShared: Boolean!
+type ProjectPageHttpList {
+    projectPages: [ProjectPageHttp!]!
 }
 
+type DeletedProjectPage {
+    projectPageId: String!
+}
+
+input UpdateProjectPage {
+    projectId: String!
+    projectPageId: String!
+    instruction: String!
+    notes: String!
+    title: String!
+    isShared: Boolean!
+}
+
+union ProjectPageResult = ProjectPageHttp | ProjectPageHttpList | Error
+
 extend type Mutation {
-    CreateProjectPage: String!
-    UpdateProjectPage(input: UpdateProjectPage!): ProjectPageHttp!
-    DeleteProjectPage(projectID: String!): String!
+    CreateProjectPage: ProjectPageResult!
+    UpdateProjectPage(input: UpdateProjectPage!): ProjectPageResult!
+    DeleteProjectPage(projectId: String!): DeletedProjectPage!
 }
 
 extend type Query {
-    GetProjectPageById(projectPageID: String!): ProjectPageHttp!
-    GetAllProjectPagesByUserID(userID: String!): [ProjectPageHttp!]!
-    GetAllProjectPagesByAccessToken: [ProjectPageHttp!]!
+    GetProjectPageById(projectPageId: String!): ProjectPageResult!
+    GetAllProjectPagesByUserId(userId: String!): ProjectPageResult!
+    GetAllProjectPagesByAccessToken: ProjectPageResult!
 }

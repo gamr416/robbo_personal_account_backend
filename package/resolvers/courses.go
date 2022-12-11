@@ -11,105 +11,105 @@ import (
 )
 
 // GetCourseContent is the resolver for the GetCourseContent field.
-func (r *queryResolver) GetCourseContent(ctx context.Context, courseID string) (*models.CourseHTTP, error) {
+func (r *queryResolver) GetCourseContent(ctx context.Context, courseID string) (models.CourseResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
-	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.Student, models.FreeListener, models.Teacher, models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	courseHttp, getCourseContentErr := r.coursesDelegate.GetCourseContent(courseID)
 	if getCourseContentErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := getCourseContentErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	return courseHttp, nil
 }
 
 // GetCoursesByUser is the resolver for the GetCoursesByUser field.
-func (r *queryResolver) GetCoursesByUser(ctx context.Context) (*models.CoursesListHTTP, error) {
+func (r *queryResolver) GetCoursesByUser(ctx context.Context) (models.CourseResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
-	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.Student, models.Parent, models.FreeListener, models.Teacher, models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	coursesListHttp, getCoursesByUserErr := r.coursesDelegate.GetCoursesByUser()
+	courses, getCoursesByUserErr := r.coursesDelegate.GetCoursesByUser()
 	if getCoursesByUserErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := getCoursesByUserErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	return coursesListHttp, nil
+	return courses, nil
 }
 
 // GetAllPublicCourses is the resolver for the GetAllPublicCourses field.
-func (r *queryResolver) GetAllPublicCourses(ctx context.Context, pageNumber string) (*models.CoursesListHTTP, error) {
+func (r *queryResolver) GetAllPublicCourses(ctx context.Context, pageNumber string) (models.CourseResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
-	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.Student, models.Parent, models.FreeListener, models.Teacher, models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	coursesListHttp, getAllPublicCoursesErr := r.coursesDelegate.GetAllPublicCourses(pageNumber)
+	courses, getAllPublicCoursesErr := r.coursesDelegate.GetAllPublicCourses(pageNumber)
 	if getAllPublicCoursesErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := getAllPublicCoursesErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	return coursesListHttp, nil
+	return courses, nil
 }
 
 // GetEnrollments is the resolver for the GetEnrollments field.
-func (r *queryResolver) GetEnrollments(ctx context.Context, username string) (*models.EnrollmentsListHTTP, error) {
+func (r *queryResolver) GetEnrollments(ctx context.Context, username string) (models.EnrollmentResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
-	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	enrollmentListHttp, GetEnrollmentsErr := r.coursesDelegate.GetEnrollments(username)
-	if GetEnrollmentsErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+	enrollments, getEnrollmentsErr := r.coursesDelegate.GetEnrollments(username)
+	if getEnrollmentsErr != nil {
+		err := getEnrollmentsErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	return enrollmentListHttp, nil
+	return enrollments, nil
 }

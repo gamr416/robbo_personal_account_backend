@@ -194,13 +194,6 @@ type Query {
     GetUnitAdminById(unitAdminId: String!): UnitAdminResult!
     SearchUnitAdminsByEmail(email: String!, robboUnitId: String!): UnitAdminResult!
     GetSuperAdminById(superAdminId: String!): SuperAdminResult!
-type StudentHttpList {
-    students: [StudentHttp!]
-}
-
-type Error {
-    code: Int!
-    message: String!
 }
 
 scalar Timestamp

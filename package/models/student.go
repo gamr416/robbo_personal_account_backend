@@ -10,12 +10,6 @@ type StudentCore struct {
 	RobboUnitId  string
 }
 
-//type StudentHTTP struct {
-//	UserHttp     `json:"userHttp"`
-//	RobboGroupId string `json:"robboGroupId"`
-//	RobboUnitId  string `json:"robboUnitId"`
-//}
-
 type StudentDB struct {
 	UserDB
 	RobboGroupId uint `gorm:"default:null"`

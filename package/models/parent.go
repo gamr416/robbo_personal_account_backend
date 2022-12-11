@@ -13,11 +13,6 @@ type ParentDB struct {
 	UserDB
 }
 
-//type ParentHTTP struct {
-//	UserHttp `json:"userHttp"`
-//	Children []*StudentHTTP `json:"children"`
-//}
-
 func (em *ParentDB) ToCore() *ParentCore {
 	return &ParentCore{
 		UserCore: em.UserDB.ToCore(),

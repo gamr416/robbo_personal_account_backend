@@ -22,6 +22,7 @@ func SetupUsersDelegate(usecase users.UseCase) UsersDelegateModule {
 		Delegate: &UsersDelegateImpl{
 			usecase,
 		},
+	}
 }
 
 func (p *UsersDelegateImpl) GetStudentsByTeacherId(teacherId string) (students []*models.StudentHTTP, err error) {

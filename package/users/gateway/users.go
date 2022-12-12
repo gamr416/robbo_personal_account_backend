@@ -595,7 +595,7 @@ func (r *UsersGatewayImpl) DeleteSuperAdmin(superAdminId string) (err error) {
 	return
 }
 
-func (r *UsersGatewayImpl) CreateRelation(relation *models.ChildrenOfParentCore) (err error) {
+func (r *UsersGatewayImpl) CreateStudentParentRelation(relation *models.ChildrenOfParentCore) (err error) {
 	relationDb := models.ChildrenOfParentDB{}
 	relationDb.FromCore(relation)
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {

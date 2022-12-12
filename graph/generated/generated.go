@@ -317,7 +317,7 @@ type MutationResolver interface {
 	UpdateTeacher(ctx context.Context, input models.UpdateTeacherInput) (models.TeacherResult, error)
 	DeleteTeacher(ctx context.Context, teacherID string) (*models.DeletedTeacher, error)
 	CreateParent(ctx context.Context, input models.NewParent) (models.ParentResult, error)
-	AddChildToParent(ctx context.Context, parentID string, childID string) (string, error)
+	AddChildToParent(ctx context.Context, parentID string, childID string) (models.StudentsResult, error)
 	UpdateParent(ctx context.Context, input models.UpdateParentInput) (models.ParentResult, error)
 	DeleteParent(ctx context.Context, parentID string) (*models.DeletedParent, error)
 	CreateUnitAdmin(ctx context.Context, input models.NewUnitAdmin) (models.UnitAdminResult, error)
@@ -337,20 +337,20 @@ type MutationResolver interface {
 	DeleteRobboUnit(ctx context.Context, robboUnitID string) (*models.DeletedRobboUnit, error)
 }
 type QueryResolver interface {
-	GetStudentsByParentID(ctx context.Context, parentID string) (models.StudentResult, error)
+	GetStudentsByParentID(ctx context.Context, parentID string) (models.StudentsResult, error)
 	GetStudentByID(ctx context.Context, studentID string) (models.StudentResult, error)
-	GetStudentsByRobboGroup(ctx context.Context, robboGroupID string) (models.StudentResult, error)
-	GetStudentsByRobboUnitID(ctx context.Context, robboUnitID string) (models.StudentResult, error)
-	SearchStudentsByEmail(ctx context.Context, email string, parentID string) (models.StudentResult, error)
-	GetAllTeachers(ctx context.Context) (models.TeacherResult, error)
+	GetStudentsByRobboGroup(ctx context.Context, robboGroupID string) (models.StudentsResult, error)
+	GetStudentsByRobboUnitID(ctx context.Context, robboUnitID string) (models.StudentsResult, error)
+	SearchStudentsByEmail(ctx context.Context, email string, parentID string) (models.StudentsResult, error)
+	GetAllTeachers(ctx context.Context) (models.TeachersResult, error)
 	GetTeacherByID(ctx context.Context, teacherID string) (models.TeacherResult, error)
-	GetTeachersByRobboGroupID(ctx context.Context, robboGroupID string) (models.TeacherResult, error)
-	GetAllParents(ctx context.Context) (models.ParentResult, error)
+	GetTeachersByRobboGroupID(ctx context.Context, robboGroupID string) (models.TeachersResult, error)
+	GetAllParents(ctx context.Context) (models.ParentsResult, error)
 	GetParentByID(ctx context.Context, parentID string) (models.ParentResult, error)
-	GetAllUnitAdmins(ctx context.Context) (models.UnitAdminResult, error)
-	GetUnitAdminsByRobboUnitID(ctx context.Context, robboUnitID string) (models.UnitAdminResult, error)
+	GetAllUnitAdmins(ctx context.Context) (models.UnitAdminsResult, error)
+	GetUnitAdminsByRobboUnitID(ctx context.Context, robboUnitID string) (models.UnitAdminsResult, error)
 	GetUnitAdminByID(ctx context.Context, unitAdminID string) (models.UnitAdminResult, error)
-	SearchUnitAdminsByEmail(ctx context.Context, email string, robboUnitID string) (models.UnitAdminResult, error)
+	SearchUnitAdminsByEmail(ctx context.Context, email string, robboUnitID string) (models.UnitAdminsResult, error)
 	GetSuperAdminByID(ctx context.Context, superAdminID string) (models.SuperAdminResult, error)
 	GetCourseContent(ctx context.Context, courseID string) (models.CourseResult, error)
 	GetCoursesByUser(ctx context.Context) (models.CourseResult, error)
@@ -360,16 +360,16 @@ type QueryResolver interface {
 	GetAllProjectPagesByUserID(ctx context.Context, userID string) (models.ProjectPageResult, error)
 	GetAllProjectPagesByAccessToken(ctx context.Context) (models.ProjectPageResult, error)
 	GetRobboGroupByID(ctx context.Context, id string) (models.RobboGroupResult, error)
-	GetRobboGroupsByTeacherID(ctx context.Context, teacherID string) (models.RobboGroupResult, error)
-	GetRobboGroupsByRobboUnitID(ctx context.Context, robboUnitID string) (models.RobboGroupResult, error)
-	GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdminID string) (models.RobboGroupResult, error)
-	GetAllRobboGroups(ctx context.Context) (models.RobboGroupResult, error)
-	GetRobboGroupsByAccessToken(ctx context.Context) (models.RobboGroupResult, error)
-	SearchGroupsByName(ctx context.Context, name string) (models.RobboGroupResult, error)
+	GetRobboGroupsByTeacherID(ctx context.Context, teacherID string) (models.RobboGroupsResult, error)
+	GetRobboGroupsByRobboUnitID(ctx context.Context, robboUnitID string) (models.RobboGroupsResult, error)
+	GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdminID string) (models.RobboGroupsResult, error)
+	GetAllRobboGroups(ctx context.Context) (models.RobboGroupsResult, error)
+	GetRobboGroupsByAccessToken(ctx context.Context) (models.RobboGroupsResult, error)
+	SearchGroupsByName(ctx context.Context, name string) (models.RobboGroupsResult, error)
 	GetRobboUnitByID(ctx context.Context, id string) (models.RobboUnitResult, error)
-	GetAllRobboUnits(ctx context.Context) (models.RobboUnitResult, error)
-	GetRobboUnitsByUnitAdminID(ctx context.Context, unitAdminID string) (models.RobboUnitResult, error)
-	GetRobboUnitsByAccessToken(ctx context.Context) (models.RobboUnitResult, error)
+	GetAllRobboUnits(ctx context.Context) (models.RobboUnitsResult, error)
+	GetRobboUnitsByUnitAdminID(ctx context.Context, unitAdminID string) (models.RobboUnitsResult, error)
+	GetRobboUnitsByAccessToken(ctx context.Context) (models.RobboUnitsResult, error)
 }
 
 type executableSchema struct {
@@ -1983,7 +1983,8 @@ type DeletedRobboGroup {
 	robboGroupId: String!
 }
 
-union RobboGroupResult = RobboGroupHttp | RobboGroupHttpList | Error
+union RobboGroupResult = RobboGroupHttp  | Error
+union RobboGroupsResult =  RobboGroupHttpList | Error
 
 extend type Mutation {
 	CreateRobboGroup(input: NewRobboGroup!): RobboGroupResult!
@@ -1993,12 +1994,12 @@ extend type Mutation {
 
 extend type Query {
 	GetRobboGroupById(id: String!): RobboGroupResult!
-	GetRobboGroupsByTeacherId(teacherId: String!): RobboGroupResult!
-	GetRobboGroupsByRobboUnitId(robboUnitId: String!): RobboGroupResult!
-	GetRobboGroupsByUnitAdminId(unitAdminId: String!): RobboGroupResult!
-	GetAllRobboGroups: RobboGroupResult!
-	GetRobboGroupsByAccessToken: RobboGroupResult!
-	SearchGroupsByName(name: String!): RobboGroupResult!
+	GetRobboGroupsByTeacherId(teacherId: String!): RobboGroupsResult!
+	GetRobboGroupsByRobboUnitId(robboUnitId: String!): RobboGroupsResult!
+	GetRobboGroupsByUnitAdminId(unitAdminId: String!): RobboGroupsResult!
+	GetAllRobboGroups: RobboGroupsResult!
+	GetRobboGroupsByAccessToken: RobboGroupsResult!
+	SearchGroupsByName(name: String!): RobboGroupsResult!
 }`, BuiltIn: false},
 	{Name: "../robboUnit.graphqls", Input: `type RobboUnitHttp {
     id: String!
@@ -2026,7 +2027,8 @@ type DeletedRobboUnit {
     robboUnitId: String!
 }
 
-union RobboUnitResult = RobboUnitHttp | RobboUnitHttpList | Error
+union RobboUnitResult =  RobboUnitHttp | Error
+union RobboUnitsResult = RobboUnitHttpList | Error
 
 extend type Mutation {
     CreateRobboUnit(input: NewRobboUnit!): RobboUnitResult!
@@ -2036,9 +2038,9 @@ extend type Mutation {
 
 extend type Query {
     GetRobboUnitById(id: String!): RobboUnitResult!
-    GetAllRobboUnits: RobboUnitResult!
-    GetRobboUnitsByUnitAdminId(unitAdminId: String!): RobboUnitResult!
-    GetRobboUnitsByAccessToken: RobboUnitResult!
+    GetAllRobboUnits: RobboUnitsResult!
+    GetRobboUnitsByUnitAdminId(unitAdminId: String!): RobboUnitsResult!
+    GetRobboUnitsByAccessToken: RobboUnitsResult!
 }`, BuiltIn: false},
 	{Name: "../user.graphqls", Input: `type UserHttp {
     id: String!
@@ -2193,12 +2195,15 @@ input UpdateSuperAdminInput {
     superAdminHttp: UpdateSuperAdminHttp!
 }
 
-union StudentResult = StudentHttp | StudentHttpList | Error
-union ParentResult = ParentHttp | ParentHttpList | Error
-union TeacherResult = TeacherHttp | TeacherHttpList | Error
-union UnitAdminResult = UnitAdminHttp | UnitAdminHttpList | Error
+union StudentResult = StudentHttp | Error
+union StudentsResult = StudentHttpList | Error
+union ParentResult = ParentHttp  | Error
+union ParentsResult = ParentHttpList  | Error
+union TeacherResult = TeacherHttp  | Error
+union TeachersResult =  TeacherHttpList | Error
+union UnitAdminResult = UnitAdminHttp | Error
+union UnitAdminsResult = UnitAdminHttpList | Error
 union SuperAdminResult = SuperAdminHttp | Error
-
 
 type Mutation {
     CreateStudent(input: NewStudent!): StudentResult!
@@ -2209,7 +2214,7 @@ type Mutation {
     UpdateTeacher(input: UpdateTeacherInput!): TeacherResult!
     DeleteTeacher(teacherId: String!): DeletedTeacher!
     CreateParent(input: NewParent!): ParentResult!
-    AddChildToParent(parentId: String!, childId: String!): String!
+    AddChildToParent(parentId: String!, childId: String!): StudentsResult!
     UpdateParent(input: UpdateParentInput!): ParentResult!
     DeleteParent(parentId: String!): DeletedParent!
     CreateUnitAdmin(input: NewUnitAdmin!): UnitAdminResult!
@@ -2221,20 +2226,20 @@ type Mutation {
 }
 
 type Query {
-    GetStudentsByParentId(parentId: String!): StudentResult!
+    GetStudentsByParentId(parentId: String!): StudentsResult!
     GetStudentById(studentId: String!): StudentResult!
-    GetStudentsByRobboGroup(robboGroupId: String!): StudentResult!
-    GetStudentsByRobboUnitId(robboUnitId: String!): StudentResult!
-    SearchStudentsByEmail(email: String!, parentId: String!): StudentResult!
-    GetAllTeachers: TeacherResult!
+    GetStudentsByRobboGroup(robboGroupId: String!): StudentsResult!
+    GetStudentsByRobboUnitId(robboUnitId: String!): StudentsResult!
+    SearchStudentsByEmail(email: String!, parentId: String!): StudentsResult!
+    GetAllTeachers: TeachersResult!
     GetTeacherById(teacherId: String!): TeacherResult!
-    GetTeachersByRobboGroupId(robboGroupId: String!): TeacherResult!
-    GetAllParents: ParentResult!
+    GetTeachersByRobboGroupId(robboGroupId: String!): TeachersResult!
+    GetAllParents: ParentsResult!
     GetParentById(parentId: String!): ParentResult!
-    GetAllUnitAdmins: UnitAdminResult!
-    GetUnitAdminsByRobboUnitId(robboUnitId: String!): UnitAdminResult!
+    GetAllUnitAdmins: UnitAdminsResult!
+    GetUnitAdminsByRobboUnitId(robboUnitId: String!): UnitAdminsResult!
     GetUnitAdminById(unitAdminId: String!): UnitAdminResult!
-    SearchUnitAdminsByEmail(email: String!, robboUnitId: String!): UnitAdminResult!
+    SearchUnitAdminsByEmail(email: String!, robboUnitId: String!): UnitAdminsResult!
     GetSuperAdminById(superAdminId: String!): SuperAdminResult!
 }
 
@@ -5992,9 +5997,9 @@ func (ec *executionContext) _Mutation_AddChildToParent(ctx context.Context, fiel
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(models.StudentsResult)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNStudentsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_AddChildToParent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6004,7 +6009,7 @@ func (ec *executionContext) fieldContext_Mutation_AddChildToParent(ctx context.C
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type StudentsResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -7793,9 +7798,9 @@ func (ec *executionContext) _Query_GetStudentsByParentId(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.StudentResult)
+	res := resTmp.(models.StudentsResult)
 	fc.Result = res
-	return ec.marshalNStudentResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentResult(ctx, field.Selections, res)
+	return ec.marshalNStudentsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetStudentsByParentId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7805,7 +7810,7 @@ func (ec *executionContext) fieldContext_Query_GetStudentsByParentId(ctx context
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type StudentResult does not have child fields")
+			return nil, errors.New("field of type StudentsResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -7903,9 +7908,9 @@ func (ec *executionContext) _Query_GetStudentsByRobboGroup(ctx context.Context, 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.StudentResult)
+	res := resTmp.(models.StudentsResult)
 	fc.Result = res
-	return ec.marshalNStudentResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentResult(ctx, field.Selections, res)
+	return ec.marshalNStudentsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetStudentsByRobboGroup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7915,7 +7920,7 @@ func (ec *executionContext) fieldContext_Query_GetStudentsByRobboGroup(ctx conte
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type StudentResult does not have child fields")
+			return nil, errors.New("field of type StudentsResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -7958,9 +7963,9 @@ func (ec *executionContext) _Query_GetStudentsByRobboUnitId(ctx context.Context,
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.StudentResult)
+	res := resTmp.(models.StudentsResult)
 	fc.Result = res
-	return ec.marshalNStudentResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentResult(ctx, field.Selections, res)
+	return ec.marshalNStudentsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetStudentsByRobboUnitId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7970,7 +7975,7 @@ func (ec *executionContext) fieldContext_Query_GetStudentsByRobboUnitId(ctx cont
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type StudentResult does not have child fields")
+			return nil, errors.New("field of type StudentsResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -8013,9 +8018,9 @@ func (ec *executionContext) _Query_SearchStudentsByEmail(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.StudentResult)
+	res := resTmp.(models.StudentsResult)
 	fc.Result = res
-	return ec.marshalNStudentResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentResult(ctx, field.Selections, res)
+	return ec.marshalNStudentsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_SearchStudentsByEmail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8025,7 +8030,7 @@ func (ec *executionContext) fieldContext_Query_SearchStudentsByEmail(ctx context
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type StudentResult does not have child fields")
+			return nil, errors.New("field of type StudentsResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -8068,9 +8073,9 @@ func (ec *executionContext) _Query_GetAllTeachers(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.TeacherResult)
+	res := resTmp.(models.TeachersResult)
 	fc.Result = res
-	return ec.marshalNTeacherResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐTeacherResult(ctx, field.Selections, res)
+	return ec.marshalNTeachersResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐTeachersResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetAllTeachers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8080,7 +8085,7 @@ func (ec *executionContext) fieldContext_Query_GetAllTeachers(ctx context.Contex
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type TeacherResult does not have child fields")
+			return nil, errors.New("field of type TeachersResult does not have child fields")
 		},
 	}
 	return fc, nil
@@ -8167,9 +8172,9 @@ func (ec *executionContext) _Query_GetTeachersByRobboGroupId(ctx context.Context
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.TeacherResult)
+	res := resTmp.(models.TeachersResult)
 	fc.Result = res
-	return ec.marshalNTeacherResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐTeacherResult(ctx, field.Selections, res)
+	return ec.marshalNTeachersResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐTeachersResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetTeachersByRobboGroupId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8179,7 +8184,7 @@ func (ec *executionContext) fieldContext_Query_GetTeachersByRobboGroupId(ctx con
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type TeacherResult does not have child fields")
+			return nil, errors.New("field of type TeachersResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -8222,9 +8227,9 @@ func (ec *executionContext) _Query_GetAllParents(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.ParentResult)
+	res := resTmp.(models.ParentsResult)
 	fc.Result = res
-	return ec.marshalNParentResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐParentResult(ctx, field.Selections, res)
+	return ec.marshalNParentsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐParentsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetAllParents(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8234,7 +8239,7 @@ func (ec *executionContext) fieldContext_Query_GetAllParents(ctx context.Context
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ParentResult does not have child fields")
+			return nil, errors.New("field of type ParentsResult does not have child fields")
 		},
 	}
 	return fc, nil
@@ -8321,9 +8326,9 @@ func (ec *executionContext) _Query_GetAllUnitAdmins(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.UnitAdminResult)
+	res := resTmp.(models.UnitAdminsResult)
 	fc.Result = res
-	return ec.marshalNUnitAdminResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUnitAdminResult(ctx, field.Selections, res)
+	return ec.marshalNUnitAdminsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUnitAdminsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetAllUnitAdmins(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8333,7 +8338,7 @@ func (ec *executionContext) fieldContext_Query_GetAllUnitAdmins(ctx context.Cont
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type UnitAdminResult does not have child fields")
+			return nil, errors.New("field of type UnitAdminsResult does not have child fields")
 		},
 	}
 	return fc, nil
@@ -8365,9 +8370,9 @@ func (ec *executionContext) _Query_GetUnitAdminsByRobboUnitId(ctx context.Contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.UnitAdminResult)
+	res := resTmp.(models.UnitAdminsResult)
 	fc.Result = res
-	return ec.marshalNUnitAdminResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUnitAdminResult(ctx, field.Selections, res)
+	return ec.marshalNUnitAdminsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUnitAdminsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetUnitAdminsByRobboUnitId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8377,7 +8382,7 @@ func (ec *executionContext) fieldContext_Query_GetUnitAdminsByRobboUnitId(ctx co
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type UnitAdminResult does not have child fields")
+			return nil, errors.New("field of type UnitAdminsResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -8475,9 +8480,9 @@ func (ec *executionContext) _Query_SearchUnitAdminsByEmail(ctx context.Context, 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.UnitAdminResult)
+	res := resTmp.(models.UnitAdminsResult)
 	fc.Result = res
-	return ec.marshalNUnitAdminResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUnitAdminResult(ctx, field.Selections, res)
+	return ec.marshalNUnitAdminsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUnitAdminsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_SearchUnitAdminsByEmail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8487,7 +8492,7 @@ func (ec *executionContext) fieldContext_Query_SearchUnitAdminsByEmail(ctx conte
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type UnitAdminResult does not have child fields")
+			return nil, errors.New("field of type UnitAdminsResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -9003,9 +9008,9 @@ func (ec *executionContext) _Query_GetRobboGroupsByTeacherId(ctx context.Context
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.RobboGroupResult)
+	res := resTmp.(models.RobboGroupsResult)
 	fc.Result = res
-	return ec.marshalNRobboGroupResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupResult(ctx, field.Selections, res)
+	return ec.marshalNRobboGroupsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetRobboGroupsByTeacherId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9015,7 +9020,7 @@ func (ec *executionContext) fieldContext_Query_GetRobboGroupsByTeacherId(ctx con
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type RobboGroupResult does not have child fields")
+			return nil, errors.New("field of type RobboGroupsResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -9058,9 +9063,9 @@ func (ec *executionContext) _Query_GetRobboGroupsByRobboUnitId(ctx context.Conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.RobboGroupResult)
+	res := resTmp.(models.RobboGroupsResult)
 	fc.Result = res
-	return ec.marshalNRobboGroupResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupResult(ctx, field.Selections, res)
+	return ec.marshalNRobboGroupsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetRobboGroupsByRobboUnitId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9070,7 +9075,7 @@ func (ec *executionContext) fieldContext_Query_GetRobboGroupsByRobboUnitId(ctx c
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type RobboGroupResult does not have child fields")
+			return nil, errors.New("field of type RobboGroupsResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -9113,9 +9118,9 @@ func (ec *executionContext) _Query_GetRobboGroupsByUnitAdminId(ctx context.Conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.RobboGroupResult)
+	res := resTmp.(models.RobboGroupsResult)
 	fc.Result = res
-	return ec.marshalNRobboGroupResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupResult(ctx, field.Selections, res)
+	return ec.marshalNRobboGroupsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetRobboGroupsByUnitAdminId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9125,7 +9130,7 @@ func (ec *executionContext) fieldContext_Query_GetRobboGroupsByUnitAdminId(ctx c
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type RobboGroupResult does not have child fields")
+			return nil, errors.New("field of type RobboGroupsResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -9168,9 +9173,9 @@ func (ec *executionContext) _Query_GetAllRobboGroups(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.RobboGroupResult)
+	res := resTmp.(models.RobboGroupsResult)
 	fc.Result = res
-	return ec.marshalNRobboGroupResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupResult(ctx, field.Selections, res)
+	return ec.marshalNRobboGroupsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetAllRobboGroups(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9180,7 +9185,7 @@ func (ec *executionContext) fieldContext_Query_GetAllRobboGroups(ctx context.Con
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type RobboGroupResult does not have child fields")
+			return nil, errors.New("field of type RobboGroupsResult does not have child fields")
 		},
 	}
 	return fc, nil
@@ -9212,9 +9217,9 @@ func (ec *executionContext) _Query_GetRobboGroupsByAccessToken(ctx context.Conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.RobboGroupResult)
+	res := resTmp.(models.RobboGroupsResult)
 	fc.Result = res
-	return ec.marshalNRobboGroupResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupResult(ctx, field.Selections, res)
+	return ec.marshalNRobboGroupsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetRobboGroupsByAccessToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9224,7 +9229,7 @@ func (ec *executionContext) fieldContext_Query_GetRobboGroupsByAccessToken(ctx c
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type RobboGroupResult does not have child fields")
+			return nil, errors.New("field of type RobboGroupsResult does not have child fields")
 		},
 	}
 	return fc, nil
@@ -9256,9 +9261,9 @@ func (ec *executionContext) _Query_SearchGroupsByName(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.RobboGroupResult)
+	res := resTmp.(models.RobboGroupsResult)
 	fc.Result = res
-	return ec.marshalNRobboGroupResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupResult(ctx, field.Selections, res)
+	return ec.marshalNRobboGroupsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_SearchGroupsByName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9268,7 +9273,7 @@ func (ec *executionContext) fieldContext_Query_SearchGroupsByName(ctx context.Co
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type RobboGroupResult does not have child fields")
+			return nil, errors.New("field of type RobboGroupsResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -9366,9 +9371,9 @@ func (ec *executionContext) _Query_GetAllRobboUnits(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.RobboUnitResult)
+	res := resTmp.(models.RobboUnitsResult)
 	fc.Result = res
-	return ec.marshalNRobboUnitResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitResult(ctx, field.Selections, res)
+	return ec.marshalNRobboUnitsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetAllRobboUnits(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9378,7 +9383,7 @@ func (ec *executionContext) fieldContext_Query_GetAllRobboUnits(ctx context.Cont
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type RobboUnitResult does not have child fields")
+			return nil, errors.New("field of type RobboUnitsResult does not have child fields")
 		},
 	}
 	return fc, nil
@@ -9410,9 +9415,9 @@ func (ec *executionContext) _Query_GetRobboUnitsByUnitAdminId(ctx context.Contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.RobboUnitResult)
+	res := resTmp.(models.RobboUnitsResult)
 	fc.Result = res
-	return ec.marshalNRobboUnitResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitResult(ctx, field.Selections, res)
+	return ec.marshalNRobboUnitsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetRobboUnitsByUnitAdminId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9422,7 +9427,7 @@ func (ec *executionContext) fieldContext_Query_GetRobboUnitsByUnitAdminId(ctx co
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type RobboUnitResult does not have child fields")
+			return nil, errors.New("field of type RobboUnitsResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -9465,9 +9470,9 @@ func (ec *executionContext) _Query_GetRobboUnitsByAccessToken(ctx context.Contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.RobboUnitResult)
+	res := resTmp.(models.RobboUnitsResult)
 	fc.Result = res
-	return ec.marshalNRobboUnitResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitResult(ctx, field.Selections, res)
+	return ec.marshalNRobboUnitsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetRobboUnitsByAccessToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9477,7 +9482,7 @@ func (ec *executionContext) fieldContext_Query_GetRobboUnitsByAccessToken(ctx co
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type RobboUnitResult does not have child fields")
+			return nil, errors.New("field of type RobboUnitsResult does not have child fields")
 		},
 	}
 	return fc, nil
@@ -13708,6 +13713,22 @@ func (ec *executionContext) _ParentResult(ctx context.Context, sel ast.Selection
 			return graphql.Null
 		}
 		return ec._ParentHttp(ctx, sel, obj)
+	case models.Error:
+		return ec._Error(ctx, sel, &obj)
+	case *models.Error:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Error(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _ParentsResult(ctx context.Context, sel ast.SelectionSet, obj models.ParentsResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
 	case models.ParentHTTPList:
 		return ec._ParentHttpList(ctx, sel, &obj)
 	case *models.ParentHTTPList:
@@ -13768,6 +13789,22 @@ func (ec *executionContext) _RobboGroupResult(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._RobboGroupHttp(ctx, sel, obj)
+	case models.Error:
+		return ec._Error(ctx, sel, &obj)
+	case *models.Error:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Error(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _RobboGroupsResult(ctx context.Context, sel ast.SelectionSet, obj models.RobboGroupsResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
 	case models.RobboGroupHTTPList:
 		return ec._RobboGroupHttpList(ctx, sel, &obj)
 	case *models.RobboGroupHTTPList:
@@ -13798,6 +13835,22 @@ func (ec *executionContext) _RobboUnitResult(ctx context.Context, sel ast.Select
 			return graphql.Null
 		}
 		return ec._RobboUnitHttp(ctx, sel, obj)
+	case models.Error:
+		return ec._Error(ctx, sel, &obj)
+	case *models.Error:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Error(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _RobboUnitsResult(ctx context.Context, sel ast.SelectionSet, obj models.RobboUnitsResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
 	case models.RobboUnitHTTPList:
 		return ec._RobboUnitHttpList(ctx, sel, &obj)
 	case *models.RobboUnitHTTPList:
@@ -13828,6 +13881,22 @@ func (ec *executionContext) _StudentResult(ctx context.Context, sel ast.Selectio
 			return graphql.Null
 		}
 		return ec._StudentHttp(ctx, sel, obj)
+	case models.Error:
+		return ec._Error(ctx, sel, &obj)
+	case *models.Error:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Error(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _StudentsResult(ctx context.Context, sel ast.SelectionSet, obj models.StudentsResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
 	case models.StudentHTTPList:
 		return ec._StudentHttpList(ctx, sel, &obj)
 	case *models.StudentHTTPList:
@@ -13881,6 +13950,22 @@ func (ec *executionContext) _TeacherResult(ctx context.Context, sel ast.Selectio
 			return graphql.Null
 		}
 		return ec._TeacherHttp(ctx, sel, obj)
+	case models.Error:
+		return ec._Error(ctx, sel, &obj)
+	case *models.Error:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Error(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _TeachersResult(ctx context.Context, sel ast.SelectionSet, obj models.TeachersResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
 	case models.TeacherHTTPList:
 		return ec._TeacherHttpList(ctx, sel, &obj)
 	case *models.TeacherHTTPList:
@@ -13911,6 +13996,22 @@ func (ec *executionContext) _UnitAdminResult(ctx context.Context, sel ast.Select
 			return graphql.Null
 		}
 		return ec._UnitAdminHttp(ctx, sel, obj)
+	case models.Error:
+		return ec._Error(ctx, sel, &obj)
+	case *models.Error:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Error(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _UnitAdminsResult(ctx context.Context, sel ast.SelectionSet, obj models.UnitAdminsResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
 	case models.UnitAdminHTTPList:
 		return ec._UnitAdminHttpList(ctx, sel, &obj)
 	case *models.UnitAdminHTTPList:
@@ -14504,7 +14605,7 @@ func (ec *executionContext) _EnrollmentsListHttp(ctx context.Context, sel ast.Se
 	return out
 }
 
-var errorImplementors = []string{"Error", "CourseResult", "EnrollmentResult", "ProjectPageResult", "RobboGroupResult", "RobboUnitResult", "StudentResult", "ParentResult", "TeacherResult", "UnitAdminResult", "SuperAdminResult"}
+var errorImplementors = []string{"Error", "CourseResult", "EnrollmentResult", "ProjectPageResult", "RobboGroupResult", "RobboGroupsResult", "RobboUnitResult", "RobboUnitsResult", "StudentResult", "StudentsResult", "ParentResult", "ParentsResult", "TeacherResult", "TeachersResult", "UnitAdminResult", "UnitAdminsResult", "SuperAdminResult"}
 
 func (ec *executionContext) _Error(ctx context.Context, sel ast.SelectionSet, obj *models.Error) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, errorImplementors)
@@ -14971,7 +15072,7 @@ func (ec *executionContext) _ParentHttp(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
-var parentHttpListImplementors = []string{"ParentHttpList", "ParentResult"}
+var parentHttpListImplementors = []string{"ParentHttpList", "ParentsResult"}
 
 func (ec *executionContext) _ParentHttpList(ctx context.Context, sel ast.SelectionSet, obj *models.ParentHTTPList) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, parentHttpListImplementors)
@@ -15965,7 +16066,7 @@ func (ec *executionContext) _RobboGroupHttp(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var robboGroupHttpListImplementors = []string{"RobboGroupHttpList", "RobboGroupResult"}
+var robboGroupHttpListImplementors = []string{"RobboGroupHttpList", "RobboGroupsResult"}
 
 func (ec *executionContext) _RobboGroupHttpList(ctx context.Context, sel ast.SelectionSet, obj *models.RobboGroupHTTPList) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, robboGroupHttpListImplementors)
@@ -16042,7 +16143,7 @@ func (ec *executionContext) _RobboUnitHttp(ctx context.Context, sel ast.Selectio
 	return out
 }
 
-var robboUnitHttpListImplementors = []string{"RobboUnitHttpList", "RobboUnitResult"}
+var robboUnitHttpListImplementors = []string{"RobboUnitHttpList", "RobboUnitsResult"}
 
 func (ec *executionContext) _RobboUnitHttpList(ctx context.Context, sel ast.SelectionSet, obj *models.RobboUnitHTTPList) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, robboUnitHttpListImplementors)
@@ -16112,7 +16213,7 @@ func (ec *executionContext) _StudentHttp(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
-var studentHttpListImplementors = []string{"StudentHttpList", "StudentResult"}
+var studentHttpListImplementors = []string{"StudentHttpList", "StudentsResult"}
 
 func (ec *executionContext) _StudentHttpList(ctx context.Context, sel ast.SelectionSet, obj *models.StudentHTTPList) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, studentHttpListImplementors)
@@ -16196,7 +16297,7 @@ func (ec *executionContext) _TeacherHttp(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
-var teacherHttpListImplementors = []string{"TeacherHttpList", "TeacherResult"}
+var teacherHttpListImplementors = []string{"TeacherHttpList", "TeachersResult"}
 
 func (ec *executionContext) _TeacherHttpList(ctx context.Context, sel ast.SelectionSet, obj *models.TeacherHTTPList) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teacherHttpListImplementors)
@@ -16252,7 +16353,7 @@ func (ec *executionContext) _UnitAdminHttp(ctx context.Context, sel ast.Selectio
 	return out
 }
 
-var unitAdminHttpListImplementors = []string{"UnitAdminHttpList", "UnitAdminResult"}
+var unitAdminHttpListImplementors = []string{"UnitAdminHttpList", "UnitAdminsResult"}
 
 func (ec *executionContext) _UnitAdminHttpList(ctx context.Context, sel ast.SelectionSet, obj *models.UnitAdminHTTPList) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, unitAdminHttpListImplementors)
@@ -17008,6 +17109,16 @@ func (ec *executionContext) marshalNParentResult2githubᚗcomᚋskinnykaenᚋrob
 	return ec._ParentResult(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNParentsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐParentsResult(ctx context.Context, sel ast.SelectionSet, v models.ParentsResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ParentsResult(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNProjectPageHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPageHTTPᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.ProjectPageHTTP) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -17136,6 +17247,16 @@ func (ec *executionContext) marshalNRobboGroupResult2githubᚗcomᚋskinnykaen�
 	return ec._RobboGroupResult(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNRobboGroupsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupsResult(ctx context.Context, sel ast.SelectionSet, v models.RobboGroupsResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RobboGroupsResult(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNRobboUnitHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitHTTPᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.RobboUnitHTTP) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -17198,6 +17319,16 @@ func (ec *executionContext) marshalNRobboUnitResult2githubᚗcomᚋskinnykaenᚋ
 		return graphql.Null
 	}
 	return ec._RobboUnitResult(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRobboUnitsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitsResult(ctx context.Context, sel ast.SelectionSet, v models.RobboUnitsResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RobboUnitsResult(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -17279,6 +17410,16 @@ func (ec *executionContext) marshalNStudentResult2githubᚗcomᚋskinnykaenᚋro
 	return ec._StudentResult(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNStudentsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentsResult(ctx context.Context, sel ast.SelectionSet, v models.StudentsResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._StudentsResult(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNSuperAdminResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐSuperAdminResult(ctx context.Context, sel ast.SelectionSet, v models.SuperAdminResult) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -17351,6 +17492,16 @@ func (ec *executionContext) marshalNTeacherResult2githubᚗcomᚋskinnykaenᚋro
 		return graphql.Null
 	}
 	return ec._TeacherResult(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeachersResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐTeachersResult(ctx context.Context, sel ast.SelectionSet, v models.TeachersResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeachersResult(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNTimestamp2string(ctx context.Context, v interface{}) (string, error) {
@@ -17430,6 +17581,16 @@ func (ec *executionContext) marshalNUnitAdminResult2githubᚗcomᚋskinnykaenᚋ
 		return graphql.Null
 	}
 	return ec._UnitAdminResult(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNUnitAdminsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUnitAdminsResult(ctx context.Context, sel ast.SelectionSet, v models.UnitAdminsResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UnitAdminsResult(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNUpdateParentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateParentHTTP(ctx context.Context, v interface{}) (*models.UpdateParentHTTP, error) {

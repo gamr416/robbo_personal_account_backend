@@ -279,29 +279,29 @@ func (r *mutationResolver) CreateParent(ctx context.Context, input models.NewPar
 }
 
 // AddChildToParent is the resolver for the addChildToParent field.
-func (r *mutationResolver) AddChildToParent(ctx context.Context, parentID string, childID string) (string, error) {
+func (r *mutationResolver) AddChildToParent(ctx context.Context, parentID string, childID string) (models.StudentsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return "", err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
 		err := errors.New("status unauthorized")
-		return "", err
+		return &models.Error{Message: "status unauthorized"}, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")
-		return "", err
+		return &models.Error{Message: "no access"}, err
 	}
-	createRelationErr := r.usersDelegate.CreateRelation(parentID, childID)
+	students, createRelationErr := r.usersDelegate.CreateStudentParentRelation(parentID, childID)
 	if createRelationErr != nil {
 		err := errors.New("baq request")
-		return "", err
+		return &models.Error{Message: "baq request"}, err
 	}
-	return "", nil
+	return &models.StudentHTTPList{Students: students}, nil
 }
 
 // UpdateParent is the resolver for the updateParent field.
@@ -554,7 +554,7 @@ func (r *mutationResolver) UpdateSuperAdmin(ctx context.Context, input models.Up
 }
 
 // GetStudentsByParentID is the resolver for the GetStudentsByParentId field.
-func (r *queryResolver) GetStudentsByParentID(ctx context.Context, parentID string) (models.StudentResult, error) {
+func (r *queryResolver) GetStudentsByParentID(ctx context.Context, parentID string) (models.StudentsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -608,7 +608,7 @@ func (r *queryResolver) GetStudentByID(ctx context.Context, studentID string) (m
 }
 
 // GetStudentsByRobboGroup is the resolver for the GetStudentsByRobboGroup field.
-func (r *queryResolver) GetStudentsByRobboGroup(ctx context.Context, robboGroupID string) (models.StudentResult, error) {
+func (r *queryResolver) GetStudentsByRobboGroup(ctx context.Context, robboGroupID string) (models.StudentsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -636,7 +636,7 @@ func (r *queryResolver) GetStudentsByRobboGroup(ctx context.Context, robboGroupI
 }
 
 // GetStudentsByRobboUnitID is the resolver for the GetStudentsByRobboUnitId field.
-func (r *queryResolver) GetStudentsByRobboUnitID(ctx context.Context, robboUnitID string) (models.StudentResult, error) {
+func (r *queryResolver) GetStudentsByRobboUnitID(ctx context.Context, robboUnitID string) (models.StudentsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -664,7 +664,7 @@ func (r *queryResolver) GetStudentsByRobboUnitID(ctx context.Context, robboUnitI
 }
 
 // SearchStudentsByEmail is the resolver for the SearchStudentsByEmail field.
-func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string, parentID string) (models.StudentResult, error) {
+func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string, parentID string) (models.StudentsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -692,7 +692,7 @@ func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string,
 }
 
 // GetAllTeachers is the resolver for the GetAllTeachers field.
-func (r *queryResolver) GetAllTeachers(ctx context.Context) (models.TeacherResult, error) {
+func (r *queryResolver) GetAllTeachers(ctx context.Context) (models.TeachersResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -746,7 +746,7 @@ func (r *queryResolver) GetTeacherByID(ctx context.Context, teacherID string) (m
 }
 
 // GetTeachersByRobboGroupID is the resolver for the GetTeachersByRobboGroupId field.
-func (r *queryResolver) GetTeachersByRobboGroupID(ctx context.Context, robboGroupID string) (models.TeacherResult, error) {
+func (r *queryResolver) GetTeachersByRobboGroupID(ctx context.Context, robboGroupID string) (models.TeachersResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -774,7 +774,7 @@ func (r *queryResolver) GetTeachersByRobboGroupID(ctx context.Context, robboGrou
 }
 
 // GetAllParents is the resolver for the GetAllParents field.
-func (r *queryResolver) GetAllParents(ctx context.Context) (models.ParentResult, error) {
+func (r *queryResolver) GetAllParents(ctx context.Context) (models.ParentsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -828,7 +828,7 @@ func (r *queryResolver) GetParentByID(ctx context.Context, parentID string) (mod
 }
 
 // GetAllUnitAdmins is the resolver for the GetAllUnitAdmins field.
-func (r *queryResolver) GetAllUnitAdmins(ctx context.Context) (models.UnitAdminResult, error) {
+func (r *queryResolver) GetAllUnitAdmins(ctx context.Context) (models.UnitAdminsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -856,7 +856,7 @@ func (r *queryResolver) GetAllUnitAdmins(ctx context.Context) (models.UnitAdminR
 }
 
 // GetUnitAdminsByRobboUnitID is the resolver for the GetUnitAdminsByRobboUnitId field.
-func (r *queryResolver) GetUnitAdminsByRobboUnitID(ctx context.Context, robboUnitID string) (models.UnitAdminResult, error) {
+func (r *queryResolver) GetUnitAdminsByRobboUnitID(ctx context.Context, robboUnitID string) (models.UnitAdminsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -911,7 +911,7 @@ func (r *queryResolver) GetUnitAdminByID(ctx context.Context, unitAdminID string
 }
 
 // SearchUnitAdminsByEmail is the resolver for the SearchUnitAdminsByEmail field.
-func (r *queryResolver) SearchUnitAdminsByEmail(ctx context.Context, email string, robboUnitID string) (models.UnitAdminResult, error) {
+func (r *queryResolver) SearchUnitAdminsByEmail(ctx context.Context, email string, robboUnitID string) (models.UnitAdminsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")

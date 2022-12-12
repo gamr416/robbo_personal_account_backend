@@ -26,7 +26,7 @@ type UserClaims struct {
 
 type UserDB struct {
 	gorm.Model
-	Email      string `gorm:"not null;size:256;constraint"`
+	Email      string `gorm:"not null;size:256;uniqueIndex"`
 	Password   string `gorm:"not null;size:256"`
 	Role       uint   `gorm:"not null"`
 	Nickname   string `gorm:"not null;size:256"`

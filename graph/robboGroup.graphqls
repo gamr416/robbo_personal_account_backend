@@ -25,7 +25,8 @@ type DeletedRobboGroup {
 	robboGroupId: String!
 }
 
-union RobboGroupResult = RobboGroupHttp | RobboGroupHttpList | Error
+union RobboGroupResult = RobboGroupHttp  | Error
+union RobboGroupsResult =  RobboGroupHttpList | Error
 
 extend type Mutation {
 	CreateRobboGroup(input: NewRobboGroup!): RobboGroupResult!
@@ -35,10 +36,10 @@ extend type Mutation {
 
 extend type Query {
 	GetRobboGroupById(id: String!): RobboGroupResult!
-	GetRobboGroupsByTeacherId(teacherId: String!): RobboGroupResult!
-	GetRobboGroupsByRobboUnitId(robboUnitId: String!): RobboGroupResult!
-	GetRobboGroupsByUnitAdminId(unitAdminId: String!): RobboGroupResult!
-	GetAllRobboGroups: RobboGroupResult!
-	GetRobboGroupsByAccessToken: RobboGroupResult!
-	SearchGroupsByName(name: String!): RobboGroupResult!
+	GetRobboGroupsByTeacherId(teacherId: String!): RobboGroupsResult!
+	GetRobboGroupsByRobboUnitId(robboUnitId: String!): RobboGroupsResult!
+	GetRobboGroupsByUnitAdminId(unitAdminId: String!): RobboGroupsResult!
+	GetAllRobboGroups: RobboGroupsResult!
+	GetRobboGroupsByAccessToken: RobboGroupsResult!
+	SearchGroupsByName(name: String!): RobboGroupsResult!
 }

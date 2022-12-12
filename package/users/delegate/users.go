@@ -502,8 +502,22 @@ func (p *UsersDelegateImpl) DeleteSuperAdmin(superAdminId string) (err error) {
 	return p.UseCase.DeleteSuperAdmin(superAdminId)
 }
 
-func (p *UsersDelegateImpl) CreateRelation(parentId, childrenId string) (err error) {
-	return p.UseCase.CreateRelation(parentId, childrenId)
+func (p *UsersDelegateImpl) CreateStudentParentRelation(parentId, childrenId string) (studentsHTTP []*models.StudentHTTP, err error) {
+	studentsCore, err := p.UseCase.CreateStudentParentRelation(parentId, childrenId)
+	if err != nil {
+		return
+	}
+	for _, studentCore := range studentsCore {
+		studentHttpTemp := models.StudentHTTP{
+			UserHTTP:     &models.UserHTTP{},
+			RobboGroupID: "",
+			RobboUnitID:  "",
+		}
+		studentHttpTemp.FromCore(studentCore)
+		studentsHTTP = append(studentsHTTP, &studentHttpTemp)
+	}
+	return
+
 }
 
 func (p *UsersDelegateImpl) SetNewUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error) {

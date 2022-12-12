@@ -126,7 +126,7 @@ func (p *UsersUseCaseImpl) DeleteStudent(studentId string) (err error) {
 	if err = p.usersGateway.DeleteRelationByChildrenId(studentId); err != nil {
 		return
 	}
-	if err = p.usersGateway.DeleteStudentTeacherRelationByStudentId(strconv.Itoa(int(studentId))); err != nil {
+	if err = p.usersGateway.DeleteStudentTeacherRelationByStudentId(studentId); err != nil {
 		return
 	}
 	return

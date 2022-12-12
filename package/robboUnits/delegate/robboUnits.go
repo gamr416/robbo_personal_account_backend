@@ -4,6 +4,7 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboUnits"
 	"go.uber.org/fx"
+	"log"
 )
 
 type RobboUnitsDelegateImpl struct {
@@ -61,14 +62,26 @@ func (r RobboUnitsDelegateImpl) GetRobboUnitsByUnitAdminId(unitAdminId string) (
 	return
 }
 
-func (r RobboUnitsDelegateImpl) UpdateRobboUnit(robboUnit *models.RobboUnitHTTP) (err error) {
+func (r RobboUnitsDelegateImpl) UpdateRobboUnit(robboUnit *models.RobboUnitHTTP) (robboUnitUpdated models.RobboUnitHTTP, err error) {
 	robboUnitCore := robboUnit.ToCore()
-	return r.UseCase.UpdateRobboUnit(robboUnitCore)
+	robboUnitUpdatedCore, err := r.UseCase.UpdateRobboUnit(robboUnitCore)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	robboUnitUpdated.FromCore(robboUnitUpdatedCore)
+	return
 }
 
-func (r RobboUnitsDelegateImpl) CreateRobboUnit(robboUnit *models.RobboUnitHTTP) (robboUnitId string, err error) {
+func (r RobboUnitsDelegateImpl) CreateRobboUnit(robboUnit *models.RobboUnitHTTP) (newRobboUnit models.RobboUnitHTTP, err error) {
 	robboUnitCore := robboUnit.ToCore()
-	return r.UseCase.CreateRobboUnit(robboUnitCore)
+	newRobboUnitCore, err := r.UseCase.CreateRobboUnit(robboUnitCore)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	newRobboUnit.FromCore(newRobboUnitCore)
+	return
 }
 func (r RobboUnitsDelegateImpl) DeleteRobboUnit(robboUnitId string) (err error) {
 	return r.UseCase.DeleteRobboUnit(robboUnitId)

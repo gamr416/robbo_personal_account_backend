@@ -16,14 +16,25 @@ input UpdateRobboUnit {
     city: String!
 }
 
+type RobboUnitHttpList {
+    robboUnits: [RobboUnitHttp!]!
+}
+
+type DeletedRobboUnit {
+    robboUnitId: String!
+}
+
+union RobboUnitResult = RobboUnitHttp | RobboUnitHttpList | Error
+
 extend type Mutation {
-    CreateRobboUnit(input: NewRobboUnit!): String!
-    UpdateRobboUnit(input: UpdateRobboUnit!): RobboUnitHttp!
-    DeleteRobboUnit(robboUnitId: String!): String!
+    CreateRobboUnit(input: NewRobboUnit!): RobboUnitResult!
+    UpdateRobboUnit(input: UpdateRobboUnit!): RobboUnitResult!
+    DeleteRobboUnit(robboUnitId: String!): DeletedRobboUnit!
 }
 
 extend type Query {
-    GetRobboUnitById(id: String!): RobboUnitHttp!
-    GetAllRobboUnits: [RobboUnitHttp!]!
-    GetRobboUnitsByUnitAdminId: [RobboUnitHttp!]!
+    GetRobboUnitById(id: String!): RobboUnitResult!
+    GetAllRobboUnits: RobboUnitResult!
+    GetRobboUnitsByUnitAdminId(unitAdminId: String!): RobboUnitResult!
+    GetRobboUnitsByAccessToken: RobboUnitResult!
 }

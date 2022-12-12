@@ -7,7 +7,7 @@ import (
 	"go.uber.org/fx"
 )
 
-func (r *RobboGroupUseCaseImpl) CreateRobboGroup(robboGroup *models.RobboGroupCore) (robboGroupId string, err error) {
+func (r *RobboGroupUseCaseImpl) CreateRobboGroup(robboGroup *models.RobboGroupCore) (newRobboGroup *models.RobboGroupCore, err error) {
 	return r.robboGroupGateway.CreateRobboGroup(robboGroup)
 }
 
@@ -87,7 +87,7 @@ type RobboGroupUseCaseImpl struct {
 	usersGateway      users.Gateway
 }
 
-func (r *RobboGroupUseCaseImpl) UpdateRobboGroup(robboGroup *models.RobboGroupCore) (err error) {
+func (r *RobboGroupUseCaseImpl) UpdateRobboGroup(robboGroup *models.RobboGroupCore) (robboGroupUpdated *models.RobboGroupCore, err error) {
 	return r.robboGroupGateway.UpdateRobboGroup(robboGroup)
 }
 

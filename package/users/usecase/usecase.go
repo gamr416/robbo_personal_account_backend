@@ -8,13 +8,25 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
-	"log"
-	"strconv"
 )
 
 type UsersUseCaseImpl struct {
 	usersGateway      users.Gateway
 	robboGroupGateway robboGroup.Gateway
+}
+
+type UsersUseCaseModule struct {
+	fx.Out
+	users.UseCase
+}
+
+func SetupUsersUseCase(usersGateway users.Gateway, robboGroupGateway robboGroup.Gateway) UsersUseCaseModule {
+	return UsersUseCaseModule{
+		UseCase: &UsersUseCaseImpl{
+			usersGateway:      usersGateway,
+			robboGroupGateway: robboGroupGateway,
+		},
+	}
 }
 
 func (p *UsersUseCaseImpl) GetStudentsByRobboUnitId(robboUnitId string) (students []*models.StudentCore, err error) {
@@ -59,20 +71,6 @@ func (p *UsersUseCaseImpl) GetStudentsByRobboGroupId(robboGroupId string) (stude
 	return p.usersGateway.GetStudentsByRobboGroupId(robboGroupId)
 }
 
-type UsersUseCaseModule struct {
-	fx.Out
-	users.UseCase
-}
-
-func SetupUsersUseCase(usersGateway users.Gateway, robboGroupGateway robboGroup.Gateway) UsersUseCaseModule {
-	return UsersUseCaseModule{
-		UseCase: &UsersUseCaseImpl{
-			usersGateway:      usersGateway,
-			robboGroupGateway: robboGroupGateway,
-		},
-	}
-}
-
 //func (p *UsersUseCaseImpl) GetStudent(email, password string) (student *models.StudentCore, err error) {
 //	return p.usersGateway.GetStudent(email, password)
 //}
@@ -103,29 +101,29 @@ func (p *UsersUseCaseImpl) GetStudentByParentId(parentId string) (students []*mo
 	return
 }
 
-func (p *UsersUseCaseImpl) CreateStudent(student *models.StudentCore, parentId string) (id string, err error) {
+func (p *UsersUseCaseImpl) CreateStudent(student *models.StudentCore, parentId string) (newStudent *models.StudentCore, err error) {
 	pwd := sha1.New()
 	pwd.Write([]byte(student.Password))
 	pwd.Write([]byte(viper.GetString("auth.hash_salt")))
 	passwordHash := fmt.Sprintf("%x", pwd.Sum(nil))
 	student.Password = passwordHash
-	id, err = p.usersGateway.CreateStudent(student)
+	newStudent, err = p.usersGateway.CreateStudent(student)
 	if err != nil {
 		return
 	}
 	relation := &models.ChildrenOfParentCore{
-		ChildId:  id,
+		ChildId:  newStudent.Id,
 		ParentId: parentId,
 	}
 	p.usersGateway.CreateRelation(relation)
 	return
 }
 
-func (p *UsersUseCaseImpl) DeleteStudent(studentId uint) (err error) {
+func (p *UsersUseCaseImpl) DeleteStudent(studentId string) (err error) {
 	if err = p.usersGateway.DeleteStudent(studentId); err != nil {
 		return
 	}
-	if err = p.usersGateway.DeleteRelationByChildrenId(strconv.Itoa(int(studentId))); err != nil {
+	if err = p.usersGateway.DeleteRelationByChildrenId(studentId); err != nil {
 		return
 	}
 	if err = p.usersGateway.DeleteStudentTeacherRelationByStudentId(strconv.Itoa(int(studentId))); err != nil {
@@ -134,13 +132,8 @@ func (p *UsersUseCaseImpl) DeleteStudent(studentId uint) (err error) {
 	return
 }
 
-func (p *UsersUseCaseImpl) UpdateStudent(student *models.StudentCore) (err error) {
-	err = p.usersGateway.UpdateStudent(student)
-	if err != nil {
-		log.Println("Error update student")
-		return
-	}
-	return
+func (p *UsersUseCaseImpl) UpdateStudent(student *models.StudentCore) (studentUpdated *models.StudentCore, err error) {
+	return p.usersGateway.UpdateStudent(student)
 }
 
 func (p *UsersUseCaseImpl) AddStudentToRobboGroup(studentId string, robboGroupId string, robboUnitId string) (err error) {
@@ -192,16 +185,11 @@ func (p *UsersUseCaseImpl) GetAllTeachers() (teachers []models.TeacherCore, err 
 	return p.usersGateway.GetAllTeachers()
 }
 
-func (p *UsersUseCaseImpl) UpdateTeacher(teacher *models.TeacherCore) (err error) {
-	err = p.usersGateway.UpdateTeacher(teacher)
-	if err != nil {
-		log.Println("Error update Teacher")
-		return
-	}
-	return
+func (p *UsersUseCaseImpl) UpdateTeacher(teacher *models.TeacherCore) (teacherUpdated models.TeacherCore, err error) {
+	return p.usersGateway.UpdateTeacher(teacher)
 }
 
-func (p *UsersUseCaseImpl) CreateTeacher(teacher *models.TeacherCore) (id string, err error) {
+func (p *UsersUseCaseImpl) CreateTeacher(teacher *models.TeacherCore) (newTeacher models.TeacherCore, err error) {
 	pwd := sha1.New()
 	pwd.Write([]byte(teacher.Password))
 	pwd.Write([]byte(viper.GetString("auth.hash_salt")))
@@ -210,11 +198,11 @@ func (p *UsersUseCaseImpl) CreateTeacher(teacher *models.TeacherCore) (id string
 	return p.usersGateway.CreateTeacher(teacher)
 }
 
-func (p *UsersUseCaseImpl) DeleteTeacher(teacherId uint) (err error) {
+func (p *UsersUseCaseImpl) DeleteTeacher(teacherId string) (err error) {
 	if err = p.usersGateway.DeleteTeacher(teacherId); err != nil {
 		return
 	}
-	if err = p.usersGateway.DeleteStudentTeacherRelationByTeacherId(fmt.Sprintf("%v", teacherId)); err != nil {
+	if err = p.usersGateway.DeleteStudentTeacherRelationByTeacherId(teacherId); err != nil {
 		return
 	}
 	return
@@ -233,7 +221,7 @@ func (p *UsersUseCaseImpl) GetAllParent() (parents []*models.ParentCore, err err
 	return
 }
 
-func (p *UsersUseCaseImpl) CreateParent(parent *models.ParentCore) (id string, err error) {
+func (p *UsersUseCaseImpl) CreateParent(parent *models.ParentCore) (newParent *models.ParentCore, err error) {
 	pwd := sha1.New()
 	pwd.Write([]byte(parent.Password))
 	pwd.Write([]byte(viper.GetString("auth.hash_salt")))
@@ -242,33 +230,27 @@ func (p *UsersUseCaseImpl) CreateParent(parent *models.ParentCore) (id string, e
 	return p.usersGateway.CreateParent(parent)
 }
 
-func (p *UsersUseCaseImpl) DeleteParent(parentId uint) (err error) {
-	relations, getRelationsErr := p.usersGateway.GetRelationByParentId(strconv.Itoa(int(parentId)))
+func (p *UsersUseCaseImpl) DeleteParent(parentId string) (err error) {
+	relations, getRelationsErr := p.usersGateway.GetRelationByParentId(parentId)
 	if getRelationsErr != nil {
 		return getRelationsErr
 	}
 
 	for _, relation := range relations {
-		studentId, _ := strconv.ParseUint(relation.ChildId, 10, 64)
-		deleteStudentErr := p.usersGateway.DeleteStudent(uint(studentId))
+		deleteStudentErr := p.usersGateway.DeleteStudent(relation.ChildId)
 		if deleteStudentErr != nil {
 			return deleteStudentErr
 		}
 	}
-	deleteRelationErr := p.usersGateway.DeleteRelationByParentId(strconv.Itoa(int(parentId)))
+	deleteRelationErr := p.usersGateway.DeleteRelationByParentId(parentId)
 	if deleteRelationErr != nil {
 		return deleteRelationErr
 	}
 	return p.usersGateway.DeleteParent(parentId)
 }
 
-func (p *UsersUseCaseImpl) UpdateParent(parent *models.ParentCore) (err error) {
-	err = p.usersGateway.UpdateParent(parent)
-	if err != nil {
-		log.Println("Error update Parent")
-		return
-	}
-	return
+func (p *UsersUseCaseImpl) UpdateParent(parent *models.ParentCore) (parentUpdated *models.ParentCore, err error) {
+	return p.usersGateway.UpdateParent(parent)
 }
 
 //func (p *UsersUseCaseImpl) GetFreeListener(email, password string) (freeListener *models.FreeListenerCore, err error) {
@@ -279,21 +261,16 @@ func (p *UsersUseCaseImpl) GetFreeListenerById(freeListenerId string) (freeListe
 	return p.usersGateway.GetFreeListenerById(freeListenerId)
 }
 
-func (p *UsersUseCaseImpl) CreateFreeListener(freeListener *models.FreeListenerCore) (id string, err error) {
+func (p *UsersUseCaseImpl) CreateFreeListener(freeListener *models.FreeListenerCore) (newFreeListener *models.FreeListenerCore, err error) {
 	return p.usersGateway.CreateFreeListener(freeListener)
 }
 
-func (p *UsersUseCaseImpl) DeleteFreeListener(freeListener uint) (err error) {
-	return p.usersGateway.DeleteFreeListener(freeListener)
+func (p *UsersUseCaseImpl) DeleteFreeListener(freeListenerId string) (err error) {
+	return p.usersGateway.DeleteFreeListener(freeListenerId)
 }
 
-func (p *UsersUseCaseImpl) UpdateFreeListener(freeListener *models.FreeListenerCore) (err error) {
-	err = p.usersGateway.UpdateFreeListener(freeListener)
-	if err != nil {
-		log.Println("Error update Parent")
-		return
-	}
-	return
+func (p *UsersUseCaseImpl) UpdateFreeListener(freeListener *models.FreeListenerCore) (freeListenerUpdated *models.FreeListenerCore, err error) {
+	return p.usersGateway.UpdateFreeListener(freeListener)
 }
 
 func (p *UsersUseCaseImpl) GetUnitAdminById(unitAdminId string) (unitAdmin *models.UnitAdminCore, err error) {
@@ -308,16 +285,11 @@ func (p *UsersUseCaseImpl) GetAllUnitAdmins() (unitAdmins []*models.UnitAdminCor
 //	return p.usersGateway.GetUnitAdmin(email, password)
 //}
 
-func (p *UsersUseCaseImpl) UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (err error) {
-	err = p.usersGateway.UpdateUnitAdmin(unitAdmin)
-	if err != nil {
-		log.Println("Error update Unit Admin")
-		return
-	}
-	return
+func (p *UsersUseCaseImpl) UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (unitAdminUpdated *models.UnitAdminCore, err error) {
+	return p.usersGateway.UpdateUnitAdmin(unitAdmin)
 }
 
-func (p *UsersUseCaseImpl) CreateUnitAdmin(unitAdmin *models.UnitAdminCore) (id string, err error) {
+func (p *UsersUseCaseImpl) CreateUnitAdmin(unitAdmin *models.UnitAdminCore) (newUnitAdmin *models.UnitAdminCore, err error) {
 	pwd := sha1.New()
 	pwd.Write([]byte(unitAdmin.Password))
 	pwd.Write([]byte(viper.GetString("auth.hash_salt")))
@@ -326,7 +298,7 @@ func (p *UsersUseCaseImpl) CreateUnitAdmin(unitAdmin *models.UnitAdminCore) (id 
 	return p.usersGateway.CreateUnitAdmin(unitAdmin)
 }
 
-func (p *UsersUseCaseImpl) DeleteUnitAdmin(unitAdminId uint) (err error) {
+func (p *UsersUseCaseImpl) DeleteUnitAdmin(unitAdminId string) (err error) {
 	return p.usersGateway.DeleteUnitAdmin(unitAdminId)
 }
 
@@ -357,15 +329,10 @@ func (p *UsersUseCaseImpl) GetSuperAdminById(superAdminId string) (superAdmin *m
 	return p.usersGateway.GetSuperAdminById(superAdminId)
 }
 
-func (p *UsersUseCaseImpl) UpdateSuperAdmin(superAdmin *models.SuperAdminCore) (err error) {
-	err = p.usersGateway.UpdateSuperAdmin(superAdmin)
-	if err != nil {
-		log.Println("Error update Super Admin")
-		return
-	}
-	return
+func (p *UsersUseCaseImpl) UpdateSuperAdmin(superAdmin *models.SuperAdminCore) (superAdminUpdated *models.SuperAdminCore, err error) {
+	return p.usersGateway.UpdateSuperAdmin(superAdmin)
 }
-func (p *UsersUseCaseImpl) DeleteSuperAdmin(superAdminId uint) (err error) {
+func (p *UsersUseCaseImpl) DeleteSuperAdmin(superAdminId string) (err error) {
 	return p.usersGateway.DeleteSuperAdmin(superAdminId)
 }
 

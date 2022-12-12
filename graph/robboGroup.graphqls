@@ -11,24 +11,34 @@ input NewRobboGroup {
 	robboUnitId: String!
 }
 
+type RobboGroupHttpList {
+	robboGroups: [RobboGroupHttp!]!
+}
+
 input UpdateRobboGroup {
 	id: String!
 	name: String!
 	robboUnitId: String!
 }
 
+type DeletedRobboGroup {
+	robboGroupId: String!
+}
+
+union RobboGroupResult = RobboGroupHttp | RobboGroupHttpList | Error
+
 extend type Mutation {
-	CreateRobboGroup(input: NewRobboGroup!): String!
-	UpdateRobboGroup(input: UpdateRobboGroup!): RobboGroupHttp!
-	DeleteRobboGroup(robboGroupId: String!): String!
+	CreateRobboGroup(input: NewRobboGroup!): RobboGroupResult!
+	UpdateRobboGroup(input: UpdateRobboGroup!): RobboGroupResult!
+	DeleteRobboGroup(robboGroupId: String!): DeletedRobboGroup!
 }
 
 extend type Query {
-	GetRobboGroupById(id: String!): RobboGroupHttp!
-	GetRobboGroupsByTeacherId(teacherId: String!): [RobboGroupHttp!]!
-	GetRobboGroupsByRobboUnitId(robboUnitId: String!): [RobboGroupHttp!]!
-	GetRobboGroupsByUnitAdminID(unitAdminId: String!): [RobboGroupHttp!]!
-	GetAllRobboGroups: [RobboGroupHttp!]!
-	GetRobboGroupsByAccessToken: [RobboGroupHttp!]!
-	SearchGroupsByName(name: String!): [RobboGroupHttp!]!
+	GetRobboGroupById(id: String!): RobboGroupResult!
+	GetRobboGroupsByTeacherId(teacherId: String!): RobboGroupResult!
+	GetRobboGroupsByRobboUnitId(robboUnitId: String!): RobboGroupResult!
+	GetRobboGroupsByUnitAdminId(unitAdminId: String!): RobboGroupResult!
+	GetAllRobboGroups: RobboGroupResult!
+	GetRobboGroupsByAccessToken: RobboGroupResult!
+	SearchGroupsByName(name: String!): RobboGroupResult!
 }

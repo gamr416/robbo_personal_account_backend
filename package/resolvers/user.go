@@ -6,29 +6,28 @@ package resolvers
 import (
 	"context"
 	"errors"
-	"strconv"
 
 	"github.com/skinnykaen/robbo_student_personal_account.git/graph/generated"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 )
 
 // CreateStudent is the resolver for the createStudent field.
-func (r *mutationResolver) CreateStudent(ctx context.Context, input models.NewStudent) (*models.StudentHTTP, error) {
+func (r *mutationResolver) CreateStudent(ctx context.Context, input models.NewStudent) (models.StudentResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
-	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	studentInput := models.StudentHTTP{
 		UserHTTP: &models.UserHTTP{
@@ -42,32 +41,31 @@ func (r *mutationResolver) CreateStudent(ctx context.Context, input models.NewSt
 		},
 	}
 
-	studentId, createStudenterr := r.usersDelegate.CreateStudent(&studentInput, input.ParentID)
-	if createStudenterr != nil {
-		err := errors.New("baq request")
-		return nil, err
+	newStudent, createStudentErr := r.usersDelegate.CreateStudent(&studentInput, input.ParentID)
+	if createStudentErr != nil {
+		err := createStudentErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	studentInput.UserHTTP.ID = studentId
-	return &studentInput, nil
+	return newStudent, nil
 }
 
 // UpdateStudent is the resolver for the updateStudent field.
-func (r *mutationResolver) UpdateStudent(ctx context.Context, input models.UpdateStudentInput) (*models.StudentHTTP, error) {
+func (r *mutationResolver) UpdateStudent(ctx context.Context, input models.UpdateStudentInput) (models.StudentResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	updateStudentInput := &models.StudentHTTP{
 		UserHTTP: &models.UserHTTP{
@@ -79,39 +77,39 @@ func (r *mutationResolver) UpdateStudent(ctx context.Context, input models.Updat
 			Nickname:   input.StudentHTTP.UserHTTP.Nickname,
 		},
 	}
-	updateStudentErr := r.usersDelegate.UpdateStudent(updateStudentInput)
+	studentUpdated, updateStudentErr := r.usersDelegate.UpdateStudent(updateStudentInput)
 	if updateStudentErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := updateStudentErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	return updateStudentInput, nil
+	return studentUpdated, nil
 }
 
 // DeleteStudent is the resolver for the deleteStudent field.
-func (r *mutationResolver) DeleteStudent(ctx context.Context, studentID string) (string, error) {
+func (r *mutationResolver) DeleteStudent(ctx context.Context, studentID string) (*models.DeletedStudent, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return "", err
+		return &models.DeletedStudent{StudentID: ""}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
 		err := errors.New("status unauthorized")
-		return "", err
+		return &models.DeletedStudent{StudentID: ""}, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")
-		return "", err
+		return &models.DeletedStudent{StudentID: ""}, err
 	}
-	id, _ := strconv.ParseUint(studentID, 10, 64)
-	deleteStudentErr := r.usersDelegate.DeleteStudent(uint(id))
+
+	deleteStudentErr := r.usersDelegate.DeleteStudent(studentID)
 	if deleteStudentErr != nil {
 		err := errors.New("baq request")
-		return "", err
+		return &models.DeletedStudent{StudentID: ""}, err
 	}
-	return studentID, nil
+	return &models.DeletedStudent{StudentID: studentID}, nil
 }
 
 // SetRobboGroupIDForStudent is the resolver for the setRobboGroupIdForStudent field.
@@ -141,75 +139,23 @@ func (r *mutationResolver) SetRobboGroupIDForStudent(ctx context.Context, studen
 	return "", nil
 }
 
-// CreateStudentTeacherRelation is the resolver for the createStudentTeacherRelation field.
-func (r *mutationResolver) CreateStudentTeacherRelation(ctx context.Context, studentID string, teacherID string) (models.StudentResult, error) {
-	ginContext, getGinContextErr := GinContextFromContext(ctx)
-	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.Error{Message: "internal server error"}, err
-	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return &models.Error{Message: "status unauthorized"}, err
-	}
-	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
-	if accessErr != nil {
-		err := errors.New("no access")
-		return &models.Error{Message: "no access"}, err
-	}
-	student, createStudentTeacherRelationErr := r.usersDelegate.CreateStudentTeacherRelation(studentID, teacherID)
-	if createStudentTeacherRelationErr != nil {
-		err := errors.New("baq request")
-		return &models.Error{Message: "baq request"}, err
-	}
-	return student, nil
-}
-
-// DeleteStudentTeacherRelation is the resolver for the deleteStudentTeacherRelation field.
-func (r *mutationResolver) DeleteStudentTeacherRelation(ctx context.Context, studentID string, teacherID string) (models.StudentResult, error) {
-	ginContext, getGinContextErr := GinContextFromContext(ctx)
-	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.Error{Message: "internal server error"}, err
-	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return &models.Error{Message: "status unauthorized"}, err
-	}
-	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
-	if accessErr != nil {
-		err := errors.New("no access")
-		return &models.Error{Message: "no access"}, err
-	}
-	student, createStudentTeacherRelationErr := r.usersDelegate.DeleteStudentTeacherRelation(studentID, teacherID)
-	if createStudentTeacherRelationErr != nil {
-		err := errors.New("baq request")
-		return &models.Error{Message: "baq request"}, err
-	}
-	return student, nil
-}
-
 // CreateTeacher is the resolver for the createTeacher field.
-func (r *mutationResolver) CreateTeacher(ctx context.Context, input models.NewTeacher) (*models.TeacherHTTP, error) {
+func (r *mutationResolver) CreateTeacher(ctx context.Context, input models.NewTeacher) (models.TeacherResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	teacherInput := models.TeacherHTTP{
 		UserHTTP: &models.UserHTTP{
@@ -223,32 +169,32 @@ func (r *mutationResolver) CreateTeacher(ctx context.Context, input models.NewTe
 		},
 	}
 
-	teacherId, createTeacherErr := r.usersDelegate.CreateTeacher(&teacherInput)
+	newTeacher, createTeacherErr := r.usersDelegate.CreateTeacher(&teacherInput)
 	if createTeacherErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := createTeacherErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	teacherInput.UserHTTP.ID = teacherId
-	return &teacherInput, nil
+
+	return &newTeacher, nil
 }
 
 // UpdateTeacher is the resolver for the updateTeacher field.
-func (r *mutationResolver) UpdateTeacher(ctx context.Context, input models.UpdateTeacherInput) (*models.TeacherHTTP, error) {
+func (r *mutationResolver) UpdateTeacher(ctx context.Context, input models.UpdateTeacherInput) (models.TeacherResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	updateTeacherInput := &models.TeacherHTTP{
 		UserHTTP: &models.UserHTTP{
@@ -260,58 +206,57 @@ func (r *mutationResolver) UpdateTeacher(ctx context.Context, input models.Updat
 			Nickname:   input.TeacherHTTP.UserHTTP.Nickname,
 		},
 	}
-	updateTeacherErr := r.usersDelegate.UpdateTeacher(updateTeacherInput)
+	teacherUpdated, updateTeacherErr := r.usersDelegate.UpdateTeacher(updateTeacherInput)
 	if updateTeacherErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := updateTeacherErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	return updateTeacherInput, nil
+	return &teacherUpdated, nil
 }
 
 // DeleteTeacher is the resolver for the deleteTeacher field.
-func (r *mutationResolver) DeleteTeacher(ctx context.Context, teacherID string) (string, error) {
+func (r *mutationResolver) DeleteTeacher(ctx context.Context, teacherID string) (*models.DeletedTeacher, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return "", err
+		return &models.DeletedTeacher{TeacherID: ""}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
 		err := errors.New("status unauthorized")
-		return "", err
+		return &models.DeletedTeacher{TeacherID: ""}, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")
-		return "", err
+		return &models.DeletedTeacher{TeacherID: ""}, err
 	}
-	id, _ := strconv.ParseUint(teacherID, 10, 64)
-	deleteTeacherErr := r.usersDelegate.DeleteTeacher(uint(id))
+	deleteTeacherErr := r.usersDelegate.DeleteTeacher(teacherID)
 	if deleteTeacherErr != nil {
 		err := errors.New("baq request")
-		return "", err
+		return &models.DeletedTeacher{TeacherID: ""}, err
 	}
-	return teacherID, nil
+	return &models.DeletedTeacher{TeacherID: teacherID}, nil
 }
 
 // CreateParent is the resolver for the createParent field.
-func (r *mutationResolver) CreateParent(ctx context.Context, input models.NewParent) (*models.ParentHTTP, error) {
+func (r *mutationResolver) CreateParent(ctx context.Context, input models.NewParent) (models.ParentResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	parentInput := models.ParentHTTP{
 		UserHTTP: &models.UserHTTP{
@@ -325,13 +270,12 @@ func (r *mutationResolver) CreateParent(ctx context.Context, input models.NewPar
 		},
 		Children: nil,
 	}
-	parentId, createParentErr := r.usersDelegate.CreateParent(&parentInput)
+	newParent, createParentErr := r.usersDelegate.CreateParent(&parentInput)
 	if createParentErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := createParentErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	parentInput.UserHTTP.ID = parentId
-	return &parentInput, nil
+	return newParent, nil
 }
 
 // AddChildToParent is the resolver for the addChildToParent field.
@@ -361,22 +305,22 @@ func (r *mutationResolver) AddChildToParent(ctx context.Context, parentID string
 }
 
 // UpdateParent is the resolver for the updateParent field.
-func (r *mutationResolver) UpdateParent(ctx context.Context, input models.UpdateParentInput) (*models.ParentHTTP, error) {
+func (r *mutationResolver) UpdateParent(ctx context.Context, input models.UpdateParentInput) (models.ParentResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	updateParentInput := &models.ParentHTTP{
 		UserHTTP: &models.UserHTTP{
@@ -388,58 +332,57 @@ func (r *mutationResolver) UpdateParent(ctx context.Context, input models.Update
 			Nickname:   input.ParentHTTP.UserHTTP.Nickname,
 		},
 	}
-	updateParentErr := r.usersDelegate.UpdateParent(updateParentInput)
+	parentUpdated, updateParentErr := r.usersDelegate.UpdateParent(updateParentInput)
 	if updateParentErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := updateParentErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	return updateParentInput, nil
+	return parentUpdated, nil
 }
 
 // DeleteParent is the resolver for the deleteParent field.
-func (r *mutationResolver) DeleteParent(ctx context.Context, parentID string) (string, error) {
+func (r *mutationResolver) DeleteParent(ctx context.Context, parentID string) (*models.DeletedParent, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return "", err
+		return &models.DeletedParent{ParentID: ""}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
 		err := errors.New("status unauthorized")
-		return "", err
+		return &models.DeletedParent{ParentID: ""}, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")
-		return "", err
+		return &models.DeletedParent{ParentID: ""}, err
 	}
-	id, _ := strconv.ParseUint(parentID, 10, 64)
-	deleteParentErr := r.usersDelegate.DeleteParent(uint(id))
+	deleteParentErr := r.usersDelegate.DeleteParent(parentID)
 	if deleteParentErr != nil {
 		err := errors.New("baq request")
-		return "", err
+		return &models.DeletedParent{ParentID: ""}, err
 	}
-	return parentID, nil
+	return &models.DeletedParent{ParentID: parentID}, nil
 }
 
 // CreateUnitAdmin is the resolver for the createUnitAdmin field.
-func (r *mutationResolver) CreateUnitAdmin(ctx context.Context, input models.NewUnitAdmin) (*models.UnitAdminHTTP, error) {
+func (r *mutationResolver) CreateUnitAdmin(ctx context.Context, input models.NewUnitAdmin) (models.UnitAdminResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	unitAdminInput := models.UnitAdminHTTP{
 		UserHTTP: &models.UserHTTP{
@@ -452,32 +395,31 @@ func (r *mutationResolver) CreateUnitAdmin(ctx context.Context, input models.New
 			Role:       4,
 		},
 	}
-	unitAdminId, createUnitAdminErr := r.usersDelegate.CreateUnitAdmin(&unitAdminInput)
+	newUnitAdmin, createUnitAdminErr := r.usersDelegate.CreateUnitAdmin(&unitAdminInput)
 	if createUnitAdminErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := createUnitAdminErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	unitAdminInput.UserHTTP.ID = unitAdminId
-	return &unitAdminInput, nil
+	return newUnitAdmin, nil
 }
 
 // UpdateUnitAdmin is the resolver for the updateUnitAdmin field.
-func (r *mutationResolver) UpdateUnitAdmin(ctx context.Context, input models.UpdateUnitAdminInput) (*models.UnitAdminHTTP, error) {
+func (r *mutationResolver) UpdateUnitAdmin(ctx context.Context, input models.UpdateUnitAdminInput) (models.UnitAdminResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	updateUnitAdminInput := &models.UnitAdminHTTP{
 		UserHTTP: &models.UserHTTP{
@@ -489,39 +431,38 @@ func (r *mutationResolver) UpdateUnitAdmin(ctx context.Context, input models.Upd
 			Nickname:   input.UnitAdminHTTP.UserHTTP.Nickname,
 		},
 	}
-	updateUnitAdminErr := r.usersDelegate.UpdateUnitAdmin(updateUnitAdminInput)
+	unitAdminUpdated, updateUnitAdminErr := r.usersDelegate.UpdateUnitAdmin(updateUnitAdminInput)
 	if updateUnitAdminErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := updateUnitAdminErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	return updateUnitAdminInput, nil
+	return unitAdminUpdated, nil
 }
 
 // DeleteUnitAdmin is the resolver for the deleteUnitAdmin field.
-func (r *mutationResolver) DeleteUnitAdmin(ctx context.Context, unitAdminID string) (string, error) {
+func (r *mutationResolver) DeleteUnitAdmin(ctx context.Context, unitAdminID string) (*models.DeletedUnitAdmin, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return "", err
+		return &models.DeletedUnitAdmin{UnitAdminID: ""}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
 		err := errors.New("status unauthorized")
-		return "", err
+		return &models.DeletedUnitAdmin{UnitAdminID: ""}, err
 	}
 	allowedRoles := []models.Role{models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")
-		return "", err
+		return &models.DeletedUnitAdmin{UnitAdminID: ""}, err
 	}
-	id, _ := strconv.ParseUint(unitAdminID, 10, 64)
-	deleteUnitAdminErr := r.usersDelegate.DeleteUnitAdmin(uint(id))
+	deleteUnitAdminErr := r.usersDelegate.DeleteUnitAdmin(unitAdminID)
 	if deleteUnitAdminErr != nil {
 		err := errors.New("baq request")
-		return "", err
+		return &models.DeletedUnitAdmin{UnitAdminID: ""}, err
 	}
-	return unitAdminID, nil
+	return &models.DeletedUnitAdmin{UnitAdminID: unitAdminID}, nil
 }
 
 // SetNewUnitAdminForRobboUnit is the resolver for the setNewUnitAdminForRobboUnit field.
@@ -577,22 +518,22 @@ func (r *mutationResolver) DeleteUnitAdminForRobboUnit(ctx context.Context, unit
 }
 
 // UpdateSuperAdmin is the resolver for the updateSuperAdmin field.
-func (r *mutationResolver) UpdateSuperAdmin(ctx context.Context, input models.UpdateSuperAdminInput) (*models.SuperAdminHTTP, error) {
+func (r *mutationResolver) UpdateSuperAdmin(ctx context.Context, input models.UpdateSuperAdminInput) (models.SuperAdminResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	updateSuperAdminInput := &models.SuperAdminHTTP{
 		UserHTTP: &models.UserHTTP{
@@ -604,103 +545,488 @@ func (r *mutationResolver) UpdateSuperAdmin(ctx context.Context, input models.Up
 			Nickname:   input.SuperAdminHTTP.UserHTTP.Nickname,
 		},
 	}
-	updateSuperAdminErr := r.usersDelegate.UpdateSuperAdmin(updateSuperAdminInput)
+	superAdminUpdated, updateSuperAdminErr := r.usersDelegate.UpdateSuperAdmin(updateSuperAdminInput)
 	if updateSuperAdminErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := updateSuperAdminErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	return updateSuperAdminInput, nil
+	return superAdminUpdated, nil
 }
 
 // GetStudentsByParentID is the resolver for the GetStudentsByParentId field.
-func (r *queryResolver) GetStudentsByParentID(ctx context.Context, parentID string) ([]*models.StudentHTTP, error) {
+func (r *queryResolver) GetStudentsByParentID(ctx context.Context, parentID string) (models.StudentResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin, models.Parent}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	students, err := r.usersDelegate.GetStudentByParentId(parentID)
-	return students, err
+	students, getStudentByParentIdErr := r.usersDelegate.GetStudentByParentId(parentID)
+	if getStudentByParentIdErr != nil {
+		err := getStudentByParentIdErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.StudentHTTPList{
+		Students: students,
+	}, nil
 }
 
 // GetStudentByID is the resolver for the GetStudentById field.
-func (r *queryResolver) GetStudentByID(ctx context.Context, studentID string) (*models.StudentHTTP, error) {
+func (r *queryResolver) GetStudentByID(ctx context.Context, studentID string) (models.StudentResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.Parent, models.Teacher, models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	student, err := r.usersDelegate.GetStudentById(studentID)
-	return student, err
+	student, getStudentByIdErr := r.usersDelegate.GetStudentById(studentID)
+	if getStudentByIdErr != nil {
+		err := getStudentByIdErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return student, nil
 }
 
 // GetStudentsByRobboGroup is the resolver for the GetStudentsByRobboGroup field.
-func (r *queryResolver) GetStudentsByRobboGroup(ctx context.Context, robboGroupID string) ([]*models.StudentHTTP, error) {
+func (r *queryResolver) GetStudentsByRobboGroup(ctx context.Context, robboGroupID string) (models.StudentResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin, models.Teacher}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	students, err := r.usersDelegate.GetStudentsByRobboGroupId(robboGroupID)
-	return students, err
+	students, getStudentByRobboGroupErr := r.usersDelegate.GetStudentsByRobboGroupId(robboGroupID)
+	if getStudentByRobboGroupErr != nil {
+		err := getStudentByRobboGroupErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.StudentHTTPList{
+		Students: students,
+	}, nil
 }
 
 // GetStudentsByRobboUnitID is the resolver for the GetStudentsByRobboUnitId field.
-func (r *queryResolver) GetStudentsByRobboUnitID(ctx context.Context, robboUnitID string) ([]*models.StudentHTTP, error) {
+func (r *queryResolver) GetStudentsByRobboUnitID(ctx context.Context, robboUnitID string) (models.StudentResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	students, err := r.usersDelegate.GetStudentsByRobboUnitId(robboUnitID)
-	return students, err
+	students, getStudentsByRobboUnitIdErr := r.usersDelegate.GetStudentsByRobboUnitId(robboUnitID)
+	if getStudentsByRobboUnitIdErr != nil {
+		err := getStudentsByRobboUnitIdErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.StudentHTTPList{
+		Students: students,
+	}, nil
 }
 
-// GetStudentsByTeacherID is the resolver for the GetStudentsByTeacherId field.
+// SearchStudentsByEmail is the resolver for the SearchStudentsByEmail field.
+func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string, parentID string) (models.StudentResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	students, searchStudentByEmailErr := r.usersDelegate.SearchStudentByEmail(email, parentID)
+	if searchStudentByEmailErr != nil {
+		err := searchStudentByEmailErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.StudentHTTPList{
+		Students: students,
+	}, nil
+}
+
+// GetAllTeachers is the resolver for the GetAllTeachers field.
+func (r *queryResolver) GetAllTeachers(ctx context.Context) (models.TeacherResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	teachers, getAllTeachersErr := r.usersDelegate.GetAllTeachers()
+	if getAllTeachersErr != nil {
+		err := getAllTeachersErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.TeacherHTTPList{
+		Teachers: teachers,
+	}, nil
+}
+
+// GetTeacherByID is the resolver for the GetTeacherById field.
+func (r *queryResolver) GetTeacherByID(ctx context.Context, teacherID string) (models.TeacherResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	teacher, getTeacherByIdErr := r.usersDelegate.GetTeacherById(teacherID)
+	if getTeacherByIdErr != nil {
+		err := getTeacherByIdErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return teacher, nil
+}
+
+// GetTeachersByRobboGroupID is the resolver for the GetTeachersByRobboGroupId field.
+func (r *queryResolver) GetTeachersByRobboGroupID(ctx context.Context, robboGroupID string) (models.TeacherResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.SuperAdmin, models.UnitAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	teachers, getTeacherByRobboGroupIdErr := r.usersDelegate.GetTeacherByRobboGroupId(robboGroupID)
+	if getTeacherByRobboGroupIdErr != nil {
+		err := getTeacherByRobboGroupIdErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.TeacherHTTPList{
+		Teachers: teachers,
+	}, nil
+}
+
+// GetAllParents is the resolver for the GetAllParents field.
+func (r *queryResolver) GetAllParents(ctx context.Context) (models.ParentResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	parents, getAllParentsErr := r.usersDelegate.GetAllParent()
+	if getAllParentsErr != nil {
+		err := getAllParentsErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.ParentHTTPList{
+		Parents: parents,
+	}, nil
+}
+
+// GetParentByID is the resolver for the GetParentById field.
+func (r *queryResolver) GetParentByID(ctx context.Context, parentID string) (models.ParentResult, error) {
+	ginContext, ginContextErr := GinContextFromContext(ctx)
+	if ginContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.Parent, models.Teacher, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	parent, getParentByIdErr := r.usersDelegate.GetParentById(parentID)
+	if getParentByIdErr != nil {
+		err := getParentByIdErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return parent, nil
+}
+
+// GetAllUnitAdmins is the resolver for the GetAllUnitAdmins field.
+func (r *queryResolver) GetAllUnitAdmins(ctx context.Context) (models.UnitAdminResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	unitAdmins, getAllUnitAdminsErr := r.usersDelegate.GetAllUnitAdmins()
+	if getAllUnitAdminsErr != nil {
+		err := getAllUnitAdminsErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.UnitAdminHTTPList{
+		UnitAdmins: unitAdmins,
+	}, nil
+}
+
+// GetUnitAdminsByRobboUnitID is the resolver for the GetUnitAdminsByRobboUnitId field.
+func (r *queryResolver) GetUnitAdminsByRobboUnitID(ctx context.Context, robboUnitID string) (models.UnitAdminResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+
+	unitAdmins, getUnitAdminByRobboUnitIdErr := r.usersDelegate.GetUnitAdminByRobboUnitId(robboUnitID)
+	if getUnitAdminByRobboUnitIdErr != nil {
+		err := getUnitAdminByRobboUnitIdErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.UnitAdminHTTPList{
+		UnitAdmins: unitAdmins,
+	}, nil
+}
+
+// GetUnitAdminByID is the resolver for the GetUnitAdminById field.
+func (r *queryResolver) GetUnitAdminByID(ctx context.Context, unitAdminID string) (models.UnitAdminResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	unitAdmin, getUnitAdminByIdErr := r.usersDelegate.GetUnitAdminById(unitAdminID)
+	if getUnitAdminByIdErr != nil {
+		err := getUnitAdminByIdErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &unitAdmin, nil
+}
+
+// SearchUnitAdminsByEmail is the resolver for the SearchUnitAdminsByEmail field.
+func (r *queryResolver) SearchUnitAdminsByEmail(ctx context.Context, email string, robboUnitID string) (models.UnitAdminResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	unitAdmins, searchUnitAdminByEmailErr := r.usersDelegate.SearchUnitAdminByEmail(email, robboUnitID)
+	if searchUnitAdminByEmailErr != nil {
+		err := searchUnitAdminByEmailErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.UnitAdminHTTPList{
+		UnitAdmins: unitAdmins,
+	}, nil
+}
+
+// GetSuperAdminByID is the resolver for the GetSuperAdminById field.
+func (r *queryResolver) GetSuperAdminByID(ctx context.Context, superAdminID string) (models.SuperAdminResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	superAdmin, getSuperAdminByIdErr := r.usersDelegate.GetSuperAdminById(superAdminID)
+	if getSuperAdminByIdErr != nil {
+		err := getSuperAdminByIdErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &superAdmin, nil
+}
+
+// Mutation returns generated.MutationResolver implementation.
+func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
+
+// Query returns generated.QueryResolver implementation.
+func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
+
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *mutationResolver) CreateStudentTeacherRelation(ctx context.Context, studentID string, teacherID string) (models.StudentResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := errors.New("status unauthorized")
+		return &models.Error{Message: "status unauthorized"}, err
+	}
+	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return &models.Error{Message: "no access"}, err
+	}
+	student, createStudentTeacherRelationErr := r.usersDelegate.CreateStudentTeacherRelation(studentID, teacherID)
+	if createStudentTeacherRelationErr != nil {
+		err := errors.New("baq request")
+		return &models.Error{Message: "baq request"}, err
+	}
+	return student, nil
+}
+func (r *mutationResolver) DeleteStudentTeacherRelation(ctx context.Context, studentID string, teacherID string) (models.StudentResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := errors.New("status unauthorized")
+		return &models.Error{Message: "status unauthorized"}, err
+	}
+	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return &models.Error{Message: "no access"}, err
+	}
+	student, createStudentTeacherRelationErr := r.usersDelegate.DeleteStudentTeacherRelation(studentID, teacherID)
+	if createStudentTeacherRelationErr != nil {
+		err := errors.New("baq request")
+		return &models.Error{Message: "baq request"}, err
+	}
+	return student, nil
+}
 func (r *queryResolver) GetStudentsByTeacherID(ctx context.Context, teacherID string) ([]*models.StudentHTTP, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
@@ -721,96 +1047,6 @@ func (r *queryResolver) GetStudentsByTeacherID(ctx context.Context, teacherID st
 	students, err := r.usersDelegate.GetStudentsByTeacherId(teacherID)
 	return students, err
 }
-
-// SearchStudentsByEmail is the resolver for the SearchStudentsByEmail field.
-func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string, parentID string) ([]*models.StudentHTTP, error) {
-	ginContext, getGinContextErr := GinContextFromContext(ctx)
-	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return nil, err
-	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
-	}
-	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
-	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
-	}
-	students, err := r.usersDelegate.SearchStudentByEmail(email, parentID)
-	return students, err
-}
-
-// GetAllTeachers is the resolver for the GetAllTeachers field.
-func (r *queryResolver) GetAllTeachers(ctx context.Context) ([]*models.TeacherHTTP, error) {
-	ginContext, getGinContextErr := GinContextFromContext(ctx)
-	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return nil, err
-	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
-	}
-	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
-	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
-	}
-	teachers, err := r.usersDelegate.GetAllTeachers()
-	return teachers, err
-}
-
-// GetTeacherByID is the resolver for the GetTeacherById field.
-func (r *queryResolver) GetTeacherByID(ctx context.Context, teacherID string) (*models.TeacherHTTP, error) {
-	ginContext, getGinContextErr := GinContextFromContext(ctx)
-	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return nil, err
-	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
-	}
-	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
-	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
-	}
-	teacher, err := r.usersDelegate.GetTeacherById(teacherID)
-	return teacher, err
-}
-
-// GetTeachersByRobboGroupID is the resolver for the GetTeachersByRobboGroupId field.
-func (r *queryResolver) GetTeachersByRobboGroupID(ctx context.Context, robboGroupID string) ([]*models.TeacherHTTP, error) {
-	ginContext, getGinContextErr := GinContextFromContext(ctx)
-	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return nil, err
-	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
-	}
-	allowedRoles := []models.Role{models.SuperAdmin, models.UnitAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
-	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
-	}
-	teachers, err := r.usersDelegate.GetTeacherByRobboGroupId(robboGroupID)
-	return teachers, err
-}
-
-// GetTeachersByStudentID is the resolver for the GetTeachersByStudentId field.
 func (r *queryResolver) GetTeachersByStudentID(ctx context.Context, studentID string) ([]*models.TeacherHTTP, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
@@ -831,164 +1067,3 @@ func (r *queryResolver) GetTeachersByStudentID(ctx context.Context, studentID st
 	teachers, err := r.usersDelegate.GetTeachersByStudentId(studentID)
 	return teachers, err
 }
-
-// GetAllParents is the resolver for the GetAllParents field.
-func (r *queryResolver) GetAllParents(ctx context.Context) ([]*models.ParentHTTP, error) {
-	ginContext, getGinContextErr := GinContextFromContext(ctx)
-	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return nil, err
-	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
-	}
-	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
-	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
-	}
-	parents, err := r.usersDelegate.GetAllParent()
-	return parents, err
-}
-
-// GetParentByID is the resolver for the GetParentById field.
-func (r *queryResolver) GetParentByID(ctx context.Context, parentID string) (*models.ParentHTTP, error) {
-	ginContext, ginContextErr := GinContextFromContext(ctx)
-	if ginContextErr != nil {
-		err := errors.New("internal server error")
-		return nil, err
-	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
-	}
-	allowedRoles := []models.Role{models.Parent, models.Teacher, models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
-	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
-	}
-	parent, err := r.usersDelegate.GetParentById(parentID)
-	return parent, err
-}
-
-// GetAllUnitAdmins is the resolver for the GetAllUnitAdmins field.
-func (r *queryResolver) GetAllUnitAdmins(ctx context.Context) ([]*models.UnitAdminHTTP, error) {
-	ginContext, getGinContextErr := GinContextFromContext(ctx)
-	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return nil, err
-	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
-	}
-	allowedRoles := []models.Role{models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
-	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
-	}
-	return r.usersDelegate.GetAllUnitAdmins()
-}
-
-// GetUnitAdminsByRobboUnitID is the resolver for the GetUnitAdminsByRobboUnitId field.
-func (r *queryResolver) GetUnitAdminsByRobboUnitID(ctx context.Context, robboUnitID string) ([]*models.UnitAdminHTTP, error) {
-	ginContext, getGinContextErr := GinContextFromContext(ctx)
-	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return nil, err
-	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
-	}
-	allowedRoles := []models.Role{models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
-	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
-	}
-	return r.usersDelegate.GetUnitAdminByRobboUnitId(robboUnitID)
-}
-
-// GetUnitAdminByID is the resolver for the GetUnitAdminById field.
-func (r *queryResolver) GetUnitAdminByID(ctx context.Context, unitAdminID string) (*models.UnitAdminHTTP, error) {
-	ginContext, getGinContextErr := GinContextFromContext(ctx)
-	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return nil, err
-	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
-	}
-	allowedRoles := []models.Role{models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
-	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
-	}
-	unitAdmin, err := r.usersDelegate.GetUnitAdminById(unitAdminID)
-	return &unitAdmin, err
-}
-
-// SearchUnitAdminsByEmail is the resolver for the SearchUnitAdminsByEmail field.
-func (r *queryResolver) SearchUnitAdminsByEmail(ctx context.Context, email string, robboUnitID string) ([]*models.UnitAdminHTTP, error) {
-	ginContext, getGinContextErr := GinContextFromContext(ctx)
-	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return nil, err
-	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
-	}
-	allowedRoles := []models.Role{models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
-	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
-	}
-	unitAdmins, err := r.usersDelegate.SearchUnitAdminByEmail(email, robboUnitID)
-	return unitAdmins, err
-}
-
-// GetSuperAdminByID is the resolver for the GetSuperAdminById field.
-func (r *queryResolver) GetSuperAdminByID(ctx context.Context, superAdminID string) (*models.SuperAdminHTTP, error) {
-	ginContext, getGinContextErr := GinContextFromContext(ctx)
-	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return nil, err
-	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
-	}
-	allowedRoles := []models.Role{models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
-	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
-	}
-	superAdmin, err := r.usersDelegate.GetSuperAdminById(superAdminID)
-	return &superAdmin, err
-}
-
-// Mutation returns generated.MutationResolver implementation.
-func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
-
-// Query returns generated.QueryResolver implementation.
-func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
-
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }

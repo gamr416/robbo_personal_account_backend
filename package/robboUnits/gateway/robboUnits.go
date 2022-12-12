@@ -7,7 +7,6 @@ import (
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 	"log"
-	"strconv"
 )
 
 type RobboUnitsGatewayImpl struct {
@@ -25,7 +24,7 @@ func SetupRobboUnitsGateway(postgresClient db_client.PostgresClient) RobboUnitsG
 	}
 }
 
-func (r *RobboUnitsGatewayImpl) CreateRobboUnit(robboUnitCore *models.RobboUnitCore) (robboUnitId string, err error) {
+func (r *RobboUnitsGatewayImpl) CreateRobboUnit(robboUnitCore *models.RobboUnitCore) (newRobboUnit *models.RobboUnitCore, err error) {
 	robboUnitDb := models.RobboUnitDB{}
 	robboUnitDb.FromCore(robboUnitCore)
 
@@ -33,9 +32,7 @@ func (r *RobboUnitsGatewayImpl) CreateRobboUnit(robboUnitCore *models.RobboUnitC
 		err = tx.Create(&robboUnitDb).Error
 		return
 	})
-
-	robboUnitId = strconv.FormatUint(uint64(robboUnitDb.ID), 10)
-
+	newRobboUnit = robboUnitDb.ToCore()
 	return
 }
 func (r *RobboUnitsGatewayImpl) DeleteRobboUnit(robboUnitId string) (err error) {
@@ -79,7 +76,7 @@ func (r *RobboUnitsGatewayImpl) GetRobboUnitById(robboUnitId string) (robboUnitC
 	return
 }
 
-func (r *RobboUnitsGatewayImpl) UpdateRobboUnit(robboUnitCore *models.RobboUnitCore) (err error) {
+func (r *RobboUnitsGatewayImpl) UpdateRobboUnit(robboUnitCore *models.RobboUnitCore) (robboUnitUpdated *models.RobboUnitCore, err error) {
 	robboUnitDb := models.RobboUnitDB{}
 	robboUnitDb.FromCore(robboUnitCore)
 
@@ -90,5 +87,6 @@ func (r *RobboUnitsGatewayImpl) UpdateRobboUnit(robboUnitCore *models.RobboUnitC
 		}
 		return
 	})
+	robboUnitUpdated = robboUnitDb.ToCore()
 	return
 }

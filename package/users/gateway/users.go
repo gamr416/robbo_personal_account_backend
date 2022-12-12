@@ -113,7 +113,7 @@ func (r *UsersGatewayImpl) CreateStudent(student *models.StudentCore) (id string
 		err = tx.Create(&studentDb).Error
 		var duplicateEntryError = &pgconn.PgError{Code: "23505"}
 		if errors.As(err, &duplicateEntryError) {
-			return auth.ErrUserAlreadyExist
+			return users.ErrAlreadyUsedEmail
 		}
 		return
 	})
@@ -171,6 +171,10 @@ func (r *UsersGatewayImpl) UpdateStudent(student *models.StudentCore) (err error
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Model(&studentDb).Where("id = ?", studentDb.ID).First(&models.StudentDB{}).Updates(studentDb).Error; err != nil {
+			var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+			if errors.As(err, &duplicateEntryError) {
+				return users.ErrAlreadyUsedEmail
+			}
 			err = auth.ErrUserNotFound
 			return
 		}
@@ -231,7 +235,7 @@ func (r *UsersGatewayImpl) CreateTeacher(teacher *models.TeacherCore) (id string
 		err = tx.Create(&teacherDb).Error
 		var duplicateEntryError = &pgconn.PgError{Code: "23505"}
 		if errors.As(err, &duplicateEntryError) {
-			return auth.ErrUserAlreadyExist
+			return users.ErrAlreadyUsedEmail
 		}
 		return
 	})
@@ -256,6 +260,10 @@ func (r *UsersGatewayImpl) UpdateTeacher(teacher *models.TeacherCore) (err error
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 			if err = tx.Model(&teacherDb).Where("id = ?", teacherDb.ID).First(&models.TeacherDB{}).Updates(teacherDb).Error; err != nil {
+				var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+				if errors.As(err, &duplicateEntryError) {
+					return users.ErrAlreadyUsedEmail
+				}
 				err = auth.ErrUserNotFound
 				return
 			}
@@ -318,7 +326,7 @@ func (r *UsersGatewayImpl) CreateParent(parent *models.ParentCore) (id string, e
 		err = tx.Create(&parentDb).Error
 		var duplicateEntryError = &pgconn.PgError{Code: "23505"}
 		if errors.As(err, &duplicateEntryError) {
-			return auth.ErrUserAlreadyExist
+			return users.ErrAlreadyUsedEmail
 		}
 		return
 	})
@@ -343,6 +351,10 @@ func (r *UsersGatewayImpl) UpdateParent(parent *models.ParentCore) (err error) {
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 			if err = tx.Model(&parentDb).Where("id = ?", parentDb.ID).First(&models.ParentDB{}).Updates(parentDb).Error; err != nil {
+				var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+				if errors.As(err, &duplicateEntryError) {
+					return users.ErrAlreadyUsedEmail
+				}
 				err = auth.ErrUserNotFound
 				return
 			}
@@ -390,7 +402,7 @@ func (r *UsersGatewayImpl) CreateFreeListener(freeListener *models.FreeListenerC
 		err = tx.Create(&freeListenerDb).Error
 		var duplicateEntryError = &pgconn.PgError{Code: "23505"}
 		if errors.As(err, &duplicateEntryError) {
-			return auth.ErrUserAlreadyExist
+			return users.ErrAlreadyUsedEmail
 		}
 		return
 	})
@@ -416,6 +428,10 @@ func (r *UsersGatewayImpl) UpdateFreeListener(freeListener *models.FreeListenerC
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 			if err = tx.Model(&freeListenerDb).Where("id = ?", freeListenerDb.ID).First(&models.FreeListenerDB{}).Updates(freeListenerDb).Error; err != nil {
+				var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+				if errors.As(err, &duplicateEntryError) {
+					return users.ErrAlreadyUsedEmail
+				}
 				err = auth.ErrUserNotFound
 				return
 			}
@@ -476,7 +492,7 @@ func (r *UsersGatewayImpl) CreateUnitAdmin(unitAdmin *models.UnitAdminCore) (id 
 		err = tx.Create(&unitAdminDb).Error
 		var duplicateEntryError = &pgconn.PgError{Code: "23505"}
 		if errors.As(err, &duplicateEntryError) {
-			return auth.ErrUserAlreadyExist
+			return users.ErrAlreadyUsedEmail
 		}
 		return
 	})
@@ -502,6 +518,10 @@ func (r *UsersGatewayImpl) UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (err
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 			if err = tx.Model(&unitAdminDb).Where("id = ?", unitAdminDb.ID).First(&models.UnitAdminDB{}).Updates(unitAdminDb).Error; err != nil {
+				var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+				if errors.As(err, &duplicateEntryError) {
+					return users.ErrAlreadyUsedEmail
+				}
 				err = auth.ErrUserNotFound
 				return
 			}

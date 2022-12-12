@@ -211,11 +211,13 @@ func (p *UsersUseCaseImpl) CreateTeacher(teacher *models.TeacherCore) (id string
 }
 
 func (p *UsersUseCaseImpl) DeleteTeacher(teacherId uint) (err error) {
-	deleteStudentTeacherRelationErr := p.usersGateway.DeleteStudentTeacherRelationByTeacherId(fmt.Sprintf("%v", teacherId))
-	if err != nil {
-		return deleteStudentTeacherRelationErr
+	if err = p.usersGateway.DeleteTeacher(teacherId); err != nil {
+		return
 	}
-	return p.usersGateway.DeleteTeacher(teacherId)
+	if err = p.usersGateway.DeleteStudentTeacherRelationByTeacherId(fmt.Sprintf("%v", teacherId)); err != nil {
+		return
+	}
+	return
 }
 
 //func (p *UsersUseCaseImpl) GetParent(email, password string) (parent *models.ParentCore, err error) {

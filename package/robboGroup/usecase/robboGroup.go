@@ -12,8 +12,34 @@ func (r *RobboGroupUseCaseImpl) CreateRobboGroup(robboGroup *models.RobboGroupCo
 }
 
 func (r *RobboGroupUseCaseImpl) DeleteRobboGroup(robboGroupId string) (err error) {
-	// TODO set robboGroupId = null for student
-	return r.robboGroupGateway.DeleteRobboGroup(robboGroupId)
+	if err = r.robboGroupGateway.DeleteRobboGroup(robboGroupId); err != nil {
+		return
+	}
+	relations, err := r.robboGroupGateway.GetRelationByRobboGroupId(robboGroupId)
+	if err != nil {
+		return err
+	}
+	students, getStudentErr := r.usersGateway.GetStudentsByRobboGroupId(robboGroupId)
+	if getStudentErr != nil {
+		err = getStudentErr
+		return
+	}
+	for _, student := range students {
+		for _, relation := range relations {
+			relationCore := &models.StudentsOfTeacherCore{
+				StudentId: student.Id,
+				TeacherId: relation.TeacherId,
+			}
+			if err = r.usersGateway.DeleteStudentTeacherRelation(relationCore); err != nil {
+				return
+			}
+		}
+		student.RobboGroupId = ""
+		if err = r.usersGateway.UpdateStudent(student); err != nil {
+			return
+		}
+	}
+	return
 }
 
 func (r *RobboGroupUseCaseImpl) GetRobboGroupsByRobboUnitId(robboUnitId string) (robboGroups []*models.RobboGroupCore, err error) {
@@ -75,7 +101,24 @@ func (r *RobboGroupUseCaseImpl) SetTeacherForRobboGroup(teacherId, robboGroupId 
 		TeacherId:    teacherId,
 		RobboGroupId: robboGroupId,
 	}
-	return r.robboGroupGateway.SetTeacherForRobboGroup(relationCore)
+	if err = r.robboGroupGateway.SetTeacherForRobboGroup(relationCore); err != nil {
+		return
+	}
+	students, getStudentErr := r.usersGateway.GetStudentsByRobboGroupId(robboGroupId)
+	if getStudentErr != nil {
+		err = getStudentErr
+		return
+	}
+	for _, student := range students {
+		relationCore := &models.StudentsOfTeacherCore{
+			StudentId: student.Id,
+			TeacherId: teacherId,
+		}
+		if err = r.usersGateway.CreateStudentTeacherRelation(relationCore); err != nil {
+			return
+		}
+	}
+	return
 }
 
 func (r *RobboGroupUseCaseImpl) DeleteTeacherForRobboGroup(teacherId, robboGroupId string) (err error) {
@@ -83,7 +126,24 @@ func (r *RobboGroupUseCaseImpl) DeleteTeacherForRobboGroup(teacherId, robboGroup
 		TeacherId:    teacherId,
 		RobboGroupId: robboGroupId,
 	}
-	return r.robboGroupGateway.DeleteTeacherForRobboGroup(relationCore)
+	if err = r.robboGroupGateway.DeleteTeacherForRobboGroup(relationCore); err != nil {
+		return
+	}
+	students, getStudentErr := r.usersGateway.GetStudentsByRobboGroupId(robboGroupId)
+	if getStudentErr != nil {
+		err = getStudentErr
+		return
+	}
+	for _, student := range students {
+		relationCore := &models.StudentsOfTeacherCore{
+			StudentId: student.Id,
+			TeacherId: teacherId,
+		}
+		if err = r.usersGateway.DeleteStudentTeacherRelation(relationCore); err != nil {
+			return
+		}
+	}
+	return
 }
 
 func (r *RobboGroupUseCaseImpl) GetRobboGroupsByTeacherId(teacherId string) (robboGroups []*models.RobboGroupCore, err error) {

@@ -122,12 +122,16 @@ func (p *UsersUseCaseImpl) CreateStudent(student *models.StudentCore, parentId s
 }
 
 func (p *UsersUseCaseImpl) DeleteStudent(studentId uint) (err error) {
-
-	deleteRelationErr := p.usersGateway.DeleteRelationByChildrenId(strconv.Itoa(int(studentId)))
-	if deleteRelationErr != nil {
-		return deleteRelationErr
+	if err = p.usersGateway.DeleteStudent(studentId); err != nil {
+		return
 	}
-	return p.usersGateway.DeleteStudent(studentId)
+	if err = p.usersGateway.DeleteRelationByChildrenId(strconv.Itoa(int(studentId))); err != nil {
+		return
+	}
+	if err = p.usersGateway.DeleteStudentTeacherRelationByStudentId(strconv.Itoa(int(studentId))); err != nil {
+		return
+	}
+	return
 }
 
 func (p *UsersUseCaseImpl) UpdateStudent(student *models.StudentCore) (err error) {
@@ -140,7 +144,23 @@ func (p *UsersUseCaseImpl) UpdateStudent(student *models.StudentCore) (err error
 }
 
 func (p *UsersUseCaseImpl) AddStudentToRobboGroup(studentId string, robboGroupId string, robboUnitId string) (err error) {
-	return p.usersGateway.AddStudentToRobboGroup(studentId, robboGroupId, robboUnitId)
+	if err = p.usersGateway.AddStudentToRobboGroup(studentId, robboGroupId, robboUnitId); err != nil {
+		return
+	}
+	teachersRobboGroupsRelations, err := p.robboGroupGateway.GetRelationByRobboGroupId(robboGroupId)
+	if err != nil {
+		return
+	}
+	for _, relation := range teachersRobboGroupsRelations {
+		relationCore := &models.StudentsOfTeacherCore{
+			StudentId: studentId,
+			TeacherId: relation.TeacherId,
+		}
+		if err = p.usersGateway.CreateStudentTeacherRelation(relationCore); err != nil {
+			return
+		}
+	}
+	return
 }
 
 func (p *UsersUseCaseImpl) GetTeacherById(teacherId string) (teacher models.TeacherCore, err error) {
@@ -191,6 +211,10 @@ func (p *UsersUseCaseImpl) CreateTeacher(teacher *models.TeacherCore) (id string
 }
 
 func (p *UsersUseCaseImpl) DeleteTeacher(teacherId uint) (err error) {
+	deleteStudentTeacherRelationErr := p.usersGateway.DeleteStudentTeacherRelationByTeacherId(fmt.Sprintf("%v", teacherId))
+	if err != nil {
+		return deleteStudentTeacherRelationErr
+	}
 	return p.usersGateway.DeleteTeacher(teacherId)
 }
 

@@ -553,6 +553,62 @@ func (r *mutationResolver) UpdateSuperAdmin(ctx context.Context, input models.Up
 	return superAdminUpdated, nil
 }
 
+// GetPairsStudentParentsByAccessToken is the resolver for the GetPairsStudentParentsByAccessToken field.
+func (r *queryResolver) GetPairsStudentParentsByAccessToken(ctx context.Context) (models.PairsStudentParentsResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	userId, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.Teacher}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	pairsStudentParents, getPairsStudentParentsByAccessTokenErr := r.usersDelegate.GetPairsStudentParentsByTeacherId(userId)
+	if getPairsStudentParentsByAccessTokenErr != nil {
+		err := getPairsStudentParentsByAccessTokenErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.StudentParentsHTTPList{
+		PairsStudentParents: pairsStudentParents,
+	}, nil
+}
+
+// GetIndividualStudentsByTeacherID is the resolver for the GetIndividualStudentsByTeacherId field.
+func (r *queryResolver) GetIndividualStudentsByTeacherID(ctx context.Context, teacherID string) (models.StudentResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.Teacher, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	students, getIndividualStudentsByTeacherIdErr := r.usersDelegate.GetIndividualStudentsByTeacherId(teacherID)
+	if getIndividualStudentsByTeacherIdErr != nil {
+		err := getIndividualStudentsByTeacherIdErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.StudentHTTPList{
+		Students: students,
+	}, nil
+}
+
 // GetStudentsByParentID is the resolver for the GetStudentsByParentId field.
 func (r *queryResolver) GetStudentsByParentID(ctx context.Context, parentID string) (models.StudentResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
@@ -976,9 +1032,9 @@ type queryResolver struct{ *Resolver }
 // !!! WARNING !!!
 // The code below was going to be deleted when updating resolvers. It has been copied here so you have
 // one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
 func (r *mutationResolver) CreateStudentTeacherRelation(ctx context.Context, studentID string, teacherID string) (models.StudentResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {

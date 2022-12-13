@@ -22,6 +22,10 @@ type RobboGroupResult interface {
 	IsRobboGroupResult()
 }
 
+type RobboGroupsResult interface {
+	IsRobboGroupsResult()
+}
+
 type RobboUnitResult interface {
 	IsRobboUnitResult()
 }
@@ -149,6 +153,8 @@ func (Error) IsProjectPageResult() {}
 
 func (Error) IsRobboGroupResult() {}
 
+func (Error) IsRobboGroupsResult() {}
+
 func (Error) IsRobboUnitResult() {}
 
 func (Error) IsRobboUnitsResult() {}
@@ -274,9 +280,10 @@ func (RobboGroupHTTP) IsRobboGroupResult() {}
 
 type RobboGroupHTTPList struct {
 	RobboGroups []*RobboGroupHTTP `json:"robboGroups"`
+	CountRows   int               `json:"countRows"`
 }
 
-func (RobboGroupHTTPList) IsRobboGroupResult() {}
+func (RobboGroupHTTPList) IsRobboGroupsResult() {}
 
 type RobboUnitHTTP struct {
 	ID           string `json:"id"`

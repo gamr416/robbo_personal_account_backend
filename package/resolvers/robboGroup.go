@@ -129,7 +129,7 @@ func (r *queryResolver) GetRobboGroupByID(ctx context.Context, id string) (model
 }
 
 // GetRobboGroupsByTeacherID is the resolver for the GetRobboGroupsByTeacherId field.
-func (r *queryResolver) GetRobboGroupsByTeacherID(ctx context.Context, teacherID string) (models.RobboGroupResult, error) {
+func (r *queryResolver) GetRobboGroupsByTeacherID(ctx context.Context, teacherID string) (models.RobboGroupsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -157,7 +157,7 @@ func (r *queryResolver) GetRobboGroupsByTeacherID(ctx context.Context, teacherID
 }
 
 // GetRobboGroupsByRobboUnitID is the resolver for the GetRobboGroupsByRobboUnitId field.
-func (r *queryResolver) GetRobboGroupsByRobboUnitID(ctx context.Context, robboUnitID string) (models.RobboGroupResult, error) {
+func (r *queryResolver) GetRobboGroupsByRobboUnitID(ctx context.Context, robboUnitID string) (models.RobboGroupsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -185,7 +185,7 @@ func (r *queryResolver) GetRobboGroupsByRobboUnitID(ctx context.Context, robboUn
 }
 
 // GetRobboGroupsByUnitAdminID is the resolver for the GetRobboGroupsByUnitAdminID field.
-func (r *queryResolver) GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdminID string) (models.RobboGroupResult, error) {
+func (r *queryResolver) GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdminID string) (models.RobboGroupsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -213,7 +213,7 @@ func (r *queryResolver) GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdm
 }
 
 // GetAllRobboGroups is the resolver for the GetAllRobboGroups field.
-func (r *queryResolver) GetAllRobboGroups(ctx context.Context) (models.RobboGroupResult, error) {
+func (r *queryResolver) GetAllRobboGroups(ctx context.Context) (models.RobboGroupsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -242,7 +242,7 @@ func (r *queryResolver) GetAllRobboGroups(ctx context.Context) (models.RobboGrou
 }
 
 // GetRobboGroupsByAccessToken is the resolver for the GetRobboGroupsByAccessToken field.
-func (r *queryResolver) GetRobboGroupsByAccessToken(ctx context.Context) (models.RobboGroupResult, error) {
+func (r *queryResolver) GetRobboGroupsByAccessToken(ctx context.Context) (models.RobboGroupsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -271,7 +271,7 @@ func (r *queryResolver) GetRobboGroupsByAccessToken(ctx context.Context) (models
 }
 
 // SearchGroupsByName is the resolver for the SearchGroupsByName field.
-func (r *queryResolver) SearchGroupsByName(ctx context.Context, name string) (models.RobboGroupResult, error) {
+func (r *queryResolver) SearchGroupsByName(ctx context.Context, name string) (models.RobboGroupsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")

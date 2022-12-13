@@ -115,7 +115,7 @@ func (p *UsersUseCaseImpl) CreateStudent(student *models.StudentCore, parentId s
 		ChildId:  newStudent.Id,
 		ParentId: parentId,
 	}
-	p.usersGateway.CreateRelation(relation)
+	p.usersGateway.CreateStudentParentRelation(relation)
 	return
 }
 
@@ -336,12 +336,19 @@ func (p *UsersUseCaseImpl) DeleteSuperAdmin(superAdminId string) (err error) {
 	return p.usersGateway.DeleteSuperAdmin(superAdminId)
 }
 
-func (p *UsersUseCaseImpl) CreateRelation(parentId, childrenId string) (err error) {
+func (p *UsersUseCaseImpl) CreateStudentParentRelation(parentId, childrenId string) (studentsCore []*models.StudentCore, err error) {
 	relationCore := &models.ChildrenOfParentCore{
 		ChildId:  childrenId,
 		ParentId: parentId,
 	}
-	return p.usersGateway.CreateRelation(relationCore)
+	createRelationErr := p.usersGateway.CreateStudentParentRelation(relationCore)
+	if createRelationErr != nil {
+		err = createRelationErr
+		return
+	}
+
+	studentsCore, err = p.GetStudentByParentId(parentId)
+	return
 }
 
 func (p *UsersUseCaseImpl) SetNewUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error) {

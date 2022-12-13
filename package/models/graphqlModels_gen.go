@@ -14,6 +14,10 @@ type ParentResult interface {
 	IsParentResult()
 }
 
+type ParentsResult interface {
+	IsParentsResult()
+}
+
 type ProjectPageResult interface {
 	IsProjectPageResult()
 }
@@ -38,6 +42,10 @@ type StudentResult interface {
 	IsStudentResult()
 }
 
+type StudentsResult interface {
+	IsStudentsResult()
+}
+
 type SuperAdminResult interface {
 	IsSuperAdminResult()
 }
@@ -46,8 +54,16 @@ type TeacherResult interface {
 	IsTeacherResult()
 }
 
+type TeachersResult interface {
+	IsTeachersResult()
+}
+
 type UnitAdminResult interface {
 	IsUnitAdminResult()
+}
+
+type UnitAdminsResult interface {
+	IsUnitAdminsResult()
 }
 
 type AbsoluteMediaHTTP struct {
@@ -161,11 +177,19 @@ func (Error) IsRobboUnitsResult() {}
 
 func (Error) IsStudentResult() {}
 
+func (Error) IsStudentsResult() {}
+
 func (Error) IsParentResult() {}
+
+func (Error) IsParentsResult() {}
 
 func (Error) IsTeacherResult() {}
 
+func (Error) IsTeachersResult() {}
+
 func (Error) IsUnitAdminResult() {}
+
+func (Error) IsUnitAdminsResult() {}
 
 func (Error) IsSuperAdminResult() {}
 
@@ -246,7 +270,7 @@ type ParentHTTPList struct {
 	Parents []*ParentHTTP `json:"parents"`
 }
 
-func (ParentHTTPList) IsParentResult() {}
+func (ParentHTTPList) IsParentsResult() {}
 
 type ProjectPageHTTP struct {
 	ProjectPageID string `json:"projectPageId"`
@@ -313,7 +337,7 @@ type StudentHTTPList struct {
 	Students []*StudentHTTP `json:"students"`
 }
 
-func (StudentHTTPList) IsStudentResult() {}
+func (StudentHTTPList) IsStudentsResult() {}
 
 type SuperAdminHTTP struct {
 	UserHTTP *UserHTTP `json:"userHttp"`
@@ -331,7 +355,7 @@ type TeacherHTTPList struct {
 	Teachers []*TeacherHTTP `json:"teachers"`
 }
 
-func (TeacherHTTPList) IsTeacherResult() {}
+func (TeacherHTTPList) IsTeachersResult() {}
 
 type UnitAdminHTTP struct {
 	UserHTTP *UserHTTP `json:"userHttp"`
@@ -343,7 +367,7 @@ type UnitAdminHTTPList struct {
 	UnitAdmins []*UnitAdminHTTP `json:"unitAdmins"`
 }
 
-func (UnitAdminHTTPList) IsUnitAdminResult() {}
+func (UnitAdminHTTPList) IsUnitAdminsResult() {}
 
 type UpdateParentHTTP struct {
 	UserHTTP *UpdateUserHTTP `json:"userHttp"`

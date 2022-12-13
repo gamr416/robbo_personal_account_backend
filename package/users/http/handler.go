@@ -1403,7 +1403,7 @@ func (h *Handler) CreateRelation(c *gin.Context) {
 		return
 	}
 
-	createRelationErr := h.usersDelegate.CreateRelation(createRelationInput.ParentId, createRelationInput.ChildId)
+	_, createRelationErr := h.usersDelegate.CreateStudentParentRelation(createRelationInput.ParentId, createRelationInput.ChildId)
 
 	if createRelationErr != nil {
 		log.Println(createRelationErr)

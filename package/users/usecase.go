@@ -24,14 +24,12 @@ type UseCase interface {
 	GetTeacherByRobboGroupId(robboGroupId string) (teachers []*models.TeacherCore, err error)
 	GetTeachersByStudentId(studentId string) (teachers []*models.TeacherCore, err error)
 
-	//GetParent(email, password string) (parent *models.ParentCore, err error)
 	GetParentById(parentId string) (parent *models.ParentCore, err error)
 	GetAllParent() (parents []*models.ParentCore, err error)
 	CreateParent(parent *models.ParentCore) (newParent *models.ParentCore, err error)
 	UpdateParent(parent *models.ParentCore) (parentUpdated *models.ParentCore, err error)
 	DeleteParent(parentId string) (err error)
 
-	//GetFreeListener(email, password string) (freeListener *models.FreeListenerCore, err error)
 	GetFreeListenerById(freeListenerId string) (freeListener *models.FreeListenerCore, err error)
 	CreateFreeListener(freeListener *models.FreeListenerCore) (newFreeListener *models.FreeListenerCore, err error)
 	UpdateFreeListener(freeListener *models.FreeListenerCore) (freeListenerUpdated *models.FreeListenerCore, err error)
@@ -45,12 +43,11 @@ type UseCase interface {
 	DeleteUnitAdmin(unitAdminId string) (err error)
 	SearchUnitAdminByEmail(email string, robboUnitId string) (unitAdmins []*models.UnitAdminCore, err error)
 
-	//GetSuperAdmin(email, password string) (superAdmin *models.SuperAdminCore, err error)
 	GetSuperAdminById(superAdminId string) (superAdmin *models.SuperAdminCore, err error)
 	UpdateSuperAdmin(superAdmin *models.SuperAdminCore) (superAdminUpdated *models.SuperAdminCore, err error)
 	DeleteSuperAdmin(superAdminId string) (err error)
 
-	CreateRelation(parentId, childrenId string) (err error)
+	CreateStudentParentRelation(parentId, childrenId string) (studentsHTTP []*models.StudentCore, err error)
 	SetNewUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error)
 	DeleteUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error)
 

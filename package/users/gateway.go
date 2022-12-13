@@ -58,7 +58,7 @@ type Gateway interface {
 	DeleteRelationByRobboUnitId(robboUnitId string) (err error)
 	DeleteRelationByUnitAdminId(unitAdminId string) (err error)
 	GetRelationByRobboUnitId(robboUnitId string) (relations []*models.UnitAdminsRobboUnitsCore, err error)
-	GetRelationByUnitAdminId(unitAdminId string) (relations []*models.UnitAdminsRobboUnitsCore, err error)
+	GetRelationByUnitAdminId(unitAdminId string, page, pageSize int) (relations []*models.UnitAdminsRobboUnitsCore, countRows int64, err error)
 
 	CreateStudentTeacherRelation(relation *models.StudentsOfTeacherCore) (err error)
 	DeleteStudentTeacherRelation(relation *models.StudentsOfTeacherCore) (err error)

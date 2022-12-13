@@ -118,7 +118,7 @@ func (h *Handler) GetAllRobboUnits(c *gin.Context) {
 		ErrorHandling(accessErr, c)
 		return
 	}
-	robboUnits, err := h.robboUnitsDelegate.GetAllRobboUnit()
+	robboUnits, _, err := h.robboUnitsDelegate.GetAllRobboUnit("0", "0")
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
@@ -145,7 +145,7 @@ func (h *Handler) GetRobboUnitsByUnitAdminId(c *gin.Context) {
 		return
 	}
 
-	robboUnits, err := h.robboUnitsDelegate.GetRobboUnitsByUnitAdminId(id)
+	robboUnits, _, err := h.robboUnitsDelegate.GetRobboUnitsByUnitAdminId(id, "0", "0")
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)

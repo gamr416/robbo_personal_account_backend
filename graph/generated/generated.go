@@ -212,7 +212,7 @@ type ComplexityRoot struct {
 		GetAllProjectPagesByUserID      func(childComplexity int, userID string) int
 		GetAllPublicCourses             func(childComplexity int, pageNumber string) int
 		GetAllRobboGroups               func(childComplexity int) int
-		GetAllRobboUnits                func(childComplexity int) int
+		GetAllRobboUnits                func(childComplexity int, page string, pageSize string) int
 		GetAllTeachers                  func(childComplexity int) int
 		GetAllUnitAdmins                func(childComplexity int) int
 		GetCourseContent                func(childComplexity int, courseID string) int
@@ -226,7 +226,7 @@ type ComplexityRoot struct {
 		GetRobboGroupsByTeacherID       func(childComplexity int, teacherID string) int
 		GetRobboGroupsByUnitAdminID     func(childComplexity int, unitAdminID string) int
 		GetRobboUnitByID                func(childComplexity int, id string) int
-		GetRobboUnitsByAccessToken      func(childComplexity int) int
+		GetRobboUnitsByAccessToken      func(childComplexity int, page string, pageSize string) int
 		GetRobboUnitsByUnitAdminID      func(childComplexity int, unitAdminID string) int
 		GetStudentByID                  func(childComplexity int, studentID string) int
 		GetStudentsByParentID           func(childComplexity int, parentID string) int
@@ -262,6 +262,7 @@ type ComplexityRoot struct {
 	}
 
 	RobboUnitHttpList struct {
+		CountRows  func(childComplexity int) int
 		RobboUnits func(childComplexity int) int
 	}
 
@@ -367,9 +368,9 @@ type QueryResolver interface {
 	GetRobboGroupsByAccessToken(ctx context.Context) (models.RobboGroupResult, error)
 	SearchGroupsByName(ctx context.Context, name string) (models.RobboGroupResult, error)
 	GetRobboUnitByID(ctx context.Context, id string) (models.RobboUnitResult, error)
-	GetAllRobboUnits(ctx context.Context) (models.RobboUnitResult, error)
-	GetRobboUnitsByUnitAdminID(ctx context.Context, unitAdminID string) (models.RobboUnitResult, error)
-	GetRobboUnitsByAccessToken(ctx context.Context) (models.RobboUnitResult, error)
+	GetAllRobboUnits(ctx context.Context, page string, pageSize string) (models.RobboUnitsResult, error)
+	GetRobboUnitsByUnitAdminID(ctx context.Context, unitAdminID string) (models.RobboUnitsResult, error)
+	GetRobboUnitsByAccessToken(ctx context.Context, page string, pageSize string) (models.RobboUnitsResult, error)
 }
 
 type executableSchema struct {
@@ -1234,7 +1235,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.GetAllRobboUnits(childComplexity), true
+		args, err := ec.field_Query_GetAllRobboUnits_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetAllRobboUnits(childComplexity, args["page"].(string), args["pageSize"].(string)), true
 
 	case "Query.GetAllTeachers":
 		if e.complexity.Query.GetAllTeachers == nil {
@@ -1377,7 +1383,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.GetRobboUnitsByAccessToken(childComplexity), true
+		args, err := ec.field_Query_GetRobboUnitsByAccessToken_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetRobboUnitsByAccessToken(childComplexity, args["page"].(string), args["pageSize"].(string)), true
 
 	case "Query.GetRobboUnitsByUnitAdminId":
 		if e.complexity.Query.GetRobboUnitsByUnitAdminID == nil {
@@ -1604,6 +1615,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RobboUnitHttp.Name(childComplexity), true
+
+	case "RobboUnitHttpList.countRows":
+		if e.complexity.RobboUnitHttpList.CountRows == nil {
+			break
+		}
+
+		return e.complexity.RobboUnitHttpList.CountRows(childComplexity), true
 
 	case "RobboUnitHttpList.robboUnits":
 		if e.complexity.RobboUnitHttpList.RobboUnits == nil {
@@ -2020,13 +2038,15 @@ input UpdateRobboUnit {
 
 type RobboUnitHttpList {
     robboUnits: [RobboUnitHttp!]!
+    countRows: Int!
 }
 
 type DeletedRobboUnit {
     robboUnitId: String!
 }
 
-union RobboUnitResult = RobboUnitHttp | RobboUnitHttpList | Error
+union RobboUnitResult = RobboUnitHttp | Error
+union RobboUnitsResult = RobboUnitHttpList | Error
 
 extend type Mutation {
     CreateRobboUnit(input: NewRobboUnit!): RobboUnitResult!
@@ -2036,9 +2056,9 @@ extend type Mutation {
 
 extend type Query {
     GetRobboUnitById(id: String!): RobboUnitResult!
-    GetAllRobboUnits: RobboUnitResult!
-    GetRobboUnitsByUnitAdminId(unitAdminId: String!): RobboUnitResult!
-    GetRobboUnitsByAccessToken: RobboUnitResult!
+    GetAllRobboUnits(page: String!, pageSize: String!): RobboUnitsResult!
+    GetRobboUnitsByUnitAdminId(unitAdminId: String!): RobboUnitsResult!
+    GetRobboUnitsByAccessToken(page: String!, pageSize: String!): RobboUnitsResult!
 }`, BuiltIn: false},
 	{Name: "../user.graphqls", Input: `type UserHttp {
     id: String!
@@ -2697,6 +2717,30 @@ func (ec *executionContext) field_Query_GetAllPublicCourses_args(ctx context.Con
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_GetAllRobboUnits_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_GetCourseContent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -2829,6 +2873,30 @@ func (ec *executionContext) field_Query_GetRobboUnitById_args(ctx context.Contex
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetRobboUnitsByAccessToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg1
 	return args, nil
 }
 
@@ -9354,7 +9422,7 @@ func (ec *executionContext) _Query_GetAllRobboUnits(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetAllRobboUnits(rctx)
+		return ec.resolvers.Query().GetAllRobboUnits(rctx, fc.Args["page"].(string), fc.Args["pageSize"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9366,9 +9434,9 @@ func (ec *executionContext) _Query_GetAllRobboUnits(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.RobboUnitResult)
+	res := resTmp.(models.RobboUnitsResult)
 	fc.Result = res
-	return ec.marshalNRobboUnitResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitResult(ctx, field.Selections, res)
+	return ec.marshalNRobboUnitsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetAllRobboUnits(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9378,8 +9446,19 @@ func (ec *executionContext) fieldContext_Query_GetAllRobboUnits(ctx context.Cont
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type RobboUnitResult does not have child fields")
+			return nil, errors.New("field of type RobboUnitsResult does not have child fields")
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetAllRobboUnits_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -9410,9 +9489,9 @@ func (ec *executionContext) _Query_GetRobboUnitsByUnitAdminId(ctx context.Contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.RobboUnitResult)
+	res := resTmp.(models.RobboUnitsResult)
 	fc.Result = res
-	return ec.marshalNRobboUnitResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitResult(ctx, field.Selections, res)
+	return ec.marshalNRobboUnitsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetRobboUnitsByUnitAdminId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9422,7 +9501,7 @@ func (ec *executionContext) fieldContext_Query_GetRobboUnitsByUnitAdminId(ctx co
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type RobboUnitResult does not have child fields")
+			return nil, errors.New("field of type RobboUnitsResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -9453,7 +9532,7 @@ func (ec *executionContext) _Query_GetRobboUnitsByAccessToken(ctx context.Contex
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetRobboUnitsByAccessToken(rctx)
+		return ec.resolvers.Query().GetRobboUnitsByAccessToken(rctx, fc.Args["page"].(string), fc.Args["pageSize"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9465,9 +9544,9 @@ func (ec *executionContext) _Query_GetRobboUnitsByAccessToken(ctx context.Contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.RobboUnitResult)
+	res := resTmp.(models.RobboUnitsResult)
 	fc.Result = res
-	return ec.marshalNRobboUnitResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitResult(ctx, field.Selections, res)
+	return ec.marshalNRobboUnitsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetRobboUnitsByAccessToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9477,8 +9556,19 @@ func (ec *executionContext) fieldContext_Query_GetRobboUnitsByAccessToken(ctx co
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type RobboUnitResult does not have child fields")
+			return nil, errors.New("field of type RobboUnitsResult does not have child fields")
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetRobboUnitsByAccessToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -10118,6 +10208,50 @@ func (ec *executionContext) fieldContext_RobboUnitHttpList_robboUnits(ctx contex
 				return ec.fieldContext_RobboUnitHttp_city(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type RobboUnitHttp", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RobboUnitHttpList_countRows(ctx context.Context, field graphql.CollectedField, obj *models.RobboUnitHTTPList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RobboUnitHttpList_countRows(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CountRows, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RobboUnitHttpList_countRows(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RobboUnitHttpList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -13798,6 +13932,22 @@ func (ec *executionContext) _RobboUnitResult(ctx context.Context, sel ast.Select
 			return graphql.Null
 		}
 		return ec._RobboUnitHttp(ctx, sel, obj)
+	case models.Error:
+		return ec._Error(ctx, sel, &obj)
+	case *models.Error:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Error(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _RobboUnitsResult(ctx context.Context, sel ast.SelectionSet, obj models.RobboUnitsResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
 	case models.RobboUnitHTTPList:
 		return ec._RobboUnitHttpList(ctx, sel, &obj)
 	case *models.RobboUnitHTTPList:
@@ -14504,7 +14654,7 @@ func (ec *executionContext) _EnrollmentsListHttp(ctx context.Context, sel ast.Se
 	return out
 }
 
-var errorImplementors = []string{"Error", "CourseResult", "EnrollmentResult", "ProjectPageResult", "RobboGroupResult", "RobboUnitResult", "StudentResult", "ParentResult", "TeacherResult", "UnitAdminResult", "SuperAdminResult"}
+var errorImplementors = []string{"Error", "CourseResult", "EnrollmentResult", "ProjectPageResult", "RobboGroupResult", "RobboUnitResult", "RobboUnitsResult", "StudentResult", "ParentResult", "TeacherResult", "UnitAdminResult", "SuperAdminResult"}
 
 func (ec *executionContext) _Error(ctx context.Context, sel ast.SelectionSet, obj *models.Error) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, errorImplementors)
@@ -16042,7 +16192,7 @@ func (ec *executionContext) _RobboUnitHttp(ctx context.Context, sel ast.Selectio
 	return out
 }
 
-var robboUnitHttpListImplementors = []string{"RobboUnitHttpList", "RobboUnitResult"}
+var robboUnitHttpListImplementors = []string{"RobboUnitHttpList", "RobboUnitsResult"}
 
 func (ec *executionContext) _RobboUnitHttpList(ctx context.Context, sel ast.SelectionSet, obj *models.RobboUnitHTTPList) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, robboUnitHttpListImplementors)
@@ -16055,6 +16205,13 @@ func (ec *executionContext) _RobboUnitHttpList(ctx context.Context, sel ast.Sele
 		case "robboUnits":
 
 			out.Values[i] = ec._RobboUnitHttpList_robboUnits(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "countRows":
+
+			out.Values[i] = ec._RobboUnitHttpList_countRows(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -17198,6 +17355,16 @@ func (ec *executionContext) marshalNRobboUnitResult2githubᚗcomᚋskinnykaenᚋ
 		return graphql.Null
 	}
 	return ec._RobboUnitResult(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRobboUnitsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitsResult(ctx context.Context, sel ast.SelectionSet, v models.RobboUnitsResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RobboUnitsResult(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {

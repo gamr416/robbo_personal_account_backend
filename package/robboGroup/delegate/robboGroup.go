@@ -5,6 +5,7 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup"
 	"go.uber.org/fx"
 	"log"
+	"strconv"
 )
 
 type RobboGroupDelegateImpl struct {
@@ -88,11 +89,22 @@ func (r *RobboGroupDelegateImpl) GetRobboGroupsByRobboUnitId(robboUnitId string)
 	return
 }
 
-func (r *RobboGroupDelegateImpl) GetRobboGroupsByUnitAdminId(unitAdminId string) (robboGroups []*models.RobboGroupHTTP, err error) {
-	robboGroupsCore, err := r.UseCase.GetRobboGroupsByUnitAdminId(unitAdminId)
+func (r *RobboGroupDelegateImpl) GetRobboGroupsByUnitAdminId(unitAdminId, page, pageSize string) (
+	robboGroups []*models.RobboGroupHTTP,
+	countRows int,
+	err error,
+) {
+	pageInt32, _ := strconv.ParseInt(page, 10, 32)
+	pageSizeInt32, _ := strconv.ParseInt(pageSize, 10, 32)
+	robboGroupsCore, countRowsInt64, err := r.UseCase.GetRobboGroupsByUnitAdminId(
+		unitAdminId,
+		int(pageInt32),
+		int(pageSizeInt32),
+	)
 	if err != nil {
 		return
 	}
+	countRows = int(countRowsInt64)
 	for _, robboGroupCore := range robboGroupsCore {
 		var robboGroupTemp models.RobboGroupHTTP
 		robboGroupTemp.FromCore(robboGroupCore)

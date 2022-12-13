@@ -202,7 +202,7 @@ func (r *queryResolver) GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdm
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	robboGroups, getRobboGroupsByUnitAdminIdErr := r.robboGroupDelegate.GetRobboGroupsByUnitAdminId(unitAdminID)
+	robboGroups, _, getRobboGroupsByUnitAdminIdErr := r.robboGroupDelegate.GetRobboGroupsByUnitAdminId(unitAdminID, "0", "0")
 	if getRobboGroupsByUnitAdminIdErr != nil {
 		err := getRobboGroupsByUnitAdminIdErr
 		return &models.Error{Message: err.Error()}, err

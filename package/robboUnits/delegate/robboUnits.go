@@ -5,6 +5,7 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboUnits"
 	"go.uber.org/fx"
 	"log"
+	"strconv"
 )
 
 type RobboUnitsDelegateImpl struct {
@@ -24,12 +25,22 @@ func SetupRobboUnitsDelegate(usecase robboUnits.UseCase) RobboUnitsDelegateModul
 	}
 }
 
-func (r RobboUnitsDelegateImpl) GetAllRobboUnit() (robboUnits []*models.RobboUnitHTTP, err error) {
-	robboUnitsCore, getRobboUnits := r.UseCase.GetAllRobboUnit()
-	if getRobboUnits != nil {
-		err = getRobboUnits
+func (r RobboUnitsDelegateImpl) GetAllRobboUnit(page, pageSize string) (
+	robboUnits []*models.RobboUnitHTTP,
+	countRows int,
+	err error,
+) {
+	pageInt32, _ := strconv.ParseInt(page, 10, 32)
+	pageSizeInt32, _ := strconv.ParseInt(pageSize, 10, 32)
+	robboUnitsCore, countRowsInt64, getRobboUnitsErr := r.UseCase.GetAllRobboUnit(
+		int(pageInt32),
+		int(pageSizeInt32),
+	)
+	if getRobboUnitsErr != nil {
+		err = getRobboUnitsErr
 		return
 	}
+	countRows = int(countRowsInt64)
 	for _, robboUnitCore := range robboUnitsCore {
 		var robboUnitTemp models.RobboUnitHTTP
 		robboUnitTemp.FromCore(robboUnitCore)
@@ -48,12 +59,23 @@ func (r RobboUnitsDelegateImpl) GetRobboUnitById(robboUnitId string) (robboUnit 
 	return
 }
 
-func (r RobboUnitsDelegateImpl) GetRobboUnitsByUnitAdminId(unitAdminId string) (robboUnits []*models.RobboUnitHTTP, err error) {
-	robboUnitsCore, getRobboUnits := r.UseCase.GetRobboUnitsByUnitAdminId(unitAdminId)
-	if getRobboUnits != nil {
-		err = getRobboUnits
+func (r RobboUnitsDelegateImpl) GetRobboUnitsByUnitAdminId(unitAdminId, page, pageSize string) (
+	robboUnits []*models.RobboUnitHTTP,
+	countRows int,
+	err error,
+) {
+	pageInt32, _ := strconv.ParseInt(page, 10, 32)
+	pageSizeInt32, _ := strconv.ParseInt(pageSize, 10, 32)
+	robboUnitsCore, countRowsInt64, getRobboUnitsErr := r.UseCase.GetRobboUnitsByUnitAdminId(
+		unitAdminId,
+		int(pageInt32),
+		int(pageSizeInt32),
+	)
+	if getRobboUnitsErr != nil {
+		err = getRobboUnitsErr
 		return
 	}
+	countRows = int(countRowsInt64)
 	for _, robboUnitCore := range robboUnitsCore {
 		var robboUnitTemp models.RobboUnitHTTP
 		robboUnitTemp.FromCore(robboUnitCore)

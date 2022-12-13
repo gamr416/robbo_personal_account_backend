@@ -46,12 +46,18 @@ func (r *RobboUnitsGatewayImpl) DeleteRobboUnit(robboUnitId string) (err error) 
 	return
 }
 
-func (r *RobboUnitsGatewayImpl) GetAllRobboUnit() (robboUnitsCore []*models.RobboUnitCore, err error) {
+func (r *RobboUnitsGatewayImpl) GetAllRobboUnit(page, pageSize int) (
+	robboUnitsCore []*models.RobboUnitCore,
+	countRows int64,
+	err error,
+) {
 	var robboUnitsDB []*models.RobboUnitDB
+	offset := (page - 1) * pageSize
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Find(&robboUnitsDB).Error; err != nil {
+		if err = tx.Limit(pageSize).Offset(offset).Find(&robboUnitsDB).Error; err != nil {
 			return
 		}
+		tx.Model(&models.RobboUnitDB{}).Count(&countRows)
 		return
 	})
 

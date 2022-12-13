@@ -26,6 +26,10 @@ type RobboUnitResult interface {
 	IsRobboUnitResult()
 }
 
+type RobboUnitsResult interface {
+	IsRobboUnitsResult()
+}
+
 type StudentResult interface {
 	IsStudentResult()
 }
@@ -146,6 +150,8 @@ func (Error) IsProjectPageResult() {}
 func (Error) IsRobboGroupResult() {}
 
 func (Error) IsRobboUnitResult() {}
+
+func (Error) IsRobboUnitsResult() {}
 
 func (Error) IsStudentResult() {}
 
@@ -283,9 +289,10 @@ func (RobboUnitHTTP) IsRobboUnitResult() {}
 
 type RobboUnitHTTPList struct {
 	RobboUnits []*RobboUnitHTTP `json:"robboUnits"`
+	CountRows  int              `json:"countRows"`
 }
 
-func (RobboUnitHTTPList) IsRobboUnitResult() {}
+func (RobboUnitHTTPList) IsRobboUnitsResult() {}
 
 type StudentHTTP struct {
 	UserHTTP     *UserHTTP `json:"userHttp"`

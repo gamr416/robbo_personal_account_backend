@@ -18,13 +18,15 @@ input UpdateRobboUnit {
 
 type RobboUnitHttpList {
     robboUnits: [RobboUnitHttp!]!
+    countRows: Int!
 }
 
 type DeletedRobboUnit {
     robboUnitId: String!
 }
 
-union RobboUnitResult = RobboUnitHttp | RobboUnitHttpList | Error
+union RobboUnitResult = RobboUnitHttp | Error
+union RobboUnitsResult = RobboUnitHttpList | Error
 
 extend type Mutation {
     CreateRobboUnit(input: NewRobboUnit!): RobboUnitResult!
@@ -34,7 +36,7 @@ extend type Mutation {
 
 extend type Query {
     GetRobboUnitById(id: String!): RobboUnitResult!
-    GetAllRobboUnits: RobboUnitResult!
-    GetRobboUnitsByUnitAdminId(unitAdminId: String!): RobboUnitResult!
-    GetRobboUnitsByAccessToken: RobboUnitResult!
+    GetAllRobboUnits(page: String!, pageSize: String!): RobboUnitsResult!
+    GetRobboUnitsByUnitAdminId(unitAdminId: String!): RobboUnitsResult!
+    GetRobboUnitsByAccessToken(page: String!, pageSize: String!): RobboUnitsResult!
 }

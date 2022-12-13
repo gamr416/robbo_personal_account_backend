@@ -722,12 +722,18 @@ func (r *UsersGatewayImpl) GetRelationByRobboUnitId(robboUnitId string) (relatio
 	return
 }
 
-func (r *UsersGatewayImpl) GetRelationByUnitAdminId(unitAdminId string) (relations []*models.UnitAdminsRobboUnitsCore, err error) {
+func (r *UsersGatewayImpl) GetRelationByUnitAdminId(unitAdminId string, page, pageSize int) (
+	relations []*models.UnitAdminsRobboUnitsCore,
+	countRows int64,
+	err error,
+) {
 	var relationsDB []*models.UnitAdminsRobboUnitsDB
+	offset := (page - 1) * pageSize
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Where("unit_admin_id = ?", unitAdminId).Find(&relationsDB).Error; err != nil {
+		if err = tx.Limit(pageSize).Offset(offset).Where("unit_admin_id = ?", unitAdminId).Find(&relationsDB).Error; err != nil {
 			return
 		}
+		tx.Model(&models.UnitAdminsRobboUnitsDB{}).Where("unit_admin_id = ?", unitAdminId).Count(&countRows)
 		return
 	})
 

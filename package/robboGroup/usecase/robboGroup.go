@@ -35,7 +35,7 @@ func (r *RobboGroupUseCaseImpl) DeleteRobboGroup(robboGroupId string) (err error
 			}
 		}
 		student.RobboGroupId = ""
-		if err = r.usersGateway.UpdateStudent(student); err != nil {
+		if _, err = r.usersGateway.UpdateStudent(student); err != nil {
 			return
 		}
 	}
@@ -46,8 +46,12 @@ func (r *RobboGroupUseCaseImpl) GetRobboGroupsByRobboUnitId(robboUnitId string) 
 	return r.robboGroupGateway.GetRobboGroupsByRobboUnitId(robboUnitId)
 }
 
-func (r *RobboGroupUseCaseImpl) GetRobboGroupsByUnitAdminId(unitAdminId string) (robboGroups []*models.RobboGroupCore, err error) {
-	relations, getRelationErr := r.usersGateway.GetRelationByUnitAdminId(unitAdminId)
+func (r *RobboGroupUseCaseImpl) GetRobboGroupsByUnitAdminId(unitAdminId string, page, pageSize int) (
+	robboGroups []*models.RobboGroupCore,
+	countRows int64,
+	err error,
+) {
+	relations, countRows, getRelationErr := r.usersGateway.GetRelationByUnitAdminId(unitAdminId, page, pageSize)
 	if getRelationErr != nil {
 		err = getRelationErr
 		return

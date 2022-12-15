@@ -432,7 +432,7 @@ func (h *Handler) SetRobboGroupIdForStudent(c *gin.Context) {
 }
 
 type createTeacherResponse struct {
-	Teacher *models.TeacherHTTP `json: "teacher"`
+	Teacher *models.TeacherHTTP `json:"teacher"`
 }
 type StudentTeacherRelation struct {
 	StudentId string `json:"student_id"`
@@ -664,7 +664,7 @@ func (h *Handler) GetAllTeachers(c *gin.Context) {
 		ErrorHandling(accessErr, c)
 		return
 	}
-	teachers, err := h.usersDelegate.GetAllTeachers()
+	teachers, _, err := h.usersDelegate.GetAllTeachers("0", "0")
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
@@ -765,7 +765,7 @@ func (h *Handler) GetAllParent(c *gin.Context) {
 		return
 	}
 
-	parents, err := h.usersDelegate.GetAllParent()
+	parents, _, err := h.usersDelegate.GetAllParent("0", "0")
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
@@ -1117,7 +1117,7 @@ func (h *Handler) GetAllUnitAdmins(c *gin.Context) {
 		ErrorHandling(accessErr, c)
 		return
 	}
-	unitAdmins, err := h.usersDelegate.GetAllUnitAdmins()
+	unitAdmins, _, err := h.usersDelegate.GetAllUnitAdmins("0", "0")
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)

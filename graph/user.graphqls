@@ -31,6 +31,7 @@ type DeletedStudent {
 
 type StudentHttpList {
     students: [StudentHttp!]!
+    countRows: Int!
 }
 
 input UpdateStudentHttp {
@@ -48,6 +49,7 @@ type DeletedParent {
 
 type ParentHttpList {
     parents: [ParentHttp!]!
+    countRows: Int!
 }
 
 input UpdateParentHttp {
@@ -64,6 +66,7 @@ type DeletedTeacher {
 
 type TeacherHttpList {
     teachers: [TeacherHttp!]!
+    countRows: Int!
 }
 
 input UpdateTeacherHttp {
@@ -80,6 +83,7 @@ type DeletedUnitAdmin {
 
 type UnitAdminHttpList {
     unitAdmins: [UnitAdminHttp!]!
+    countRows: Int!
 }
 
 input UpdateUnitAdminHttp {
@@ -187,12 +191,12 @@ type Query {
     GetStudentsByRobboGroup(robboGroupId: String!): StudentsResult!
     GetStudentsByRobboUnitId(robboUnitId: String!): StudentsResult!
     SearchStudentsByEmail(email: String!, parentId: String!): StudentsResult!
-    GetAllTeachers: TeachersResult!
+    GetAllTeachers(page: String!, pageSize: String!): TeachersResult!
     GetTeacherById(teacherId: String!): TeacherResult!
     GetTeachersByRobboGroupId(robboGroupId: String!): TeachersResult!
-    GetAllParents: ParentsResult!
+    GetAllParents(page: String!, pageSize: String!): ParentsResult!
     GetParentById(parentId: String!): ParentResult!
-    GetAllUnitAdmins: UnitAdminsResult!
+    GetAllUnitAdmins(page: String!, pageSize: String!): UnitAdminsResult!
     GetUnitAdminsByRobboUnitId(robboUnitId: String!): UnitAdminsResult!
     GetUnitAdminById(unitAdminId: String!): UnitAdminResult!
     SearchUnitAdminsByEmail(email: String!, robboUnitId: String!): UnitAdminsResult!

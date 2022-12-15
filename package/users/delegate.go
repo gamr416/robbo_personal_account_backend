@@ -18,9 +18,9 @@ type Delegate interface {
 
 	CreateStudentTeacherRelation(studentId, teacherId string) (student *models.StudentHTTP, err error)
 	DeleteStudentTeacherRelation(studentId, teacherId string) (student *models.StudentHTTP, err error)
-	
+
 	GetTeacherById(teacherId string) (teacher *models.TeacherHTTP, err error)
-	GetAllTeachers() (teachers []*models.TeacherHTTP, err error)
+	GetAllTeachers(page, pageSize string) (teachers []*models.TeacherHTTP, countRows int, err error)
 	CreateTeacher(teacher *models.TeacherHTTP) (newTeacher models.TeacherHTTP, err error)
 	UpdateTeacher(teacherHTTP *models.TeacherHTTP) (teacherUpdated models.TeacherHTTP, err error)
 	DeleteTeacher(teacherId string) (err error)
@@ -31,7 +31,7 @@ type Delegate interface {
 	UpdateParent(parentHTTP *models.ParentHTTP) (parentUpdated *models.ParentHTTP, err error)
 	DeleteParent(parentId string) (err error)
 	GetParentById(parentId string) (parent *models.ParentHTTP, err error)
-	GetAllParent() (parents []*models.ParentHTTP, err error)
+	GetAllParent(page, pageSize string) (parents []*models.ParentHTTP, countRows int, err error)
 
 	CreateFreeListener(freeListenerHTTP *models.FreeListenerHttp) (newFreeListener *models.FreeListenerHttp, err error)
 	UpdateFreeListener(freeListenerHTTP *models.FreeListenerHttp) (freeListenerUpdated *models.FreeListenerHttp, err error)
@@ -42,7 +42,7 @@ type Delegate interface {
 	UpdateUnitAdmin(unitAdminHTTP *models.UnitAdminHTTP) (unitAdminUpdated *models.UnitAdminHTTP, err error)
 	DeleteUnitAdmin(unitAdminId string) (err error)
 	GetUnitAdminById(unitAdminId string) (unitAdmin models.UnitAdminHTTP, err error)
-	GetAllUnitAdmins() (unitAdmins []*models.UnitAdminHTTP, err error)
+	GetAllUnitAdmins(page, pageSize string) (unitAdmins []*models.UnitAdminHTTP, countRows int, err error)
 	SearchUnitAdminByEmail(email string, robboUnitId string) (unitAdmins []*models.UnitAdminHTTP, err error)
 	GetUnitAdminByRobboUnitId(robboUnitId string) (unitAdmins []*models.UnitAdminHTTP, err error)
 

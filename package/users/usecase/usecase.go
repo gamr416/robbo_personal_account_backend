@@ -115,7 +115,7 @@ func (p *UsersUseCaseImpl) CreateStudent(student *models.StudentCore, parentId s
 		ChildId:  newStudent.Id,
 		ParentId: parentId,
 	}
-	p.usersGateway.CreateStudentParentRelation(relation)
+	err = p.usersGateway.CreateStudentParentRelation(relation)
 	return
 }
 
@@ -181,8 +181,8 @@ func (p *UsersUseCaseImpl) GetTeachersByStudentId(studentId string) (teachers []
 //	return p.usersGateway.GetTeacher(email, password)
 //}
 
-func (p *UsersUseCaseImpl) GetAllTeachers() (teachers []models.TeacherCore, err error) {
-	return p.usersGateway.GetAllTeachers()
+func (p *UsersUseCaseImpl) GetAllTeachers(page, pageSize int) (teachers []models.TeacherCore, countRows int64, err error) {
+	return p.usersGateway.GetAllTeachers(page, pageSize)
 }
 
 func (p *UsersUseCaseImpl) UpdateTeacher(teacher *models.TeacherCore) (teacherUpdated models.TeacherCore, err error) {
@@ -216,9 +216,8 @@ func (p *UsersUseCaseImpl) GetParentById(parentId string) (parent *models.Parent
 	return p.usersGateway.GetParentById(parentId)
 }
 
-func (p *UsersUseCaseImpl) GetAllParent() (parents []*models.ParentCore, err error) {
-	parents, err = p.usersGateway.GetAllParent()
-	return
+func (p *UsersUseCaseImpl) GetAllParent(page, pageSize int) (parents []*models.ParentCore, countRows int64, err error) {
+	return p.usersGateway.GetAllParent(page, pageSize)
 }
 
 func (p *UsersUseCaseImpl) CreateParent(parent *models.ParentCore) (newParent *models.ParentCore, err error) {
@@ -277,8 +276,8 @@ func (p *UsersUseCaseImpl) GetUnitAdminById(unitAdminId string) (unitAdmin *mode
 	return p.usersGateway.GetUnitAdminById(unitAdminId)
 }
 
-func (p *UsersUseCaseImpl) GetAllUnitAdmins() (unitAdmins []*models.UnitAdminCore, err error) {
-	return p.usersGateway.GetAllUnitAdmins()
+func (p *UsersUseCaseImpl) GetAllUnitAdmins(page, pageSize int) (unitAdmins []*models.UnitAdminCore, countRows int64, err error) {
+	return p.usersGateway.GetAllUnitAdmins(page, pageSize)
 }
 
 //func (p *UsersUseCaseImpl) GetUnitAdmin(email, password string) (unitAdmin *models.UnitAdminCore, err error) {

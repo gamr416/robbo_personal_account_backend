@@ -199,12 +199,14 @@ func (r *UsersGatewayImpl) GetTeacher(email, password string) (teacher models.Te
 	return teacher, err
 }
 
-func (r *UsersGatewayImpl) GetAllTeachers() (teachers []models.TeacherCore, err error) {
+func (r *UsersGatewayImpl) GetAllTeachers(page, pageSize int) (teachers []models.TeacherCore, countRows int64, err error) {
 	var teachersDB []*models.TeacherDB
+	offset := (page - 1) * pageSize
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Find(&teachersDB).Error; err != nil {
+		if err = tx.Limit(pageSize).Offset(offset).Find(&teachersDB).Error; err != nil {
 			return
 		}
+		tx.Model(&models.TeacherDB{}).Count(&countRows)
 		return
 	})
 
@@ -290,12 +292,14 @@ func (r *UsersGatewayImpl) GetParent(email, password string) (parent *models.Par
 	return parent, err
 }
 
-func (r *UsersGatewayImpl) GetAllParent() (parents []*models.ParentCore, err error) {
+func (r *UsersGatewayImpl) GetAllParent(page, pageSize int) (parents []*models.ParentCore, countRows int64, err error) {
 	var parentsDB []*models.ParentDB
+	offset := (page - 1) * pageSize
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Find(&parentsDB).Error; err != nil {
+		if err = tx.Limit(pageSize).Offset(offset).Find(&parentsDB).Error; err != nil {
 			return
 		}
+		tx.Model(&models.ParentDB{}).Count(&countRows)
 		return
 	})
 	fmt.Println(parentsDB)
@@ -472,12 +476,14 @@ func (r *UsersGatewayImpl) GetUnitAdminById(unitAdminId string) (unitAdmin *mode
 	return
 }
 
-func (r *UsersGatewayImpl) GetAllUnitAdmins() (unitAdmins []*models.UnitAdminCore, err error) {
+func (r *UsersGatewayImpl) GetAllUnitAdmins(page, pageSize int) (unitAdmins []*models.UnitAdminCore, countRows int64, err error) {
 	var unitAdminsDB []*models.UnitAdminDB
+	offset := (page - 1) * pageSize
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Find(&unitAdminsDB).Error; err != nil {
+		if err = tx.Limit(pageSize).Offset(offset).Find(&unitAdminsDB).Error; err != nil {
 			return
 		}
+		tx.Model(&models.UnitAdminDB{}).Count(&countRows)
 		return
 	})
 

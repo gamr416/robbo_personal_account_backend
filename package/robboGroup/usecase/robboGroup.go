@@ -58,6 +58,7 @@ func (r *RobboGroupUseCaseImpl) GetRobboGroupsByUnitAdminId(unitAdminId string, 
 	}
 
 	for _, relation := range relations {
+		//TODO rewrite countRows & pagination
 		unitRobboGroups, getRobboGroupErr := r.robboGroupGateway.GetRobboGroupsByRobboUnitId(relation.RobboUnitId)
 		if getRobboGroupErr != nil {
 			err = getRelationErr
@@ -68,8 +69,8 @@ func (r *RobboGroupUseCaseImpl) GetRobboGroupsByUnitAdminId(unitAdminId string, 
 	return
 }
 
-func (r *RobboGroupUseCaseImpl) GetAllRobboGroups() (robboGroups []*models.RobboGroupCore, err error) {
-	return r.robboGroupGateway.GetAllRobboGroups()
+func (r *RobboGroupUseCaseImpl) GetAllRobboGroups(page, pageSize int) (robboGroups []*models.RobboGroupCore, countRows int64, err error) {
+	return r.robboGroupGateway.GetAllRobboGroups(page, pageSize)
 }
 
 func (r *RobboGroupUseCaseImpl) GetRobboGroupById(robboGroupId string) (robboGroup *models.RobboGroupCore, err error) {
@@ -150,8 +151,12 @@ func (r *RobboGroupUseCaseImpl) DeleteTeacherForRobboGroup(teacherId, robboGroup
 	return
 }
 
-func (r *RobboGroupUseCaseImpl) GetRobboGroupsByTeacherId(teacherId string) (robboGroups []*models.RobboGroupCore, err error) {
-	relations, getRelationsErr := r.robboGroupGateway.GetRelationByTeacherId(teacherId)
+func (r *RobboGroupUseCaseImpl) GetRobboGroupsByTeacherId(teacherId string, page, pageSize int) (
+	robboGroups []*models.RobboGroupCore,
+	countRows int64,
+	err error,
+) {
+	relations, countRows, getRelationsErr := r.robboGroupGateway.GetRelationByTeacherId(teacherId, page, pageSize)
 	if getRelationsErr != nil {
 		err = getRelationsErr
 		return

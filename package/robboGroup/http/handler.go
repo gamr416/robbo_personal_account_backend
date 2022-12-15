@@ -100,7 +100,7 @@ func (h *Handler) GetAllRobboGroups(c *gin.Context) {
 		return
 	}
 
-	robboGroups, err := h.robboGroupDelegate.GetAllRobboGroups()
+	robboGroups, _, err := h.robboGroupDelegate.GetAllRobboGroups("0", "0")
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)

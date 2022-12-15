@@ -55,13 +55,14 @@ func (r *RobboGroupGatewayImpl) CreateRobboGroup(robboGroupCore *models.RobboGro
 	return
 }
 
-func (r *RobboGroupGatewayImpl) GetAllRobboGroups() (robboGroupsCore []*models.RobboGroupCore, err error) {
+func (r *RobboGroupGatewayImpl) GetAllRobboGroups(page, pageSize int) (robboGroupsCore []*models.RobboGroupCore, countRows int64, err error) {
 	var robboGroupsDB []*models.RobboGroupDB
-
+	offset := (page - 1) * pageSize
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Find(&robboGroupsDB).Error; err != nil {
+		if err = tx.Limit(pageSize).Offset(offset).Find(&robboGroupsDB).Error; err != nil {
 			return
 		}
+		tx.Model(&models.RobboGroupDB{}).Count(&countRows)
 		return
 	})
 
@@ -163,12 +164,18 @@ func (r *RobboGroupGatewayImpl) GetRelationByRobboGroupId(robboGroupId string) (
 	return
 }
 
-func (r *RobboGroupGatewayImpl) GetRelationByTeacherId(teacherId string) (relations []*models.TeachersRobboGroupsCore, err error) {
+func (r *RobboGroupGatewayImpl) GetRelationByTeacherId(teacherId string, page, pageSize int) (
+	relations []*models.TeachersRobboGroupsCore,
+	countRows int64,
+	err error,
+) {
 	var relationsDB []*models.TeachersRobboGroupsDB
+	offset := (page - 1) * pageSize
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Where("teacher_id = ?", teacherId).Find(&relationsDB).Error; err != nil {
+		if err = tx.Limit(pageSize).Offset(offset).Where("teacher_id = ?", teacherId).Find(&relationsDB).Error; err != nil {
 			return
 		}
+		tx.Model(&models.TeachersRobboGroupsDB{}).Where("teacher_id = ?", teacherId).Count(&countRows)
 		return
 	})
 

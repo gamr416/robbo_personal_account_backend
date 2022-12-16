@@ -46,19 +46,14 @@ func (r *RobboGroupUseCaseImpl) GetRobboGroupsByRobboUnitId(robboUnitId string) 
 	return r.robboGroupGateway.GetRobboGroupsByRobboUnitId(robboUnitId)
 }
 
-func (r *RobboGroupUseCaseImpl) GetRobboGroupsByUnitAdminId(unitAdminId string, page, pageSize int) (
-	robboGroups []*models.RobboGroupCore,
-	countRows int64,
-	err error,
-) {
-	relations, countRows, getRelationErr := r.usersGateway.GetRelationByUnitAdminId(unitAdminId, page, pageSize)
+func (r *RobboGroupUseCaseImpl) GetRobboGroupsByUnitAdminId(unitAdminId string) (robboGroups []*models.RobboGroupCore, err error) {
+	relations, _, getRelationErr := r.usersGateway.GetRelationByUnitAdminId(unitAdminId, 0, 0)
 	if getRelationErr != nil {
 		err = getRelationErr
 		return
 	}
 
 	for _, relation := range relations {
-		//TODO rewrite countRows & pagination
 		unitRobboGroups, getRobboGroupErr := r.robboGroupGateway.GetRobboGroupsByRobboUnitId(relation.RobboUnitId)
 		if getRobboGroupErr != nil {
 			err = getRelationErr

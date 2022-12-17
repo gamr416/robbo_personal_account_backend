@@ -186,7 +186,7 @@ func (r *queryResolver) GetRobboGroupsByRobboUnitID(ctx context.Context, robboUn
 }
 
 // GetRobboGroupsByUnitAdminID is the resolver for the GetRobboGroupsByUnitAdminID field.
-func (r *queryResolver) GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdminID string) (models.RobboGroupsResult, error) {
+func (r *queryResolver) GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdminID string, page string, pageSize string) (models.RobboGroupsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -203,13 +203,14 @@ func (r *queryResolver) GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdm
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	robboGroups, getRobboGroupsByUnitAdminIdErr := r.robboGroupDelegate.GetRobboGroupsByUnitAdminId(unitAdminID)
+	robboGroups, countRows, getRobboGroupsByUnitAdminIdErr := r.robboGroupDelegate.GetRobboGroupsByUnitAdminId(unitAdminID, page, pageSize)
 	if getRobboGroupsByUnitAdminIdErr != nil {
 		err := getRobboGroupsByUnitAdminIdErr
 		return &models.Error{Message: err.Error()}, err
 	}
 	return &models.RobboGroupHTTPList{
 		RobboGroups: robboGroups,
+		CountRows:   countRows,
 	}, nil
 }
 

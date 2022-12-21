@@ -21,7 +21,7 @@ func NewServer(lifecycle fx.Lifecycle, graphQLModule modules.GraphQLModule, hand
 			OnStart: func(ctx context.Context) (err error) {
 				router := SetupGinRouter(handlers)
 				router.GET("/", playgroundHandler())
-				router.POST("/query", graphqlHandler(graphQLModule))
+				router.POST("/query", TokenAuthMiddleware(), graphqlHandler(graphQLModule))
 
 				server := &http.Server{
 					Addr: viper.GetString("server.address"),

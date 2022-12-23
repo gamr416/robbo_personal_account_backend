@@ -225,7 +225,7 @@ type ComplexityRoot struct {
 		GetRobboGroupsByAccessToken     func(childComplexity int, page string, pageSize string) int
 		GetRobboGroupsByRobboUnitID     func(childComplexity int, robboUnitID string) int
 		GetRobboGroupsByTeacherID       func(childComplexity int, teacherID string, page string, pageSize string) int
-		GetRobboGroupsByUnitAdminID     func(childComplexity int, unitAdminID string) int
+		GetRobboGroupsByUnitAdminID     func(childComplexity int, unitAdminID string, page string, pageSize string) int
 		GetRobboUnitByID                func(childComplexity int, id string) int
 		GetRobboUnitsByAccessToken      func(childComplexity int, page string, pageSize string) int
 		GetRobboUnitsByUnitAdminID      func(childComplexity int, unitAdminID string) int
@@ -368,7 +368,7 @@ type QueryResolver interface {
 	GetRobboGroupByID(ctx context.Context, id string) (models.RobboGroupResult, error)
 	GetRobboGroupsByTeacherID(ctx context.Context, teacherID string, page string, pageSize string) (models.RobboGroupsResult, error)
 	GetRobboGroupsByRobboUnitID(ctx context.Context, robboUnitID string) (models.RobboGroupsResult, error)
-	GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdminID string) (models.RobboGroupsResult, error)
+	GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdminID string, page string, pageSize string) (models.RobboGroupsResult, error)
 	GetAllRobboGroups(ctx context.Context, page string, pageSize string) (models.RobboGroupsResult, error)
 	GetRobboGroupsByAccessToken(ctx context.Context, page string, pageSize string) (models.RobboGroupsResult, error)
 	SearchGroupsByName(ctx context.Context, name string) (models.RobboGroupsResult, error)
@@ -1401,7 +1401,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetRobboGroupsByUnitAdminID(childComplexity, args["unitAdminId"].(string)), true
+		return e.complexity.Query.GetRobboGroupsByUnitAdminID(childComplexity, args["unitAdminId"].(string), args["page"].(string), args["pageSize"].(string)), true
 
 	case "Query.GetRobboUnitById":
 		if e.complexity.Query.GetRobboUnitByID == nil {
@@ -2080,7 +2080,7 @@ extend type Query {
 	GetRobboGroupById(id: String!): RobboGroupResult!
 	GetRobboGroupsByTeacherId(teacherId: String!, page: String!, pageSize: String!): RobboGroupsResult!
 	GetRobboGroupsByRobboUnitId(robboUnitId: String!): RobboGroupsResult!
-	GetRobboGroupsByUnitAdminId(unitAdminId: String!): RobboGroupsResult!
+	GetRobboGroupsByUnitAdminId(unitAdminId: String!, page: String!, pageSize: String!): RobboGroupsResult!
 	GetAllRobboGroups(page: String!, pageSize: String!): RobboGroupsResult!
 	GetRobboGroupsByAccessToken(page: String!, pageSize: String!): RobboGroupsResult!
 	SearchGroupsByName(name: String!): RobboGroupsResult!
@@ -3070,6 +3070,24 @@ func (ec *executionContext) field_Query_GetRobboGroupsByUnitAdminId_args(ctx con
 		}
 	}
 	args["unitAdminId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg2
 	return args, nil
 }
 
@@ -9458,7 +9476,7 @@ func (ec *executionContext) _Query_GetRobboGroupsByUnitAdminId(ctx context.Conte
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetRobboGroupsByUnitAdminID(rctx, fc.Args["unitAdminId"].(string))
+		return ec.resolvers.Query().GetRobboGroupsByUnitAdminID(rctx, fc.Args["unitAdminId"].(string), fc.Args["page"].(string), fc.Args["pageSize"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

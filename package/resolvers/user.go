@@ -582,7 +582,7 @@ func (r *queryResolver) GetPairsStudentParentsByAccessToken(ctx context.Context)
 }
 
 // GetIndividualStudentsByTeacherID is the resolver for the GetIndividualStudentsByTeacherId field.
-func (r *queryResolver) GetIndividualStudentsByTeacherID(ctx context.Context, teacherID string) (models.StudentResult, error) {
+func (r *queryResolver) GetIndividualStudentsByTeacherID(ctx context.Context, teacherID string) (models.StudentsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -1035,9 +1035,9 @@ type queryResolver struct{ *Resolver }
 // !!! WARNING !!!
 // The code below was going to be deleted when updating resolvers. It has been copied here so you have
 // one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
 func (r *mutationResolver) CreateStudentTeacherRelation(ctx context.Context, studentID string, teacherID string) (models.StudentResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {

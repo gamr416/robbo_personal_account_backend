@@ -208,40 +208,41 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		GetAllParents                   func(childComplexity int, page string, pageSize string) int
-		GetAllProjectPagesByAccessToken func(childComplexity int) int
-		GetAllProjectPagesByUserID      func(childComplexity int, userID string) int
-		GetAllPublicCourses             func(childComplexity int, pageNumber string) int
-		GetAllRobboGroups               func(childComplexity int, page string, pageSize string) int
-		GetAllRobboUnits                func(childComplexity int, page string, pageSize string) int
-		GetAllTeachers                  func(childComplexity int, page string, pageSize string) int
-		GetAllUnitAdmins                func(childComplexity int, page string, pageSize string) int
-		GetCourseContent                func(childComplexity int, courseID string) int
-		GetCoursesByUser                func(childComplexity int) int
-		GetEnrollments                  func(childComplexity int, username string) int
-		GetParentByID                   func(childComplexity int, parentID string) int
-		GetProjectPageByID              func(childComplexity int, projectPageID string) int
-		GetRobboGroupByID               func(childComplexity int, id string) int
-		GetRobboGroupsByAccessToken     func(childComplexity int, page string, pageSize string) int
-		GetRobboGroupsByRobboUnitID     func(childComplexity int, robboUnitID string) int
-		GetRobboGroupsByTeacherID       func(childComplexity int, teacherID string, page string, pageSize string) int
-		GetRobboGroupsByUnitAdminID     func(childComplexity int, unitAdminID string, page string, pageSize string) int
-		GetRobboUnitByID                func(childComplexity int, id string) int
-		GetRobboUnitsByAccessToken      func(childComplexity int, page string, pageSize string) int
-		GetRobboUnitsByUnitAdminID      func(childComplexity int, unitAdminID string) int
-		GetStudentByID                  func(childComplexity int, studentID string) int
-		GetStudentsByParentID           func(childComplexity int, parentID string) int
-		GetStudentsByRobboGroup         func(childComplexity int, robboGroupID string) int
-		GetStudentsByRobboUnitID        func(childComplexity int, robboUnitID string) int
-		GetSuperAdminByID               func(childComplexity int, superAdminID string) int
-		GetTeacherByID                  func(childComplexity int, teacherID string) int
-		GetTeachersByRobboGroupID       func(childComplexity int, robboGroupID string) int
-		GetUnitAdminByID                func(childComplexity int, unitAdminID string) int
-		GetUnitAdminsByRobboUnitID      func(childComplexity int, robboUnitID string) int
-		SearchGroupsByName              func(childComplexity int, name string) int
-		SearchStudentsByEmail           func(childComplexity int, email string, parentID string) int
-		SearchUnitAdminsByEmail         func(childComplexity int, email string, robboUnitID string) int
-
+		GetAllParents                       func(childComplexity int, page string, pageSize string) int
+		GetAllProjectPagesByAccessToken     func(childComplexity int) int
+		GetAllProjectPagesByUserID          func(childComplexity int, userID string) int
+		GetAllPublicCourses                 func(childComplexity int, pageNumber string) int
+		GetAllRobboGroups                   func(childComplexity int, page string, pageSize string) int
+		GetAllRobboUnits                    func(childComplexity int, page string, pageSize string) int
+		GetAllTeachers                      func(childComplexity int, page string, pageSize string) int
+		GetAllUnitAdmins                    func(childComplexity int, page string, pageSize string) int
+		GetCourseContent                    func(childComplexity int, courseID string) int
+		GetCoursesByUser                    func(childComplexity int) int
+		GetEnrollments                      func(childComplexity int, username string) int
+		GetIndividualStudentsByTeacherID    func(childComplexity int, teacherID string) int
+		GetPairsStudentParentsByAccessToken func(childComplexity int) int
+		GetParentByID                       func(childComplexity int, parentID string) int
+		GetProjectPageByID                  func(childComplexity int, projectPageID string) int
+		GetRobboGroupByID                   func(childComplexity int, id string) int
+		GetRobboGroupsByAccessToken         func(childComplexity int, page string, pageSize string) int
+		GetRobboGroupsByRobboUnitID         func(childComplexity int, robboUnitID string) int
+		GetRobboGroupsByTeacherID           func(childComplexity int, teacherID string, page string, pageSize string) int
+		GetRobboGroupsByUnitAdminID         func(childComplexity int, unitAdminID string, page string, pageSize string) int
+		GetRobboUnitByID                    func(childComplexity int, id string) int
+		GetRobboUnitsByAccessToken          func(childComplexity int, page string, pageSize string) int
+		GetRobboUnitsByUnitAdminID          func(childComplexity int, unitAdminID string) int
+		GetStudentByID                      func(childComplexity int, studentID string) int
+		GetStudentsByParentID               func(childComplexity int, parentID string) int
+		GetStudentsByRobboGroup             func(childComplexity int, robboGroupID string) int
+		GetStudentsByRobboUnitID            func(childComplexity int, robboUnitID string) int
+		GetSuperAdminByID                   func(childComplexity int, superAdminID string) int
+		GetTeacherByID                      func(childComplexity int, teacherID string) int
+		GetTeachersByRobboGroupID           func(childComplexity int, robboGroupID string) int
+		GetUnitAdminByID                    func(childComplexity int, unitAdminID string) int
+		GetUnitAdminsByRobboUnitID          func(childComplexity int, robboUnitID string) int
+		SearchGroupsByName                  func(childComplexity int, name string) int
+		SearchStudentsByEmail               func(childComplexity int, email string, parentID string) int
+		SearchUnitAdminsByEmail             func(childComplexity int, email string, robboUnitID string) int
 	}
 
 	RobboGroupHttp struct {
@@ -354,8 +355,8 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	GetPairsStudentParentsByAccessToken(ctx context.Context) (models.PairsStudentParentsResult, error)
-	GetIndividualStudentsByTeacherID(ctx context.Context, teacherID string) (models.StudentResult, error)
-	GetStudentsByParentID(ctx context.Context, parentID string) (models.StudentResult, error)
+	GetIndividualStudentsByTeacherID(ctx context.Context, teacherID string) (models.StudentsResult, error)
+	GetStudentsByParentID(ctx context.Context, parentID string) (models.StudentsResult, error)
 	GetStudentByID(ctx context.Context, studentID string) (models.StudentResult, error)
 	GetStudentsByRobboGroup(ctx context.Context, robboGroupID string) (models.StudentsResult, error)
 	GetStudentsByRobboUnitID(ctx context.Context, robboUnitID string) (models.StudentsResult, error)
@@ -2120,11 +2121,11 @@ extend type Mutation {
 
 extend type Query {
 	GetRobboGroupById(id: String!): RobboGroupResult!
-	GetRobboGroupsByTeacherId(teacherId: String!, page: String!, pageSize: String!): RobboGroupsResult!
-	GetRobboGroupsByRobboUnitId(robboUnitId: String!): RobboGroupsResult!
+	GetRobboGroupsByTeacherId(teacherId: String!, page: String!, pageSize: String!): RobboGroupsResult! # Ручка для Админов для получения групп на которые назначен Teacher
+	GetRobboGroupsByRobboUnitId(robboUnitId: String!): RobboGroupsResult! # Ручка для Super Admin для получения групп на которые назначен Unit Admin
 	GetRobboGroupsByUnitAdminId(unitAdminId: String!, page: String!, pageSize: String!): RobboGroupsResult!
-	GetAllRobboGroups(page: String!, pageSize: String!): RobboGroupsResult!
-	GetRobboGroupsByAccessToken(page: String!, pageSize: String!): RobboGroupsResult!
+	GetAllRobboGroups(page: String!, pageSize: String!): RobboGroupsResult! # Ручка Super Admin для получения всех групп
+	GetRobboGroupsByAccessToken(page: String!, pageSize: String!): RobboGroupsResult! # Ручка для Teacher для получения групп на которые он назначен
 	SearchGroupsByName(name: String!): RobboGroupsResult!
 }`, BuiltIn: false},
 	{Name: "../robboUnit.graphqls", Input: `type RobboUnitHttp {
@@ -2328,8 +2329,8 @@ type Mutation {
 
 type Query {
     GetPairsStudentParentsByAccessToken: PairsStudentParentsResult!
-    GetIndividualStudentsByTeacherId(teacherId: String!): StudentResult!
-    GetStudentsByParentId(parentId: String!): StudentResult!
+    GetIndividualStudentsByTeacherId(teacherId: String!): StudentsResult!
+    GetStudentsByParentId(parentId: String!): StudentsResult!
     GetStudentById(studentId: String!): StudentResult!
     GetStudentsByRobboGroup(robboGroupId: String!): StudentsResult!
     GetStudentsByRobboUnitId(robboUnitId: String!): StudentsResult!
@@ -8208,9 +8209,9 @@ func (ec *executionContext) _Query_GetIndividualStudentsByTeacherId(ctx context.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.StudentResult)
+	res := resTmp.(models.StudentsResult)
 	fc.Result = res
-	return ec.marshalNStudentResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentResult(ctx, field.Selections, res)
+	return ec.marshalNStudentsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetIndividualStudentsByTeacherId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8220,7 +8221,7 @@ func (ec *executionContext) fieldContext_Query_GetIndividualStudentsByTeacherId(
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type StudentResult does not have child fields")
+			return nil, errors.New("field of type StudentsResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -11006,9 +11007,8 @@ func (ec *executionContext) fieldContext_StudentHttpList_countRows(ctx context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _SuperAdminHttp_userHttp(ctx context.Context, field graphql.CollectedField, obj *models.SuperAdminHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SuperAdminHttp_userHttp(ctx, field)
-
+func (ec *executionContext) _StudentParentsHttp_student(ctx context.Context, field graphql.CollectedField, obj *models.StudentParentsHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_StudentParentsHttp_student(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -11159,53 +11159,8 @@ func (ec *executionContext) fieldContext_StudentParentsHttpList_pairsStudentPare
 	return fc, nil
 }
 
-func (ec *executionContext) _TeacherHttpList_countRows(ctx context.Context, field graphql.CollectedField, obj *models.TeacherHTTPList) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeacherHttpList_countRows(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CountRows, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeacherHttpList_countRows(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeacherHttpList",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnitAdminHttp_userHttp(ctx context.Context, field graphql.CollectedField, obj *models.UnitAdminHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnitAdminHttp_userHttp(ctx, field)
-
+func (ec *executionContext) _SuperAdminHttp_userHttp(ctx context.Context, field graphql.CollectedField, obj *models.SuperAdminHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SuperAdminHttp_userHttp(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -11375,6 +11330,50 @@ func (ec *executionContext) fieldContext_TeacherHttpList_teachers(ctx context.Co
 				return ec.fieldContext_TeacherHttp_userHttp(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeacherHttp", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeacherHttpList_countRows(ctx context.Context, field graphql.CollectedField, obj *models.TeacherHTTPList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeacherHttpList_countRows(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CountRows, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeacherHttpList_countRows(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeacherHttpList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -14338,29 +14337,6 @@ func (ec *executionContext) _EnrollmentResult(ctx context.Context, sel ast.Selec
 	}
 }
 
-func (ec *executionContext) _ParentResult(ctx context.Context, sel ast.SelectionSet, obj models.ParentResult) graphql.Marshaler {
-	switch obj := (obj).(type) {
-	case nil:
-		return graphql.Null
-	case models.ParentHTTP:
-		return ec._ParentHttp(ctx, sel, &obj)
-	case *models.ParentHTTP:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ParentHttp(ctx, sel, obj)
-	case models.Error:
-		return ec._Error(ctx, sel, &obj)
-	case *models.Error:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Error(ctx, sel, obj)
-	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
-	}
-}
-
 func (ec *executionContext) _PairsStudentParentsResult(ctx context.Context, sel ast.SelectionSet, obj models.PairsStudentParentsResult) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -14385,6 +14361,29 @@ func (ec *executionContext) _PairsStudentParentsResult(ctx context.Context, sel 
 }
 
 func (ec *executionContext) _ParentResult(ctx context.Context, sel ast.SelectionSet, obj models.ParentResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case models.ParentHTTP:
+		return ec._ParentHttp(ctx, sel, &obj)
+	case *models.ParentHTTP:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ParentHttp(ctx, sel, obj)
+	case models.Error:
+		return ec._Error(ctx, sel, &obj)
+	case *models.Error:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Error(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _ParentsResult(ctx context.Context, sel ast.SelectionSet, obj models.ParentsResult) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null

@@ -157,8 +157,8 @@ type Mutation {
 
 type Query {
     GetPairsStudentParentsByAccessToken: PairsStudentParentsResult!
-    GetIndividualStudentsByTeacherId(teacherId: String!): StudentResult!
-    GetStudentsByParentId(parentId: String!): StudentResult!
+    GetIndividualStudentsByTeacherId(teacherId: String!): StudentsResult!
+    GetStudentsByParentId(parentId: String!): StudentsResult!
     GetStudentById(studentId: String!): StudentResult!
     GetStudentsByRobboGroup(robboGroupId: String!): StudentsResult!
     GetStudentsByRobboUnitId(robboUnitId: String!): StudentsResult!

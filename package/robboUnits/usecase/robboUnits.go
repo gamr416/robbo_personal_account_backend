@@ -34,16 +34,20 @@ func (p *RobboUnitsUseCaseImpl) DeleteRobboUnit(robboUnitId string) (err error) 
 	return p.robboUnitsGateway.DeleteRobboUnit(robboUnitId)
 }
 
-func (p *RobboUnitsUseCaseImpl) GetAllRobboUnit() (robboUnits []*models.RobboUnitCore, err error) {
-	return p.robboUnitsGateway.GetAllRobboUnit()
+func (p *RobboUnitsUseCaseImpl) GetAllRobboUnit(page, pageSize int) (robboUnits []*models.RobboUnitCore, countRows int64, err error) {
+	return p.robboUnitsGateway.GetAllRobboUnit(page, pageSize)
 }
 
 func (p *RobboUnitsUseCaseImpl) GetRobboUnitById(robboUnitId string) (robboUnit *models.RobboUnitCore, err error) {
 	return p.robboUnitsGateway.GetRobboUnitById(robboUnitId)
 }
 
-func (p *RobboUnitsUseCaseImpl) GetRobboUnitsByUnitAdminId(unitAdminId string) (robboUnits []*models.RobboUnitCore, err error) {
-	relations, getRelationErr := p.usersGateway.GetRelationByUnitAdminId(unitAdminId)
+func (p *RobboUnitsUseCaseImpl) GetRobboUnitsByUnitAdminId(unitAdminId string, page, pageSize int) (
+	robboUnits []*models.RobboUnitCore,
+	countRows int64,
+	err error,
+) {
+	relations, countRows, getRelationErr := p.usersGateway.GetRelationByUnitAdminId(unitAdminId, page, pageSize)
 	if getRelationErr != nil {
 		err = getRelationErr
 		return
@@ -52,8 +56,7 @@ func (p *RobboUnitsUseCaseImpl) GetRobboUnitsByUnitAdminId(unitAdminId string) (
 	for _, relation := range relations {
 		robboUnit, getRobboUnitErr := p.robboUnitsGateway.GetRobboUnitById(relation.RobboUnitId)
 		if getRobboUnitErr != nil {
-			err = getRelationErr
-			return
+			return []*models.RobboUnitCore{}, 0, getRobboUnitErr
 		}
 		robboUnits = append(robboUnits, robboUnit)
 	}

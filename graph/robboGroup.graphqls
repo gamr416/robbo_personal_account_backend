@@ -13,6 +13,7 @@ input NewRobboGroup {
 
 type RobboGroupHttpList {
 	robboGroups: [RobboGroupHttp!]!
+	countRows: Int!
 }
 
 input UpdateRobboGroup {
@@ -25,8 +26,8 @@ type DeletedRobboGroup {
 	robboGroupId: String!
 }
 
-union RobboGroupResult = RobboGroupHttp  | Error
-union RobboGroupsResult =  RobboGroupHttpList | Error
+union RobboGroupResult = RobboGroupHttp | Error
+union RobboGroupsResult = RobboGroupHttpList | Error
 
 extend type Mutation {
 	CreateRobboGroup(input: NewRobboGroup!): RobboGroupResult!
@@ -36,10 +37,10 @@ extend type Mutation {
 
 extend type Query {
 	GetRobboGroupById(id: String!): RobboGroupResult!
-	GetRobboGroupsByTeacherId(teacherId: String!): RobboGroupsResult! # Ручка для Админов для получения групп на которые назначен Teacher
-	GetRobboGroupsByRobboUnitId(robboUnitId: String!): RobboGroupsResult!
-	GetRobboGroupsByUnitAdminId(unitAdminId: String!): RobboGroupsResult! # Ручка для Super Admin для получения групп на которые назначен Unit Admin
-	GetAllRobboGroups: RobboGroupsResult! # Ручка Super Admin для получения всех групп
-	GetRobboGroupsByAccessToken: RobboGroupsResult! # Ручка для Teacher для получения групп на которые он назначен
+	GetRobboGroupsByTeacherId(teacherId: String!, page: String!, pageSize: String!): RobboGroupsResult! # Ручка для Админов для получения групп на которые назначен Teacher
+	GetRobboGroupsByRobboUnitId(robboUnitId: String!): RobboGroupsResult! # Ручка для Super Admin для получения групп на которые назначен Unit Admin
+	GetRobboGroupsByUnitAdminId(unitAdminId: String!, page: String!, pageSize: String!): RobboGroupsResult!
+	GetAllRobboGroups(page: String!, pageSize: String!): RobboGroupsResult! # Ручка Super Admin для получения всех групп
+	GetRobboGroupsByAccessToken(page: String!, pageSize: String!): RobboGroupsResult! # Ручка для Teacher для получения групп на которые он назначен
 	SearchGroupsByName(name: String!): RobboGroupsResult!
 }

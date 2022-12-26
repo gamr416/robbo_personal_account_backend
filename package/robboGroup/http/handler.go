@@ -100,7 +100,7 @@ func (h *Handler) GetAllRobboGroups(c *gin.Context) {
 		return
 	}
 
-	robboGroups, err := h.robboGroupDelegate.GetAllRobboGroups()
+	robboGroups, _, err := h.robboGroupDelegate.GetAllRobboGroups("0", "0")
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
@@ -155,7 +155,7 @@ func (h *Handler) GetRobboGroupsByUnitAdminId(c *gin.Context) {
 	}
 	unitAdminId := c.Param("unitAdminId")
 
-	robboGroups, err := h.robboGroupDelegate.GetRobboGroupsByUnitAdminId(unitAdminId)
+	robboGroups, _, err := h.robboGroupDelegate.GetRobboGroupsByUnitAdminId(unitAdminId, "0", "0")
 
 	if err != nil {
 		log.Println(err)

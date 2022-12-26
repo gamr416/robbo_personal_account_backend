@@ -6,6 +6,7 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
 	"go.uber.org/fx"
 	"log"
+	"strconv"
 )
 
 type UsersDelegateImpl struct {
@@ -267,11 +268,14 @@ func (p *UsersDelegateImpl) GetTeacherById(teacherId string) (teacher *models.Te
 	return
 }
 
-func (p *UsersDelegateImpl) GetAllTeachers() (teachers []*models.TeacherHTTP, err error) {
-	teachersCore, err := p.UseCase.GetAllTeachers()
+func (p *UsersDelegateImpl) GetAllTeachers(page, pageSize string) (teachers []*models.TeacherHTTP, countRows int, err error) {
+	pageInt32, _ := strconv.ParseInt(page, 10, 32)
+	pageSizeInt32, _ := strconv.ParseInt(pageSize, 10, 32)
+	teachersCore, countRowsInt64, err := p.UseCase.GetAllTeachers(int(pageInt32), int(pageSizeInt32))
 	if err != nil {
 		return
 	}
+	countRows = int(countRowsInt64)
 	for _, teacherCore := range teachersCore {
 		teacherTemp := models.TeacherHTTP{
 			UserHTTP: &models.UserHTTP{},
@@ -326,11 +330,14 @@ func (p *UsersDelegateImpl) GetParentById(parentId string) (parent *models.Paren
 	return
 }
 
-func (p *UsersDelegateImpl) GetAllParent() (parents []*models.ParentHTTP, err error) {
-	parentsCore, err := p.UseCase.GetAllParent()
+func (p *UsersDelegateImpl) GetAllParent(page, pageSize string) (parents []*models.ParentHTTP, countRows int, err error) {
+	pageInt32, _ := strconv.ParseInt(page, 10, 32)
+	pageSizeInt32, _ := strconv.ParseInt(pageSize, 10, 32)
+	parentsCore, countRowsInt64, err := p.UseCase.GetAllParent(int(pageInt32), int(pageSizeInt32))
 	if err != nil {
 		return
 	}
+	countRows = int(countRowsInt64)
 	for _, parentCore := range parentsCore {
 		parentTemp := models.ParentHTTP{
 			UserHTTP: &models.UserHTTP{},
@@ -431,11 +438,14 @@ func (p *UsersDelegateImpl) GetUnitAdminById(unitAdminId string) (unitAdmin mode
 	return
 }
 
-func (p *UsersDelegateImpl) GetAllUnitAdmins() (unitAdmins []*models.UnitAdminHTTP, err error) {
-	unitAdminsCore, err := p.UseCase.GetAllUnitAdmins()
+func (p *UsersDelegateImpl) GetAllUnitAdmins(page, pageSize string) (unitAdmins []*models.UnitAdminHTTP, countRows int, err error) {
+	pageInt32, _ := strconv.ParseInt(page, 10, 32)
+	pageSizeInt32, _ := strconv.ParseInt(pageSize, 10, 32)
+	unitAdminsCore, countRowsInt64, err := p.UseCase.GetAllUnitAdmins(int(pageInt32), int(pageSizeInt32))
 	if err != nil {
 		return
 	}
+	countRows = int(countRowsInt64)
 	for _, unitAdminCore := range unitAdminsCore {
 		unitAdminHttpTemp := models.UnitAdminHTTP{
 			UserHTTP: &models.UserHTTP{},

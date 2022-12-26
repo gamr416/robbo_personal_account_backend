@@ -17,14 +17,14 @@ type Gateway interface {
 	UpdateTeacher(teacher *models.TeacherCore) (teacherUpdated models.TeacherCore, err error)
 	DeleteTeacher(teacherId string) (err error)
 	GetTeacher(email, password string) (teacher models.TeacherCore, err error)
-	GetAllTeachers() (teachers []models.TeacherCore, err error)
+	GetAllTeachers(page, pageSize int) (teachers []models.TeacherCore, countRows int64, err error)
 	GetTeacherById(teacherId string) (teacher models.TeacherCore, err error)
 
 	CreateParent(parent *models.ParentCore) (newParent *models.ParentCore, err error)
 	UpdateParent(parent *models.ParentCore) (parentUpdated *models.ParentCore, err error)
 	DeleteParent(parentId string) (err error)
 	GetParent(email, password string) (parent *models.ParentCore, err error)
-	GetAllParent() (parents []*models.ParentCore, err error)
+	GetAllParent(page, pageSize int) (parents []*models.ParentCore, countRows int64, err error)
 	GetParentById(parentId string) (parent *models.ParentCore, err error)
 
 	CreateFreeListener(freeListener *models.FreeListenerCore) (newFreeListener *models.FreeListenerCore, err error)
@@ -37,7 +37,7 @@ type Gateway interface {
 	UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (unitAdminUpdated *models.UnitAdminCore, err error)
 	DeleteUnitAdmin(superAdminId string) (err error)
 	GetUnitAdmin(email, password string) (unitAdmin *models.UnitAdminCore, err error)
-	GetAllUnitAdmins() (unitAdmins []*models.UnitAdminCore, err error)
+	GetAllUnitAdmins(page, pageSize int) (unitAdmins []*models.UnitAdminCore, countRows int64, err error)
 	GetUnitAdminById(unitAdminId string) (unitAdmin *models.UnitAdminCore, err error)
 	SearchUnitAdminByEmail(email string, robboUnitId string) (unitAdmins []*models.UnitAdminCore, err error)
 
@@ -58,7 +58,7 @@ type Gateway interface {
 	DeleteRelationByRobboUnitId(robboUnitId string) (err error)
 	DeleteRelationByUnitAdminId(unitAdminId string) (err error)
 	GetRelationByRobboUnitId(robboUnitId string) (relations []*models.UnitAdminsRobboUnitsCore, err error)
-	GetRelationByUnitAdminId(unitAdminId string) (relations []*models.UnitAdminsRobboUnitsCore, err error)
+	GetRelationByUnitAdminId(unitAdminId string, page, pageSize int) (relations []*models.UnitAdminsRobboUnitsCore, countRows int64, err error)
 
 	CreateStudentTeacherRelation(relation *models.StudentsOfTeacherCore) (err error)
 	DeleteStudentTeacherRelation(relation *models.StudentsOfTeacherCore) (err error)

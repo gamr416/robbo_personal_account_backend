@@ -129,7 +129,7 @@ func (r *queryResolver) GetRobboGroupByID(ctx context.Context, id string) (model
 }
 
 // GetRobboGroupsByTeacherID is the resolver for the GetRobboGroupsByTeacherId field.
-func (r *queryResolver) GetRobboGroupsByTeacherID(ctx context.Context, teacherID string) (models.RobboGroupsResult, error) {
+func (r *queryResolver) GetRobboGroupsByTeacherID(ctx context.Context, teacherID string, page string, pageSize string) (models.RobboGroupsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -146,13 +146,14 @@ func (r *queryResolver) GetRobboGroupsByTeacherID(ctx context.Context, teacherID
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	robboGroups, getRobboGroupsByTeacherIdErr := r.robboGroupDelegate.GetRobboGroupsByTeacherId(teacherID)
+	robboGroups, countRows, getRobboGroupsByTeacherIdErr := r.robboGroupDelegate.GetRobboGroupsByTeacherId(teacherID, page, pageSize)
 	if getRobboGroupsByTeacherIdErr != nil {
 		err := getRobboGroupsByTeacherIdErr
 		return &models.Error{Message: err.Error()}, err
 	}
 	return &models.RobboGroupHTTPList{
 		RobboGroups: robboGroups,
+		CountRows:   countRows,
 	}, nil
 }
 
@@ -185,7 +186,7 @@ func (r *queryResolver) GetRobboGroupsByRobboUnitID(ctx context.Context, robboUn
 }
 
 // GetRobboGroupsByUnitAdminID is the resolver for the GetRobboGroupsByUnitAdminID field.
-func (r *queryResolver) GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdminID string) (models.RobboGroupsResult, error) {
+func (r *queryResolver) GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdminID string, page string, pageSize string) (models.RobboGroupsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -202,18 +203,19 @@ func (r *queryResolver) GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdm
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	robboGroups, getRobboGroupsByUnitAdminIdErr := r.robboGroupDelegate.GetRobboGroupsByUnitAdminId(unitAdminID)
+	robboGroups, countRows, getRobboGroupsByUnitAdminIdErr := r.robboGroupDelegate.GetRobboGroupsByUnitAdminId(unitAdminID, page, pageSize)
 	if getRobboGroupsByUnitAdminIdErr != nil {
 		err := getRobboGroupsByUnitAdminIdErr
 		return &models.Error{Message: err.Error()}, err
 	}
 	return &models.RobboGroupHTTPList{
 		RobboGroups: robboGroups,
+		CountRows:   countRows,
 	}, nil
 }
 
 // GetAllRobboGroups is the resolver for the GetAllRobboGroups field.
-func (r *queryResolver) GetAllRobboGroups(ctx context.Context) (models.RobboGroupsResult, error) {
+func (r *queryResolver) GetAllRobboGroups(ctx context.Context, page string, pageSize string) (models.RobboGroupsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -231,18 +233,19 @@ func (r *queryResolver) GetAllRobboGroups(ctx context.Context) (models.RobboGrou
 		return &models.Error{Message: err.Error()}, err
 	}
 
-	robboGroups, getAllRobboGroups := r.robboGroupDelegate.GetAllRobboGroups()
+	robboGroups, countRows, getAllRobboGroups := r.robboGroupDelegate.GetAllRobboGroups(page, pageSize)
 	if getAllRobboGroups != nil {
 		err := getAllRobboGroups
 		return &models.Error{Message: err.Error()}, err
 	}
 	return &models.RobboGroupHTTPList{
 		RobboGroups: robboGroups,
+		CountRows:   countRows,
 	}, nil
 }
 
 // GetRobboGroupsByAccessToken is the resolver for the GetRobboGroupsByAccessToken field.
-func (r *queryResolver) GetRobboGroupsByAccessToken(ctx context.Context) (models.RobboGroupsResult, error) {
+func (r *queryResolver) GetRobboGroupsByAccessToken(ctx context.Context, page string, pageSize string) (models.RobboGroupsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -260,13 +263,14 @@ func (r *queryResolver) GetRobboGroupsByAccessToken(ctx context.Context) (models
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	robboGroups, getRobboGroupsByTeacherIdErr := r.robboGroupDelegate.GetRobboGroupsByTeacherId(userId)
+	robboGroups, countRows, getRobboGroupsByTeacherIdErr := r.robboGroupDelegate.GetRobboGroupsByTeacherId(userId, page, pageSize)
 	if getRobboGroupsByTeacherIdErr != nil {
 		err := getRobboGroupsByTeacherIdErr
 		return &models.Error{Message: err.Error()}, err
 	}
 	return &models.RobboGroupHTTPList{
 		RobboGroups: robboGroups,
+		CountRows:   countRows,
 	}, nil
 }
 

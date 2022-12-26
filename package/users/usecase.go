@@ -20,7 +20,7 @@ type UseCase interface {
 
 	//GetTeacher(email, password string) (teacher *models.TeacherCore, err error)
 	GetTeacherById(teacherId string) (teacher models.TeacherCore, err error)
-	GetAllTeachers() (teachers []models.TeacherCore, err error)
+	GetAllTeachers(page, pageSize int) (teachers []models.TeacherCore, countRows int64, err error)
 	CreateTeacher(teacher *models.TeacherCore) (newTeacher models.TeacherCore, err error)
 	UpdateTeacher(teacher *models.TeacherCore) (teacherUpdated models.TeacherCore, err error)
 	DeleteTeacher(teacherId string) (err error)
@@ -28,7 +28,7 @@ type UseCase interface {
 	GetTeachersByStudentId(studentId string) (teachers []*models.TeacherCore, err error)
 
 	GetParentById(parentId string) (parent *models.ParentCore, err error)
-	GetAllParent() (parents []*models.ParentCore, err error)
+	GetAllParent(page, pageSize int) (parents []*models.ParentCore, countRows int64, err error)
 	CreateParent(parent *models.ParentCore) (newParent *models.ParentCore, err error)
 	UpdateParent(parent *models.ParentCore) (parentUpdated *models.ParentCore, err error)
 	DeleteParent(parentId string) (err error)
@@ -39,7 +39,7 @@ type UseCase interface {
 	DeleteFreeListener(freeListenerId string) (err error)
 
 	GetUnitAdminById(unitAdminId string) (unitAdmin *models.UnitAdminCore, err error)
-	GetAllUnitAdmins() (unitAdmins []*models.UnitAdminCore, err error)
+	GetAllUnitAdmins(page, pageSize int) (unitAdmins []*models.UnitAdminCore, countRows int64, err error)
 	GetUnitAdminByRobboUnitId(robboUnitId string) (unitAdmins []*models.UnitAdminCore, err error)
 	CreateUnitAdmin(unitAdmin *models.UnitAdminCore) (newUnitAdmin *models.UnitAdminCore, err error)
 	UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (unitAdminUpdated *models.UnitAdminCore, err error)

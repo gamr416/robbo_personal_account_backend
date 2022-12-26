@@ -130,7 +130,7 @@ func (r *queryResolver) GetRobboUnitByID(ctx context.Context, id string) (models
 }
 
 // GetAllRobboUnits is the resolver for the GetAllRobboUnits field.
-func (r *queryResolver) GetAllRobboUnits(ctx context.Context) (models.RobboUnitsResult, error) {
+func (r *queryResolver) GetAllRobboUnits(ctx context.Context, page string, pageSize string) (models.RobboUnitsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -147,13 +147,14 @@ func (r *queryResolver) GetAllRobboUnits(ctx context.Context) (models.RobboUnits
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	robboUnits, getAllRobboUnitErr := r.robboUnitsDelegate.GetAllRobboUnit()
+	robboUnits, countRows, getAllRobboUnitErr := r.robboUnitsDelegate.GetAllRobboUnit(page, pageSize)
 	if getAllRobboUnitErr != nil {
 		err := getAllRobboUnitErr
 		return &models.Error{Message: err.Error()}, err
 	}
 	return &models.RobboUnitHTTPList{
 		RobboUnits: robboUnits,
+		CountRows:  countRows,
 	}, nil
 }
 
@@ -175,18 +176,19 @@ func (r *queryResolver) GetRobboUnitsByUnitAdminID(ctx context.Context, unitAdmi
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	robboUnits, getRobboUnitsByUnitAdminIdErr := r.robboUnitsDelegate.GetRobboUnitsByUnitAdminId(unitAdminID)
+	robboUnits, countRows, getRobboUnitsByUnitAdminIdErr := r.robboUnitsDelegate.GetRobboUnitsByUnitAdminId(unitAdminID, "0", "0")
 	if getRobboUnitsByUnitAdminIdErr != nil {
 		err := getRobboUnitsByUnitAdminIdErr
 		return &models.Error{Message: err.Error()}, err
 	}
 	return &models.RobboUnitHTTPList{
 		RobboUnits: robboUnits,
+		CountRows:  countRows,
 	}, nil
 }
 
 // GetRobboUnitsByAccessToken is the resolver for the GetRobboUnitsByAccessToken field.
-func (r *queryResolver) GetRobboUnitsByAccessToken(ctx context.Context) (models.RobboUnitsResult, error) {
+func (r *queryResolver) GetRobboUnitsByAccessToken(ctx context.Context, page string, pageSize string) (models.RobboUnitsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -203,12 +205,13 @@ func (r *queryResolver) GetRobboUnitsByAccessToken(ctx context.Context) (models.
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	robboUnits, getRobboUnitsByUnitAdminIdErr := r.robboUnitsDelegate.GetRobboUnitsByUnitAdminId(userId)
+	robboUnits, countRows, getRobboUnitsByUnitAdminIdErr := r.robboUnitsDelegate.GetRobboUnitsByUnitAdminId(userId, page, pageSize)
 	if getRobboUnitsByUnitAdminIdErr != nil {
 		err := getRobboUnitsByUnitAdminIdErr
 		return &models.Error{Message: err.Error()}, err
 	}
 	return &models.RobboUnitHTTPList{
 		RobboUnits: robboUnits,
+		CountRows:  countRows,
 	}, nil
 }

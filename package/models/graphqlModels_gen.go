@@ -273,7 +273,8 @@ type ParentHTTP struct {
 func (ParentHTTP) IsParentResult() {}
 
 type ParentHTTPList struct {
-	Parents []*ParentHTTP `json:"parents"`
+	Parents   []*ParentHTTP `json:"parents"`
+	CountRows int           `json:"countRows"`
 }
 
 func (ParentHTTPList) IsParentsResult() {}
@@ -310,6 +311,7 @@ func (RobboGroupHTTP) IsRobboGroupResult() {}
 
 type RobboGroupHTTPList struct {
 	RobboGroups []*RobboGroupHTTP `json:"robboGroups"`
+	CountRows   int               `json:"countRows"`
 }
 
 func (RobboGroupHTTPList) IsRobboGroupsResult() {}
@@ -325,6 +327,7 @@ func (RobboUnitHTTP) IsRobboUnitResult() {}
 
 type RobboUnitHTTPList struct {
 	RobboUnits []*RobboUnitHTTP `json:"robboUnits"`
+	CountRows  int              `json:"countRows"`
 }
 
 func (RobboUnitHTTPList) IsRobboUnitsResult() {}
@@ -338,7 +341,8 @@ type StudentHTTP struct {
 func (StudentHTTP) IsStudentResult() {}
 
 type StudentHTTPList struct {
-	Students []*StudentHTTP `json:"students"`
+	Students  []*StudentHTTP `json:"students"`
+	CountRows int            `json:"countRows"`
 }
 
 func (StudentHTTPList) IsStudentsResult() {}
@@ -367,7 +371,8 @@ type TeacherHTTP struct {
 func (TeacherHTTP) IsTeacherResult() {}
 
 type TeacherHTTPList struct {
-	Teachers []*TeacherHTTP `json:"teachers"`
+	Teachers  []*TeacherHTTP `json:"teachers"`
+	CountRows int            `json:"countRows"`
 }
 
 func (TeacherHTTPList) IsTeachersResult() {}
@@ -380,6 +385,7 @@ func (UnitAdminHTTP) IsUnitAdminResult() {}
 
 type UnitAdminHTTPList struct {
 	UnitAdmins []*UnitAdminHTTP `json:"unitAdmins"`
+	CountRows  int              `json:"countRows"`
 }
 
 func (UnitAdminHTTPList) IsUnitAdminsResult() {}

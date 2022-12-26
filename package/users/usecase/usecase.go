@@ -173,16 +173,21 @@ func (p *UsersUseCaseImpl) CreateStudent(student *models.StudentCore, parentId s
 		ChildId:  newStudent.Id,
 		ParentId: parentId,
 	}
-	p.usersGateway.CreateStudentParentRelation(relation)
+	err = p.usersGateway.CreateStudentParentRelation(relation)
 	return
 }
 
 func (p *UsersUseCaseImpl) DeleteStudent(studentId string) (err error) {
-	deleteRelationErr := p.usersGateway.DeleteRelationByChildrenId(studentId)
-	if deleteRelationErr != nil {
-		return deleteRelationErr
+	if err = p.usersGateway.DeleteStudent(studentId); err != nil {
+		return
 	}
-	return p.usersGateway.DeleteStudent(studentId)
+	if err = p.usersGateway.DeleteRelationByChildrenId(studentId); err != nil {
+		return
+	}
+	if err = p.usersGateway.DeleteStudentTeacherRelationByStudentId(studentId); err != nil {
+		return
+	}
+	return
 }
 
 func (p *UsersUseCaseImpl) UpdateStudent(student *models.StudentCore) (studentUpdated *models.StudentCore, err error) {
@@ -190,7 +195,23 @@ func (p *UsersUseCaseImpl) UpdateStudent(student *models.StudentCore) (studentUp
 }
 
 func (p *UsersUseCaseImpl) AddStudentToRobboGroup(studentId string, robboGroupId string, robboUnitId string) (err error) {
-	return p.usersGateway.AddStudentToRobboGroup(studentId, robboGroupId, robboUnitId)
+	if err = p.usersGateway.AddStudentToRobboGroup(studentId, robboGroupId, robboUnitId); err != nil {
+		return
+	}
+	teachersRobboGroupsRelations, err := p.robboGroupGateway.GetRelationByRobboGroupId(robboGroupId)
+	if err != nil {
+		return
+	}
+	for _, relation := range teachersRobboGroupsRelations {
+		relationCore := &models.StudentsOfTeacherCore{
+			StudentId: studentId,
+			TeacherId: relation.TeacherId,
+		}
+		if err = p.usersGateway.CreateStudentTeacherRelation(relationCore); err != nil {
+			return
+		}
+	}
+	return
 }
 
 func (p *UsersUseCaseImpl) GetTeacherById(teacherId string) (teacher models.TeacherCore, err error) {
@@ -218,8 +239,8 @@ func (p *UsersUseCaseImpl) GetTeachersByStudentId(studentId string) (teachers []
 //	return p.usersGateway.GetTeacher(email, password)
 //}
 
-func (p *UsersUseCaseImpl) GetAllTeachers() (teachers []models.TeacherCore, err error) {
-	return p.usersGateway.GetAllTeachers()
+func (p *UsersUseCaseImpl) GetAllTeachers(page, pageSize int) (teachers []models.TeacherCore, countRows int64, err error) {
+	return p.usersGateway.GetAllTeachers(page, pageSize)
 }
 
 func (p *UsersUseCaseImpl) UpdateTeacher(teacher *models.TeacherCore) (teacherUpdated models.TeacherCore, err error) {
@@ -236,7 +257,13 @@ func (p *UsersUseCaseImpl) CreateTeacher(teacher *models.TeacherCore) (newTeache
 }
 
 func (p *UsersUseCaseImpl) DeleteTeacher(teacherId string) (err error) {
-	return p.usersGateway.DeleteTeacher(teacherId)
+	if err = p.usersGateway.DeleteTeacher(teacherId); err != nil {
+		return
+	}
+	if err = p.usersGateway.DeleteStudentTeacherRelationByTeacherId(teacherId); err != nil {
+		return
+	}
+	return
 }
 
 //func (p *UsersUseCaseImpl) GetParent(email, password string) (parent *models.ParentCore, err error) {
@@ -247,9 +274,8 @@ func (p *UsersUseCaseImpl) GetParentById(parentId string) (parent *models.Parent
 	return p.usersGateway.GetParentById(parentId)
 }
 
-func (p *UsersUseCaseImpl) GetAllParent() (parents []*models.ParentCore, err error) {
-	parents, err = p.usersGateway.GetAllParent()
-	return
+func (p *UsersUseCaseImpl) GetAllParent(page, pageSize int) (parents []*models.ParentCore, countRows int64, err error) {
+	return p.usersGateway.GetAllParent(page, pageSize)
 }
 
 func (p *UsersUseCaseImpl) CreateParent(parent *models.ParentCore) (newParent *models.ParentCore, err error) {
@@ -308,8 +334,8 @@ func (p *UsersUseCaseImpl) GetUnitAdminById(unitAdminId string) (unitAdmin *mode
 	return p.usersGateway.GetUnitAdminById(unitAdminId)
 }
 
-func (p *UsersUseCaseImpl) GetAllUnitAdmins() (unitAdmins []*models.UnitAdminCore, err error) {
-	return p.usersGateway.GetAllUnitAdmins()
+func (p *UsersUseCaseImpl) GetAllUnitAdmins(page, pageSize int) (unitAdmins []*models.UnitAdminCore, countRows int64, err error) {
+	return p.usersGateway.GetAllUnitAdmins(page, pageSize)
 }
 
 //func (p *UsersUseCaseImpl) GetUnitAdmin(email, password string) (unitAdmin *models.UnitAdminCore, err error) {

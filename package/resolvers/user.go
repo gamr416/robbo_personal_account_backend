@@ -748,7 +748,7 @@ func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string,
 }
 
 // GetAllTeachers is the resolver for the GetAllTeachers field.
-func (r *queryResolver) GetAllTeachers(ctx context.Context) (models.TeachersResult, error) {
+func (r *queryResolver) GetAllTeachers(ctx context.Context, page string, pageSize string) (models.TeachersResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -765,13 +765,14 @@ func (r *queryResolver) GetAllTeachers(ctx context.Context) (models.TeachersResu
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	teachers, getAllTeachersErr := r.usersDelegate.GetAllTeachers()
+	teachers, countRows, getAllTeachersErr := r.usersDelegate.GetAllTeachers(page, pageSize)
 	if getAllTeachersErr != nil {
 		err := getAllTeachersErr
 		return &models.Error{Message: err.Error()}, err
 	}
 	return &models.TeacherHTTPList{
-		Teachers: teachers,
+		Teachers:  teachers,
+		CountRows: countRows,
 	}, nil
 }
 
@@ -830,7 +831,7 @@ func (r *queryResolver) GetTeachersByRobboGroupID(ctx context.Context, robboGrou
 }
 
 // GetAllParents is the resolver for the GetAllParents field.
-func (r *queryResolver) GetAllParents(ctx context.Context) (models.ParentsResult, error) {
+func (r *queryResolver) GetAllParents(ctx context.Context, page string, pageSize string) (models.ParentsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -847,13 +848,14 @@ func (r *queryResolver) GetAllParents(ctx context.Context) (models.ParentsResult
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	parents, getAllParentsErr := r.usersDelegate.GetAllParent()
+	parents, countRows, getAllParentsErr := r.usersDelegate.GetAllParent(page, pageSize)
 	if getAllParentsErr != nil {
 		err := getAllParentsErr
 		return &models.Error{Message: err.Error()}, err
 	}
 	return &models.ParentHTTPList{
-		Parents: parents,
+		Parents:   parents,
+		CountRows: countRows,
 	}, nil
 }
 
@@ -884,7 +886,7 @@ func (r *queryResolver) GetParentByID(ctx context.Context, parentID string) (mod
 }
 
 // GetAllUnitAdmins is the resolver for the GetAllUnitAdmins field.
-func (r *queryResolver) GetAllUnitAdmins(ctx context.Context) (models.UnitAdminsResult, error) {
+func (r *queryResolver) GetAllUnitAdmins(ctx context.Context, page string, pageSize string) (models.UnitAdminsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -901,13 +903,14 @@ func (r *queryResolver) GetAllUnitAdmins(ctx context.Context) (models.UnitAdmins
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	unitAdmins, getAllUnitAdminsErr := r.usersDelegate.GetAllUnitAdmins()
+	unitAdmins, countRows, getAllUnitAdminsErr := r.usersDelegate.GetAllUnitAdmins(page, pageSize)
 	if getAllUnitAdminsErr != nil {
 		err := getAllUnitAdminsErr
 		return &models.Error{Message: err.Error()}, err
 	}
 	return &models.UnitAdminHTTPList{
 		UnitAdmins: unitAdmins,
+		CountRows:  countRows,
 	}, nil
 }
 

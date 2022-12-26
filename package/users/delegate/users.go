@@ -25,6 +25,43 @@ func SetupUsersDelegate(usecase users.UseCase) UsersDelegateModule {
 	}
 }
 
+func (p *UsersDelegateImpl) GetPairsStudentParentsByTeacherId(teacherId string) (pairsStudentParents []*models.StudentParentsHTTP, err error) {
+	pairsStudentParentsCore, getPairsStudentParentsByTeacherIdErr := p.UseCase.GetPairsStudentParentsByTeacherId(teacherId)
+	if getPairsStudentParentsByTeacherIdErr != nil {
+		err = getPairsStudentParentsByTeacherIdErr
+		return
+	}
+	for _, pairStudentParentsCore := range pairsStudentParentsCore {
+		pairStudentParentsHttpTemp := models.StudentParentsHTTP{
+			Student: &models.StudentHTTP{
+				UserHTTP: &models.UserHTTP{},
+			},
+			Parents: []*models.ParentHTTP{},
+		}
+		pairStudentParentsHttpTemp.FromCore(pairStudentParentsCore)
+		pairsStudentParents = append(pairsStudentParents, &pairStudentParentsHttpTemp)
+	}
+	return
+}
+
+func (p *UsersDelegateImpl) GetIndividualStudentsByTeacherId(teacherId string) (students []*models.StudentHTTP, err error) {
+	studentsCore, getIndividualStudentsErr := p.UseCase.GetIndividualStudentsByTeacherId(teacherId)
+	if getIndividualStudentsErr != nil {
+		err = getIndividualStudentsErr
+		return
+	}
+	for _, studentCore := range studentsCore {
+		studentHttpTemp := models.StudentHTTP{
+			UserHTTP:     &models.UserHTTP{},
+			RobboGroupID: studentCore.RobboGroupId,
+			RobboUnitID:  studentCore.RobboUnitId,
+		}
+		studentHttpTemp.FromCore(studentCore)
+		students = append(students, &studentHttpTemp)
+	}
+	return
+}
+
 func (p *UsersDelegateImpl) GetStudentsByTeacherId(teacherId string) (students []*models.StudentHTTP, err error) {
 	studentsCore, getStudentsErr := p.UseCase.GetStudentsByTeacherId(teacherId)
 	if getStudentsErr != nil {

@@ -3,6 +3,7 @@ package users
 import "github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 
 type UseCase interface {
+	GetIndividualStudentsByTeacherId(teacherId string) (students []*models.StudentCore, err error)
 	GetStudentById(studentId string) (student *models.StudentCore, err error)
 	GetStudentByParentId(parentId string) (students []*models.StudentCore, err error)
 	GetStudentsByRobboGroupId(robboGroupId string) (students []*models.StudentCore, err error)
@@ -14,6 +15,8 @@ type UseCase interface {
 	DeleteStudent(studentId string) (err error)
 	UpdateStudent(student *models.StudentCore) (studentUpdated *models.StudentCore, err error)
 	AddStudentToRobboGroup(studentId string, robboGroupId string, robboUnitId string) (err error)
+
+	GetPairsStudentParentsByTeacherId(teacherId string) (pairsStudentParents []*models.StudentParentsCore, err error)
 
 	//GetTeacher(email, password string) (teacher *models.TeacherCore, err error)
 	GetTeacherById(teacherId string) (teacher models.TeacherCore, err error)

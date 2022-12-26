@@ -648,7 +648,7 @@ func (r *UsersGatewayImpl) GetRelationByParentId(parentId string) (relations []*
 func (r *UsersGatewayImpl) GetRelationByChildrenId(childrenId string) (relations []*models.ChildrenOfParentCore, err error) {
 	var relationsDB []*models.ChildrenOfParentDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Where("children_id = ?", childrenId).Find(&relationsDB).Error; err != nil {
+		if err = tx.Where("child_id = ?", childrenId).Find(&relationsDB).Error; err != nil {
 			return
 		}
 		return

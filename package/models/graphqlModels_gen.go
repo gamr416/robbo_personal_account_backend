@@ -10,6 +10,10 @@ type EnrollmentResult interface {
 	IsEnrollmentResult()
 }
 
+type PairsStudentParentsResult interface {
+	IsPairsStudentParentsResult()
+}
+
 type ParentResult interface {
 	IsParentResult()
 }
@@ -193,6 +197,8 @@ func (Error) IsUnitAdminsResult() {}
 
 func (Error) IsSuperAdminResult() {}
 
+func (Error) IsPairsStudentParentsResult() {}
+
 type ImageHTTP struct {
 	ID    string `json:"id"`
 	Raw   string `json:"raw"`
@@ -336,6 +342,17 @@ type StudentHTTPList struct {
 }
 
 func (StudentHTTPList) IsStudentsResult() {}
+
+type StudentParentsHTTP struct {
+	Student *StudentHTTP  `json:"student"`
+	Parents []*ParentHTTP `json:"parents"`
+}
+
+type StudentParentsHTTPList struct {
+	PairsStudentParents []*StudentParentsHTTP `json:"pairsStudentParents"`
+}
+
+func (StudentParentsHTTPList) IsPairsStudentParentsResult() {}
 
 type SuperAdminHTTP struct {
 	UserHTTP *UserHTTP `json:"userHttp"`

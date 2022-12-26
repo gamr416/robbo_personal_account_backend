@@ -29,6 +29,64 @@ func SetupUsersUseCase(usersGateway users.Gateway, robboGroupGateway robboGroup.
 	}
 }
 
+func (p *UsersUseCaseImpl) GetPairsStudentParentsByTeacherId(teacherId string) (pairsStudentParents []*models.StudentParentsCore, err error) {
+	studentTeacherRelations, getStudentTeacherRelationsErr := p.usersGateway.GetStudentTeacherRelationsByTeacherId(teacherId)
+	if getStudentTeacherRelationsErr != nil {
+		err = getStudentTeacherRelationsErr
+		return
+	}
+	for _, studentTeacherRelation := range studentTeacherRelations {
+		student, getStudentErr := p.usersGateway.GetStudentById(studentTeacherRelation.StudentId)
+		if getStudentErr != nil {
+			err = getStudentErr
+			return
+		}
+		studentParentRelations, getRelationByChildrenIdErr := p.usersGateway.GetRelationByChildrenId(student.Id)
+		if getRelationByChildrenIdErr != nil {
+			err = getRelationByChildrenIdErr
+			return
+		}
+		var parents []*models.ParentCore
+		for _, studentParentRelation := range studentParentRelations {
+			parent, getParentErr := p.usersGateway.GetParentById(studentParentRelation.ParentId)
+			if getParentErr != nil {
+				err = getParentErr
+				return
+			}
+			parents = append(parents, parent)
+		}
+		pairStudentParentsTemp := &models.StudentParentsCore{
+			Student: student,
+			Parents: parents,
+		}
+		pairsStudentParents = append(pairsStudentParents, pairStudentParentsTemp)
+	}
+	return
+}
+
+func (p *UsersUseCaseImpl) GetIndividualStudentsByTeacherId(teacherId string) (students []*models.StudentCore, err error) {
+	relations, getRelationErr := p.usersGateway.GetStudentTeacherRelationsByTeacherId(teacherId)
+	if getRelationErr != nil {
+		err = getRelationErr
+		return
+	}
+	for _, relation := range relations {
+		student, getStudentErr := p.usersGateway.GetStudentById(relation.StudentId)
+		if getStudentErr != nil {
+			err = getStudentErr
+			return
+		}
+		if student.RobboUnitId != "0" {
+			continue
+		}
+		if student.RobboGroupId != "0" {
+			continue
+		}
+		students = append(students, student)
+	}
+	return
+}
+
 func (p *UsersUseCaseImpl) GetStudentsByRobboUnitId(robboUnitId string) (students []*models.StudentCore, err error) {
 	return p.usersGateway.GetStudentsByRobboUnitId(robboUnitId)
 }

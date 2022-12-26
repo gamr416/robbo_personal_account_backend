@@ -5,6 +5,7 @@ import (
 )
 
 type Delegate interface {
+	GetIndividualStudentsByTeacherId(teacherId string) (students []*models.StudentHTTP, err error)
 	SearchStudentByEmail(email string, parentId string) (students []*models.StudentHTTP, err error)
 	CreateStudent(student *models.StudentHTTP, parentId string) (newStudent *models.StudentHTTP, err error)
 	UpdateStudent(student *models.StudentHTTP) (studentUpdated *models.StudentHTTP, err error)
@@ -15,6 +16,8 @@ type Delegate interface {
 	GetStudentsByTeacherId(teacherId string) (students []*models.StudentHTTP, err error)
 	GetStudentByParentId(parentId string) (students []*models.StudentHTTP, err error)
 	AddStudentToRobboGroup(studentId string, robboGroupId string, robboUnitId string) (err error)
+
+	GetPairsStudentParentsByTeacherId(teacherId string) (pairsStudentParents []*models.StudentParentsHTTP, err error)
 
 	CreateStudentTeacherRelation(studentId, teacherId string) (student *models.StudentHTTP, err error)
 	DeleteStudentTeacherRelation(studentId, teacherId string) (student *models.StudentHTTP, err error)

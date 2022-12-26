@@ -10,15 +10,6 @@ type UserHttp {
     createdAt: Timestamp!
 }
 
-input UpdateUserHttp {
-    id: String!
-    email: String!
-    nickname: String!
-    firstname: String!
-    lastname: String!
-    middlename: String!
-}
-
 type StudentHttp {
     userHttp: UserHttp!
     robboGroupId: String!
@@ -33,8 +24,13 @@ type StudentHttpList {
     students: [StudentHttp!]!
 }
 
-input UpdateStudentHttp {
-    userHttp: UpdateUserHttp!
+input UpdateProfileInput {
+    id: String!
+    email: String!
+    nickname: String!
+    firstname: String!
+    lastname: String!
+    middlename: String!
 }
 
 type ParentHttp {
@@ -50,10 +46,6 @@ type ParentHttpList {
     parents: [ParentHttp!]!
 }
 
-input UpdateParentHttp {
-    userHttp: UpdateUserHttp!
-}
-
 type TeacherHttp {
     userHttp: UserHttp!
 }
@@ -64,10 +56,6 @@ type DeletedTeacher {
 
 type TeacherHttpList {
     teachers: [TeacherHttp!]!
-}
-
-input UpdateTeacherHttp {
-    userHttp: UpdateUserHttp!
 }
 
 type UnitAdminHttp {
@@ -82,16 +70,8 @@ type UnitAdminHttpList {
     unitAdmins: [UnitAdminHttp!]!
 }
 
-input UpdateUnitAdminHttp {
-    userHttp: UpdateUserHttp!
-}
-
 type SuperAdminHttp {
     userHttp: UserHttp!
-}
-
-input UpdateSuperAdminHttp {
-    userHttp: UpdateUserHttp!
 }
 
 input NewParent {
@@ -131,26 +111,6 @@ input NewUnitAdmin {
     middlename: String!
 }
 
-input UpdateStudentInput {
-    studentHttp: UpdateStudentHttp!
-}
-
-input UpdateParentInput {
-    parentHttp: UpdateParentHttp!
-}
-
-input UpdateTeacherInput {
-    teacherHttp: UpdateTeacherHttp!
-}
-
-input UpdateUnitAdminInput {
-    unitAdminHttp: UpdateUnitAdminHttp!
-}
-
-input UpdateSuperAdminInput {
-    superAdminHttp: UpdateSuperAdminHttp!
-}
-
 union StudentResult = StudentHttp | Error
 union StudentsResult = StudentHttpList | Error
 union ParentResult = ParentHttp  | Error
@@ -163,22 +123,22 @@ union SuperAdminResult = SuperAdminHttp | Error
 
 type Mutation {
     CreateStudent(input: NewStudent!): StudentResult!
-    UpdateStudent(input: UpdateStudentInput!): StudentResult!
+    UpdateStudent(input: UpdateProfileInput!): StudentResult!
     DeleteStudent(studentId: String!): DeletedStudent!
     SetRobboGroupIdForStudent(studentId: String!, robboGroupId: String!, robboUnitId: String!): String!
     CreateTeacher(input: NewTeacher!): TeacherResult!
-    UpdateTeacher(input: UpdateTeacherInput!): TeacherResult!
+    UpdateTeacher(input: UpdateProfileInput!): TeacherResult!
     DeleteTeacher(teacherId: String!): DeletedTeacher!
     CreateParent(input: NewParent!): ParentResult!
     AddChildToParent(parentId: String!, childId: String!): StudentsResult!
-    UpdateParent(input: UpdateParentInput!): ParentResult!
+    UpdateParent(input: UpdateProfileInput!): ParentResult!
     DeleteParent(parentId: String!): DeletedParent!
     CreateUnitAdmin(input: NewUnitAdmin!): UnitAdminResult!
-    UpdateUnitAdmin(input: UpdateUnitAdminInput!): UnitAdminResult!
+    UpdateUnitAdmin(input: UpdateProfileInput!): UnitAdminResult!
     DeleteUnitAdmin(unitAdminId: String!): DeletedUnitAdmin!
     SetNewUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
     DeleteUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
-    UpdateSuperAdmin(input: UpdateSuperAdminInput!): SuperAdminResult!
+    UpdateSuperAdmin(input: UpdateProfileInput!): SuperAdminResult!
 }
 
 type Query {

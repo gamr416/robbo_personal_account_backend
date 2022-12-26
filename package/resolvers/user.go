@@ -50,7 +50,7 @@ func (r *mutationResolver) CreateStudent(ctx context.Context, input models.NewSt
 }
 
 // UpdateStudent is the resolver for the updateStudent field.
-func (r *mutationResolver) UpdateStudent(ctx context.Context, input models.UpdateStudentInput) (models.StudentResult, error) {
+func (r *mutationResolver) UpdateStudent(ctx context.Context, input models.UpdateProfileInput) (models.StudentResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -69,12 +69,12 @@ func (r *mutationResolver) UpdateStudent(ctx context.Context, input models.Updat
 	}
 	updateStudentInput := &models.StudentHTTP{
 		UserHTTP: &models.UserHTTP{
-			ID:         input.StudentHTTP.UserHTTP.ID,
-			Email:      input.StudentHTTP.UserHTTP.Email,
-			Firstname:  input.StudentHTTP.UserHTTP.Firstname,
-			Lastname:   input.StudentHTTP.UserHTTP.Lastname,
-			Middlename: input.StudentHTTP.UserHTTP.Middlename,
-			Nickname:   input.StudentHTTP.UserHTTP.Nickname,
+			ID:         input.ID,
+			Email:      input.Email,
+			Firstname:  input.Firstname,
+			Lastname:   input.Lastname,
+			Middlename: input.Middlename,
+			Nickname:   input.Nickname,
 		},
 	}
 	studentUpdated, updateStudentErr := r.usersDelegate.UpdateStudent(updateStudentInput)
@@ -179,7 +179,7 @@ func (r *mutationResolver) CreateTeacher(ctx context.Context, input models.NewTe
 }
 
 // UpdateTeacher is the resolver for the updateTeacher field.
-func (r *mutationResolver) UpdateTeacher(ctx context.Context, input models.UpdateTeacherInput) (models.TeacherResult, error) {
+func (r *mutationResolver) UpdateTeacher(ctx context.Context, input models.UpdateProfileInput) (models.TeacherResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -198,12 +198,12 @@ func (r *mutationResolver) UpdateTeacher(ctx context.Context, input models.Updat
 	}
 	updateTeacherInput := &models.TeacherHTTP{
 		UserHTTP: &models.UserHTTP{
-			ID:         input.TeacherHTTP.UserHTTP.ID,
-			Email:      input.TeacherHTTP.UserHTTP.Email,
-			Firstname:  input.TeacherHTTP.UserHTTP.Firstname,
-			Lastname:   input.TeacherHTTP.UserHTTP.Lastname,
-			Middlename: input.TeacherHTTP.UserHTTP.Middlename,
-			Nickname:   input.TeacherHTTP.UserHTTP.Nickname,
+			ID:         input.ID,
+			Email:      input.Email,
+			Firstname:  input.Firstname,
+			Lastname:   input.Lastname,
+			Middlename: input.Middlename,
+			Nickname:   input.Nickname,
 		},
 	}
 	teacherUpdated, updateTeacherErr := r.usersDelegate.UpdateTeacher(updateTeacherInput)
@@ -305,7 +305,7 @@ func (r *mutationResolver) AddChildToParent(ctx context.Context, parentID string
 }
 
 // UpdateParent is the resolver for the updateParent field.
-func (r *mutationResolver) UpdateParent(ctx context.Context, input models.UpdateParentInput) (models.ParentResult, error) {
+func (r *mutationResolver) UpdateParent(ctx context.Context, input models.UpdateProfileInput) (models.ParentResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -324,12 +324,12 @@ func (r *mutationResolver) UpdateParent(ctx context.Context, input models.Update
 	}
 	updateParentInput := &models.ParentHTTP{
 		UserHTTP: &models.UserHTTP{
-			ID:         input.ParentHTTP.UserHTTP.ID,
-			Email:      input.ParentHTTP.UserHTTP.Email,
-			Firstname:  input.ParentHTTP.UserHTTP.Firstname,
-			Lastname:   input.ParentHTTP.UserHTTP.Lastname,
-			Middlename: input.ParentHTTP.UserHTTP.Middlename,
-			Nickname:   input.ParentHTTP.UserHTTP.Nickname,
+			ID:         input.ID,
+			Email:      input.Email,
+			Firstname:  input.Firstname,
+			Lastname:   input.Lastname,
+			Middlename: input.Middlename,
+			Nickname:   input.Nickname,
 		},
 	}
 	parentUpdated, updateParentErr := r.usersDelegate.UpdateParent(updateParentInput)
@@ -404,7 +404,7 @@ func (r *mutationResolver) CreateUnitAdmin(ctx context.Context, input models.New
 }
 
 // UpdateUnitAdmin is the resolver for the updateUnitAdmin field.
-func (r *mutationResolver) UpdateUnitAdmin(ctx context.Context, input models.UpdateUnitAdminInput) (models.UnitAdminResult, error) {
+func (r *mutationResolver) UpdateUnitAdmin(ctx context.Context, input models.UpdateProfileInput) (models.UnitAdminResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -423,12 +423,12 @@ func (r *mutationResolver) UpdateUnitAdmin(ctx context.Context, input models.Upd
 	}
 	updateUnitAdminInput := &models.UnitAdminHTTP{
 		UserHTTP: &models.UserHTTP{
-			ID:         input.UnitAdminHTTP.UserHTTP.ID,
-			Email:      input.UnitAdminHTTP.UserHTTP.Email,
-			Firstname:  input.UnitAdminHTTP.UserHTTP.Firstname,
-			Lastname:   input.UnitAdminHTTP.UserHTTP.Lastname,
-			Middlename: input.UnitAdminHTTP.UserHTTP.Middlename,
-			Nickname:   input.UnitAdminHTTP.UserHTTP.Nickname,
+			ID:         input.ID,
+			Email:      input.Email,
+			Firstname:  input.Firstname,
+			Lastname:   input.Lastname,
+			Middlename: input.Middlename,
+			Nickname:   input.Nickname,
 		},
 	}
 	unitAdminUpdated, updateUnitAdminErr := r.usersDelegate.UpdateUnitAdmin(updateUnitAdminInput)
@@ -518,7 +518,7 @@ func (r *mutationResolver) DeleteUnitAdminForRobboUnit(ctx context.Context, unit
 }
 
 // UpdateSuperAdmin is the resolver for the updateSuperAdmin field.
-func (r *mutationResolver) UpdateSuperAdmin(ctx context.Context, input models.UpdateSuperAdminInput) (models.SuperAdminResult, error) {
+func (r *mutationResolver) UpdateSuperAdmin(ctx context.Context, input models.UpdateProfileInput) (models.SuperAdminResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -537,12 +537,12 @@ func (r *mutationResolver) UpdateSuperAdmin(ctx context.Context, input models.Up
 	}
 	updateSuperAdminInput := &models.SuperAdminHTTP{
 		UserHTTP: &models.UserHTTP{
-			ID:         input.SuperAdminHTTP.UserHTTP.ID,
-			Email:      input.SuperAdminHTTP.UserHTTP.Email,
-			Firstname:  input.SuperAdminHTTP.UserHTTP.Firstname,
-			Lastname:   input.SuperAdminHTTP.UserHTTP.Lastname,
-			Middlename: input.SuperAdminHTTP.UserHTTP.Middlename,
-			Nickname:   input.SuperAdminHTTP.UserHTTP.Nickname,
+			ID:         input.ID,
+			Email:      input.Email,
+			Firstname:  input.Firstname,
+			Lastname:   input.Lastname,
+			Middlename: input.Middlename,
+			Nickname:   input.Nickname,
 		},
 	}
 	superAdminUpdated, updateSuperAdminErr := r.usersDelegate.UpdateSuperAdmin(updateSuperAdminInput)

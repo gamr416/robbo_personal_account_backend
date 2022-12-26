@@ -367,12 +367,13 @@ type UnitAdminHTTPList struct {
 
 func (UnitAdminHTTPList) IsUnitAdminsResult() {}
 
-type UpdateParentHTTP struct {
-	UserHTTP *UpdateUserHTTP `json:"userHttp"`
-}
-
-type UpdateParentInput struct {
-	ParentHTTP *UpdateParentHTTP `json:"parentHttp"`
+type UpdateProfileInput struct {
+	ID         string `json:"id"`
+	Email      string `json:"email"`
+	Nickname   string `json:"nickname"`
+	Firstname  string `json:"firstname"`
+	Lastname   string `json:"lastname"`
+	Middlename string `json:"middlename"`
 }
 
 type UpdateProjectPage struct {
@@ -394,47 +395,6 @@ type UpdateRobboUnit struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 	City string `json:"city"`
-}
-
-type UpdateStudentHTTP struct {
-	UserHTTP *UpdateUserHTTP `json:"userHttp"`
-}
-
-type UpdateStudentInput struct {
-	StudentHTTP *UpdateStudentHTTP `json:"studentHttp"`
-}
-
-type UpdateSuperAdminHTTP struct {
-	UserHTTP *UpdateUserHTTP `json:"userHttp"`
-}
-
-type UpdateSuperAdminInput struct {
-	SuperAdminHTTP *UpdateSuperAdminHTTP `json:"superAdminHttp"`
-}
-
-type UpdateTeacherHTTP struct {
-	UserHTTP *UpdateUserHTTP `json:"userHttp"`
-}
-
-type UpdateTeacherInput struct {
-	TeacherHTTP *UpdateTeacherHTTP `json:"teacherHttp"`
-}
-
-type UpdateUnitAdminHTTP struct {
-	UserHTTP *UpdateUserHTTP `json:"userHttp"`
-}
-
-type UpdateUnitAdminInput struct {
-	UnitAdminHTTP *UpdateUnitAdminHTTP `json:"unitAdminHttp"`
-}
-
-type UpdateUserHTTP struct {
-	ID         string `json:"id"`
-	Email      string `json:"email"`
-	Nickname   string `json:"nickname"`
-	Firstname  string `json:"firstname"`
-	Lastname   string `json:"lastname"`
-	Middlename string `json:"middlename"`
 }
 
 type UserHTTP struct {

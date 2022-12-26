@@ -164,14 +164,14 @@ type ComplexityRoot struct {
 		DeleteUnitAdminForRobboUnit func(childComplexity int, unitAdminID string, robboUnitID string) int
 		SetNewUnitAdminForRobboUnit func(childComplexity int, unitAdminID string, robboUnitID string) int
 		SetRobboGroupIDForStudent   func(childComplexity int, studentID string, robboGroupID string, robboUnitID string) int
-		UpdateParent                func(childComplexity int, input models.UpdateParentInput) int
+		UpdateParent                func(childComplexity int, input models.UpdateProfileInput) int
 		UpdateProjectPage           func(childComplexity int, input models.UpdateProjectPage) int
 		UpdateRobboGroup            func(childComplexity int, input models.UpdateRobboGroup) int
 		UpdateRobboUnit             func(childComplexity int, input models.UpdateRobboUnit) int
-		UpdateStudent               func(childComplexity int, input models.UpdateStudentInput) int
-		UpdateSuperAdmin            func(childComplexity int, input models.UpdateSuperAdminInput) int
-		UpdateTeacher               func(childComplexity int, input models.UpdateTeacherInput) int
-		UpdateUnitAdmin             func(childComplexity int, input models.UpdateUnitAdminInput) int
+		UpdateStudent               func(childComplexity int, input models.UpdateProfileInput) int
+		UpdateSuperAdmin            func(childComplexity int, input models.UpdateProfileInput) int
+		UpdateTeacher               func(childComplexity int, input models.UpdateProfileInput) int
+		UpdateUnitAdmin             func(childComplexity int, input models.UpdateProfileInput) int
 	}
 
 	Pagination struct {
@@ -310,22 +310,22 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateStudent(ctx context.Context, input models.NewStudent) (models.StudentResult, error)
-	UpdateStudent(ctx context.Context, input models.UpdateStudentInput) (models.StudentResult, error)
+	UpdateStudent(ctx context.Context, input models.UpdateProfileInput) (models.StudentResult, error)
 	DeleteStudent(ctx context.Context, studentID string) (*models.DeletedStudent, error)
 	SetRobboGroupIDForStudent(ctx context.Context, studentID string, robboGroupID string, robboUnitID string) (string, error)
 	CreateTeacher(ctx context.Context, input models.NewTeacher) (models.TeacherResult, error)
-	UpdateTeacher(ctx context.Context, input models.UpdateTeacherInput) (models.TeacherResult, error)
+	UpdateTeacher(ctx context.Context, input models.UpdateProfileInput) (models.TeacherResult, error)
 	DeleteTeacher(ctx context.Context, teacherID string) (*models.DeletedTeacher, error)
 	CreateParent(ctx context.Context, input models.NewParent) (models.ParentResult, error)
 	AddChildToParent(ctx context.Context, parentID string, childID string) (models.StudentsResult, error)
-	UpdateParent(ctx context.Context, input models.UpdateParentInput) (models.ParentResult, error)
+	UpdateParent(ctx context.Context, input models.UpdateProfileInput) (models.ParentResult, error)
 	DeleteParent(ctx context.Context, parentID string) (*models.DeletedParent, error)
 	CreateUnitAdmin(ctx context.Context, input models.NewUnitAdmin) (models.UnitAdminResult, error)
-	UpdateUnitAdmin(ctx context.Context, input models.UpdateUnitAdminInput) (models.UnitAdminResult, error)
+	UpdateUnitAdmin(ctx context.Context, input models.UpdateProfileInput) (models.UnitAdminResult, error)
 	DeleteUnitAdmin(ctx context.Context, unitAdminID string) (*models.DeletedUnitAdmin, error)
 	SetNewUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (string, error)
 	DeleteUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (string, error)
-	UpdateSuperAdmin(ctx context.Context, input models.UpdateSuperAdminInput) (models.SuperAdminResult, error)
+	UpdateSuperAdmin(ctx context.Context, input models.UpdateProfileInput) (models.SuperAdminResult, error)
 	CreateProjectPage(ctx context.Context) (models.ProjectPageResult, error)
 	UpdateProjectPage(ctx context.Context, input models.UpdateProjectPage) (models.ProjectPageResult, error)
 	DeleteProjectPage(ctx context.Context, projectID string) (*models.DeletedProjectPage, error)
@@ -979,7 +979,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateParent(childComplexity, args["input"].(models.UpdateParentInput)), true
+		return e.complexity.Mutation.UpdateParent(childComplexity, args["input"].(models.UpdateProfileInput)), true
 
 	case "Mutation.UpdateProjectPage":
 		if e.complexity.Mutation.UpdateProjectPage == nil {
@@ -1027,7 +1027,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateStudent(childComplexity, args["input"].(models.UpdateStudentInput)), true
+		return e.complexity.Mutation.UpdateStudent(childComplexity, args["input"].(models.UpdateProfileInput)), true
 
 	case "Mutation.UpdateSuperAdmin":
 		if e.complexity.Mutation.UpdateSuperAdmin == nil {
@@ -1039,7 +1039,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateSuperAdmin(childComplexity, args["input"].(models.UpdateSuperAdminInput)), true
+		return e.complexity.Mutation.UpdateSuperAdmin(childComplexity, args["input"].(models.UpdateProfileInput)), true
 
 	case "Mutation.UpdateTeacher":
 		if e.complexity.Mutation.UpdateTeacher == nil {
@@ -1051,7 +1051,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateTeacher(childComplexity, args["input"].(models.UpdateTeacherInput)), true
+		return e.complexity.Mutation.UpdateTeacher(childComplexity, args["input"].(models.UpdateProfileInput)), true
 
 	case "Mutation.UpdateUnitAdmin":
 		if e.complexity.Mutation.UpdateUnitAdmin == nil {
@@ -1063,7 +1063,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateUnitAdmin(childComplexity, args["input"].(models.UpdateUnitAdminInput)), true
+		return e.complexity.Mutation.UpdateUnitAdmin(childComplexity, args["input"].(models.UpdateProfileInput)), true
 
 	case "Pagination.count":
 		if e.complexity.Pagination.Count == nil {
@@ -1752,20 +1752,10 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputNewStudent,
 		ec.unmarshalInputNewTeacher,
 		ec.unmarshalInputNewUnitAdmin,
-		ec.unmarshalInputUpdateParentHttp,
-		ec.unmarshalInputUpdateParentInput,
+		ec.unmarshalInputUpdateProfileInput,
 		ec.unmarshalInputUpdateProjectPage,
 		ec.unmarshalInputUpdateRobboGroup,
 		ec.unmarshalInputUpdateRobboUnit,
-		ec.unmarshalInputUpdateStudentHttp,
-		ec.unmarshalInputUpdateStudentInput,
-		ec.unmarshalInputUpdateSuperAdminHttp,
-		ec.unmarshalInputUpdateSuperAdminInput,
-		ec.unmarshalInputUpdateTeacherHttp,
-		ec.unmarshalInputUpdateTeacherInput,
-		ec.unmarshalInputUpdateUnitAdminHttp,
-		ec.unmarshalInputUpdateUnitAdminInput,
-		ec.unmarshalInputUpdateUserHttp,
 	)
 	first := true
 
@@ -2054,15 +2044,6 @@ extend type Query {
     createdAt: Timestamp!
 }
 
-input UpdateUserHttp {
-    id: String!
-    email: String!
-    nickname: String!
-    firstname: String!
-    lastname: String!
-    middlename: String!
-}
-
 type StudentHttp {
     userHttp: UserHttp!
     robboGroupId: String!
@@ -2077,8 +2058,13 @@ type StudentHttpList {
     students: [StudentHttp!]!
 }
 
-input UpdateStudentHttp {
-    userHttp: UpdateUserHttp!
+input UpdateProfileInput {
+    id: String!
+    email: String!
+    nickname: String!
+    firstname: String!
+    lastname: String!
+    middlename: String!
 }
 
 type ParentHttp {
@@ -2094,10 +2080,6 @@ type ParentHttpList {
     parents: [ParentHttp!]!
 }
 
-input UpdateParentHttp {
-    userHttp: UpdateUserHttp!
-}
-
 type TeacherHttp {
     userHttp: UserHttp!
 }
@@ -2108,10 +2090,6 @@ type DeletedTeacher {
 
 type TeacherHttpList {
     teachers: [TeacherHttp!]!
-}
-
-input UpdateTeacherHttp {
-    userHttp: UpdateUserHttp!
 }
 
 type UnitAdminHttp {
@@ -2126,16 +2104,8 @@ type UnitAdminHttpList {
     unitAdmins: [UnitAdminHttp!]!
 }
 
-input UpdateUnitAdminHttp {
-    userHttp: UpdateUserHttp!
-}
-
 type SuperAdminHttp {
     userHttp: UserHttp!
-}
-
-input UpdateSuperAdminHttp {
-    userHttp: UpdateUserHttp!
 }
 
 input NewParent {
@@ -2175,26 +2145,6 @@ input NewUnitAdmin {
     middlename: String!
 }
 
-input UpdateStudentInput {
-    studentHttp: UpdateStudentHttp!
-}
-
-input UpdateParentInput {
-    parentHttp: UpdateParentHttp!
-}
-
-input UpdateTeacherInput {
-    teacherHttp: UpdateTeacherHttp!
-}
-
-input UpdateUnitAdminInput {
-    unitAdminHttp: UpdateUnitAdminHttp!
-}
-
-input UpdateSuperAdminInput {
-    superAdminHttp: UpdateSuperAdminHttp!
-}
-
 union StudentResult = StudentHttp | Error
 union StudentsResult = StudentHttpList | Error
 union ParentResult = ParentHttp  | Error
@@ -2207,22 +2157,22 @@ union SuperAdminResult = SuperAdminHttp | Error
 
 type Mutation {
     CreateStudent(input: NewStudent!): StudentResult!
-    UpdateStudent(input: UpdateStudentInput!): StudentResult!
+    UpdateStudent(input: UpdateProfileInput!): StudentResult!
     DeleteStudent(studentId: String!): DeletedStudent!
     SetRobboGroupIdForStudent(studentId: String!, robboGroupId: String!, robboUnitId: String!): String!
     CreateTeacher(input: NewTeacher!): TeacherResult!
-    UpdateTeacher(input: UpdateTeacherInput!): TeacherResult!
+    UpdateTeacher(input: UpdateProfileInput!): TeacherResult!
     DeleteTeacher(teacherId: String!): DeletedTeacher!
     CreateParent(input: NewParent!): ParentResult!
     AddChildToParent(parentId: String!, childId: String!): StudentsResult!
-    UpdateParent(input: UpdateParentInput!): ParentResult!
+    UpdateParent(input: UpdateProfileInput!): ParentResult!
     DeleteParent(parentId: String!): DeletedParent!
     CreateUnitAdmin(input: NewUnitAdmin!): UnitAdminResult!
-    UpdateUnitAdmin(input: UpdateUnitAdminInput!): UnitAdminResult!
+    UpdateUnitAdmin(input: UpdateProfileInput!): UnitAdminResult!
     DeleteUnitAdmin(unitAdminId: String!): DeletedUnitAdmin!
     SetNewUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
     DeleteUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
-    UpdateSuperAdmin(input: UpdateSuperAdminInput!): SuperAdminResult!
+    UpdateSuperAdmin(input: UpdateProfileInput!): SuperAdminResult!
 }
 
 type Query {
@@ -2555,10 +2505,10 @@ func (ec *executionContext) field_Mutation_SetRobboGroupIdForStudent_args(ctx co
 func (ec *executionContext) field_Mutation_UpdateParent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 models.UpdateParentInput
+	var arg0 models.UpdateProfileInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateParentInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateParentInput(ctx, tmp)
+		arg0, err = ec.unmarshalNUpdateProfileInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateProfileInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2615,10 +2565,10 @@ func (ec *executionContext) field_Mutation_UpdateRobboUnit_args(ctx context.Cont
 func (ec *executionContext) field_Mutation_UpdateStudent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 models.UpdateStudentInput
+	var arg0 models.UpdateProfileInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateStudentInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateStudentInput(ctx, tmp)
+		arg0, err = ec.unmarshalNUpdateProfileInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateProfileInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2630,10 +2580,10 @@ func (ec *executionContext) field_Mutation_UpdateStudent_args(ctx context.Contex
 func (ec *executionContext) field_Mutation_UpdateSuperAdmin_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 models.UpdateSuperAdminInput
+	var arg0 models.UpdateProfileInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateSuperAdminInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateSuperAdminInput(ctx, tmp)
+		arg0, err = ec.unmarshalNUpdateProfileInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateProfileInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2645,10 +2595,10 @@ func (ec *executionContext) field_Mutation_UpdateSuperAdmin_args(ctx context.Con
 func (ec *executionContext) field_Mutation_UpdateTeacher_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 models.UpdateTeacherInput
+	var arg0 models.UpdateProfileInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateTeacherInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateTeacherInput(ctx, tmp)
+		arg0, err = ec.unmarshalNUpdateProfileInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateProfileInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2660,10 +2610,10 @@ func (ec *executionContext) field_Mutation_UpdateTeacher_args(ctx context.Contex
 func (ec *executionContext) field_Mutation_UpdateUnitAdmin_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 models.UpdateUnitAdminInput
+	var arg0 models.UpdateProfileInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateUnitAdminInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateUnitAdminInput(ctx, tmp)
+		arg0, err = ec.unmarshalNUpdateProfileInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateProfileInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -5592,7 +5542,7 @@ func (ec *executionContext) _Mutation_UpdateStudent(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateStudent(rctx, fc.Args["input"].(models.UpdateStudentInput))
+		return ec.resolvers.Mutation().UpdateStudent(rctx, fc.Args["input"].(models.UpdateProfileInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5816,7 +5766,7 @@ func (ec *executionContext) _Mutation_UpdateTeacher(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateTeacher(rctx, fc.Args["input"].(models.UpdateTeacherInput))
+		return ec.resolvers.Mutation().UpdateTeacher(rctx, fc.Args["input"].(models.UpdateProfileInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6040,7 +5990,7 @@ func (ec *executionContext) _Mutation_UpdateParent(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateParent(rctx, fc.Args["input"].(models.UpdateParentInput))
+		return ec.resolvers.Mutation().UpdateParent(rctx, fc.Args["input"].(models.UpdateProfileInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6209,7 +6159,7 @@ func (ec *executionContext) _Mutation_UpdateUnitAdmin(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateUnitAdmin(rctx, fc.Args["input"].(models.UpdateUnitAdminInput))
+		return ec.resolvers.Mutation().UpdateUnitAdmin(rctx, fc.Args["input"].(models.UpdateProfileInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6433,7 +6383,7 @@ func (ec *executionContext) _Mutation_UpdateSuperAdmin(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateSuperAdmin(rctx, fc.Args["input"].(models.UpdateSuperAdminInput))
+		return ec.resolvers.Mutation().UpdateSuperAdmin(rctx, fc.Args["input"].(models.UpdateProfileInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13141,53 +13091,65 @@ func (ec *executionContext) unmarshalInputNewUnitAdmin(ctx context.Context, obj 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateParentHttp(ctx context.Context, obj interface{}) (models.UpdateParentHTTP, error) {
-	var it models.UpdateParentHTTP
+func (ec *executionContext) unmarshalInputUpdateProfileInput(ctx context.Context, obj interface{}) (models.UpdateProfileInput, error) {
+	var it models.UpdateProfileInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"userHttp"}
+	fieldsInOrder := [...]string{"id", "email", "nickname", "firstname", "lastname", "middlename"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "userHttp":
+		case "id":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userHttp"))
-			it.UserHTTP, err = ec.unmarshalNUpdateUserHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateUserHTTP(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputUpdateParentInput(ctx context.Context, obj interface{}) (models.UpdateParentInput, error) {
-	var it models.UpdateParentInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"parentHttp"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "parentHttp":
+		case "email":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("parentHttp"))
-			it.ParentHTTP, err = ec.unmarshalNUpdateParentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateParentHTTP(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			it.Email, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "nickname":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nickname"))
+			it.Nickname, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "firstname":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstname"))
+			it.Firstname, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "lastname":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastname"))
+			it.Lastname, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "middlename":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("middlename"))
+			it.Middlename, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -13344,298 +13306,6 @@ func (ec *executionContext) unmarshalInputUpdateRobboUnit(ctx context.Context, o
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("city"))
 			it.City, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputUpdateStudentHttp(ctx context.Context, obj interface{}) (models.UpdateStudentHTTP, error) {
-	var it models.UpdateStudentHTTP
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"userHttp"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "userHttp":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userHttp"))
-			it.UserHTTP, err = ec.unmarshalNUpdateUserHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateUserHTTP(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputUpdateStudentInput(ctx context.Context, obj interface{}) (models.UpdateStudentInput, error) {
-	var it models.UpdateStudentInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"studentHttp"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "studentHttp":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("studentHttp"))
-			it.StudentHTTP, err = ec.unmarshalNUpdateStudentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateStudentHTTP(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputUpdateSuperAdminHttp(ctx context.Context, obj interface{}) (models.UpdateSuperAdminHTTP, error) {
-	var it models.UpdateSuperAdminHTTP
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"userHttp"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "userHttp":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userHttp"))
-			it.UserHTTP, err = ec.unmarshalNUpdateUserHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateUserHTTP(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputUpdateSuperAdminInput(ctx context.Context, obj interface{}) (models.UpdateSuperAdminInput, error) {
-	var it models.UpdateSuperAdminInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"superAdminHttp"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "superAdminHttp":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("superAdminHttp"))
-			it.SuperAdminHTTP, err = ec.unmarshalNUpdateSuperAdminHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateSuperAdminHTTP(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputUpdateTeacherHttp(ctx context.Context, obj interface{}) (models.UpdateTeacherHTTP, error) {
-	var it models.UpdateTeacherHTTP
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"userHttp"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "userHttp":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userHttp"))
-			it.UserHTTP, err = ec.unmarshalNUpdateUserHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateUserHTTP(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputUpdateTeacherInput(ctx context.Context, obj interface{}) (models.UpdateTeacherInput, error) {
-	var it models.UpdateTeacherInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"teacherHttp"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "teacherHttp":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teacherHttp"))
-			it.TeacherHTTP, err = ec.unmarshalNUpdateTeacherHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateTeacherHTTP(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputUpdateUnitAdminHttp(ctx context.Context, obj interface{}) (models.UpdateUnitAdminHTTP, error) {
-	var it models.UpdateUnitAdminHTTP
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"userHttp"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "userHttp":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userHttp"))
-			it.UserHTTP, err = ec.unmarshalNUpdateUserHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateUserHTTP(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputUpdateUnitAdminInput(ctx context.Context, obj interface{}) (models.UpdateUnitAdminInput, error) {
-	var it models.UpdateUnitAdminInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"unitAdminHttp"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "unitAdminHttp":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unitAdminHttp"))
-			it.UnitAdminHTTP, err = ec.unmarshalNUpdateUnitAdminHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateUnitAdminHTTP(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputUpdateUserHttp(ctx context.Context, obj interface{}) (models.UpdateUserHTTP, error) {
-	var it models.UpdateUserHTTP
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"id", "email", "nickname", "firstname", "lastname", "middlename"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "email":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			it.Email, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "nickname":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nickname"))
-			it.Nickname, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "firstname":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstname"))
-			it.Firstname, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "lastname":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastname"))
-			it.Lastname, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "middlename":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("middlename"))
-			it.Middlename, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -17593,13 +17263,8 @@ func (ec *executionContext) marshalNUnitAdminsResult2githubᚗcomᚋskinnykaen�
 	return ec._UnitAdminsResult(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUpdateParentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateParentHTTP(ctx context.Context, v interface{}) (*models.UpdateParentHTTP, error) {
-	res, err := ec.unmarshalInputUpdateParentHttp(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNUpdateParentInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateParentInput(ctx context.Context, v interface{}) (models.UpdateParentInput, error) {
-	res, err := ec.unmarshalInputUpdateParentInput(ctx, v)
+func (ec *executionContext) unmarshalNUpdateProfileInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateProfileInput(ctx context.Context, v interface{}) (models.UpdateProfileInput, error) {
+	res, err := ec.unmarshalInputUpdateProfileInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -17616,51 +17281,6 @@ func (ec *executionContext) unmarshalNUpdateRobboGroup2githubᚗcomᚋskinnykaen
 func (ec *executionContext) unmarshalNUpdateRobboUnit2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateRobboUnit(ctx context.Context, v interface{}) (models.UpdateRobboUnit, error) {
 	res, err := ec.unmarshalInputUpdateRobboUnit(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNUpdateStudentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateStudentHTTP(ctx context.Context, v interface{}) (*models.UpdateStudentHTTP, error) {
-	res, err := ec.unmarshalInputUpdateStudentHttp(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNUpdateStudentInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateStudentInput(ctx context.Context, v interface{}) (models.UpdateStudentInput, error) {
-	res, err := ec.unmarshalInputUpdateStudentInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNUpdateSuperAdminHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateSuperAdminHTTP(ctx context.Context, v interface{}) (*models.UpdateSuperAdminHTTP, error) {
-	res, err := ec.unmarshalInputUpdateSuperAdminHttp(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNUpdateSuperAdminInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateSuperAdminInput(ctx context.Context, v interface{}) (models.UpdateSuperAdminInput, error) {
-	res, err := ec.unmarshalInputUpdateSuperAdminInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNUpdateTeacherHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateTeacherHTTP(ctx context.Context, v interface{}) (*models.UpdateTeacherHTTP, error) {
-	res, err := ec.unmarshalInputUpdateTeacherHttp(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNUpdateTeacherInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateTeacherInput(ctx context.Context, v interface{}) (models.UpdateTeacherInput, error) {
-	res, err := ec.unmarshalInputUpdateTeacherInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNUpdateUnitAdminHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateUnitAdminHTTP(ctx context.Context, v interface{}) (*models.UpdateUnitAdminHTTP, error) {
-	res, err := ec.unmarshalInputUpdateUnitAdminHttp(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNUpdateUnitAdminInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateUnitAdminInput(ctx context.Context, v interface{}) (models.UpdateUnitAdminInput, error) {
-	res, err := ec.unmarshalInputUpdateUnitAdminInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNUpdateUserHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateUserHTTP(ctx context.Context, v interface{}) (*models.UpdateUserHTTP, error) {
-	res, err := ec.unmarshalInputUpdateUserHttp(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNUserHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUserHTTP(ctx context.Context, sel ast.SelectionSet, v *models.UserHTTP) graphql.Marshaler {

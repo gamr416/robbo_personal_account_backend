@@ -36,10 +36,10 @@ extend type Mutation {
 
 extend type Query {
 	GetRobboGroupById(id: String!): RobboGroupResult!
-	GetRobboGroupsByTeacherId(teacherId: String!): RobboGroupsResult!
+	GetRobboGroupsByTeacherId(teacherId: String!): RobboGroupsResult! # Ручка для Админов для получения групп на которые назначен Teacher
 	GetRobboGroupsByRobboUnitId(robboUnitId: String!): RobboGroupsResult!
-	GetRobboGroupsByUnitAdminId(unitAdminId: String!): RobboGroupsResult!
-	GetAllRobboGroups: RobboGroupsResult!
-	GetRobboGroupsByAccessToken: RobboGroupsResult!
+	GetRobboGroupsByUnitAdminId(unitAdminId: String!): RobboGroupsResult! # Ручка для Super Admin для получения групп на которые назначен Unit Admin
+	GetAllRobboGroups: RobboGroupsResult! # Ручка Super Admin для получения всех групп
+	GetRobboGroupsByAccessToken: RobboGroupsResult! # Ручка для Teacher для получения групп на которые он назначен
 	SearchGroupsByName(name: String!): RobboGroupsResult!
 }

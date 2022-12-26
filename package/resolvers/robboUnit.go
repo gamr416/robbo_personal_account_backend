@@ -130,7 +130,7 @@ func (r *queryResolver) GetRobboUnitByID(ctx context.Context, id string) (models
 }
 
 // GetAllRobboUnits is the resolver for the GetAllRobboUnits field.
-func (r *queryResolver) GetAllRobboUnits(ctx context.Context) (models.RobboUnitResult, error) {
+func (r *queryResolver) GetAllRobboUnits(ctx context.Context) (models.RobboUnitsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -158,7 +158,7 @@ func (r *queryResolver) GetAllRobboUnits(ctx context.Context) (models.RobboUnitR
 }
 
 // GetRobboUnitsByUnitAdminID is the resolver for the GetRobboUnitsByUnitAdminId field.
-func (r *queryResolver) GetRobboUnitsByUnitAdminID(ctx context.Context, unitAdminID string) (models.RobboUnitResult, error) {
+func (r *queryResolver) GetRobboUnitsByUnitAdminID(ctx context.Context, unitAdminID string) (models.RobboUnitsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -186,7 +186,7 @@ func (r *queryResolver) GetRobboUnitsByUnitAdminID(ctx context.Context, unitAdmi
 }
 
 // GetRobboUnitsByAccessToken is the resolver for the GetRobboUnitsByAccessToken field.
-func (r *queryResolver) GetRobboUnitsByAccessToken(ctx context.Context) (models.RobboUnitResult, error) {
+func (r *queryResolver) GetRobboUnitsByAccessToken(ctx context.Context) (models.RobboUnitsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")

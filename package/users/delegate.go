@@ -21,8 +21,7 @@ type Delegate interface {
 
 	CreateStudentTeacherRelation(studentId, teacherId string) (student *models.StudentHTTP, err error)
 	DeleteStudentTeacherRelation(studentId, teacherId string) (student *models.StudentHTTP, err error)
-
-	//GetTeacher(email, password string) (teacher models.TeacherHTTP, err error)
+	
 	GetTeacherById(teacherId string) (teacher *models.TeacherHTTP, err error)
 	GetAllTeachers() (teachers []*models.TeacherHTTP, err error)
 	CreateTeacher(teacher *models.TeacherHTTP) (newTeacher models.TeacherHTTP, err error)
@@ -36,13 +35,11 @@ type Delegate interface {
 	DeleteParent(parentId string) (err error)
 	GetParentById(parentId string) (parent *models.ParentHTTP, err error)
 	GetAllParent() (parents []*models.ParentHTTP, err error)
-	//GetParent(email, password string) (parent models.ParentHTTP, err error)
 
 	CreateFreeListener(freeListenerHTTP *models.FreeListenerHttp) (newFreeListener *models.FreeListenerHttp, err error)
 	UpdateFreeListener(freeListenerHTTP *models.FreeListenerHttp) (freeListenerUpdated *models.FreeListenerHttp, err error)
 	DeleteFreeListener(freeListenerId string) (err error)
 	GetFreeListenerById(freeListenerId string) (freeListener models.FreeListenerHttp, err error)
-	//GetFreeListener(email, password string) (freeListener models.FreeListenerHttp, err error)
 
 	CreateUnitAdmin(unitAdminHTTP *models.UnitAdminHTTP) (newUnitAdmin *models.UnitAdminHTTP, err error)
 	UpdateUnitAdmin(unitAdminHTTP *models.UnitAdminHTTP) (unitAdminUpdated *models.UnitAdminHTTP, err error)
@@ -52,12 +49,11 @@ type Delegate interface {
 	SearchUnitAdminByEmail(email string, robboUnitId string) (unitAdmins []*models.UnitAdminHTTP, err error)
 	GetUnitAdminByRobboUnitId(robboUnitId string) (unitAdmins []*models.UnitAdminHTTP, err error)
 
-	//GetSuperAdmin(email, password string) (superAdmin models.SuperAdminHTTP, err error)
 	GetSuperAdminById(superAdminId string) (superAdmin models.SuperAdminHTTP, err error)
 	UpdateSuperAdmin(superAdminHTTP *models.SuperAdminHTTP) (superAdminUpdated *models.SuperAdminHTTP, err error)
 	DeleteSuperAdmin(superAdminId string) (err error)
 
-	CreateRelation(parentId, childrenId string) (err error)
+	CreateStudentParentRelation(parentId, childrenId string) (studentsHTTP []*models.StudentHTTP, err error)
 	SetNewUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error)
 	DeleteUnitAdminForRobboUnit(unitAdminId, robboUnitId string) (err error)
 }

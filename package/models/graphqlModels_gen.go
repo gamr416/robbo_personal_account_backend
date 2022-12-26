@@ -18,6 +18,10 @@ type ParentResult interface {
 	IsParentResult()
 }
 
+type ParentsResult interface {
+	IsParentsResult()
+}
+
 type ProjectPageResult interface {
 	IsProjectPageResult()
 }
@@ -26,12 +30,24 @@ type RobboGroupResult interface {
 	IsRobboGroupResult()
 }
 
+type RobboGroupsResult interface {
+	IsRobboGroupsResult()
+}
+
 type RobboUnitResult interface {
 	IsRobboUnitResult()
 }
 
+type RobboUnitsResult interface {
+	IsRobboUnitsResult()
+}
+
 type StudentResult interface {
 	IsStudentResult()
+}
+
+type StudentsResult interface {
+	IsStudentsResult()
 }
 
 type SuperAdminResult interface {
@@ -42,8 +58,16 @@ type TeacherResult interface {
 	IsTeacherResult()
 }
 
+type TeachersResult interface {
+	IsTeachersResult()
+}
+
 type UnitAdminResult interface {
 	IsUnitAdminResult()
+}
+
+type UnitAdminsResult interface {
+	IsUnitAdminsResult()
 }
 
 type AbsoluteMediaHTTP struct {
@@ -149,15 +173,27 @@ func (Error) IsProjectPageResult() {}
 
 func (Error) IsRobboGroupResult() {}
 
+func (Error) IsRobboGroupsResult() {}
+
 func (Error) IsRobboUnitResult() {}
+
+func (Error) IsRobboUnitsResult() {}
 
 func (Error) IsStudentResult() {}
 
+func (Error) IsStudentsResult() {}
+
 func (Error) IsParentResult() {}
+
+func (Error) IsParentsResult() {}
 
 func (Error) IsTeacherResult() {}
 
+func (Error) IsTeachersResult() {}
+
 func (Error) IsUnitAdminResult() {}
+
+func (Error) IsUnitAdminsResult() {}
 
 func (Error) IsSuperAdminResult() {}
 
@@ -240,7 +276,7 @@ type ParentHTTPList struct {
 	Parents []*ParentHTTP `json:"parents"`
 }
 
-func (ParentHTTPList) IsParentResult() {}
+func (ParentHTTPList) IsParentsResult() {}
 
 type ProjectPageHTTP struct {
 	ProjectPageID string `json:"projectPageId"`
@@ -276,7 +312,7 @@ type RobboGroupHTTPList struct {
 	RobboGroups []*RobboGroupHTTP `json:"robboGroups"`
 }
 
-func (RobboGroupHTTPList) IsRobboGroupResult() {}
+func (RobboGroupHTTPList) IsRobboGroupsResult() {}
 
 type RobboUnitHTTP struct {
 	ID           string `json:"id"`
@@ -291,7 +327,7 @@ type RobboUnitHTTPList struct {
 	RobboUnits []*RobboUnitHTTP `json:"robboUnits"`
 }
 
-func (RobboUnitHTTPList) IsRobboUnitResult() {}
+func (RobboUnitHTTPList) IsRobboUnitsResult() {}
 
 type StudentHTTP struct {
 	UserHTTP     *UserHTTP `json:"userHttp"`
@@ -305,7 +341,7 @@ type StudentHTTPList struct {
 	Students []*StudentHTTP `json:"students"`
 }
 
-func (StudentHTTPList) IsStudentResult() {}
+func (StudentHTTPList) IsStudentsResult() {}
 
 type StudentParentsHTTP struct {
 	Student *StudentHTTP  `json:"student"`
@@ -334,7 +370,7 @@ type TeacherHTTPList struct {
 	Teachers []*TeacherHTTP `json:"teachers"`
 }
 
-func (TeacherHTTPList) IsTeacherResult() {}
+func (TeacherHTTPList) IsTeachersResult() {}
 
 type UnitAdminHTTP struct {
 	UserHTTP *UserHTTP `json:"userHttp"`
@@ -346,14 +382,15 @@ type UnitAdminHTTPList struct {
 	UnitAdmins []*UnitAdminHTTP `json:"unitAdmins"`
 }
 
-func (UnitAdminHTTPList) IsUnitAdminResult() {}
+func (UnitAdminHTTPList) IsUnitAdminsResult() {}
 
-type UpdateParentHTTP struct {
-	UserHTTP *UpdateUserHTTP `json:"userHttp"`
-}
-
-type UpdateParentInput struct {
-	ParentHTTP *UpdateParentHTTP `json:"parentHttp"`
+type UpdateProfileInput struct {
+	ID         string `json:"id"`
+	Email      string `json:"email"`
+	Nickname   string `json:"nickname"`
+	Firstname  string `json:"firstname"`
+	Lastname   string `json:"lastname"`
+	Middlename string `json:"middlename"`
 }
 
 type UpdateProjectPage struct {
@@ -375,47 +412,6 @@ type UpdateRobboUnit struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 	City string `json:"city"`
-}
-
-type UpdateStudentHTTP struct {
-	UserHTTP *UpdateUserHTTP `json:"userHttp"`
-}
-
-type UpdateStudentInput struct {
-	StudentHTTP *UpdateStudentHTTP `json:"studentHttp"`
-}
-
-type UpdateSuperAdminHTTP struct {
-	UserHTTP *UpdateUserHTTP `json:"userHttp"`
-}
-
-type UpdateSuperAdminInput struct {
-	SuperAdminHTTP *UpdateSuperAdminHTTP `json:"superAdminHttp"`
-}
-
-type UpdateTeacherHTTP struct {
-	UserHTTP *UpdateUserHTTP `json:"userHttp"`
-}
-
-type UpdateTeacherInput struct {
-	TeacherHTTP *UpdateTeacherHTTP `json:"teacherHttp"`
-}
-
-type UpdateUnitAdminHTTP struct {
-	UserHTTP *UpdateUserHTTP `json:"userHttp"`
-}
-
-type UpdateUnitAdminInput struct {
-	UnitAdminHTTP *UpdateUnitAdminHTTP `json:"unitAdminHttp"`
-}
-
-type UpdateUserHTTP struct {
-	ID         string `json:"id"`
-	Email      string `json:"email"`
-	Nickname   string `json:"nickname"`
-	Firstname  string `json:"firstname"`
-	Lastname   string `json:"lastname"`
-	Middlename string `json:"middlename"`
 }
 
 type UserHTTP struct {

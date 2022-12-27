@@ -37,10 +37,17 @@ extend type Mutation {
 
 extend type Query {
 	GetRobboGroupById(id: String!): RobboGroupResult!
-	GetRobboGroupsByTeacherId(teacherId: String!, page: String!, pageSize: String!): RobboGroupsResult! # Ручка для Админов для получения групп на которые назначен Teacher
-	GetRobboGroupsByRobboUnitId(robboUnitId: String!): RobboGroupsResult! # Ручка для Super Admin для получения групп на которые назначен Unit Admin
+	# Ручка для Админов для получения групп на которые назначен Teacher
+	GetRobboGroupsByTeacherId(teacherId: String!, page: String!, pageSize: String!): RobboGroupsResult!
+	# Ручка для Super Admin для получения групп на которые назначен Unit Admin
+	GetRobboGroupsByRobboUnitId(robboUnitId: String!): RobboGroupsResult!
+	# Ручка для Super Admin для получения групп к которым имеет доступ Unit Admin
 	GetRobboGroupsByUnitAdminId(unitAdminId: String!, page: String!, pageSize: String!): RobboGroupsResult!
-	GetAllRobboGroups(page: String!, pageSize: String!): RobboGroupsResult! # Ручка Super Admin для получения всех групп
-	GetRobboGroupsByAccessToken(page: String!, pageSize: String!): RobboGroupsResult! # Ручка для Teacher для получения групп на которые он назначен
+	# Ручка для Unit Admin для получения всех групп для Unit Admin
+	GetAllRobboGroupsForUnitAdmin(page: String!, pageSize: String!): RobboGroupsResult!
+	# Ручка Super Admin для получения всех групп
+	GetAllRobboGroups(page: String!, pageSize: String!): RobboGroupsResult!
+	# Ручка для Teacher для получения групп на которые он назначен
+	GetRobboGroupsByAccessToken(page: String!, pageSize: String!): RobboGroupsResult!
 	SearchGroupsByName(name: String!): RobboGroupsResult!
 }

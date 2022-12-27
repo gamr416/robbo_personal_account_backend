@@ -214,6 +214,36 @@ func (r *queryResolver) GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdm
 	}, nil
 }
 
+// GetAllRobboGroupsForUnitAdmin is the resolver for the GetAllRobboGroupsForUnitAdmin field.
+func (r *queryResolver) GetAllRobboGroupsForUnitAdmin(ctx context.Context, page string, pageSize string) (models.RobboGroupsResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	id, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+
+	robboGroups, countRows, getAllRobboGroups := r.robboGroupDelegate.GetRobboGroupsByUnitAdminId(id, page, pageSize)
+	if getAllRobboGroups != nil {
+		err := getAllRobboGroups
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.RobboGroupHTTPList{
+		RobboGroups: robboGroups,
+		CountRows:   countRows,
+	}, nil
+}
+
 // GetAllRobboGroups is the resolver for the GetAllRobboGroups field.
 func (r *queryResolver) GetAllRobboGroups(ctx context.Context, page string, pageSize string) (models.RobboGroupsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)

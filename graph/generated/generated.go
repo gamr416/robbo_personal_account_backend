@@ -213,6 +213,7 @@ type ComplexityRoot struct {
 		GetAllProjectPagesByUserID          func(childComplexity int, userID string) int
 		GetAllPublicCourses                 func(childComplexity int, pageNumber string) int
 		GetAllRobboGroups                   func(childComplexity int, page string, pageSize string) int
+		GetAllRobboGroupsForUnitAdmin       func(childComplexity int, page string, pageSize string) int
 		GetAllRobboUnits                    func(childComplexity int, page string, pageSize string) int
 		GetAllTeachers                      func(childComplexity int, page string, pageSize string) int
 		GetAllUnitAdmins                    func(childComplexity int, page string, pageSize string) int
@@ -382,6 +383,7 @@ type QueryResolver interface {
 	GetRobboGroupsByTeacherID(ctx context.Context, teacherID string, page string, pageSize string) (models.RobboGroupsResult, error)
 	GetRobboGroupsByRobboUnitID(ctx context.Context, robboUnitID string) (models.RobboGroupsResult, error)
 	GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdminID string, page string, pageSize string) (models.RobboGroupsResult, error)
+	GetAllRobboGroupsForUnitAdmin(ctx context.Context, page string, pageSize string) (models.RobboGroupsResult, error)
 	GetAllRobboGroups(ctx context.Context, page string, pageSize string) (models.RobboGroupsResult, error)
 	GetRobboGroupsByAccessToken(ctx context.Context, page string, pageSize string) (models.RobboGroupsResult, error)
 	SearchGroupsByName(ctx context.Context, name string) (models.RobboGroupsResult, error)
@@ -1265,6 +1267,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetAllRobboGroups(childComplexity, args["page"].(string), args["pageSize"].(string)), true
 
+	case "Query.GetAllRobboGroupsForUnitAdmin":
+		if e.complexity.Query.GetAllRobboGroupsForUnitAdmin == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetAllRobboGroupsForUnitAdmin_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetAllRobboGroupsForUnitAdmin(childComplexity, args["page"].(string), args["pageSize"].(string)), true
+
 	case "Query.GetAllRobboUnits":
 		if e.complexity.Query.GetAllRobboUnits == nil {
 			break
@@ -2121,11 +2135,18 @@ extend type Mutation {
 
 extend type Query {
 	GetRobboGroupById(id: String!): RobboGroupResult!
-	GetRobboGroupsByTeacherId(teacherId: String!, page: String!, pageSize: String!): RobboGroupsResult! # Ручка для Админов для получения групп на которые назначен Teacher
-	GetRobboGroupsByRobboUnitId(robboUnitId: String!): RobboGroupsResult! # Ручка для Super Admin для получения групп на которые назначен Unit Admin
+	# Ручка для Админов для получения групп на которые назначен Teacher
+	GetRobboGroupsByTeacherId(teacherId: String!, page: String!, pageSize: String!): RobboGroupsResult!
+	# Ручка для Super Admin для получения групп на которые назначен Unit Admin
+	GetRobboGroupsByRobboUnitId(robboUnitId: String!): RobboGroupsResult!
+	# Ручка для Super Admin для получения групп к которым имеет доступ Unit Admin
 	GetRobboGroupsByUnitAdminId(unitAdminId: String!, page: String!, pageSize: String!): RobboGroupsResult!
-	GetAllRobboGroups(page: String!, pageSize: String!): RobboGroupsResult! # Ручка Super Admin для получения всех групп
-	GetRobboGroupsByAccessToken(page: String!, pageSize: String!): RobboGroupsResult! # Ручка для Teacher для получения групп на которые он назначен
+	# Ручка для Unit Admin для получения всех групп для Unit Admin
+	GetAllRobboGroupsForUnitAdmin(page: String!, pageSize: String!): RobboGroupsResult!
+	# Ручка Super Admin для получения всех групп
+	GetAllRobboGroups(page: String!, pageSize: String!): RobboGroupsResult!
+	# Ручка для Teacher для получения групп на которые он назначен
+	GetRobboGroupsByAccessToken(page: String!, pageSize: String!): RobboGroupsResult!
 	SearchGroupsByName(name: String!): RobboGroupsResult!
 }`, BuiltIn: false},
 	{Name: "../robboUnit.graphqls", Input: `type RobboUnitHttp {
@@ -2827,6 +2848,30 @@ func (ec *executionContext) field_Query_GetAllPublicCourses_args(ctx context.Con
 		}
 	}
 	args["pageNumber"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetAllRobboGroupsForUnitAdmin_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg1
 	return args, nil
 }
 
@@ -9640,6 +9685,61 @@ func (ec *executionContext) fieldContext_Query_GetRobboGroupsByUnitAdminId(ctx c
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_GetRobboGroupsByUnitAdminId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetAllRobboGroupsForUnitAdmin(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetAllRobboGroupsForUnitAdmin(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetAllRobboGroupsForUnitAdmin(rctx, fc.Args["page"].(string), fc.Args["pageSize"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.RobboGroupsResult)
+	fc.Result = res
+	return ec.marshalNRobboGroupsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupsResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetAllRobboGroupsForUnitAdmin(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type RobboGroupsResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetAllRobboGroupsForUnitAdmin_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -16527,6 +16627,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_GetRobboGroupsByUnitAdminId(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetAllRobboGroupsForUnitAdmin":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetAllRobboGroupsForUnitAdmin(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

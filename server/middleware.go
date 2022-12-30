@@ -22,7 +22,7 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 		headerParts := strings.Split(header, " ")
 		if len(headerParts) != 2 {
 			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "token not found",
+				"error": "invalid authorization header format",
 			})
 			c.Abort()
 			return

@@ -25,6 +25,189 @@ func SetupCoursesGateway(postgresClient db_client.PostgresClient) CoursesGateway
 	}
 }
 
+func (r *CoursesGatewayImpl) DeleteCourseRelationsByRobboUnitId(robboUnitId string) (err error) {
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Where("parameter = ? AND object_id", "unit", robboUnitId).Delete(&models.CourseRelationsDB{}).Error
+		return
+	})
+	return
+}
+
+func (r *CoursesGatewayImpl) DeleteCourseRelationsByRobboGroupId(robboGroupId string) (err error) {
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Where("parameter = ? AND object_id", "group", robboGroupId).Delete(&models.CourseRelationsDB{}).Error
+		return
+	})
+	return
+}
+
+func (r *CoursesGatewayImpl) DeleteCourseRelationsByRoleId(roleId string) (err error) {
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Where("parameter = ? AND object_id", "role", roleId).Delete(&models.CourseRelationsDB{}).Error
+		return
+	})
+	return
+}
+
+func (r *CoursesGatewayImpl) GetCourseRelationsByCourseId(courseId string) (courseRelations []*models.CourseRelationsCore, err error) {
+	var courseRelationsDb []*models.CourseRelationsDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("course_id", courseId).Find(&courseRelationsDb).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, courseRelationDb := range courseRelationsDb {
+		var courseRelationCore *models.CourseRelationsCore
+
+		courseRelationCore = courseRelationDb.ToCore()
+		courseRelations = append(courseRelations, courseRelationCore)
+	}
+	return
+}
+
+func (r *CoursesGatewayImpl) GetCourseRelationsGroups() (courseRelations []*models.CourseRelationsCore, err error) {
+	var courseRelationsDb []*models.CourseRelationsDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("parameter = ?", "group").Find(&courseRelationsDb).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, courseRelationDb := range courseRelationsDb {
+		var courseRelationCore *models.CourseRelationsCore
+
+		courseRelationCore = courseRelationDb.ToCore()
+		courseRelations = append(courseRelations, courseRelationCore)
+	}
+	return
+}
+
+func (r *CoursesGatewayImpl) GetCourseRelationsUnits() (courseRelations []*models.CourseRelationsCore, err error) {
+	var courseRelationsDb []*models.CourseRelationsDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("parameter = ?", "unit").Find(&courseRelationsDb).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, courseRelationDb := range courseRelationsDb {
+		var courseRelationCore *models.CourseRelationsCore
+
+		courseRelationCore = courseRelationDb.ToCore()
+		courseRelations = append(courseRelations, courseRelationCore)
+	}
+	return
+}
+
+func (r *CoursesGatewayImpl) GetCourseRelationsRoles() (courseRelations []*models.CourseRelationsCore, err error) {
+	var courseRelationsDb []*models.CourseRelationsDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("parameter = ?", "role").Find(&courseRelationsDb).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, courseRelationDb := range courseRelationsDb {
+		var courseRelationCore *models.CourseRelationsCore
+
+		courseRelationCore = courseRelationDb.ToCore()
+		courseRelations = append(courseRelations, courseRelationCore)
+	}
+	return
+}
+
+func (r *CoursesGatewayImpl) GetCourseRelationsByRobboUnitId(robboUnitId string) (courseRelations []*models.CourseRelationsCore, err error) {
+	var courseRelationsDb []*models.CourseRelationsDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("parameter = ? AND object_id = ?", "unit", robboUnitId).Find(&courseRelationsDb).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, courseRelationDb := range courseRelationsDb {
+		var courseRelationCore *models.CourseRelationsCore
+
+		courseRelationCore = courseRelationDb.ToCore()
+		courseRelations = append(courseRelations, courseRelationCore)
+	}
+	return
+}
+
+func (r *CoursesGatewayImpl) GetCourseRelationByRobboGroupId(robboGroupId string) (courseRelations []*models.CourseRelationsCore, err error) {
+	var courseRelationsDb []*models.CourseRelationsDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("parameter = ? AND object_id = ?", "group", robboGroupId).Find(&courseRelationsDb).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, courseRelationDb := range courseRelationsDb {
+		var courseRelationCore *models.CourseRelationsCore
+
+		courseRelationCore = courseRelationDb.ToCore()
+		courseRelations = append(courseRelations, courseRelationCore)
+	}
+	return
+}
+
+func (r *CoursesGatewayImpl) GetCourseRelationByRoleId(roleId string) (courseRelations []*models.CourseRelationsCore, err error) {
+	var courseRelationsDb []*models.CourseRelationsDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("parameter = ? AND object_id = ?", "role", roleId).Find(&courseRelationsDb).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, courseRelationDb := range courseRelationsDb {
+		var courseRelationCore *models.CourseRelationsCore
+
+		courseRelationCore = courseRelationDb.ToCore()
+		courseRelations = append(courseRelations, courseRelationCore)
+	}
+	return
+}
+
+func (r *CoursesGatewayImpl) CreateCourseRelation(courseRelation *models.CourseRelationsCore) (newCourseRelation *models.CourseRelationsCore, err error) {
+	courseRelationDb := models.CourseRelationsDB{}
+	courseRelationDb.FromCore(courseRelation)
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Create(&courseRelationDb).Error
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		return
+	})
+	newCourseRelation = courseRelationDb.ToCore()
+	return
+}
+
+func (r *CoursesGatewayImpl) DeleteCourseRelationById(courseRelationId string) (id string, err error) {
+	courseRelationDb := models.CourseRelationsDB{}
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Model(&courseRelationDb).Where("id = ?", courseRelationId).First(&models.CourseRelationsDB{}).Delete(&models.CourseRelationsDB{}).Error
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		return
+	})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	id = strconv.FormatUint(uint64(courseRelationDb.ID), 10)
+	return
+}
+
 func (r *CoursesGatewayImpl) CreateCourse(course *models.CourseCore) (id string, err error) {
 	courseDb := models.CourseDB{}
 	courseDb.FromCore(course)
@@ -191,7 +374,7 @@ func (r *CoursesGatewayImpl) DeleteMedia(courseApiMediaCollectionId string) (err
 	return
 }
 
-func (r CoursesGatewayImpl) DeleteCourse(courseId string) (id string, err error) {
+func (r *CoursesGatewayImpl) DeleteCourse(courseId string) (id string, err error) {
 	courseDb := models.CourseDB{}
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Model(&courseDb).Where("id = ?", courseId).First(&models.CourseDB{}).Delete(&models.CourseDB{}).Error

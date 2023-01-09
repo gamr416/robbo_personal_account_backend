@@ -139,7 +139,7 @@ type Mutation {
     CreateStudent(input: NewStudent!): StudentResult!
     UpdateStudent(input: UpdateProfileInput!): StudentResult!
     DeleteStudent(studentId: String!): DeletedStudent!
-    SetRobboGroupIdForStudent(studentId: String!, robboGroupId: String!, robboUnitId: String!): String!
+    SetRobboGroupIdForStudent(studentId: String!, robboGroupId: String!, robboUnitId: String!): Error!
     CreateTeacher(input: NewTeacher!): TeacherResult!
     UpdateTeacher(input: UpdateProfileInput!): TeacherResult!
     DeleteTeacher(teacherId: String!): DeletedTeacher!

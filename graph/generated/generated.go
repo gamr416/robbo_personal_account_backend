@@ -330,7 +330,7 @@ type MutationResolver interface {
 	CreateStudent(ctx context.Context, input models.NewStudent) (models.StudentResult, error)
 	UpdateStudent(ctx context.Context, input models.UpdateProfileInput) (models.StudentResult, error)
 	DeleteStudent(ctx context.Context, studentID string) (*models.DeletedStudent, error)
-	SetRobboGroupIDForStudent(ctx context.Context, studentID string, robboGroupID string, robboUnitID string) (string, error)
+	SetRobboGroupIDForStudent(ctx context.Context, studentID string, robboGroupID string, robboUnitID string) (*models.Error, error)
 	CreateTeacher(ctx context.Context, input models.NewTeacher) (models.TeacherResult, error)
 	UpdateTeacher(ctx context.Context, input models.UpdateProfileInput) (models.TeacherResult, error)
 	DeleteTeacher(ctx context.Context, teacherID string) (*models.DeletedTeacher, error)
@@ -2332,7 +2332,7 @@ type Mutation {
     CreateStudent(input: NewStudent!): StudentResult!
     UpdateStudent(input: UpdateProfileInput!): StudentResult!
     DeleteStudent(studentId: String!): DeletedStudent!
-    SetRobboGroupIdForStudent(studentId: String!, robboGroupId: String!, robboUnitId: String!): String!
+    SetRobboGroupIdForStudent(studentId: String!, robboGroupId: String!, robboUnitId: String!): Error!
     CreateTeacher(input: NewTeacher!): TeacherResult!
     UpdateTeacher(input: UpdateProfileInput!): TeacherResult!
     DeleteTeacher(teacherId: String!): DeletedTeacher!
@@ -6086,9 +6086,9 @@ func (ec *executionContext) _Mutation_SetRobboGroupIdForStudent(ctx context.Cont
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*models.Error)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNError2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐError(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_SetRobboGroupIdForStudent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6098,7 +6098,13 @@ func (ec *executionContext) fieldContext_Mutation_SetRobboGroupIdForStudent(ctx 
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "code":
+				return ec.fieldContext_Error_code(ctx, field)
+			case "message":
+				return ec.fieldContext_Error_message(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Error", field.Name)
 		},
 	}
 	defer func() {
@@ -17920,6 +17926,20 @@ func (ec *executionContext) marshalNEnrollmentResult2githubᚗcomᚋskinnykaen�
 		return graphql.Null
 	}
 	return ec._EnrollmentResult(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNError2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐError(ctx context.Context, sel ast.SelectionSet, v models.Error) graphql.Marshaler {
+	return ec._Error(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNError2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐError(ctx context.Context, sel ast.SelectionSet, v *models.Error) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Error(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {

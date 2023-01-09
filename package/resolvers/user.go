@@ -113,30 +113,30 @@ func (r *mutationResolver) DeleteStudent(ctx context.Context, studentID string) 
 }
 
 // SetRobboGroupIDForStudent is the resolver for the setRobboGroupIdForStudent field.
-func (r *mutationResolver) SetRobboGroupIDForStudent(ctx context.Context, studentID string, robboGroupID string, robboUnitID string) (string, error) {
+func (r *mutationResolver) SetRobboGroupIDForStudent(ctx context.Context, studentID string, robboGroupID string, robboUnitID string) (*models.Error, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return "", err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
 		err := errors.New("status unauthorized")
-		return "", err
+		return &models.Error{Message: "status unauthorized"}, err
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")
-		return "", err
+		return &models.Error{Message: "no access"}, err
 	}
 
 	addStudentToRobboGroupErr := r.usersDelegate.AddStudentToRobboGroup(studentID, robboGroupID, robboUnitID)
 	if addStudentToRobboGroupErr != nil {
 		err := errors.New("baq request")
-		return "", err
+		return &models.Error{Message: "baq request"}, err
 	}
-	return "", nil
+	return nil, nil
 }
 
 // CreateTeacher is the resolver for the createTeacher field.

@@ -113,7 +113,12 @@ func (r *mutationResolver) DeleteStudent(ctx context.Context, studentID string) 
 }
 
 // SetRobboGroupIDForStudent is the resolver for the setRobboGroupIdForStudent field.
-func (r *mutationResolver) SetRobboGroupIDForStudent(ctx context.Context, studentID string, robboGroupID string, robboUnitID string) (*models.Error, error) {
+func (r *mutationResolver) SetRobboGroupIDForStudent(
+	ctx context.Context,
+	studentID string,
+	robboGroupID string,
+	robboUnitID string,
+) (*models.Error, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -133,10 +138,9 @@ func (r *mutationResolver) SetRobboGroupIDForStudent(ctx context.Context, studen
 
 	addStudentToRobboGroupErr := r.usersDelegate.AddStudentToRobboGroup(studentID, robboGroupID, robboUnitID)
 	if addStudentToRobboGroupErr != nil {
-		err := errors.New("baq request")
-		return &models.Error{Message: "baq request"}, err
+		return &models.Error{Message: addStudentToRobboGroupErr.Error()}, addStudentToRobboGroupErr
 	}
-	return nil, nil
+	return &models.Error{}, nil
 }
 
 // CreateTeacher is the resolver for the createTeacher field.

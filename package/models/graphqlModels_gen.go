@@ -2,12 +2,24 @@
 
 package models
 
+type CourseRelationResult interface {
+	IsCourseRelationResult()
+}
+
+type CourseRelationsResult interface {
+	IsCourseRelationsResult()
+}
+
 type CourseResult interface {
 	IsCourseResult()
 }
 
-type EnrollmentResult interface {
-	IsEnrollmentResult()
+type CoursesResult interface {
+	IsCoursesResult()
+}
+
+type EnrollmentsResult interface {
+	IsEnrollmentsResult()
 }
 
 type PairsStudentParentsResult interface {
@@ -109,12 +121,32 @@ type CourseHTTP struct {
 
 func (CourseHTTP) IsCourseResult() {}
 
+type CourseRelationHTTP struct {
+	ID           string `json:"id"`
+	LastModified string `json:"lastModified"`
+	Parameter    string `json:"parameter"`
+	CourseID     string `json:"courseId"`
+	ObjectID     string `json:"objectId"`
+}
+
+func (CourseRelationHTTP) IsCourseRelationResult() {}
+
+type CourseRelationHTTPList struct {
+	CourseRelations []*CourseRelationHTTP `json:"courseRelations"`
+}
+
+func (CourseRelationHTTPList) IsCourseRelationsResult() {}
+
 type CoursesListHTTP struct {
 	Results    []*CourseHTTP `json:"results"`
 	Pagination *Pagination   `json:"pagination"`
 }
 
-func (CoursesListHTTP) IsCourseResult() {}
+func (CoursesListHTTP) IsCoursesResult() {}
+
+type DeletedCourseRelation struct {
+	CourseRelationID string `json:"courseRelationId"`
+}
 
 type DeletedParent struct {
 	ParentID string `json:"parentId"`
@@ -158,16 +190,22 @@ type EnrollmentsListHTTP struct {
 	Results  []*EnrollmentHTTP `json:"results"`
 }
 
-func (EnrollmentsListHTTP) IsEnrollmentResult() {}
+func (EnrollmentsListHTTP) IsEnrollmentsResult() {}
 
 type Error struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
 
+func (Error) IsCourseRelationResult() {}
+
+func (Error) IsCourseRelationsResult() {}
+
 func (Error) IsCourseResult() {}
 
-func (Error) IsEnrollmentResult() {}
+func (Error) IsCoursesResult() {}
+
+func (Error) IsEnrollmentsResult() {}
 
 func (Error) IsProjectPageResult() {}
 
@@ -209,6 +247,21 @@ type ImageHTTP struct {
 type MediaHTTP struct {
 	ID  string `json:"id"`
 	URI string `json:"uri"`
+}
+
+type NewCourseRelationGroup struct {
+	CourseID     string `json:"courseId"`
+	RobboGroupID string `json:"robboGroupId"`
+}
+
+type NewCourseRelationRole struct {
+	CourseID string `json:"courseId"`
+	RoleID   string `json:"roleId"`
+}
+
+type NewCourseRelationUnit struct {
+	CourseID    string `json:"courseId"`
+	RobboUnitID string `json:"robboUnitId"`
 }
 
 type NewParent struct {

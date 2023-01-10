@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-type CourseRelationsCore struct {
+type CourseRelationCore struct {
 	Id           string
 	LastModified string
 	//параметр строка, который позволяет понять с чем связан курс (параметры: group, unit, role)
@@ -15,7 +15,7 @@ type CourseRelationsCore struct {
 	ObjectId string
 }
 
-type CourseRelationsDB struct {
+type CourseRelationDB struct {
 	gorm.Model
 
 	Parameter string
@@ -24,8 +24,8 @@ type CourseRelationsDB struct {
 	ObjectId  string
 }
 
-func (em *CourseRelationsDB) ToCore() *CourseRelationsCore {
-	return &CourseRelationsCore{
+func (em *CourseRelationDB) ToCore() *CourseRelationCore {
+	return &CourseRelationCore{
 		Id:           strconv.FormatUint(uint64(em.ID), 10),
 		LastModified: em.UpdatedAt.String(),
 		Parameter:    em.Parameter,
@@ -34,10 +34,26 @@ func (em *CourseRelationsDB) ToCore() *CourseRelationsCore {
 	}
 }
 
-func (em *CourseRelationsDB) FromCore(core *CourseRelationsCore) {
+func (em *CourseRelationDB) FromCore(core *CourseRelationCore) {
 	id, _ := strconv.ParseUint(core.Id, 10, 64)
 	em.ID = uint(id)
 	em.Parameter = core.Parameter
 	em.CourseId = core.CourseId
 	em.ObjectId = core.ObjectId
+}
+
+func (ht *CourseRelationHTTP) ToCore() *CourseRelationCore {
+	return &CourseRelationCore{
+		Id:       ht.ID,
+		CourseId: ht.CourseID,
+		ObjectId: ht.ObjectID,
+	}
+}
+
+func (ht *CourseRelationHTTP) FromCore(core *CourseRelationCore) {
+	ht.ID = core.Id
+	ht.LastModified = core.LastModified
+	ht.Parameter = core.Parameter
+	ht.CourseID = core.CourseId
+	ht.ObjectID = core.ObjectId
 }

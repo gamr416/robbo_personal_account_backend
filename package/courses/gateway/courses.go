@@ -27,7 +27,7 @@ func SetupCoursesGateway(postgresClient db_client.PostgresClient) CoursesGateway
 
 func (r *CoursesGatewayImpl) DeleteCourseRelationsByRobboUnitId(robboUnitId string) (err error) {
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Where("parameter = ? AND object_id", "unit", robboUnitId).Delete(&models.CourseRelationsDB{}).Error
+		err = tx.Where("parameter = ? AND object_id", "unit", robboUnitId).Delete(&models.CourseRelationDB{}).Error
 		return
 	})
 	return
@@ -35,7 +35,7 @@ func (r *CoursesGatewayImpl) DeleteCourseRelationsByRobboUnitId(robboUnitId stri
 
 func (r *CoursesGatewayImpl) DeleteCourseRelationsByRobboGroupId(robboGroupId string) (err error) {
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Where("parameter = ? AND object_id", "group", robboGroupId).Delete(&models.CourseRelationsDB{}).Error
+		err = tx.Where("parameter = ? AND object_id", "group", robboGroupId).Delete(&models.CourseRelationDB{}).Error
 		return
 	})
 	return
@@ -43,14 +43,14 @@ func (r *CoursesGatewayImpl) DeleteCourseRelationsByRobboGroupId(robboGroupId st
 
 func (r *CoursesGatewayImpl) DeleteCourseRelationsByRoleId(roleId string) (err error) {
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Where("parameter = ? AND object_id", "role", roleId).Delete(&models.CourseRelationsDB{}).Error
+		err = tx.Where("parameter = ? AND object_id", "role", roleId).Delete(&models.CourseRelationDB{}).Error
 		return
 	})
 	return
 }
 
-func (r *CoursesGatewayImpl) GetCourseRelationsByCourseId(courseId string) (courseRelations []*models.CourseRelationsCore, err error) {
-	var courseRelationsDb []*models.CourseRelationsDB
+func (r *CoursesGatewayImpl) GetCourseRelationsByCourseId(courseId string) (courseRelations []*models.CourseRelationCore, err error) {
+	var courseRelationsDb []*models.CourseRelationDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Where("course_id", courseId).Find(&courseRelationsDb).Error; err != nil {
 			return
@@ -59,7 +59,7 @@ func (r *CoursesGatewayImpl) GetCourseRelationsByCourseId(courseId string) (cour
 	})
 
 	for _, courseRelationDb := range courseRelationsDb {
-		var courseRelationCore *models.CourseRelationsCore
+		var courseRelationCore *models.CourseRelationCore
 
 		courseRelationCore = courseRelationDb.ToCore()
 		courseRelations = append(courseRelations, courseRelationCore)
@@ -67,8 +67,8 @@ func (r *CoursesGatewayImpl) GetCourseRelationsByCourseId(courseId string) (cour
 	return
 }
 
-func (r *CoursesGatewayImpl) GetCourseRelationsGroups() (courseRelations []*models.CourseRelationsCore, err error) {
-	var courseRelationsDb []*models.CourseRelationsDB
+func (r *CoursesGatewayImpl) GetCourseRelationsGroups() (courseRelations []*models.CourseRelationCore, err error) {
+	var courseRelationsDb []*models.CourseRelationDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Where("parameter = ?", "group").Find(&courseRelationsDb).Error; err != nil {
 			return
@@ -77,7 +77,7 @@ func (r *CoursesGatewayImpl) GetCourseRelationsGroups() (courseRelations []*mode
 	})
 
 	for _, courseRelationDb := range courseRelationsDb {
-		var courseRelationCore *models.CourseRelationsCore
+		var courseRelationCore *models.CourseRelationCore
 
 		courseRelationCore = courseRelationDb.ToCore()
 		courseRelations = append(courseRelations, courseRelationCore)
@@ -85,8 +85,8 @@ func (r *CoursesGatewayImpl) GetCourseRelationsGroups() (courseRelations []*mode
 	return
 }
 
-func (r *CoursesGatewayImpl) GetCourseRelationsUnits() (courseRelations []*models.CourseRelationsCore, err error) {
-	var courseRelationsDb []*models.CourseRelationsDB
+func (r *CoursesGatewayImpl) GetCourseRelationsUnits() (courseRelations []*models.CourseRelationCore, err error) {
+	var courseRelationsDb []*models.CourseRelationDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Where("parameter = ?", "unit").Find(&courseRelationsDb).Error; err != nil {
 			return
@@ -95,7 +95,7 @@ func (r *CoursesGatewayImpl) GetCourseRelationsUnits() (courseRelations []*model
 	})
 
 	for _, courseRelationDb := range courseRelationsDb {
-		var courseRelationCore *models.CourseRelationsCore
+		var courseRelationCore *models.CourseRelationCore
 
 		courseRelationCore = courseRelationDb.ToCore()
 		courseRelations = append(courseRelations, courseRelationCore)
@@ -103,8 +103,8 @@ func (r *CoursesGatewayImpl) GetCourseRelationsUnits() (courseRelations []*model
 	return
 }
 
-func (r *CoursesGatewayImpl) GetCourseRelationsRoles() (courseRelations []*models.CourseRelationsCore, err error) {
-	var courseRelationsDb []*models.CourseRelationsDB
+func (r *CoursesGatewayImpl) GetCourseRelationsRoles() (courseRelations []*models.CourseRelationCore, err error) {
+	var courseRelationsDb []*models.CourseRelationDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Where("parameter = ?", "role").Find(&courseRelationsDb).Error; err != nil {
 			return
@@ -113,7 +113,7 @@ func (r *CoursesGatewayImpl) GetCourseRelationsRoles() (courseRelations []*model
 	})
 
 	for _, courseRelationDb := range courseRelationsDb {
-		var courseRelationCore *models.CourseRelationsCore
+		var courseRelationCore *models.CourseRelationCore
 
 		courseRelationCore = courseRelationDb.ToCore()
 		courseRelations = append(courseRelations, courseRelationCore)
@@ -121,8 +121,8 @@ func (r *CoursesGatewayImpl) GetCourseRelationsRoles() (courseRelations []*model
 	return
 }
 
-func (r *CoursesGatewayImpl) GetCourseRelationsByRobboUnitId(robboUnitId string) (courseRelations []*models.CourseRelationsCore, err error) {
-	var courseRelationsDb []*models.CourseRelationsDB
+func (r *CoursesGatewayImpl) GetCourseRelationsByRobboUnitId(robboUnitId string) (courseRelations []*models.CourseRelationCore, err error) {
+	var courseRelationsDb []*models.CourseRelationDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Where("parameter = ? AND object_id = ?", "unit", robboUnitId).Find(&courseRelationsDb).Error; err != nil {
 			return
@@ -131,7 +131,7 @@ func (r *CoursesGatewayImpl) GetCourseRelationsByRobboUnitId(robboUnitId string)
 	})
 
 	for _, courseRelationDb := range courseRelationsDb {
-		var courseRelationCore *models.CourseRelationsCore
+		var courseRelationCore *models.CourseRelationCore
 
 		courseRelationCore = courseRelationDb.ToCore()
 		courseRelations = append(courseRelations, courseRelationCore)
@@ -139,8 +139,8 @@ func (r *CoursesGatewayImpl) GetCourseRelationsByRobboUnitId(robboUnitId string)
 	return
 }
 
-func (r *CoursesGatewayImpl) GetCourseRelationByRobboGroupId(robboGroupId string) (courseRelations []*models.CourseRelationsCore, err error) {
-	var courseRelationsDb []*models.CourseRelationsDB
+func (r *CoursesGatewayImpl) GetCourseRelationsByRobboGroupId(robboGroupId string) (courseRelations []*models.CourseRelationCore, err error) {
+	var courseRelationsDb []*models.CourseRelationDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Where("parameter = ? AND object_id = ?", "group", robboGroupId).Find(&courseRelationsDb).Error; err != nil {
 			return
@@ -149,7 +149,7 @@ func (r *CoursesGatewayImpl) GetCourseRelationByRobboGroupId(robboGroupId string
 	})
 
 	for _, courseRelationDb := range courseRelationsDb {
-		var courseRelationCore *models.CourseRelationsCore
+		var courseRelationCore *models.CourseRelationCore
 
 		courseRelationCore = courseRelationDb.ToCore()
 		courseRelations = append(courseRelations, courseRelationCore)
@@ -157,8 +157,8 @@ func (r *CoursesGatewayImpl) GetCourseRelationByRobboGroupId(robboGroupId string
 	return
 }
 
-func (r *CoursesGatewayImpl) GetCourseRelationByRoleId(roleId string) (courseRelations []*models.CourseRelationsCore, err error) {
-	var courseRelationsDb []*models.CourseRelationsDB
+func (r *CoursesGatewayImpl) GetCourseRelationsByRoleId(roleId string) (courseRelations []*models.CourseRelationCore, err error) {
+	var courseRelationsDb []*models.CourseRelationDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Where("parameter = ? AND object_id = ?", "role", roleId).Find(&courseRelationsDb).Error; err != nil {
 			return
@@ -167,7 +167,7 @@ func (r *CoursesGatewayImpl) GetCourseRelationByRoleId(roleId string) (courseRel
 	})
 
 	for _, courseRelationDb := range courseRelationsDb {
-		var courseRelationCore *models.CourseRelationsCore
+		var courseRelationCore *models.CourseRelationCore
 
 		courseRelationCore = courseRelationDb.ToCore()
 		courseRelations = append(courseRelations, courseRelationCore)
@@ -175,8 +175,8 @@ func (r *CoursesGatewayImpl) GetCourseRelationByRoleId(roleId string) (courseRel
 	return
 }
 
-func (r *CoursesGatewayImpl) CreateCourseRelation(courseRelation *models.CourseRelationsCore) (newCourseRelation *models.CourseRelationsCore, err error) {
-	courseRelationDb := models.CourseRelationsDB{}
+func (r *CoursesGatewayImpl) CreateCourseRelation(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error) {
+	courseRelationDb := models.CourseRelationDB{}
 	courseRelationDb.FromCore(courseRelation)
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Create(&courseRelationDb).Error
@@ -191,9 +191,9 @@ func (r *CoursesGatewayImpl) CreateCourseRelation(courseRelation *models.CourseR
 }
 
 func (r *CoursesGatewayImpl) DeleteCourseRelationById(courseRelationId string) (id string, err error) {
-	courseRelationDb := models.CourseRelationsDB{}
+	courseRelationDb := models.CourseRelationDB{}
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Model(&courseRelationDb).Where("id = ?", courseRelationId).First(&models.CourseRelationsDB{}).Delete(&models.CourseRelationsDB{}).Error
+		err = tx.Model(&courseRelationDb).Where("id = ?", courseRelationId).First(&models.CourseRelationDB{}).Delete(&models.CourseRelationDB{}).Error
 		if err != nil {
 			log.Println(err)
 			return

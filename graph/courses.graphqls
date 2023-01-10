@@ -72,13 +72,60 @@ type CoursesListHttp {
     pagination: Pagination!
 }
 
-union CourseResult = CourseHttp | CoursesListHttp | Error
+input NewCourseRelationGroup {
+    courseId: String!
+    robboGroupId: String!
+}
 
-union EnrollmentResult = EnrollmentsListHttp | Error
+input NewCourseRelationUnit {
+    courseId: String!
+    robboUnitId: String!
+}
+
+input NewCourseRelationRole {
+    courseId: String!
+    roleId: String!
+}
+
+type DeletedCourseRelation {
+    courseRelationId: String!
+}
+
+type CourseRelationHttp {
+    id: String!
+    lastModified: String!
+    parameter: String!
+    courseId: String!
+    objectId: String!
+}
+
+type CourseRelationHttpList {
+    courseRelations: [CourseRelationHttp!]!
+}
+
+union CourseRelationResult = CourseRelationHttp | Error
+union CourseRelationsResult = CourseRelationHttpList | Error
+union CourseResult = CourseHttp | Error
+union CoursesResult = CoursesListHttp | Error
+union EnrollmentsResult = EnrollmentsListHttp | Error
+
+extend type Mutation {
+    CreateCourseRelationGroup(input: NewCourseRelationGroup!): CourseRelationResult!
+    CreateCourseRelationUnit(input: NewCourseRelationUnit!): CourseRelationResult!
+    CreateCourseRelationRole(input: NewCourseRelationRole!): CourseRelationResult!
+    DeleteCourseRelationById(courseRelationId: String!): DeletedCourseRelation!
+}
 
 extend type Query {
+    GetCourseRelationsByCourseId(courseId: String!): CourseRelationsResult!
+    GetCourseRelationsByRobboUnitId(robboUnitId: String!): CourseRelationsResult!
+    GetCourseRelationsByRobboGroupId(robboGroupId: String!): CourseRelationsResult!
+    GetCourseRelationsByRoleId(roleId: String!): CourseRelationsResult!
+    GetCourseRelationsUnits: CourseRelationsResult!
+    GetCourseRelationsGroups: CourseRelationsResult!
+    GetCourseRelationsRoles: CourseRelationsResult!
     GetCourseContent(courseId: String!): CourseResult!
-    GetCoursesByUser: CourseResult!
-    GetAllPublicCourses(pageNumber: String!): CourseResult!
-    GetEnrollments(username: String!): EnrollmentResult!
+    GetCoursesByUser: CoursesResult!
+    GetAllPublicCourses(pageNumber: String!): CoursesResult!
+    GetEnrollments(username: String!): EnrollmentsResult!
 }

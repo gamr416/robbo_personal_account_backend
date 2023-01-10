@@ -81,9 +81,25 @@ type ComplexityRoot struct {
 		StartType        func(childComplexity int) int
 	}
 
+	CourseRelationHttp struct {
+		CourseID     func(childComplexity int) int
+		ID           func(childComplexity int) int
+		LastModified func(childComplexity int) int
+		ObjectID     func(childComplexity int) int
+		Parameter    func(childComplexity int) int
+	}
+
+	CourseRelationHttpList struct {
+		CourseRelations func(childComplexity int) int
+	}
+
 	CoursesListHttp struct {
 		Pagination func(childComplexity int) int
 		Results    func(childComplexity int) int
+	}
+
+	DeletedCourseRelation struct {
+		CourseRelationID func(childComplexity int) int
 	}
 
 	DeletedParent struct {
@@ -147,6 +163,9 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		AddChildToParent            func(childComplexity int, parentID string, childID string) int
+		CreateCourseRelationGroup   func(childComplexity int, input models.NewCourseRelationGroup) int
+		CreateCourseRelationRole    func(childComplexity int, input models.NewCourseRelationRole) int
+		CreateCourseRelationUnit    func(childComplexity int, input models.NewCourseRelationUnit) int
 		CreateParent                func(childComplexity int, input models.NewParent) int
 		CreateProjectPage           func(childComplexity int) int
 		CreateRobboGroup            func(childComplexity int, input models.NewRobboGroup) int
@@ -154,6 +173,7 @@ type ComplexityRoot struct {
 		CreateStudent               func(childComplexity int, input models.NewStudent) int
 		CreateTeacher               func(childComplexity int, input models.NewTeacher) int
 		CreateUnitAdmin             func(childComplexity int, input models.NewUnitAdmin) int
+		DeleteCourseRelationByID    func(childComplexity int, courseRelationID string) int
 		DeleteParent                func(childComplexity int, parentID string) int
 		DeleteProjectPage           func(childComplexity int, projectID string) int
 		DeleteRobboGroup            func(childComplexity int, robboGroupID string) int
@@ -218,6 +238,13 @@ type ComplexityRoot struct {
 		GetAllTeachers                      func(childComplexity int, page string, pageSize string) int
 		GetAllUnitAdmins                    func(childComplexity int, page string, pageSize string) int
 		GetCourseContent                    func(childComplexity int, courseID string) int
+		GetCourseRelationsByCourseID        func(childComplexity int, courseID string) int
+		GetCourseRelationsByRobboGroupID    func(childComplexity int, robboGroupID string) int
+		GetCourseRelationsByRobboUnitID     func(childComplexity int, robboUnitID string) int
+		GetCourseRelationsByRoleID          func(childComplexity int, roleID string) int
+		GetCourseRelationsGroups            func(childComplexity int) int
+		GetCourseRelationsRoles             func(childComplexity int) int
+		GetCourseRelationsUnits             func(childComplexity int) int
 		GetCoursesByUser                    func(childComplexity int) int
 		GetEnrollments                      func(childComplexity int, username string) int
 		GetIndividualStudentsByTeacherID    func(childComplexity int, teacherID string) int
@@ -344,6 +371,10 @@ type MutationResolver interface {
 	SetNewUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (string, error)
 	DeleteUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (string, error)
 	UpdateSuperAdmin(ctx context.Context, input models.UpdateProfileInput) (models.SuperAdminResult, error)
+	CreateCourseRelationGroup(ctx context.Context, input models.NewCourseRelationGroup) (models.CourseRelationResult, error)
+	CreateCourseRelationUnit(ctx context.Context, input models.NewCourseRelationUnit) (models.CourseRelationResult, error)
+	CreateCourseRelationRole(ctx context.Context, input models.NewCourseRelationRole) (models.CourseRelationResult, error)
+	DeleteCourseRelationByID(ctx context.Context, courseRelationID string) (*models.DeletedCourseRelation, error)
 	CreateProjectPage(ctx context.Context) (models.ProjectPageResult, error)
 	UpdateProjectPage(ctx context.Context, input models.UpdateProjectPage) (models.ProjectPageResult, error)
 	DeleteProjectPage(ctx context.Context, projectID string) (*models.DeletedProjectPage, error)
@@ -372,10 +403,17 @@ type QueryResolver interface {
 	GetUnitAdminByID(ctx context.Context, unitAdminID string) (models.UnitAdminResult, error)
 	SearchUnitAdminsByEmail(ctx context.Context, email string, robboUnitID string) (models.UnitAdminsResult, error)
 	GetSuperAdminByID(ctx context.Context, superAdminID string) (models.SuperAdminResult, error)
+	GetCourseRelationsByCourseID(ctx context.Context, courseID string) (models.CourseRelationsResult, error)
+	GetCourseRelationsByRobboUnitID(ctx context.Context, robboUnitID string) (models.CourseRelationsResult, error)
+	GetCourseRelationsByRobboGroupID(ctx context.Context, robboGroupID string) (models.CourseRelationsResult, error)
+	GetCourseRelationsByRoleID(ctx context.Context, roleID string) (models.CourseRelationsResult, error)
+	GetCourseRelationsUnits(ctx context.Context) (models.CourseRelationsResult, error)
+	GetCourseRelationsGroups(ctx context.Context) (models.CourseRelationsResult, error)
+	GetCourseRelationsRoles(ctx context.Context) (models.CourseRelationsResult, error)
 	GetCourseContent(ctx context.Context, courseID string) (models.CourseResult, error)
-	GetCoursesByUser(ctx context.Context) (models.CourseResult, error)
-	GetAllPublicCourses(ctx context.Context, pageNumber string) (models.CourseResult, error)
-	GetEnrollments(ctx context.Context, username string) (models.EnrollmentResult, error)
+	GetCoursesByUser(ctx context.Context) (models.CoursesResult, error)
+	GetAllPublicCourses(ctx context.Context, pageNumber string) (models.CoursesResult, error)
+	GetEnrollments(ctx context.Context, username string) (models.EnrollmentsResult, error)
 	GetProjectPageByID(ctx context.Context, projectPageID string) (models.ProjectPageResult, error)
 	GetAllProjectPagesByUserID(ctx context.Context, userID string) (models.ProjectPageResult, error)
 	GetAllProjectPagesByAccessToken(ctx context.Context) (models.ProjectPageResult, error)
@@ -604,6 +642,48 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CourseHttp.StartType(childComplexity), true
 
+	case "CourseRelationHttp.courseId":
+		if e.complexity.CourseRelationHttp.CourseID == nil {
+			break
+		}
+
+		return e.complexity.CourseRelationHttp.CourseID(childComplexity), true
+
+	case "CourseRelationHttp.id":
+		if e.complexity.CourseRelationHttp.ID == nil {
+			break
+		}
+
+		return e.complexity.CourseRelationHttp.ID(childComplexity), true
+
+	case "CourseRelationHttp.lastModified":
+		if e.complexity.CourseRelationHttp.LastModified == nil {
+			break
+		}
+
+		return e.complexity.CourseRelationHttp.LastModified(childComplexity), true
+
+	case "CourseRelationHttp.objectId":
+		if e.complexity.CourseRelationHttp.ObjectID == nil {
+			break
+		}
+
+		return e.complexity.CourseRelationHttp.ObjectID(childComplexity), true
+
+	case "CourseRelationHttp.parameter":
+		if e.complexity.CourseRelationHttp.Parameter == nil {
+			break
+		}
+
+		return e.complexity.CourseRelationHttp.Parameter(childComplexity), true
+
+	case "CourseRelationHttpList.courseRelations":
+		if e.complexity.CourseRelationHttpList.CourseRelations == nil {
+			break
+		}
+
+		return e.complexity.CourseRelationHttpList.CourseRelations(childComplexity), true
+
 	case "CoursesListHttp.pagination":
 		if e.complexity.CoursesListHttp.Pagination == nil {
 			break
@@ -617,6 +697,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CoursesListHttp.Results(childComplexity), true
+
+	case "DeletedCourseRelation.courseRelationId":
+		if e.complexity.DeletedCourseRelation.CourseRelationID == nil {
+			break
+		}
+
+		return e.complexity.DeletedCourseRelation.CourseRelationID(childComplexity), true
 
 	case "DeletedParent.parentId":
 		if e.complexity.DeletedParent.ParentID == nil {
@@ -791,6 +878,42 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.AddChildToParent(childComplexity, args["parentId"].(string), args["childId"].(string)), true
 
+	case "Mutation.CreateCourseRelationGroup":
+		if e.complexity.Mutation.CreateCourseRelationGroup == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_CreateCourseRelationGroup_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateCourseRelationGroup(childComplexity, args["input"].(models.NewCourseRelationGroup)), true
+
+	case "Mutation.CreateCourseRelationRole":
+		if e.complexity.Mutation.CreateCourseRelationRole == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_CreateCourseRelationRole_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateCourseRelationRole(childComplexity, args["input"].(models.NewCourseRelationRole)), true
+
+	case "Mutation.CreateCourseRelationUnit":
+		if e.complexity.Mutation.CreateCourseRelationUnit == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_CreateCourseRelationUnit_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateCourseRelationUnit(childComplexity, args["input"].(models.NewCourseRelationUnit)), true
+
 	case "Mutation.CreateParent":
 		if e.complexity.Mutation.CreateParent == nil {
 			break
@@ -869,6 +992,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateUnitAdmin(childComplexity, args["input"].(models.NewUnitAdmin)), true
+
+	case "Mutation.DeleteCourseRelationById":
+		if e.complexity.Mutation.DeleteCourseRelationByID == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_DeleteCourseRelationById_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteCourseRelationByID(childComplexity, args["courseRelationId"].(string)), true
 
 	case "Mutation.DeleteParent":
 		if e.complexity.Mutation.DeleteParent == nil {
@@ -1326,6 +1461,75 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetCourseContent(childComplexity, args["courseId"].(string)), true
+
+	case "Query.GetCourseRelationsByCourseId":
+		if e.complexity.Query.GetCourseRelationsByCourseID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetCourseRelationsByCourseId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetCourseRelationsByCourseID(childComplexity, args["courseId"].(string)), true
+
+	case "Query.GetCourseRelationsByRobboGroupId":
+		if e.complexity.Query.GetCourseRelationsByRobboGroupID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetCourseRelationsByRobboGroupId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetCourseRelationsByRobboGroupID(childComplexity, args["robboGroupId"].(string)), true
+
+	case "Query.GetCourseRelationsByRobboUnitId":
+		if e.complexity.Query.GetCourseRelationsByRobboUnitID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetCourseRelationsByRobboUnitId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetCourseRelationsByRobboUnitID(childComplexity, args["robboUnitId"].(string)), true
+
+	case "Query.GetCourseRelationsByRoleId":
+		if e.complexity.Query.GetCourseRelationsByRoleID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetCourseRelationsByRoleId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetCourseRelationsByRoleID(childComplexity, args["roleId"].(string)), true
+
+	case "Query.GetCourseRelationsGroups":
+		if e.complexity.Query.GetCourseRelationsGroups == nil {
+			break
+		}
+
+		return e.complexity.Query.GetCourseRelationsGroups(childComplexity), true
+
+	case "Query.GetCourseRelationsRoles":
+		if e.complexity.Query.GetCourseRelationsRoles == nil {
+			break
+		}
+
+		return e.complexity.Query.GetCourseRelationsRoles(childComplexity), true
+
+	case "Query.GetCourseRelationsUnits":
+		if e.complexity.Query.GetCourseRelationsUnits == nil {
+			break
+		}
+
+		return e.complexity.Query.GetCourseRelationsUnits(childComplexity), true
 
 	case "Query.GetCoursesByUser":
 		if e.complexity.Query.GetCoursesByUser == nil {
@@ -1896,6 +2100,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputNewCourseRelationGroup,
+		ec.unmarshalInputNewCourseRelationRole,
+		ec.unmarshalInputNewCourseRelationUnit,
 		ec.unmarshalInputNewParent,
 		ec.unmarshalInputNewRobboGroup,
 		ec.unmarshalInputNewRobboUnit,
@@ -2040,15 +2247,62 @@ type CoursesListHttp {
     pagination: Pagination!
 }
 
-union CourseResult = CourseHttp | CoursesListHttp | Error
+input NewCourseRelationGroup {
+    courseId: String!
+    robboGroupId: String!
+}
 
-union EnrollmentResult = EnrollmentsListHttp | Error
+input NewCourseRelationUnit {
+    courseId: String!
+    robboUnitId: String!
+}
+
+input NewCourseRelationRole {
+    courseId: String!
+    roleId: String!
+}
+
+type DeletedCourseRelation {
+    courseRelationId: String!
+}
+
+type CourseRelationHttp {
+    id: String!
+    lastModified: String!
+    parameter: String!
+    courseId: String!
+    objectId: String!
+}
+
+type CourseRelationHttpList {
+    courseRelations: [CourseRelationHttp!]!
+}
+
+union CourseRelationResult = CourseRelationHttp | Error
+union CourseRelationsResult = CourseRelationHttpList | Error
+union CourseResult = CourseHttp | Error
+union CoursesResult = CoursesListHttp | Error
+union EnrollmentsResult = EnrollmentsListHttp | Error
+
+extend type Mutation {
+    CreateCourseRelationGroup(input: NewCourseRelationGroup!): CourseRelationResult!
+    CreateCourseRelationUnit(input: NewCourseRelationUnit!): CourseRelationResult!
+    CreateCourseRelationRole(input: NewCourseRelationRole!): CourseRelationResult!
+    DeleteCourseRelationById(courseRelationId: String!): DeletedCourseRelation!
+}
 
 extend type Query {
+    GetCourseRelationsByCourseId(courseId: String!): CourseRelationsResult!
+    GetCourseRelationsByRobboUnitId(robboUnitId: String!): CourseRelationsResult!
+    GetCourseRelationsByRobboGroupId(robboGroupId: String!): CourseRelationsResult!
+    GetCourseRelationsByRoleId(roleId: String!): CourseRelationsResult!
+    GetCourseRelationsUnits: CourseRelationsResult!
+    GetCourseRelationsGroups: CourseRelationsResult!
+    GetCourseRelationsRoles: CourseRelationsResult!
     GetCourseContent(courseId: String!): CourseResult!
-    GetCoursesByUser: CourseResult!
-    GetAllPublicCourses(pageNumber: String!): CourseResult!
-    GetEnrollments(username: String!): EnrollmentResult!
+    GetCoursesByUser: CoursesResult!
+    GetAllPublicCourses(pageNumber: String!): CoursesResult!
+    GetEnrollments(username: String!): EnrollmentsResult!
 }`, BuiltIn: false},
 	{Name: "../error.graphqls", Input: `type Error {
     code: Int!
@@ -2401,6 +2655,51 @@ func (ec *executionContext) field_Mutation_AddChildToParent_args(ctx context.Con
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_CreateCourseRelationGroup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.NewCourseRelationGroup
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNNewCourseRelationGroup2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewCourseRelationGroup(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_CreateCourseRelationRole_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.NewCourseRelationRole
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNNewCourseRelationRole2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewCourseRelationRole(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_CreateCourseRelationUnit_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.NewCourseRelationUnit
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNNewCourseRelationUnit2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewCourseRelationUnit(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_CreateParent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -2488,6 +2787,21 @@ func (ec *executionContext) field_Mutation_CreateUnitAdmin_args(ctx context.Cont
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_DeleteCourseRelationById_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["courseRelationId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseRelationId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["courseRelationId"] = arg0
 	return args, nil
 }
 
@@ -2983,6 +3297,66 @@ func (ec *executionContext) field_Query_GetCourseContent_args(ctx context.Contex
 		}
 	}
 	args["courseId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetCourseRelationsByCourseId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["courseId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["courseId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetCourseRelationsByRobboGroupId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["robboGroupId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboGroupId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["robboGroupId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetCourseRelationsByRobboUnitId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["robboUnitId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["robboUnitId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetCourseRelationsByRoleId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["roleId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roleId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["roleId"] = arg0
 	return args, nil
 }
 
@@ -4730,6 +5104,282 @@ func (ec *executionContext) fieldContext_CourseHttp_media(ctx context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _CourseRelationHttp_id(ctx context.Context, field graphql.CollectedField, obj *models.CourseRelationHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseRelationHttp_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CourseRelationHttp_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CourseRelationHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CourseRelationHttp_lastModified(ctx context.Context, field graphql.CollectedField, obj *models.CourseRelationHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseRelationHttp_lastModified(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LastModified, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CourseRelationHttp_lastModified(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CourseRelationHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CourseRelationHttp_parameter(ctx context.Context, field graphql.CollectedField, obj *models.CourseRelationHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseRelationHttp_parameter(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Parameter, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CourseRelationHttp_parameter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CourseRelationHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CourseRelationHttp_courseId(ctx context.Context, field graphql.CollectedField, obj *models.CourseRelationHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseRelationHttp_courseId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CourseID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CourseRelationHttp_courseId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CourseRelationHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CourseRelationHttp_objectId(ctx context.Context, field graphql.CollectedField, obj *models.CourseRelationHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseRelationHttp_objectId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ObjectID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CourseRelationHttp_objectId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CourseRelationHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CourseRelationHttpList_courseRelations(ctx context.Context, field graphql.CollectedField, obj *models.CourseRelationHTTPList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseRelationHttpList_courseRelations(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CourseRelations, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*models.CourseRelationHTTP)
+	fc.Result = res
+	return ec.marshalNCourseRelationHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseRelationHTTPᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CourseRelationHttpList_courseRelations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CourseRelationHttpList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_CourseRelationHttp_id(ctx, field)
+			case "lastModified":
+				return ec.fieldContext_CourseRelationHttp_lastModified(ctx, field)
+			case "parameter":
+				return ec.fieldContext_CourseRelationHttp_parameter(ctx, field)
+			case "courseId":
+				return ec.fieldContext_CourseRelationHttp_courseId(ctx, field)
+			case "objectId":
+				return ec.fieldContext_CourseRelationHttp_objectId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CourseRelationHttp", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CoursesListHttp_results(ctx context.Context, field graphql.CollectedField, obj *models.CoursesListHTTP) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CoursesListHttp_results(ctx, field)
 	if err != nil {
@@ -4865,6 +5515,50 @@ func (ec *executionContext) fieldContext_CoursesListHttp_pagination(ctx context.
 				return ec.fieldContext_Pagination_num_pages(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Pagination", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DeletedCourseRelation_courseRelationId(ctx context.Context, field graphql.CollectedField, obj *models.DeletedCourseRelation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeletedCourseRelation_courseRelationId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CourseRelationID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeletedCourseRelation_courseRelationId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeletedCourseRelation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6836,6 +7530,230 @@ func (ec *executionContext) fieldContext_Mutation_UpdateSuperAdmin(ctx context.C
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_UpdateSuperAdmin_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_CreateCourseRelationGroup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_CreateCourseRelationGroup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateCourseRelationGroup(rctx, fc.Args["input"].(models.NewCourseRelationGroup))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.CourseRelationResult)
+	fc.Result = res
+	return ec.marshalNCourseRelationResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseRelationResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_CreateCourseRelationGroup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CourseRelationResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_CreateCourseRelationGroup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_CreateCourseRelationUnit(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_CreateCourseRelationUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateCourseRelationUnit(rctx, fc.Args["input"].(models.NewCourseRelationUnit))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.CourseRelationResult)
+	fc.Result = res
+	return ec.marshalNCourseRelationResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseRelationResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_CreateCourseRelationUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CourseRelationResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_CreateCourseRelationUnit_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_CreateCourseRelationRole(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_CreateCourseRelationRole(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateCourseRelationRole(rctx, fc.Args["input"].(models.NewCourseRelationRole))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.CourseRelationResult)
+	fc.Result = res
+	return ec.marshalNCourseRelationResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseRelationResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_CreateCourseRelationRole(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CourseRelationResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_CreateCourseRelationRole_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_DeleteCourseRelationById(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_DeleteCourseRelationById(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteCourseRelationByID(rctx, fc.Args["courseRelationId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.DeletedCourseRelation)
+	fc.Result = res
+	return ec.marshalNDeletedCourseRelation2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐDeletedCourseRelation(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_DeleteCourseRelationById(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "courseRelationId":
+				return ec.fieldContext_DeletedCourseRelation_courseRelationId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeletedCourseRelation", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_DeleteCourseRelationById_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -9108,6 +10026,358 @@ func (ec *executionContext) fieldContext_Query_GetSuperAdminById(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_GetCourseRelationsByCourseId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetCourseRelationsByCourseId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetCourseRelationsByCourseID(rctx, fc.Args["courseId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.CourseRelationsResult)
+	fc.Result = res
+	return ec.marshalNCourseRelationsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseRelationsResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetCourseRelationsByCourseId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CourseRelationsResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetCourseRelationsByCourseId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetCourseRelationsByRobboUnitId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetCourseRelationsByRobboUnitId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetCourseRelationsByRobboUnitID(rctx, fc.Args["robboUnitId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.CourseRelationsResult)
+	fc.Result = res
+	return ec.marshalNCourseRelationsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseRelationsResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetCourseRelationsByRobboUnitId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CourseRelationsResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetCourseRelationsByRobboUnitId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetCourseRelationsByRobboGroupId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetCourseRelationsByRobboGroupId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetCourseRelationsByRobboGroupID(rctx, fc.Args["robboGroupId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.CourseRelationsResult)
+	fc.Result = res
+	return ec.marshalNCourseRelationsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseRelationsResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetCourseRelationsByRobboGroupId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CourseRelationsResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetCourseRelationsByRobboGroupId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetCourseRelationsByRoleId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetCourseRelationsByRoleId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetCourseRelationsByRoleID(rctx, fc.Args["roleId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.CourseRelationsResult)
+	fc.Result = res
+	return ec.marshalNCourseRelationsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseRelationsResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetCourseRelationsByRoleId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CourseRelationsResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetCourseRelationsByRoleId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetCourseRelationsUnits(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetCourseRelationsUnits(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetCourseRelationsUnits(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.CourseRelationsResult)
+	fc.Result = res
+	return ec.marshalNCourseRelationsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseRelationsResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetCourseRelationsUnits(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CourseRelationsResult does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetCourseRelationsGroups(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetCourseRelationsGroups(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetCourseRelationsGroups(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.CourseRelationsResult)
+	fc.Result = res
+	return ec.marshalNCourseRelationsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseRelationsResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetCourseRelationsGroups(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CourseRelationsResult does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetCourseRelationsRoles(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetCourseRelationsRoles(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetCourseRelationsRoles(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.CourseRelationsResult)
+	fc.Result = res
+	return ec.marshalNCourseRelationsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseRelationsResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetCourseRelationsRoles(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CourseRelationsResult does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_GetCourseContent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_GetCourseContent(ctx, field)
 	if err != nil {
@@ -9189,9 +10459,9 @@ func (ec *executionContext) _Query_GetCoursesByUser(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.CourseResult)
+	res := resTmp.(models.CoursesResult)
 	fc.Result = res
-	return ec.marshalNCourseResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseResult(ctx, field.Selections, res)
+	return ec.marshalNCoursesResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCoursesResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetCoursesByUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9201,7 +10471,7 @@ func (ec *executionContext) fieldContext_Query_GetCoursesByUser(ctx context.Cont
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type CourseResult does not have child fields")
+			return nil, errors.New("field of type CoursesResult does not have child fields")
 		},
 	}
 	return fc, nil
@@ -9233,9 +10503,9 @@ func (ec *executionContext) _Query_GetAllPublicCourses(ctx context.Context, fiel
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.CourseResult)
+	res := resTmp.(models.CoursesResult)
 	fc.Result = res
-	return ec.marshalNCourseResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseResult(ctx, field.Selections, res)
+	return ec.marshalNCoursesResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCoursesResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetAllPublicCourses(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9245,7 +10515,7 @@ func (ec *executionContext) fieldContext_Query_GetAllPublicCourses(ctx context.C
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type CourseResult does not have child fields")
+			return nil, errors.New("field of type CoursesResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -9288,9 +10558,9 @@ func (ec *executionContext) _Query_GetEnrollments(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.EnrollmentResult)
+	res := resTmp.(models.EnrollmentsResult)
 	fc.Result = res
-	return ec.marshalNEnrollmentResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐEnrollmentResult(ctx, field.Selections, res)
+	return ec.marshalNEnrollmentsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐEnrollmentsResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetEnrollments(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9300,7 +10570,7 @@ func (ec *executionContext) fieldContext_Query_GetEnrollments(ctx context.Contex
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type EnrollmentResult does not have child fields")
+			return nil, errors.New("field of type EnrollmentsResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -13804,6 +15074,114 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputNewCourseRelationGroup(ctx context.Context, obj interface{}) (models.NewCourseRelationGroup, error) {
+	var it models.NewCourseRelationGroup
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"courseId", "robboGroupId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "courseId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
+			it.CourseID, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "robboGroupId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboGroupId"))
+			it.RobboGroupID, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputNewCourseRelationRole(ctx context.Context, obj interface{}) (models.NewCourseRelationRole, error) {
+	var it models.NewCourseRelationRole
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"courseId", "roleId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "courseId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
+			it.CourseID, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "roleId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roleId"))
+			it.RoleID, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputNewCourseRelationUnit(ctx context.Context, obj interface{}) (models.NewCourseRelationUnit, error) {
+	var it models.NewCourseRelationUnit
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"courseId", "robboUnitId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "courseId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
+			it.CourseID, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "robboUnitId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
+			it.RobboUnitID, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputNewParent(ctx context.Context, obj interface{}) (models.NewParent, error) {
 	var it models.NewParent
 	asMap := map[string]interface{}{}
@@ -14384,6 +15762,52 @@ func (ec *executionContext) unmarshalInputUpdateRobboUnit(ctx context.Context, o
 
 // region    ************************** interface.gotpl ***************************
 
+func (ec *executionContext) _CourseRelationResult(ctx context.Context, sel ast.SelectionSet, obj models.CourseRelationResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case models.CourseRelationHTTP:
+		return ec._CourseRelationHttp(ctx, sel, &obj)
+	case *models.CourseRelationHTTP:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._CourseRelationHttp(ctx, sel, obj)
+	case models.Error:
+		return ec._Error(ctx, sel, &obj)
+	case *models.Error:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Error(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _CourseRelationsResult(ctx context.Context, sel ast.SelectionSet, obj models.CourseRelationsResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case models.CourseRelationHTTPList:
+		return ec._CourseRelationHttpList(ctx, sel, &obj)
+	case *models.CourseRelationHTTPList:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._CourseRelationHttpList(ctx, sel, obj)
+	case models.Error:
+		return ec._Error(ctx, sel, &obj)
+	case *models.Error:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Error(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _CourseResult(ctx context.Context, sel ast.SelectionSet, obj models.CourseResult) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -14395,6 +15819,22 @@ func (ec *executionContext) _CourseResult(ctx context.Context, sel ast.Selection
 			return graphql.Null
 		}
 		return ec._CourseHttp(ctx, sel, obj)
+	case models.Error:
+		return ec._Error(ctx, sel, &obj)
+	case *models.Error:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Error(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _CoursesResult(ctx context.Context, sel ast.SelectionSet, obj models.CoursesResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
 	case models.CoursesListHTTP:
 		return ec._CoursesListHttp(ctx, sel, &obj)
 	case *models.CoursesListHTTP:
@@ -14414,7 +15854,7 @@ func (ec *executionContext) _CourseResult(ctx context.Context, sel ast.Selection
 	}
 }
 
-func (ec *executionContext) _EnrollmentResult(ctx context.Context, sel ast.SelectionSet, obj models.EnrollmentResult) graphql.Marshaler {
+func (ec *executionContext) _EnrollmentsResult(ctx context.Context, sel ast.SelectionSet, obj models.EnrollmentsResult) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
@@ -15037,7 +16477,91 @@ func (ec *executionContext) _CourseHttp(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
-var coursesListHttpImplementors = []string{"CoursesListHttp", "CourseResult"}
+var courseRelationHttpImplementors = []string{"CourseRelationHttp", "CourseRelationResult"}
+
+func (ec *executionContext) _CourseRelationHttp(ctx context.Context, sel ast.SelectionSet, obj *models.CourseRelationHTTP) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, courseRelationHttpImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CourseRelationHttp")
+		case "id":
+
+			out.Values[i] = ec._CourseRelationHttp_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "lastModified":
+
+			out.Values[i] = ec._CourseRelationHttp_lastModified(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "parameter":
+
+			out.Values[i] = ec._CourseRelationHttp_parameter(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "courseId":
+
+			out.Values[i] = ec._CourseRelationHttp_courseId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "objectId":
+
+			out.Values[i] = ec._CourseRelationHttp_objectId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var courseRelationHttpListImplementors = []string{"CourseRelationHttpList", "CourseRelationsResult"}
+
+func (ec *executionContext) _CourseRelationHttpList(ctx context.Context, sel ast.SelectionSet, obj *models.CourseRelationHTTPList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, courseRelationHttpListImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CourseRelationHttpList")
+		case "courseRelations":
+
+			out.Values[i] = ec._CourseRelationHttpList_courseRelations(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var coursesListHttpImplementors = []string{"CoursesListHttp", "CoursesResult"}
 
 func (ec *executionContext) _CoursesListHttp(ctx context.Context, sel ast.SelectionSet, obj *models.CoursesListHTTP) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, coursesListHttpImplementors)
@@ -15057,6 +16581,34 @@ func (ec *executionContext) _CoursesListHttp(ctx context.Context, sel ast.Select
 		case "pagination":
 
 			out.Values[i] = ec._CoursesListHttp_pagination(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var deletedCourseRelationImplementors = []string{"DeletedCourseRelation"}
+
+func (ec *executionContext) _DeletedCourseRelation(ctx context.Context, sel ast.SelectionSet, obj *models.DeletedCourseRelation) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deletedCourseRelationImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeletedCourseRelation")
+		case "courseRelationId":
+
+			out.Values[i] = ec._DeletedCourseRelation_courseRelationId(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -15324,7 +16876,7 @@ func (ec *executionContext) _EnrollmentHttp(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var enrollmentsListHttpImplementors = []string{"EnrollmentsListHttp", "EnrollmentResult"}
+var enrollmentsListHttpImplementors = []string{"EnrollmentsListHttp", "EnrollmentsResult"}
 
 func (ec *executionContext) _EnrollmentsListHttp(ctx context.Context, sel ast.SelectionSet, obj *models.EnrollmentsListHTTP) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, enrollmentsListHttpImplementors)
@@ -15363,7 +16915,7 @@ func (ec *executionContext) _EnrollmentsListHttp(ctx context.Context, sel ast.Se
 	return out
 }
 
-var errorImplementors = []string{"Error", "CourseResult", "EnrollmentResult", "ProjectPageResult", "RobboGroupResult", "RobboGroupsResult", "RobboUnitResult", "RobboUnitsResult", "StudentResult", "StudentsResult", "ParentResult", "ParentsResult", "TeacherResult", "TeachersResult", "UnitAdminResult", "UnitAdminsResult", "SuperAdminResult", "PairsStudentParentsResult"}
+var errorImplementors = []string{"Error", "CourseRelationResult", "CourseRelationsResult", "CourseResult", "CoursesResult", "EnrollmentsResult", "ProjectPageResult", "RobboGroupResult", "RobboGroupsResult", "RobboUnitResult", "RobboUnitsResult", "StudentResult", "StudentsResult", "ParentResult", "ParentsResult", "TeacherResult", "TeachersResult", "UnitAdminResult", "UnitAdminsResult", "SuperAdminResult", "PairsStudentParentsResult"}
 
 func (ec *executionContext) _Error(ctx context.Context, sel ast.SelectionSet, obj *models.Error) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, errorImplementors)
@@ -15649,6 +17201,42 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_UpdateSuperAdmin(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "CreateCourseRelationGroup":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_CreateCourseRelationGroup(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "CreateCourseRelationUnit":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_CreateCourseRelationUnit(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "CreateCourseRelationRole":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_CreateCourseRelationRole(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "DeleteCourseRelationById":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_DeleteCourseRelationById(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -16374,6 +17962,167 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_GetSuperAdminById(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetCourseRelationsByCourseId":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetCourseRelationsByCourseId(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetCourseRelationsByRobboUnitId":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetCourseRelationsByRobboUnitId(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetCourseRelationsByRobboGroupId":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetCourseRelationsByRobboGroupId(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetCourseRelationsByRoleId":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetCourseRelationsByRoleId(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetCourseRelationsUnits":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetCourseRelationsUnits(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetCourseRelationsGroups":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetCourseRelationsGroups(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetCourseRelationsRoles":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetCourseRelationsRoles(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -17794,6 +19543,80 @@ func (ec *executionContext) marshalNCourseHttp2ᚖgithubᚗcomᚋskinnykaenᚋro
 	return ec._CourseHttp(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNCourseRelationHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseRelationHTTPᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.CourseRelationHTTP) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNCourseRelationHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseRelationHTTP(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNCourseRelationHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseRelationHTTP(ctx context.Context, sel ast.SelectionSet, v *models.CourseRelationHTTP) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CourseRelationHttp(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNCourseRelationResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseRelationResult(ctx context.Context, sel ast.SelectionSet, v models.CourseRelationResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CourseRelationResult(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNCourseRelationsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseRelationsResult(ctx context.Context, sel ast.SelectionSet, v models.CourseRelationsResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CourseRelationsResult(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNCourseResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseResult(ctx context.Context, sel ast.SelectionSet, v models.CourseResult) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -17802,6 +19625,30 @@ func (ec *executionContext) marshalNCourseResult2githubᚗcomᚋskinnykaenᚋrob
 		return graphql.Null
 	}
 	return ec._CourseResult(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNCoursesResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCoursesResult(ctx context.Context, sel ast.SelectionSet, v models.CoursesResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CoursesResult(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNDeletedCourseRelation2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐDeletedCourseRelation(ctx context.Context, sel ast.SelectionSet, v models.DeletedCourseRelation) graphql.Marshaler {
+	return ec._DeletedCourseRelation(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNDeletedCourseRelation2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐDeletedCourseRelation(ctx context.Context, sel ast.SelectionSet, v *models.DeletedCourseRelation) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DeletedCourseRelation(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNDeletedParent2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐDeletedParent(ctx context.Context, sel ast.SelectionSet, v models.DeletedParent) graphql.Marshaler {
@@ -17912,14 +19759,14 @@ func (ec *executionContext) marshalNEnrollmentHttp2ᚖgithubᚗcomᚋskinnykaen�
 	return ec._EnrollmentHttp(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNEnrollmentResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐEnrollmentResult(ctx context.Context, sel ast.SelectionSet, v models.EnrollmentResult) graphql.Marshaler {
+func (ec *executionContext) marshalNEnrollmentsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐEnrollmentsResult(ctx context.Context, sel ast.SelectionSet, v models.EnrollmentsResult) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._EnrollmentResult(ctx, sel, v)
+	return ec._EnrollmentsResult(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
@@ -17935,6 +19782,21 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNNewCourseRelationGroup2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewCourseRelationGroup(ctx context.Context, v interface{}) (models.NewCourseRelationGroup, error) {
+	res, err := ec.unmarshalInputNewCourseRelationGroup(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNNewCourseRelationRole2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewCourseRelationRole(ctx context.Context, v interface{}) (models.NewCourseRelationRole, error) {
+	res, err := ec.unmarshalInputNewCourseRelationRole(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNNewCourseRelationUnit2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewCourseRelationUnit(ctx context.Context, v interface{}) (models.NewCourseRelationUnit, error) {
+	res, err := ec.unmarshalInputNewCourseRelationUnit(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNNewParent2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewParent(ctx context.Context, v interface{}) (models.NewParent, error) {

@@ -82,9 +82,19 @@ input NewCourseRelationUnit {
     robboUnitId: String!
 }
 
-input NewCourseRelationRole {
+input NewCourseRelationStudent {
     courseId: String!
-    roleId: String!
+    studentId: String!
+}
+
+input NewCourseRelationTeacher {
+    courseId: String!
+    teacherId: String!
+}
+
+input NewCourseRelationUnitAdmin {
+    courseId: String!
+    unitAdminId: String!
 }
 
 type DeletedCourseRelation {
@@ -112,7 +122,9 @@ union EnrollmentsResult = EnrollmentsListHttp | Error
 extend type Mutation {
     CreateCourseRelationGroup(input: NewCourseRelationGroup!): CourseRelationResult!
     CreateCourseRelationUnit(input: NewCourseRelationUnit!): CourseRelationResult!
-    CreateCourseRelationRole(input: NewCourseRelationRole!): CourseRelationResult!
+    CreateCourseRelationStudent(input: NewCourseRelationStudent!): CourseRelationResult!
+    CreateCourseRelationTeacher(input: NewCourseRelationTeacher!): CourseRelationResult!
+    CreateCourseRelationUnitAdmin(input: NewCourseRelationUnitAdmin!): CourseRelationResult!
     DeleteCourseRelationById(courseRelationId: String!): DeletedCourseRelation!
 }
 
@@ -120,10 +132,14 @@ extend type Query {
     GetCourseRelationsByCourseId(courseId: String!): CourseRelationsResult!
     GetCourseRelationsByRobboUnitId(robboUnitId: String!): CourseRelationsResult!
     GetCourseRelationsByRobboGroupId(robboGroupId: String!): CourseRelationsResult!
-    GetCourseRelationsByRoleId(roleId: String!): CourseRelationsResult!
+    GetCourseRelationsByStudentId(studentId: String!): CourseRelationsResult!
+    GetCourseRelationsByTeacherId(teacherId: String!): CourseRelationsResult!
+    GetCourseRelationsByUnitAdminId(unitAdminId: String!): CourseRelationsResult!
     GetCourseRelationsUnits: CourseRelationsResult!
     GetCourseRelationsGroups: CourseRelationsResult!
-    GetCourseRelationsRoles: CourseRelationsResult!
+    GetCourseRelationsStudents: CourseRelationsResult!
+    GetCourseRelationsTeachers: CourseRelationsResult!
+    GetCourseRelationsUnitAdmins: CourseRelationsResult!
     GetCourseContent(courseId: String!): CourseResult!
     GetCoursesByUser: CoursesResult!
     GetAllPublicCourses(pageNumber: String!): CoursesResult!

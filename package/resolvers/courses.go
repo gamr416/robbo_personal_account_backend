@@ -6,7 +6,6 @@ package resolvers
 import (
 	"context"
 	"errors"
-
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 )
 
@@ -72,8 +71,8 @@ func (r *mutationResolver) CreateCourseRelationUnit(ctx context.Context, input m
 	return newCourseRelation, nil
 }
 
-// CreateCourseRelationRole is the resolver for the CreateCourseRelationRole field.
-func (r *mutationResolver) CreateCourseRelationRole(ctx context.Context, input models.NewCourseRelationRole) (models.CourseRelationResult, error) {
+// CreateCourseRelationStudent is the resolver for the CreateCourseRelationStudent field.
+func (r *mutationResolver) CreateCourseRelationStudent(ctx context.Context, input models.NewCourseRelationStudent) (models.CourseRelationResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -93,11 +92,73 @@ func (r *mutationResolver) CreateCourseRelationRole(ctx context.Context, input m
 
 	courseRelation := &models.CourseRelationHTTP{
 		CourseID: input.CourseID,
-		ObjectID: input.RoleID,
+		ObjectID: input.StudentID,
 	}
-	newCourseRelation, createCourseRelationRoleErr := r.coursesDelegate.CreateCourseRelationRole(courseRelation)
-	if createCourseRelationRoleErr != nil {
-		err := createCourseRelationRoleErr
+	newCourseRelation, createCourseRelationStudentErr := r.coursesDelegate.CreateCourseRelationStudent(courseRelation)
+	if createCourseRelationStudentErr != nil {
+		err := createCourseRelationStudentErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return newCourseRelation, nil
+}
+
+// CreateCourseRelationTeacher is the resolver for the CreateCourseRelationTeacher field.
+func (r *mutationResolver) CreateCourseRelationTeacher(ctx context.Context, input models.NewCourseRelationTeacher) (models.CourseRelationResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+
+	courseRelation := &models.CourseRelationHTTP{
+		CourseID: input.CourseID,
+		ObjectID: input.TeacherID,
+	}
+	newCourseRelation, createCourseRelationTeacherErr := r.coursesDelegate.CreateCourseRelationTeacher(courseRelation)
+	if createCourseRelationTeacherErr != nil {
+		err := createCourseRelationTeacherErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return newCourseRelation, nil
+}
+
+// CreateCourseRelationUnitAdmin is the resolver for the CreateCourseRelationUnitAdmin field.
+func (r *mutationResolver) CreateCourseRelationUnitAdmin(ctx context.Context, input models.NewCourseRelationUnitAdmin) (models.CourseRelationResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+
+	courseRelation := &models.CourseRelationHTTP{
+		CourseID: input.CourseID,
+		ObjectID: input.UnitAdminID,
+	}
+	newCourseRelation, createCourseRelationUnitAdminErr := r.coursesDelegate.CreateCourseRelationUnitAdmin(courseRelation)
+	if createCourseRelationUnitAdminErr != nil {
+		err := createCourseRelationUnitAdminErr
 		return &models.Error{Message: err.Error()}, err
 	}
 	return newCourseRelation, nil
@@ -214,8 +275,8 @@ func (r *queryResolver) GetCourseRelationsByRobboGroupID(ctx context.Context, ro
 	}, nil
 }
 
-// GetCourseRelationsByRoleID is the resolver for the GetCourseRelationsByRoleId field.
-func (r *queryResolver) GetCourseRelationsByRoleID(ctx context.Context, roleID string) (models.CourseRelationsResult, error) {
+// GetCourseRelationsByStudentID is the resolver for the GetCourseRelationsByStudentId field.
+func (r *queryResolver) GetCourseRelationsByStudentID(ctx context.Context, studentID string) (models.CourseRelationsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -232,9 +293,65 @@ func (r *queryResolver) GetCourseRelationsByRoleID(ctx context.Context, roleID s
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	courseRelations, getCourseRelationsByRoleIdErr := r.coursesDelegate.GetCourseRelationsByRoleId(roleID)
-	if getCourseRelationsByRoleIdErr != nil {
-		err := getCourseRelationsByRoleIdErr
+	courseRelations, getCourseRelationsByStudentIdErr := r.coursesDelegate.GetCourseRelationsByStudentId(studentID)
+	if getCourseRelationsByStudentIdErr != nil {
+		err := getCourseRelationsByStudentIdErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.CourseRelationHTTPList{
+		courseRelations,
+	}, nil
+}
+
+// GetCourseRelationsByTeacherID is the resolver for the GetCourseRelationsByTeacherId field.
+func (r *queryResolver) GetCourseRelationsByTeacherID(ctx context.Context, teacherID string) (models.CourseRelationsResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	courseRelations, getCourseRelationsByTeacherIdErr := r.coursesDelegate.GetCourseRelationsByTeacherId(teacherID)
+	if getCourseRelationsByTeacherIdErr != nil {
+		err := getCourseRelationsByTeacherIdErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.CourseRelationHTTPList{
+		courseRelations,
+	}, nil
+}
+
+// GetCourseRelationsByUnitAdminID is the resolver for the GetCourseRelationsByUnitAdminId field.
+func (r *queryResolver) GetCourseRelationsByUnitAdminID(ctx context.Context, unitAdminID string) (models.CourseRelationsResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	courseRelations, getCourseRelationsByUnitAdminIdErr := r.coursesDelegate.GetCourseRelationsByUnitAdminId(unitAdminID)
+	if getCourseRelationsByUnitAdminIdErr != nil {
+		err := getCourseRelationsByUnitAdminIdErr
 		return &models.Error{Message: err.Error()}, err
 	}
 	return &models.CourseRelationHTTPList{
@@ -298,8 +415,8 @@ func (r *queryResolver) GetCourseRelationsGroups(ctx context.Context) (models.Co
 	}, nil
 }
 
-// GetCourseRelationsRoles is the resolver for the GetCourseRelationsRoles field.
-func (r *queryResolver) GetCourseRelationsRoles(ctx context.Context) (models.CourseRelationsResult, error) {
+// GetCourseRelationsStudents is the resolver for the GetCourseRelationsStudents field.
+func (r *queryResolver) GetCourseRelationsStudents(ctx context.Context) (models.CourseRelationsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -316,9 +433,65 @@ func (r *queryResolver) GetCourseRelationsRoles(ctx context.Context) (models.Cou
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	courseRelations, getCourseRelationsRolesErr := r.coursesDelegate.GetCourseRelationsRoles()
-	if getCourseRelationsRolesErr != nil {
-		err := getCourseRelationsRolesErr
+	courseRelations, getCourseRelationsStudentsErr := r.coursesDelegate.GetCourseRelationsStudents()
+	if getCourseRelationsStudentsErr != nil {
+		err := getCourseRelationsStudentsErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.CourseRelationHTTPList{
+		courseRelations,
+	}, nil
+}
+
+// GetCourseRelationsTeachers is the resolver for the GetCourseRelationsTeachers field.
+func (r *queryResolver) GetCourseRelationsTeachers(ctx context.Context) (models.CourseRelationsResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	courseRelations, getCourseRelationsTeachersErr := r.coursesDelegate.GetCourseRelationsTeachers()
+	if getCourseRelationsTeachersErr != nil {
+		err := getCourseRelationsTeachersErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.CourseRelationHTTPList{
+		courseRelations,
+	}, nil
+}
+
+// GetCourseRelationsUnitAdmins is the resolver for the GetCourseRelationsUnitAdmins field.
+func (r *queryResolver) GetCourseRelationsUnitAdmins(ctx context.Context) (models.CourseRelationsResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	courseRelations, getCourseRelationsUnitAdminsErr := r.coursesDelegate.GetCourseRelationsUnitAdmins()
+	if getCourseRelationsUnitAdminsErr != nil {
+		err := getCourseRelationsUnitAdminsErr
 		return &models.Error{Message: err.Error()}, err
 	}
 	return &models.CourseRelationHTTPList{

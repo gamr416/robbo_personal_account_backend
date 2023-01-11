@@ -254,14 +254,24 @@ type NewCourseRelationGroup struct {
 	RobboGroupID string `json:"robboGroupId"`
 }
 
-type NewCourseRelationRole struct {
-	CourseID string `json:"courseId"`
-	RoleID   string `json:"roleId"`
+type NewCourseRelationStudent struct {
+	CourseID  string `json:"courseId"`
+	StudentID string `json:"studentId"`
+}
+
+type NewCourseRelationTeacher struct {
+	CourseID  string `json:"courseId"`
+	TeacherID string `json:"teacherId"`
 }
 
 type NewCourseRelationUnit struct {
 	CourseID    string `json:"courseId"`
 	RobboUnitID string `json:"robboUnitId"`
+}
+
+type NewCourseRelationUnitAdmin struct {
+	CourseID    string `json:"courseId"`
+	UnitAdminID string `json:"unitAdminId"`
 }
 
 type NewParent struct {

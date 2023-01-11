@@ -3,14 +3,20 @@ package courses
 import "github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 
 type Gateway interface {
-	GetCourseRelationsRoles() (courseRelations []*models.CourseRelationCore, err error)
+	GetCourseRelationsStudents() (courseRelations []*models.CourseRelationCore, err error)
+	GetCourseRelationsTeachers() (courseRelations []*models.CourseRelationCore, err error)
+	GetCourseRelationsUnitAdmins() (courseRelations []*models.CourseRelationCore, err error)
 	GetCourseRelationsUnits() (courseRelations []*models.CourseRelationCore, err error)
 	GetCourseRelationsGroups() (courseRelations []*models.CourseRelationCore, err error)
-	GetCourseRelationsByRoleId(roleId string) (courseRelations []*models.CourseRelationCore, err error)
+	GetCourseRelationsByStudentId(studentId string) (courseRelations []*models.CourseRelationCore, err error)
+	GetCourseRelationsByTeacherId(teacherId string) (courseRelations []*models.CourseRelationCore, err error)
+	GetCourseRelationsByUnitAdminId(unitAdminId string) (courseRelations []*models.CourseRelationCore, err error)
 	GetCourseRelationsByRobboGroupId(robboGroupId string) (courseRelations []*models.CourseRelationCore, err error)
 	GetCourseRelationsByRobboUnitId(robboUnitId string) (courseRelations []*models.CourseRelationCore, err error)
 	GetCourseRelationsByCourseId(courseId string) (courseRelations []*models.CourseRelationCore, err error)
-	DeleteCourseRelationsByRoleId(roleId string) (err error)
+	DeleteCourseRelationsByStudentId(studentId string) (err error)
+	DeleteCourseRelationsByTeacherId(teacherId string) (err error)
+	DeleteCourseRelationsByUnitAdminId(unitAdminId string) (err error)
 	DeleteCourseRelationsByRobboGroupId(robboGroupId string) (err error)
 	DeleteCourseRelationsByRobboUnitId(robboUnitId string) (err error)
 	DeleteCourseRelationById(courseRelationId string) (id string, err error)

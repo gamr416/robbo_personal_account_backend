@@ -24,97 +24,97 @@ func SetupCourseUseCase(gateway courses.Gateway) CourseUseCaseModule {
 	}
 }
 
-func (p *CourseUseCaseImpl) GetCourseRelationsStudents() (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetCourseRelationsStudents()
+func (p *CourseUseCaseImpl) GetAccessCourseRelationsStudents() (courseRelations []*models.CourseRelationCore, err error) {
+	return p.Gateway.GetAccessCourseRelationsStudents()
 }
 
-func (p *CourseUseCaseImpl) GetCourseRelationsTeachers() (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetCourseRelationsTeachers()
+func (p *CourseUseCaseImpl) GetAccessCourseRelationsTeachers() (courseRelations []*models.CourseRelationCore, err error) {
+	return p.Gateway.GetAccessCourseRelationsTeachers()
 }
 
-func (p *CourseUseCaseImpl) GetCourseRelationsUnitAdmins() (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetCourseRelationsUnitAdmins()
+func (p *CourseUseCaseImpl) GetAccessCourseRelationsUnitAdmins() (courseRelations []*models.CourseRelationCore, err error) {
+	return p.Gateway.GetAccessCourseRelationsUnitAdmins()
 }
 
-func (p *CourseUseCaseImpl) GetCourseRelationsUnits() (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetCourseRelationsUnits()
+func (p *CourseUseCaseImpl) GetAccessCourseRelationsRobboUnits() (courseRelations []*models.CourseRelationCore, err error) {
+	return p.Gateway.GetAccessCourseRelationsRobboUnits()
 }
 
-func (p *CourseUseCaseImpl) GetCourseRelationsGroups() (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetCourseRelationsGroups()
+func (p *CourseUseCaseImpl) GetAccessCourseRelationsRobboGroups() (courseRelations []*models.CourseRelationCore, err error) {
+	return p.Gateway.GetAccessCourseRelationsRobboGroups()
 }
 
-func (p *CourseUseCaseImpl) GetCourseRelationsByStudentId(studentId string) (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetCourseRelationsByStudentId(studentId)
+func (p *CourseUseCaseImpl) GetAccessCourseRelationsByStudentId(studentId string) (courseRelations []*models.CourseRelationCore, err error) {
+	return p.Gateway.GetAccessCourseRelationsByStudentId(studentId)
 }
 
-func (p *CourseUseCaseImpl) GetCourseRelationsByTeacherId(teacherId string) (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetCourseRelationsByTeacherId(teacherId)
+func (p *CourseUseCaseImpl) GetAccessCourseRelationsByTeacherId(teacherId string) (courseRelations []*models.CourseRelationCore, err error) {
+	return p.Gateway.GetAccessCourseRelationsByTeacherId(teacherId)
 }
 
-func (p *CourseUseCaseImpl) GetCourseRelationsByUnitAdminId(unitAdminId string) (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetCourseRelationsByUnitAdminId(unitAdminId)
+func (p *CourseUseCaseImpl) GetAccessCourseRelationsByUnitAdminId(unitAdminId string) (courseRelations []*models.CourseRelationCore, err error) {
+	return p.Gateway.GetAccessCourseRelationsByUnitAdminId(unitAdminId)
 }
 
-func (p *CourseUseCaseImpl) GetCourseRelationsByRobboGroupId(robboGroupId string) (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetCourseRelationsByRobboGroupId(robboGroupId)
+func (p *CourseUseCaseImpl) GetAccessCourseRelationsByRobboGroupId(robboGroupId string) (courseRelations []*models.CourseRelationCore, err error) {
+	return p.Gateway.GetAccessCourseRelationsByRobboGroupId(robboGroupId)
 }
 
-func (p *CourseUseCaseImpl) GetCourseRelationsByRobboUnitId(robboUnitId string) (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetCourseRelationsByRobboUnitId(robboUnitId)
+func (p *CourseUseCaseImpl) GetAccessCourseRelationsByRobboUnitId(robboUnitId string) (courseRelations []*models.CourseRelationCore, err error) {
+	return p.Gateway.GetAccessCourseRelationsByRobboUnitId(robboUnitId)
 }
 
-func (p *CourseUseCaseImpl) GetCourseRelationsByCourseId(courseId string) (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetCourseRelationsByCourseId(courseId)
+func (p *CourseUseCaseImpl) GetAccessCourseRelationsByCourseId(courseId string) (courseRelations []*models.CourseRelationCore, err error) {
+	return p.Gateway.GetAccessCourseRelationsByCourseId(courseId)
 }
 
-func (p *CourseUseCaseImpl) CreateCourseRelationGroup(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error) {
-	courseRelation.Parameter = "group"
-	return p.Gateway.CreateCourseRelation(courseRelation)
+func (p *CourseUseCaseImpl) CreateAccessCourseRelationRobboGroup(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error) {
+	courseRelation.Parameter = "robbo_group"
+	return p.Gateway.CreateAccessCourseRelation(courseRelation)
 }
 
-func (p *CourseUseCaseImpl) CreateCourseRelationUnit(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error) {
-	courseRelation.Parameter = "unit"
-	return p.Gateway.CreateCourseRelation(courseRelation)
+func (p *CourseUseCaseImpl) CreateAccessCourseRelationRobboUnit(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error) {
+	courseRelation.Parameter = "robbo_unit"
+	return p.Gateway.CreateAccessCourseRelation(courseRelation)
 }
 
-func (p *CourseUseCaseImpl) CreateCourseRelationStudent(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error) {
+func (p *CourseUseCaseImpl) CreateAccessCourseRelationStudent(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error) {
 	courseRelation.Parameter = "student"
-	return p.Gateway.CreateCourseRelation(courseRelation)
+	return p.Gateway.CreateAccessCourseRelation(courseRelation)
 }
 
-func (p *CourseUseCaseImpl) CreateCourseRelationTeacher(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error) {
+func (p *CourseUseCaseImpl) CreateAccessCourseRelationTeacher(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error) {
 	courseRelation.Parameter = "teacher"
-	return p.Gateway.CreateCourseRelation(courseRelation)
+	return p.Gateway.CreateAccessCourseRelation(courseRelation)
 }
 
-func (p *CourseUseCaseImpl) CreateCourseRelationUnitAdmin(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error) {
-	courseRelation.Parameter = "unitadmin"
-	return p.Gateway.CreateCourseRelation(courseRelation)
+func (p *CourseUseCaseImpl) CreateAccessCourseRelationUnitAdmin(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error) {
+	courseRelation.Parameter = "unit_admin"
+	return p.Gateway.CreateAccessCourseRelation(courseRelation)
 }
 
-func (p *CourseUseCaseImpl) DeleteCourseRelationById(courseRelationId string) (id string, err error) {
-	return p.Gateway.DeleteCourseRelationById(courseRelationId)
+func (p *CourseUseCaseImpl) DeleteAccessCourseRelationById(courseRelationId string) (id string, err error) {
+	return p.Gateway.DeleteAccessCourseRelationById(courseRelationId)
 }
 
-func (p *CourseUseCaseImpl) DeleteCourseRelationsByStudentId(studentId string) (err error) {
-	return p.Gateway.DeleteCourseRelationsByStudentId(studentId)
+func (p *CourseUseCaseImpl) DeleteAccessCourseRelationsByStudentId(studentId string) (err error) {
+	return p.Gateway.DeleteAccessCourseRelationsByStudentId(studentId)
 }
 
-func (p *CourseUseCaseImpl) DeleteCourseRelationsByTeacherId(teacherId string) (err error) {
-	return p.Gateway.DeleteCourseRelationsByTeacherId(teacherId)
+func (p *CourseUseCaseImpl) DeleteAccessCourseRelationsByTeacherId(teacherId string) (err error) {
+	return p.Gateway.DeleteAccessCourseRelationsByTeacherId(teacherId)
 }
 
-func (p *CourseUseCaseImpl) DeleteCourseRelationsByUnitAdminId(unitAdminId string) (err error) {
-	return p.Gateway.DeleteCourseRelationsByUnitAdminId(unitAdminId)
+func (p *CourseUseCaseImpl) DeleteAccessCourseRelationsByUnitAdminId(unitAdminId string) (err error) {
+	return p.Gateway.DeleteAccessCourseRelationsByUnitAdminId(unitAdminId)
 }
 
-func (p *CourseUseCaseImpl) DeleteCourseRelationsByRobboGroupId(robboGroupId string) (err error) {
-	return p.Gateway.DeleteCourseRelationsByRobboGroupId(robboGroupId)
+func (p *CourseUseCaseImpl) DeleteAccessCourseRelationsByRobboGroupId(robboGroupId string) (err error) {
+	return p.Gateway.DeleteAccessCourseRelationsByRobboGroupId(robboGroupId)
 }
 
-func (p *CourseUseCaseImpl) DeleteCourseRelationsByRobboUnitId(robboUnitId string) (err error) {
-	return p.Gateway.DeleteCourseRelationsByRobboUnitId(robboUnitId)
+func (p *CourseUseCaseImpl) DeleteAccessCourseRelationsByRobboUnitId(robboUnitId string) (err error) {
+	return p.Gateway.DeleteAccessCourseRelationsByRobboUnitId(robboUnitId)
 }
 
 func (p *CourseUseCaseImpl) CreateCourse(course *models.CourseCore) (id string, err error) {

@@ -29,9 +29,9 @@ func SetupCourseDelegate(coursesUsecase courses.UseCase, edxUsecase edx.UseCase)
 	}
 }
 
-func (p *CourseDelegateImpl) CreateCourseRelationGroup(courseRelation *models.CourseRelationHTTP) (newCourseRelation models.CourseRelationHTTP, err error) {
+func (p *CourseDelegateImpl) CreateAccessCourseRelationRobboGroup(courseRelation *models.CourseRelationHTTP) (newCourseRelation models.CourseRelationHTTP, err error) {
 	courseRelationCore := courseRelation.ToCore()
-	newCourseRelationCore, err := p.CoursesUseCase.CreateCourseRelationGroup(courseRelationCore)
+	newCourseRelationCore, err := p.CoursesUseCase.CreateAccessCourseRelationRobboGroup(courseRelationCore)
 	if err != nil {
 		return
 	}
@@ -39,9 +39,9 @@ func (p *CourseDelegateImpl) CreateCourseRelationGroup(courseRelation *models.Co
 	return
 }
 
-func (p *CourseDelegateImpl) CreateCourseRelationUnit(courseRelation *models.CourseRelationHTTP) (newCourseRelation models.CourseRelationHTTP, err error) {
+func (p *CourseDelegateImpl) CreateAccessCourseRelationRobboUnit(courseRelation *models.CourseRelationHTTP) (newCourseRelation models.CourseRelationHTTP, err error) {
 	courseRelationCore := courseRelation.ToCore()
-	newCourseRelationCore, err := p.CoursesUseCase.CreateCourseRelationUnit(courseRelationCore)
+	newCourseRelationCore, err := p.CoursesUseCase.CreateAccessCourseRelationRobboUnit(courseRelationCore)
 	if err != nil {
 		return
 	}
@@ -49,9 +49,9 @@ func (p *CourseDelegateImpl) CreateCourseRelationUnit(courseRelation *models.Cou
 	return
 }
 
-func (p *CourseDelegateImpl) CreateCourseRelationStudent(courseRelation *models.CourseRelationHTTP) (newCourseRelation models.CourseRelationHTTP, err error) {
+func (p *CourseDelegateImpl) CreateAccessCourseRelationStudent(courseRelation *models.CourseRelationHTTP) (newCourseRelation models.CourseRelationHTTP, err error) {
 	courseRelationCore := courseRelation.ToCore()
-	newCourseRelationCore, err := p.CoursesUseCase.CreateCourseRelationStudent(courseRelationCore)
+	newCourseRelationCore, err := p.CoursesUseCase.CreateAccessCourseRelationStudent(courseRelationCore)
 	if err != nil {
 		return
 	}
@@ -59,9 +59,9 @@ func (p *CourseDelegateImpl) CreateCourseRelationStudent(courseRelation *models.
 	return
 }
 
-func (p *CourseDelegateImpl) CreateCourseRelationTeacher(courseRelation *models.CourseRelationHTTP) (newCourseRelation models.CourseRelationHTTP, err error) {
+func (p *CourseDelegateImpl) CreateAccessCourseRelationTeacher(courseRelation *models.CourseRelationHTTP) (newCourseRelation models.CourseRelationHTTP, err error) {
 	courseRelationCore := courseRelation.ToCore()
-	newCourseRelationCore, err := p.CoursesUseCase.CreateCourseRelationTeacher(courseRelationCore)
+	newCourseRelationCore, err := p.CoursesUseCase.CreateAccessCourseRelationTeacher(courseRelationCore)
 	if err != nil {
 		return
 	}
@@ -69,9 +69,9 @@ func (p *CourseDelegateImpl) CreateCourseRelationTeacher(courseRelation *models.
 	return
 }
 
-func (p *CourseDelegateImpl) CreateCourseRelationUnitAdmin(courseRelation *models.CourseRelationHTTP) (newCourseRelation models.CourseRelationHTTP, err error) {
+func (p *CourseDelegateImpl) CreateAccessCourseRelationUnitAdmin(courseRelation *models.CourseRelationHTTP) (newCourseRelation models.CourseRelationHTTP, err error) {
 	courseRelationCore := courseRelation.ToCore()
-	newCourseRelationCore, err := p.CoursesUseCase.CreateCourseRelationUnitAdmin(courseRelationCore)
+	newCourseRelationCore, err := p.CoursesUseCase.CreateAccessCourseRelationUnitAdmin(courseRelationCore)
 	if err != nil {
 		return
 	}
@@ -79,12 +79,12 @@ func (p *CourseDelegateImpl) CreateCourseRelationUnitAdmin(courseRelation *model
 	return
 }
 
-func (p *CourseDelegateImpl) DeleteCourseRelationById(courseRelationId string) (id string, err error) {
-	return p.CoursesUseCase.DeleteCourseRelationById(courseRelationId)
+func (p *CourseDelegateImpl) DeleteAccessCourseRelationById(courseRelationId string) (id string, err error) {
+	return p.CoursesUseCase.DeleteAccessCourseRelationById(courseRelationId)
 }
 
-func (p *CourseDelegateImpl) GetCourseRelationsByCourseId(courseId string) (courseRelations []*models.CourseRelationHTTP, err error) {
-	courseRelationsCore, err := p.CoursesUseCase.GetCourseRelationsByCourseId(courseId)
+func (p *CourseDelegateImpl) GetAccessCourseRelationsByCourseId(courseId string) (courseRelations []*models.CourseRelationHTTP, err error) {
+	courseRelationsCore, err := p.CoursesUseCase.GetAccessCourseRelationsByCourseId(courseId)
 	if err != nil {
 		return
 	}
@@ -96,8 +96,8 @@ func (p *CourseDelegateImpl) GetCourseRelationsByCourseId(courseId string) (cour
 	return
 }
 
-func (p *CourseDelegateImpl) GetCourseRelationsByRobboUnitId(robboUnitId string) (courseRelations []*models.CourseRelationHTTP, err error) {
-	courseRelationsCore, err := p.CoursesUseCase.GetCourseRelationsByRobboUnitId(robboUnitId)
+func (p *CourseDelegateImpl) GetAccessCourseRelationsByRobboUnitId(robboUnitId string) (courseRelations []*models.CourseRelationHTTP, err error) {
+	courseRelationsCore, err := p.CoursesUseCase.GetAccessCourseRelationsByRobboUnitId(robboUnitId)
 	if err != nil {
 		return
 	}
@@ -109,8 +109,8 @@ func (p *CourseDelegateImpl) GetCourseRelationsByRobboUnitId(robboUnitId string)
 	return
 }
 
-func (p *CourseDelegateImpl) GetCourseRelationsByRobboGroupId(robboGroupId string) (courseRelations []*models.CourseRelationHTTP, err error) {
-	courseRelationsCore, err := p.CoursesUseCase.GetCourseRelationsByRobboGroupId(robboGroupId)
+func (p *CourseDelegateImpl) GetAccessCourseRelationsByRobboGroupId(robboGroupId string) (courseRelations []*models.CourseRelationHTTP, err error) {
+	courseRelationsCore, err := p.CoursesUseCase.GetAccessCourseRelationsByRobboGroupId(robboGroupId)
 	if err != nil {
 		return
 	}
@@ -122,8 +122,8 @@ func (p *CourseDelegateImpl) GetCourseRelationsByRobboGroupId(robboGroupId strin
 	return
 }
 
-func (p *CourseDelegateImpl) GetCourseRelationsByStudentId(studentId string) (courseRelations []*models.CourseRelationHTTP, err error) {
-	courseRelationsCore, err := p.CoursesUseCase.GetCourseRelationsByStudentId(studentId)
+func (p *CourseDelegateImpl) GetAccessCourseRelationsByStudentId(studentId string) (courseRelations []*models.CourseRelationHTTP, err error) {
+	courseRelationsCore, err := p.CoursesUseCase.GetAccessCourseRelationsByStudentId(studentId)
 	if err != nil {
 		return
 	}
@@ -135,8 +135,8 @@ func (p *CourseDelegateImpl) GetCourseRelationsByStudentId(studentId string) (co
 	return
 }
 
-func (p *CourseDelegateImpl) GetCourseRelationsByTeacherId(teacherId string) (courseRelations []*models.CourseRelationHTTP, err error) {
-	courseRelationsCore, err := p.CoursesUseCase.GetCourseRelationsByTeacherId(teacherId)
+func (p *CourseDelegateImpl) GetAccessCourseRelationsByTeacherId(teacherId string) (courseRelations []*models.CourseRelationHTTP, err error) {
+	courseRelationsCore, err := p.CoursesUseCase.GetAccessCourseRelationsByTeacherId(teacherId)
 	if err != nil {
 		return
 	}
@@ -148,8 +148,8 @@ func (p *CourseDelegateImpl) GetCourseRelationsByTeacherId(teacherId string) (co
 	return
 }
 
-func (p *CourseDelegateImpl) GetCourseRelationsByUnitAdminId(unitAdminId string) (courseRelations []*models.CourseRelationHTTP, err error) {
-	courseRelationsCore, err := p.CoursesUseCase.GetCourseRelationsByUnitAdminId(unitAdminId)
+func (p *CourseDelegateImpl) GetAccessCourseRelationsByUnitAdminId(unitAdminId string) (courseRelations []*models.CourseRelationHTTP, err error) {
+	courseRelationsCore, err := p.CoursesUseCase.GetAccessCourseRelationsByUnitAdminId(unitAdminId)
 	if err != nil {
 		return
 	}
@@ -161,8 +161,8 @@ func (p *CourseDelegateImpl) GetCourseRelationsByUnitAdminId(unitAdminId string)
 	return
 }
 
-func (p *CourseDelegateImpl) GetCourseRelationsUnits() (courseRelations []*models.CourseRelationHTTP, err error) {
-	courseRelationsCore, err := p.CoursesUseCase.GetCourseRelationsUnits()
+func (p *CourseDelegateImpl) GetAccessCourseRelationsRobboUnits() (courseRelations []*models.CourseRelationHTTP, err error) {
+	courseRelationsCore, err := p.CoursesUseCase.GetAccessCourseRelationsRobboUnits()
 	if err != nil {
 		return
 	}
@@ -174,8 +174,8 @@ func (p *CourseDelegateImpl) GetCourseRelationsUnits() (courseRelations []*model
 	return
 }
 
-func (p *CourseDelegateImpl) GetCourseRelationsGroups() (courseRelations []*models.CourseRelationHTTP, err error) {
-	courseRelationsCore, err := p.CoursesUseCase.GetCourseRelationsGroups()
+func (p *CourseDelegateImpl) GetAccessCourseRelationsRobboGroups() (courseRelations []*models.CourseRelationHTTP, err error) {
+	courseRelationsCore, err := p.CoursesUseCase.GetAccessCourseRelationsRobboGroups()
 	if err != nil {
 		return
 	}
@@ -187,8 +187,8 @@ func (p *CourseDelegateImpl) GetCourseRelationsGroups() (courseRelations []*mode
 	return
 }
 
-func (p *CourseDelegateImpl) GetCourseRelationsStudents() (courseRelations []*models.CourseRelationHTTP, err error) {
-	courseRelationsCore, err := p.CoursesUseCase.GetCourseRelationsStudents()
+func (p *CourseDelegateImpl) GetAccessCourseRelationsStudents() (courseRelations []*models.CourseRelationHTTP, err error) {
+	courseRelationsCore, err := p.CoursesUseCase.GetAccessCourseRelationsStudents()
 	if err != nil {
 		return
 	}
@@ -200,8 +200,8 @@ func (p *CourseDelegateImpl) GetCourseRelationsStudents() (courseRelations []*mo
 	return
 }
 
-func (p *CourseDelegateImpl) GetCourseRelationsTeachers() (courseRelations []*models.CourseRelationHTTP, err error) {
-	courseRelationsCore, err := p.CoursesUseCase.GetCourseRelationsTeachers()
+func (p *CourseDelegateImpl) GetAccessCourseRelationsTeachers() (courseRelations []*models.CourseRelationHTTP, err error) {
+	courseRelationsCore, err := p.CoursesUseCase.GetAccessCourseRelationsTeachers()
 	if err != nil {
 		return
 	}
@@ -213,8 +213,8 @@ func (p *CourseDelegateImpl) GetCourseRelationsTeachers() (courseRelations []*mo
 	return
 }
 
-func (p *CourseDelegateImpl) GetCourseRelationsUnitAdmins() (courseRelations []*models.CourseRelationHTTP, err error) {
-	courseRelationsCore, err := p.CoursesUseCase.GetCourseRelationsUnitAdmins()
+func (p *CourseDelegateImpl) GetAccessCourseRelationsUnitAdmins() (courseRelations []*models.CourseRelationHTTP, err error) {
+	courseRelationsCore, err := p.CoursesUseCase.GetAccessCourseRelationsUnitAdmins()
 	if err != nil {
 		return
 	}

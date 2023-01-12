@@ -249,27 +249,27 @@ type MediaHTTP struct {
 	URI string `json:"uri"`
 }
 
-type NewCourseRelationGroup struct {
+type NewAccessCourseRelationRobboGroup struct {
 	CourseID     string `json:"courseId"`
 	RobboGroupID string `json:"robboGroupId"`
 }
 
-type NewCourseRelationStudent struct {
-	CourseID  string `json:"courseId"`
-	StudentID string `json:"studentId"`
-}
-
-type NewCourseRelationTeacher struct {
-	CourseID  string `json:"courseId"`
-	TeacherID string `json:"teacherId"`
-}
-
-type NewCourseRelationUnit struct {
+type NewAccessCourseRelationRobboUnit struct {
 	CourseID    string `json:"courseId"`
 	RobboUnitID string `json:"robboUnitId"`
 }
 
-type NewCourseRelationUnitAdmin struct {
+type NewAccessCourseRelationStudent struct {
+	CourseID  string `json:"courseId"`
+	StudentID string `json:"studentId"`
+}
+
+type NewAccessCourseRelationTeacher struct {
+	CourseID  string `json:"courseId"`
+	TeacherID string `json:"teacherId"`
+}
+
+type NewAccessCourseRelationUnitAdmin struct {
 	CourseID    string `json:"courseId"`
 	UnitAdminID string `json:"unitAdminId"`
 }

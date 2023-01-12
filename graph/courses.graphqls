@@ -72,27 +72,27 @@ type CoursesListHttp {
     pagination: Pagination!
 }
 
-input NewCourseRelationGroup {
+input NewAccessCourseRelationRobboGroup {
     courseId: String!
     robboGroupId: String!
 }
 
-input NewCourseRelationUnit {
+input NewAccessCourseRelationRobboUnit {
     courseId: String!
     robboUnitId: String!
 }
 
-input NewCourseRelationStudent {
+input NewAccessCourseRelationStudent {
     courseId: String!
     studentId: String!
 }
 
-input NewCourseRelationTeacher {
+input NewAccessCourseRelationTeacher {
     courseId: String!
     teacherId: String!
 }
 
-input NewCourseRelationUnitAdmin {
+input NewAccessCourseRelationUnitAdmin {
     courseId: String!
     unitAdminId: String!
 }
@@ -120,26 +120,26 @@ union CoursesResult = CoursesListHttp | Error
 union EnrollmentsResult = EnrollmentsListHttp | Error
 
 extend type Mutation {
-    CreateCourseRelationGroup(input: NewCourseRelationGroup!): CourseRelationResult!
-    CreateCourseRelationUnit(input: NewCourseRelationUnit!): CourseRelationResult!
-    CreateCourseRelationStudent(input: NewCourseRelationStudent!): CourseRelationResult!
-    CreateCourseRelationTeacher(input: NewCourseRelationTeacher!): CourseRelationResult!
-    CreateCourseRelationUnitAdmin(input: NewCourseRelationUnitAdmin!): CourseRelationResult!
-    DeleteCourseRelationById(courseRelationId: String!): DeletedCourseRelation!
+    CreateAccessCourseRelationRobboGroup(input: NewAccessCourseRelationRobboGroup!): CourseRelationResult!
+    CreateAccessCourseRelationRobboUnit(input: NewAccessCourseRelationRobboUnit!): CourseRelationResult!
+    CreateAccessCourseRelationStudent(input: NewAccessCourseRelationStudent!): CourseRelationResult!
+    CreateAccessCourseRelationTeacher(input: NewAccessCourseRelationTeacher!): CourseRelationResult!
+    CreateAccessCourseRelationUnitAdmin(input: NewAccessCourseRelationUnitAdmin!): CourseRelationResult!
+    DeleteAccessCourseRelationById(courseRelationId: String!): DeletedCourseRelation!
 }
 
 extend type Query {
-    GetCourseRelationsByCourseId(courseId: String!): CourseRelationsResult!
-    GetCourseRelationsByRobboUnitId(robboUnitId: String!): CourseRelationsResult!
-    GetCourseRelationsByRobboGroupId(robboGroupId: String!): CourseRelationsResult!
-    GetCourseRelationsByStudentId(studentId: String!): CourseRelationsResult!
-    GetCourseRelationsByTeacherId(teacherId: String!): CourseRelationsResult!
-    GetCourseRelationsByUnitAdminId(unitAdminId: String!): CourseRelationsResult!
-    GetCourseRelationsUnits: CourseRelationsResult!
-    GetCourseRelationsGroups: CourseRelationsResult!
-    GetCourseRelationsStudents: CourseRelationsResult!
-    GetCourseRelationsTeachers: CourseRelationsResult!
-    GetCourseRelationsUnitAdmins: CourseRelationsResult!
+    GetAccessCourseRelationsByCourseId(courseId: String!): CourseRelationsResult!
+    GetAccessCourseRelationsByRobboUnitId(robboUnitId: String!): CourseRelationsResult!
+    GetAccessCourseRelationsByRobboGroupId(robboGroupId: String!): CourseRelationsResult!
+    GetAccessCourseRelationsByStudentId(studentId: String!): CourseRelationsResult!
+    GetAccessCourseRelationsByTeacherId(teacherId: String!): CourseRelationsResult!
+    GetAccessCourseRelationsByUnitAdminId(unitAdminId: String!): CourseRelationsResult!
+    GetAccessCourseRelationsRobboUnits: CourseRelationsResult!
+    GetAccessCourseRelationsRobboGroups: CourseRelationsResult!
+    GetAccessCourseRelationsStudents: CourseRelationsResult!
+    GetAccessCourseRelationsTeachers: CourseRelationsResult!
+    GetAccessCourseRelationsUnitAdmins: CourseRelationsResult!
     GetCourseContent(courseId: String!): CourseResult!
     GetCoursesByUser: CoursesResult!
     GetAllPublicCourses(pageNumber: String!): CoursesResult!

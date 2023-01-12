@@ -341,8 +341,8 @@ type MutationResolver interface {
 	CreateUnitAdmin(ctx context.Context, input models.NewUnitAdmin) (models.UnitAdminResult, error)
 	UpdateUnitAdmin(ctx context.Context, input models.UpdateProfileInput) (models.UnitAdminResult, error)
 	DeleteUnitAdmin(ctx context.Context, unitAdminID string) (*models.DeletedUnitAdmin, error)
-	SetNewUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (string, error)
-	DeleteUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (string, error)
+	SetNewUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (*models.Error, error)
+	DeleteUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (*models.Error, error)
 	UpdateSuperAdmin(ctx context.Context, input models.UpdateProfileInput) (models.SuperAdminResult, error)
 	CreateProjectPage(ctx context.Context) (models.ProjectPageResult, error)
 	UpdateProjectPage(ctx context.Context, input models.UpdateProjectPage) (models.ProjectPageResult, error)
@@ -2343,8 +2343,8 @@ type Mutation {
     CreateUnitAdmin(input: NewUnitAdmin!): UnitAdminResult!
     UpdateUnitAdmin(input: UpdateProfileInput!): UnitAdminResult!
     DeleteUnitAdmin(unitAdminId: String!): DeletedUnitAdmin!
-    SetNewUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
-    DeleteUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
+    SetNewUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): Error!
+    DeleteUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): Error!
     UpdateSuperAdmin(input: UpdateProfileInput!): SuperAdminResult!
 }
 
@@ -6709,9 +6709,9 @@ func (ec *executionContext) _Mutation_SetNewUnitAdminForRobboUnit(ctx context.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*models.Error)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNError2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐError(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_SetNewUnitAdminForRobboUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6721,7 +6721,13 @@ func (ec *executionContext) fieldContext_Mutation_SetNewUnitAdminForRobboUnit(ct
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "code":
+				return ec.fieldContext_Error_code(ctx, field)
+			case "message":
+				return ec.fieldContext_Error_message(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Error", field.Name)
 		},
 	}
 	defer func() {
@@ -6764,9 +6770,9 @@ func (ec *executionContext) _Mutation_DeleteUnitAdminForRobboUnit(ctx context.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*models.Error)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNError2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐError(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_DeleteUnitAdminForRobboUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6776,7 +6782,13 @@ func (ec *executionContext) fieldContext_Mutation_DeleteUnitAdminForRobboUnit(ct
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "code":
+				return ec.fieldContext_Error_code(ctx, field)
+			case "message":
+				return ec.fieldContext_Error_message(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Error", field.Name)
 		},
 	}
 	defer func() {

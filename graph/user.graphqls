@@ -150,8 +150,8 @@ type Mutation {
     CreateUnitAdmin(input: NewUnitAdmin!): UnitAdminResult!
     UpdateUnitAdmin(input: UpdateProfileInput!): UnitAdminResult!
     DeleteUnitAdmin(unitAdminId: String!): DeletedUnitAdmin!
-    SetNewUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
-    DeleteUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
+    SetNewUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): Error!
+    DeleteUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): Error!
     UpdateSuperAdmin(input: UpdateProfileInput!): SuperAdminResult!
 }
 

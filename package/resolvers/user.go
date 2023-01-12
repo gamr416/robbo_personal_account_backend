@@ -113,12 +113,7 @@ func (r *mutationResolver) DeleteStudent(ctx context.Context, studentID string) 
 }
 
 // SetRobboGroupIDForStudent is the resolver for the setRobboGroupIdForStudent field.
-func (r *mutationResolver) SetRobboGroupIDForStudent(
-	ctx context.Context,
-	studentID string,
-	robboGroupID string,
-	robboUnitID string,
-) (*models.Error, error) {
+func (r *mutationResolver) SetRobboGroupIDForStudent(ctx context.Context, studentID string, robboGroupID string, robboUnitID string) (*models.Error, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -470,55 +465,54 @@ func (r *mutationResolver) DeleteUnitAdmin(ctx context.Context, unitAdminID stri
 }
 
 // SetNewUnitAdminForRobboUnit is the resolver for the setNewUnitAdminForRobboUnit field.
-func (r *mutationResolver) SetNewUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (string, error) {
+func (r *mutationResolver) SetNewUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (*models.Error, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return "", err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
 		err := errors.New("status unauthorized")
-		return "", err
+		return &models.Error{Message: "status unauthorized"}, err
 	}
 	allowedRoles := []models.Role{models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")
-		return "", err
+		return &models.Error{Message: "no access"}, err
 	}
 	setNewUnitAdminForRobboUnitErr := r.usersDelegate.SetNewUnitAdminForRobboUnit(unitAdminID, robboUnitID)
 	if setNewUnitAdminForRobboUnitErr != nil {
 		err := errors.New("baq request")
-		return "", err
+		return &models.Error{Message: "baq request"}, err
 	}
-	return "", nil
+	return &models.Error{Message: ""}, nil
 }
 
 // DeleteUnitAdminForRobboUnit is the resolver for the DeleteUnitAdminForRobboUnit field.
-func (r *mutationResolver) DeleteUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (string, error) {
+func (r *mutationResolver) DeleteUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (*models.Error, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return "", err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
 		err := errors.New("status unauthorized")
-		return "", err
+		return &models.Error{Message: "status unauthorized"}, err
 	}
 	allowedRoles := []models.Role{models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")
-		return "", err
+		return &models.Error{Message: "no access"}, err
 	}
 	deleteUnitAdminForRobboUnitErr := r.usersDelegate.DeleteUnitAdminForRobboUnit(unitAdminID, robboUnitID)
 	if deleteUnitAdminForRobboUnitErr != nil {
-		err := errors.New("baq request")
-		return "", err
+		return &models.Error{Message: deleteUnitAdminForRobboUnitErr.Error()}, deleteUnitAdminForRobboUnitErr
 	}
-	return "", nil
+	return &models.Error{}, nil
 }
 
 // UpdateSuperAdmin is the resolver for the updateSuperAdmin field.

@@ -10,10 +10,10 @@ docker:
   ]
 
 server:
-  address: "localhost:8000"
+  address: "localhost:8001"
 
 graphqlServer:
-  port: "8080"
+  port: "8081"
 
 auth:
   hash_salt: "hash_salt"

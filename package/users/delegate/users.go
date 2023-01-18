@@ -318,6 +318,21 @@ func (p *UsersDelegateImpl) DeleteTeacher(teacherId string) (err error) {
 	return p.UseCase.DeleteTeacher(teacherId)
 }
 
+func (p *UsersDelegateImpl) SearchTeacherByEmail(email string) (teachers []*models.TeacherHTTP, err error) {
+	teachersCore, err := p.UseCase.SearchTeacherByEmail(email)
+	if err != nil {
+		return
+	}
+	for _, teacherCore := range teachersCore {
+		teacherTemp := models.TeacherHTTP{
+			UserHTTP: &models.UserHTTP{},
+		}
+		teacherTemp.FromCore(&teacherCore)
+		teachers = append(teachers, &teacherTemp)
+	}
+	return
+}
+
 func (p *UsersDelegateImpl) GetParentById(parentId string) (parent *models.ParentHTTP, err error) {
 	parentCore, err := p.UseCase.GetParentById(parentId)
 	if err != nil {

@@ -9,7 +9,6 @@ type UseCase interface {
 	GetStudentsByRobboGroupId(robboGroupId string) (students []*models.StudentCore, err error)
 	GetStudentsByRobboUnitId(robboUnitId string) (students []*models.StudentCore, err error)
 	GetStudentsByTeacherId(teacherId string) (students []*models.StudentCore, err error)
-	//GetStudent(email, password string) (student *models.StudentCore, err error)
 	SearchStudentByEmail(email string, parentId string) (students []*models.StudentCore, err error)
 	CreateStudent(student *models.StudentCore, parentId string) (newStudent *models.StudentCore, err error)
 	DeleteStudent(studentId string) (err error)
@@ -18,7 +17,6 @@ type UseCase interface {
 
 	GetPairsStudentParentsByTeacherId(teacherId string) (pairsStudentParents []*models.StudentParentsCore, err error)
 
-	//GetTeacher(email, password string) (teacher *models.TeacherCore, err error)
 	GetTeacherById(teacherId string) (teacher models.TeacherCore, err error)
 	GetAllTeachers(page, pageSize int) (teachers []models.TeacherCore, countRows int64, err error)
 	CreateTeacher(teacher *models.TeacherCore) (newTeacher models.TeacherCore, err error)
@@ -26,6 +24,7 @@ type UseCase interface {
 	DeleteTeacher(teacherId string) (err error)
 	GetTeacherByRobboGroupId(robboGroupId string) (teachers []*models.TeacherCore, err error)
 	GetTeachersByStudentId(studentId string) (teachers []*models.TeacherCore, err error)
+	SearchTeacherByEmail(email string) (teachers []models.TeacherCore, err error)
 
 	GetParentById(parentId string) (parent *models.ParentCore, err error)
 	GetAllParent(page, pageSize int) (parents []*models.ParentCore, countRows int64, err error)

@@ -828,6 +828,34 @@ func (r *queryResolver) GetTeachersByRobboGroupID(ctx context.Context, robboGrou
 	}, nil
 }
 
+// SearchTeachersByEmail is the resolver for the SearchTeachersByEmail field.
+func (r *queryResolver) SearchTeachersByEmail(ctx context.Context, email string) (models.TeachersResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	teachers, searchTeachersByEmailErr := r.usersDelegate.SearchTeacherByEmail(email)
+	if searchTeachersByEmailErr != nil {
+		err := searchTeachersByEmailErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.TeacherHTTPList{
+		Teachers: teachers,
+	}, nil
+}
+
 // GetAllParents is the resolver for the GetAllParents field.
 func (r *queryResolver) GetAllParents(ctx context.Context, page string, pageSize string) (models.ParentsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)

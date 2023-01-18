@@ -31,7 +31,6 @@ func InvokeWith(options ...fx.Option) *fx.App {
 
 func RunApp() {
 	InvokeWith(
-		//fx.Invoke(server.NewHttpServer),
 		fx.Invoke(server.NewServer),
 	).Run()
 }

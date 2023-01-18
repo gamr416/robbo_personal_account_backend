@@ -533,18 +533,24 @@ func (r *queryResolver) GetCoursesByUser(ctx context.Context) (models.CoursesRes
 		err := errors.New("internal server error")
 		return &models.Error{Message: "internal server error"}, err
 	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	userId, role, identityErr := r.authDelegate.UserIdentity(ginContext)
 	if identityErr != nil {
 		err := identityErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	allowedRoles := []models.Role{models.Student, models.Parent, models.FreeListener, models.Teacher, models.UnitAdmin, models.SuperAdmin}
+	allowedRoles := []models.Role{models.Student,
+		models.Parent,
+		models.FreeListener,
+		models.Teacher,
+		models.UnitAdmin,
+		models.SuperAdmin,
+	}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	courses, getCoursesByUserErr := r.coursesDelegate.GetCoursesByUser()
+	courses, getCoursesByUserErr := r.coursesDelegate.GetCoursesByUser(userId, role)
 	if getCoursesByUserErr != nil {
 		err := getCoursesByUserErr
 		return &models.Error{Message: err.Error()}, err

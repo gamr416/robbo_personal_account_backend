@@ -9,4 +9,5 @@ type Delegate interface {
 	GetAllRobboUnit(page, pageSize string) (robboUnits []*models.RobboUnitHTTP, countRows int, err error)
 	GetRobboUnitById(robboUnitId string) (robboUnit models.RobboUnitHTTP, err error)
 	GetRobboUnitsByUnitAdminId(unitAdminId, page, pageSize string) (robboUnits []*models.RobboUnitHTTP, countRows int, err error)
+	SearchRobboUnitsByName(name string) (robboUnits []*models.RobboUnitHTTP, err error)
 }

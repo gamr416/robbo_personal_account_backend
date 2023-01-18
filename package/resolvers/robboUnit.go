@@ -6,7 +6,6 @@ package resolvers
 import (
 	"context"
 	"errors"
-
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 )
 
@@ -213,5 +212,33 @@ func (r *queryResolver) GetRobboUnitsByAccessToken(ctx context.Context, page str
 	return &models.RobboUnitHTTPList{
 		RobboUnits: robboUnits,
 		CountRows:  countRows,
+	}, nil
+}
+
+// SearchRobboUnitsByName is the resolver for the SearchRobboUnitsByName field.
+func (r *queryResolver) SearchRobboUnitsByName(ctx context.Context, name string) (models.RobboUnitsResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	allowedRoles := []models.Role{models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	robboUnits, searchTeachersByEmailErr := r.robboUnitsDelegate.SearchRobboUnitsByName(name)
+	if searchTeachersByEmailErr != nil {
+		err := searchTeachersByEmailErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.RobboUnitHTTPList{
+		RobboUnits: robboUnits,
 	}, nil
 }

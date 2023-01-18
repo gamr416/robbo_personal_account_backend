@@ -9,4 +9,5 @@ type UseCase interface {
 	GetAllRobboUnit(page, pageSize int) (robboUnits []*models.RobboUnitCore, countRows int64, err error)
 	GetRobboUnitById(robboUnitId string) (robboUnit *models.RobboUnitCore, err error)
 	GetRobboUnitsByUnitAdminId(unitAdminId string, page, pageSize int) (robboUnits []*models.RobboUnitCore, countRows int64, err error)
+	SearchRobboUnitsByName(name string) (robboUnits []*models.RobboUnitCore, err error)
 }

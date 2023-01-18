@@ -20,8 +20,8 @@ type CourseRelationDB struct {
 
 	Parameter string
 	CourseId  string
-	Course    CourseDB `gorm:"foreignKey:CourseId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	ObjectId  string
+	//Course    CourseDB `gorm:"foreignKey:CourseId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	ObjectId string
 }
 
 func (em *CourseRelationDB) ToCore() *CourseRelationCore {

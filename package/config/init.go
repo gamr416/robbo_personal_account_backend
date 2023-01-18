@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"github.com/spf13/viper"
 )
 
@@ -15,10 +14,10 @@ func Init() error {
 }
 
 func InitForTests() error {
-	viper.SetConfigName("config")
+	viper.SetConfigName("config-test")
 	viper.SetConfigType("yml")
-	viper.AddConfigPath("../../../package/config/")
-	fmt.Println()
+	viper.AddConfigPath("./package/config")
+
 	err := viper.ReadInConfig()
 	return err
 }

@@ -1,0 +1,10 @@
+postgres:
+  postgresDsn: "host=localhost port=5433 user=robbo password=robbo_pwd dbname=robbo_test_db"
+
+docker:
+  containerName: "test_robbo_student_personal_account"
+  environment: [
+    "POSTGRES_DB=robbo_test_db",
+    "POSTGRES_USER=robbo",
+    "POSTGRES_PASSWORD=robbo_pwd"
+  ]

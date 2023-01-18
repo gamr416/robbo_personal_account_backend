@@ -1,6 +1,7 @@
 package db_client
 
 import (
+	"github.com/ory/dockertest/v3"
 	"log"
 	"os"
 	"time"
@@ -36,6 +37,39 @@ func NewPostgresClient(_logger *log.Logger) (postgresClient PostgresClient, err 
 		logger: _logger,
 	}
 	err = postgresClient.Migrate()
+	return
+}
+
+func NewTestPostgresClient(_logger *log.Logger, testDockerClient dockertest.Pool) (testPostgresClient PostgresClient, err error) {
+	newLogger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags),
+		logger.Config{
+			SlowThreshold:             time.Second, // Slow SQL threshold
+			LogLevel:                  logger.Info, // Log level
+			IgnoreRecordNotFoundError: false,       // Ignore ErrRecordNotFound error for logger
+			Colorful:                  true,        // Disable color
+		},
+	)
+	var gdb *gorm.DB
+	if err = testDockerClient.Retry(func() error {
+		gdb, err = gorm.Open(postgres.Open(viper.GetString("postgres.postgresDsn")), &gorm.Config{Logger: newLogger})
+		if err != nil {
+			log.Println("Test database not ready yet (it is booting up, wait for a few tries)...")
+			return err
+		}
+		db, sqlErr := gdb.DB()
+		if sqlErr != nil {
+			return sqlErr
+		}
+		return db.Ping()
+	}); err != nil {
+		log.Fatalf("Could not connect to docker: %s", err)
+	}
+	testPostgresClient = PostgresClient{
+		Db:     gdb,
+		logger: _logger,
+	}
+	err = testPostgresClient.Migrate()
 	return
 }
 

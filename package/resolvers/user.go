@@ -6,7 +6,6 @@ package resolvers
 import (
 	"context"
 	"errors"
-
 	"github.com/skinnykaen/robbo_student_personal_account.git/graph/generated"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 )
@@ -275,6 +274,56 @@ func (r *mutationResolver) CreateParent(ctx context.Context, input models.NewPar
 		return &models.Error{Message: err.Error()}, err
 	}
 	return newParent, nil
+}
+
+// SetTeacherForRobboGroup is the resolver for the SetTeacherForRobboGroup field.
+func (r *mutationResolver) SetTeacherForRobboGroup(ctx context.Context, teacherID string, robboGroupID string) (models.TeachersResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := errors.New("status unauthorized")
+		return &models.Error{Message: "status unauthorized"}, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return &models.Error{Message: "no access"}, err
+	}
+	err := r.robboGroupDelegate.SetTeacherForRobboGroup(teacherID, robboGroupID)
+	if err != nil {
+		return &models.Error{Message: "baq request"}, err
+	}
+	return &models.TeacherHTTPList{}, nil
+}
+
+// DeleteTeacherForRobboGroup is the resolver for the DeleteTeacherForRobboGroup field.
+func (r *mutationResolver) DeleteTeacherForRobboGroup(ctx context.Context, teacherID string, robboGroupID string) (models.TeachersResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := errors.New("status unauthorized")
+		return &models.Error{Message: "status unauthorized"}, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return &models.Error{Message: "no access"}, err
+	}
+	err := r.robboGroupDelegate.DeleteTeacherForRobboGroup(teacherID, robboGroupID)
+	if err != nil {
+		return &models.Error{Message: "baq request"}, err
+	}
+	return &models.TeacherHTTPList{}, nil
 }
 
 // AddChildToParent is the resolver for the addChildToParent field.

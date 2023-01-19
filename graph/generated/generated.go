@@ -182,10 +182,12 @@ type ComplexityRoot struct {
 		DeleteRobboUnit                      func(childComplexity int, robboUnitID string) int
 		DeleteStudent                        func(childComplexity int, studentID string) int
 		DeleteTeacher                        func(childComplexity int, teacherID string) int
+		DeleteTeacherForRobboGroup           func(childComplexity int, teacherID string, robboGroupID string) int
 		DeleteUnitAdmin                      func(childComplexity int, unitAdminID string) int
 		DeleteUnitAdminForRobboUnit          func(childComplexity int, unitAdminID string, robboUnitID string) int
 		SetNewUnitAdminForRobboUnit          func(childComplexity int, unitAdminID string, robboUnitID string) int
 		SetRobboGroupIDForStudent            func(childComplexity int, studentID string, robboGroupID string, robboUnitID string) int
+		SetTeacherForRobboGroup              func(childComplexity int, teacherID string, robboGroupID string) int
 		UpdateParent                         func(childComplexity int, input models.UpdateProfileInput) int
 		UpdateProjectPage                    func(childComplexity int, input models.UpdateProjectPage) int
 		UpdateRobboGroup                     func(childComplexity int, input models.UpdateRobboGroup) int
@@ -370,6 +372,8 @@ type MutationResolver interface {
 	UpdateTeacher(ctx context.Context, input models.UpdateProfileInput) (models.TeacherResult, error)
 	DeleteTeacher(ctx context.Context, teacherID string) (*models.DeletedTeacher, error)
 	CreateParent(ctx context.Context, input models.NewParent) (models.ParentResult, error)
+	SetTeacherForRobboGroup(ctx context.Context, teacherID string, robboGroupID string) (models.TeachersResult, error)
+	DeleteTeacherForRobboGroup(ctx context.Context, teacherID string, robboGroupID string) (models.TeachersResult, error)
 	AddChildToParent(ctx context.Context, parentID string, childID string) (models.StudentsResult, error)
 	UpdateParent(ctx context.Context, input models.UpdateProfileInput) (models.ParentResult, error)
 	DeleteParent(ctx context.Context, parentID string) (*models.DeletedParent, error)
@@ -1117,6 +1121,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteTeacher(childComplexity, args["teacherId"].(string)), true
 
+	case "Mutation.DeleteTeacherForRobboGroup":
+		if e.complexity.Mutation.DeleteTeacherForRobboGroup == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_DeleteTeacherForRobboGroup_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteTeacherForRobboGroup(childComplexity, args["teacherId"].(string), args["robboGroupId"].(string)), true
+
 	case "Mutation.DeleteUnitAdmin":
 		if e.complexity.Mutation.DeleteUnitAdmin == nil {
 			break
@@ -1164,6 +1180,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SetRobboGroupIDForStudent(childComplexity, args["studentId"].(string), args["robboGroupId"].(string), args["robboUnitId"].(string)), true
+
+	case "Mutation.SetTeacherForRobboGroup":
+		if e.complexity.Mutation.SetTeacherForRobboGroup == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_SetTeacherForRobboGroup_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SetTeacherForRobboGroup(childComplexity, args["teacherId"].(string), args["robboGroupId"].(string)), true
 
 	case "Mutation.UpdateParent":
 		if e.complexity.Mutation.UpdateParent == nil {
@@ -2712,6 +2740,8 @@ type Mutation {
     UpdateTeacher(input: UpdateProfileInput!): TeacherResult!
     DeleteTeacher(teacherId: String!): DeletedTeacher!
     CreateParent(input: NewParent!): ParentResult!
+    SetTeacherForRobboGroup(teacherId: String!, robboGroupId: String!): TeachersResult!
+    DeleteTeacherForRobboGroup(teacherId: String!, robboGroupId: String!): TeachersResult!
     AddChildToParent(parentId: String!, childId: String!): StudentsResult!
     UpdateParent(input: UpdateProfileInput!): ParentResult!
     DeleteParent(parentId: String!): DeletedParent!
@@ -3032,6 +3062,30 @@ func (ec *executionContext) field_Mutation_DeleteStudent_args(ctx context.Contex
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_DeleteTeacherForRobboGroup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["teacherId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teacherId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["teacherId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["robboGroupId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboGroupId"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["robboGroupId"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_DeleteTeacher_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3140,6 +3194,30 @@ func (ec *executionContext) field_Mutation_SetRobboGroupIdForStudent_args(ctx co
 		}
 	}
 	args["robboUnitId"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_SetTeacherForRobboGroup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["teacherId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teacherId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["teacherId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["robboGroupId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboGroupId"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["robboGroupId"] = arg1
 	return args, nil
 }
 
@@ -7245,6 +7323,116 @@ func (ec *executionContext) fieldContext_Mutation_CreateParent(ctx context.Conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_CreateParent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_SetTeacherForRobboGroup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_SetTeacherForRobboGroup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SetTeacherForRobboGroup(rctx, fc.Args["teacherId"].(string), fc.Args["robboGroupId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.TeachersResult)
+	fc.Result = res
+	return ec.marshalNTeachersResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐTeachersResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_SetTeacherForRobboGroup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TeachersResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_SetTeacherForRobboGroup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_DeleteTeacherForRobboGroup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_DeleteTeacherForRobboGroup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteTeacherForRobboGroup(rctx, fc.Args["teacherId"].(string), fc.Args["robboGroupId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.TeachersResult)
+	fc.Result = res
+	return ec.marshalNTeachersResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐTeachersResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_DeleteTeacherForRobboGroup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TeachersResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_DeleteTeacherForRobboGroup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -17840,6 +18028,24 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_CreateParent(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "SetTeacherForRobboGroup":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_SetTeacherForRobboGroup(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "DeleteTeacherForRobboGroup":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_DeleteTeacherForRobboGroup(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {

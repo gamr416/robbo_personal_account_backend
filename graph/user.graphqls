@@ -144,6 +144,8 @@ type Mutation {
     UpdateTeacher(input: UpdateProfileInput!): TeacherResult!
     DeleteTeacher(teacherId: String!): DeletedTeacher!
     CreateParent(input: NewParent!): ParentResult!
+    SetTeacherForRobboGroup(teacherId: String!, robboGroupId: String!): TeachersResult!
+    DeleteTeacherForRobboGroup(teacherId: String!, robboGroupId: String!): TeachersResult!
     AddChildToParent(parentId: String!, childId: String!): StudentsResult!
     UpdateParent(input: UpdateProfileInput!): ParentResult!
     DeleteParent(parentId: String!): DeletedParent!

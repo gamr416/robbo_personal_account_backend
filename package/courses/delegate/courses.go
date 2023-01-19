@@ -16,6 +16,101 @@ type CourseDelegateImpl struct {
 	EdxUseCase     edx.UseCase
 }
 
+func (p *CourseDelegateImpl) GetUnitAdminsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (
+	unitAdmins []*models.UnitAdminHTTP,
+	err error,
+) {
+	unitAdminsCore, getUnitAdminsErr := p.CoursesUseCase.GetUnitAdminsAdmittedToTheCourse(courseId, page, pageSize)
+	if getUnitAdminsErr != nil {
+		err = getUnitAdminsErr
+		return
+	}
+	for _, unitAdminCore := range unitAdminsCore {
+		unitAdminTemp := models.UnitAdminHTTP{
+			UserHTTP: &models.UserHTTP{},
+		}
+		unitAdminTemp.FromCore(unitAdminCore)
+		unitAdmins = append(unitAdmins, &unitAdminTemp)
+	}
+
+	return
+}
+
+func (p *CourseDelegateImpl) GetTeachersAdmittedToTheCourse(courseId string, page *string, pageSize *string) (teachers []*models.TeacherHTTP, err error) {
+	teachersCore, getTeachersErr := p.CoursesUseCase.GetTeachersAdmittedToTheCourse(courseId, page, pageSize)
+	if getTeachersErr != nil {
+		err = getTeachersErr
+		return
+	}
+	for _, teacherCore := range teachersCore {
+		teacherTemp := models.TeacherHTTP{
+			UserHTTP: &models.UserHTTP{},
+		}
+		teacherTemp.FromCore(teacherCore)
+		teachers = append(teachers, &teacherTemp)
+	}
+
+	return
+}
+
+func (p *CourseDelegateImpl) GetRobboUnitsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (
+	robboUnits []*models.RobboUnitHTTP,
+	err error,
+) {
+	robboUnitsCore, getRobboUnitsErr := p.CoursesUseCase.GetRobboUnitsAdmittedToTheCourse(courseId, page, pageSize)
+	if getRobboUnitsErr != nil {
+		err = getRobboUnitsErr
+		return
+	}
+	for _, robboUnitCore := range robboUnitsCore {
+		robboUnitTemp := models.RobboUnitHTTP{}
+		robboUnitTemp.FromCore(robboUnitCore)
+		robboUnits = append(robboUnits, &robboUnitTemp)
+	}
+
+	return
+}
+
+func (p *CourseDelegateImpl) GetRobboGroupsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (
+	robboGroups []*models.RobboGroupHTTP,
+	err error,
+) {
+	robboGroupsCore, getRobboGroupsErr := p.CoursesUseCase.GetRobboGroupsAdmittedToTheCourse(courseId, page, pageSize)
+	if getRobboGroupsErr != nil {
+		err = getRobboGroupsErr
+		return
+	}
+	for _, robboGroupCore := range robboGroupsCore {
+		robboGroupTemp := models.RobboGroupHTTP{}
+		robboGroupTemp.FromCore(robboGroupCore)
+		robboGroups = append(robboGroups, &robboGroupTemp)
+	}
+
+	return
+}
+
+func (p *CourseDelegateImpl) GetStudentsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (
+	students []*models.StudentHTTP,
+	err error,
+) {
+	studentsCore, getStudentErr := p.CoursesUseCase.GetStudentsAdmittedToTheCourse(courseId, page, pageSize)
+	if getStudentErr != nil {
+		err = getStudentErr
+		return
+	}
+	for _, studentCore := range studentsCore {
+		studentTemp := models.StudentHTTP{
+			UserHTTP:     &models.UserHTTP{},
+			RobboUnitID:  "",
+			RobboGroupID: "",
+		}
+		studentTemp.FromCore(studentCore)
+		students = append(students, &studentTemp)
+	}
+
+	return
+}
+
 type CourseDelegateModule struct {
 	fx.Out
 	courses.Delegate

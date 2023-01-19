@@ -6,7 +6,6 @@ package resolvers
 import (
 	"context"
 	"errors"
-
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 )
 
@@ -190,6 +189,146 @@ func (r *mutationResolver) DeleteAccessCourseRelationByID(ctx context.Context, c
 		return &models.DeletedCourseRelation{CourseRelationID: ""}, err
 	}
 	return &models.DeletedCourseRelation{CourseRelationID: courseRelationID}, nil
+}
+
+// GetStudentsAdmittedToTheCourse is the resolver for the GetStudentsAdmittedToTheCourse field.
+func (r *queryResolver) GetStudentsAdmittedToTheCourse(ctx context.Context, courseID string, page *string, pageSize *string) (models.StudentsResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	//userId := ginContext.Value("user_id").(string)
+	userRole := ginContext.Value("user_role").(models.Role)
+
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	students, getStudentsAdmittedToTheCourseErr := r.coursesDelegate.GetStudentsAdmittedToTheCourse(courseID, page, pageSize)
+	if getStudentsAdmittedToTheCourseErr != nil {
+		err := getStudentsAdmittedToTheCourseErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.StudentHTTPList{Students: students}, nil
+}
+
+// GetUnitAdminsAdmittedToTheCourse is the resolver for the GetUnitAdminsAdmittedToTheCourse field.
+func (r *queryResolver) GetUnitAdminsAdmittedToTheCourse(
+	ctx context.Context,
+	courseID string,
+	page *string,
+	pageSize *string,
+) (models.UnitAdminsResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	//userId := ginContext.Value("user_id").(string)
+	userRole := ginContext.Value("user_role").(models.Role)
+
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	unitAdmins, getUnitAdminsAdmittedToTheCourseErr := r.coursesDelegate.GetUnitAdminsAdmittedToTheCourse(courseID, page, pageSize)
+	if getUnitAdminsAdmittedToTheCourseErr != nil {
+		err := getUnitAdminsAdmittedToTheCourseErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.UnitAdminHTTPList{UnitAdmins: unitAdmins}, nil
+}
+
+// GetTeachersAdmittedToTheCourse is the resolver for the GetTeachersAdmittedToTheCourse field.
+func (r *queryResolver) GetTeachersAdmittedToTheCourse(
+	ctx context.Context,
+	courseID string,
+	page *string,
+	pageSize *string,
+) (models.TeachersResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	//userId := ginContext.Value("user_id").(string)
+	userRole := ginContext.Value("user_role").(models.Role)
+
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	teachers, getTeachersAdmittedToTheCourseErr := r.coursesDelegate.GetTeachersAdmittedToTheCourse(courseID, page, pageSize)
+	if getTeachersAdmittedToTheCourseErr != nil {
+		err := getTeachersAdmittedToTheCourseErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.TeacherHTTPList{Teachers: teachers}, nil
+}
+
+// GetRobboGroupsAdmittedToTheCourse is the resolver for the GetRobboGroupsAdmittedToTheCourse field.
+func (r *queryResolver) GetRobboGroupsAdmittedToTheCourse(
+	ctx context.Context,
+	courseID string,
+	page *string,
+	pageSize *string,
+) (models.RobboGroupsResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	//userId := ginContext.Value("user_id").(string)
+	userRole := ginContext.Value("user_role").(models.Role)
+
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	robboGroups, getRobboGroupsAdmittedToTheCourseErr := r.coursesDelegate.GetRobboGroupsAdmittedToTheCourse(courseID, page, pageSize)
+	if getRobboGroupsAdmittedToTheCourseErr != nil {
+		err := getRobboGroupsAdmittedToTheCourseErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.RobboGroupHTTPList{RobboGroups: robboGroups}, nil
+}
+
+// GetRobboUnitsAdmittedToTheCourse is the resolver for the GetRobboUnitsAdmittedToTheCourse field.
+func (r *queryResolver) GetRobboUnitsAdmittedToTheCourse(
+	ctx context.Context,
+	courseID string,
+	page *string,
+	pageSize *string,
+) (models.RobboUnitsResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	//userId := ginContext.Value("user_id").(string)
+	userRole := ginContext.Value("user_role").(models.Role)
+
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	robboUnits, getRobboUnitsAdmittedToTheCourseErr := r.coursesDelegate.GetRobboUnitsAdmittedToTheCourse(courseID, page, pageSize)
+	if getRobboUnitsAdmittedToTheCourseErr != nil {
+		err := getRobboUnitsAdmittedToTheCourseErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.RobboUnitHTTPList{RobboUnits: robboUnits}, nil
 }
 
 // GetCourseRelationsByCourseID is the resolver for the GetCourseRelationsByCourseId field.

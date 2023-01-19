@@ -14,6 +14,14 @@ type UseCase interface {
 	GetAccessCourseRelationsByRobboGroupId(robboGroupId string) (courseRelations []*models.CourseRelationCore, err error)
 	GetAccessCourseRelationsByRobboUnitId(robboUnitId string) (courseRelations []*models.CourseRelationCore, err error)
 	GetAccessCourseRelationsByCourseId(courseId string) (courseRelations []*models.CourseRelationCore, err error)
+	GetAccessCourseRelations(courseId string, parameterId string, parameter string) (courseRelations []*models.CourseRelationCore, err error)
+
+	GetStudentsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (students []*models.StudentCore, err error)
+	GetUnitAdminsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (unitAdmins []*models.UnitAdminCore, err error)
+	GetTeachersAdmittedToTheCourse(courseId string, page *string, pageSize *string) (teachers []*models.TeacherCore, err error)
+	GetRobboUnitsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (robboUnits []*models.RobboUnitCore, err error)
+	GetRobboGroupsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (robboGroups []*models.RobboGroupCore, err error)
+
 	DeleteAccessCourseRelationById(courseRelationId string) (id string, err error)
 	DeleteAccessCourseRelationsByStudentId(studentId string) (err error)
 	DeleteAccessCourseRelationsByTeacherId(teacherId string) (err error)

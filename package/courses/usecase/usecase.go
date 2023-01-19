@@ -3,12 +3,127 @@ package usecase
 import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboUnits"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
 	"go.uber.org/fx"
 	"log"
 )
 
 type CourseUseCaseImpl struct {
-	courses.Gateway
+	courseGateway     courses.Gateway
+	robboUnitGateway  robboUnits.Gateway
+	robboGroupGateway robboGroup.Gateway
+	usersGateway      users.Gateway
+}
+
+func (p *CourseUseCaseImpl) GetUnitAdminsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (
+	unitAdmins []*models.UnitAdminCore,
+	err error,
+) {
+	courseAccessRelations, getRelationsErr := p.courseGateway.GetAccessCourseRelations(courseId, "unit_admin")
+	if getRelationsErr != nil {
+		err = getRelationsErr
+		return
+	}
+
+	for _, courseAccessRelation := range courseAccessRelations {
+		unitAdmin, getUnitAdminErr := p.usersGateway.GetUnitAdminById(courseAccessRelation.ObjectId)
+		if getUnitAdminErr != nil {
+			err = getUnitAdminErr
+			return
+		}
+		unitAdmins = append(unitAdmins, unitAdmin)
+	}
+	return
+}
+
+func (p *CourseUseCaseImpl) GetTeachersAdmittedToTheCourse(courseId string, page *string, pageSize *string) (
+	teachers []*models.TeacherCore,
+	err error,
+) {
+	courseAccessRelations, getRelationsErr := p.courseGateway.GetAccessCourseRelations(courseId, "teacher")
+	if getRelationsErr != nil {
+		err = getRelationsErr
+		return
+	}
+
+	for _, courseAccessRelation := range courseAccessRelations {
+		teacher, getTeacherErr := p.usersGateway.GetTeacherById(courseAccessRelation.ObjectId)
+		if getTeacherErr != nil {
+			err = getTeacherErr
+			return
+		}
+		teachers = append(teachers, &teacher)
+	}
+	return
+}
+
+func (p *CourseUseCaseImpl) GetRobboUnitsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (
+	robboUnits []*models.RobboUnitCore,
+	err error,
+) {
+	courseAccessRelations, getRelationsErr := p.courseGateway.GetAccessCourseRelations(courseId, "robbo_unit")
+	if getRelationsErr != nil {
+		err = getRelationsErr
+		return
+	}
+
+	for _, courseAccessRelation := range courseAccessRelations {
+		robboUnit, getRobboUnitErr := p.robboUnitGateway.GetRobboUnitById(courseAccessRelation.ObjectId)
+		if getRobboUnitErr != nil {
+			err = getRobboUnitErr
+			return
+		}
+		robboUnits = append(robboUnits, robboUnit)
+	}
+	return
+}
+
+func (p *CourseUseCaseImpl) GetRobboGroupsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (
+	robboGroups []*models.RobboGroupCore,
+	err error,
+) {
+	courseAccessRelations, getRelationsErr := p.courseGateway.GetAccessCourseRelations(courseId, "unit_admin")
+	if getRelationsErr != nil {
+		err = getRelationsErr
+		return
+	}
+
+	for _, courseAccessRelation := range courseAccessRelations {
+		robboGroup, getRobboGroupErr := p.robboGroupGateway.GetRobboGroupById(courseAccessRelation.ObjectId)
+		if getRobboGroupErr != nil {
+			err = getRobboGroupErr
+			return
+		}
+		robboGroups = append(robboGroups, robboGroup)
+	}
+	return
+}
+
+func (p *CourseUseCaseImpl) GetStudentsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (
+	students []*models.StudentCore, err error,
+) {
+	courseAccessRelations, getRelationsErr := p.courseGateway.GetAccessCourseRelations(courseId, "student")
+	if getRelationsErr != nil {
+		err = getRelationsErr
+		return
+	}
+
+	for _, courseAccessRelation := range courseAccessRelations {
+		student, getStudentErr := p.usersGateway.GetStudentById(courseAccessRelation.ObjectId)
+		if getStudentErr != nil {
+			err = getStudentErr
+			return
+		}
+		students = append(students, student)
+	}
+	return
+}
+
+func (p *CourseUseCaseImpl) GetAccessCourseRelations(courseId string, parameterId string, parameter string) (courseRelations []*models.CourseRelationCore, err error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 type CourseUseCaseModule struct {
@@ -16,109 +131,117 @@ type CourseUseCaseModule struct {
 	courses.UseCase
 }
 
-func SetupCourseUseCase(gateway courses.Gateway) CourseUseCaseModule {
+func SetupCourseUseCase(
+	gateway courses.Gateway,
+	usersGateway users.Gateway,
+	robboUnitGateway robboUnits.Gateway,
+	robboGroupGateway robboGroup.Gateway,
+) CourseUseCaseModule {
 	return CourseUseCaseModule{
 		UseCase: &CourseUseCaseImpl{
-			Gateway: gateway,
+			courseGateway:     gateway,
+			usersGateway:      usersGateway,
+			robboUnitGateway:  robboUnitGateway,
+			robboGroupGateway: robboGroupGateway,
 		},
 	}
 }
 
 func (p *CourseUseCaseImpl) GetAccessCourseRelationsStudents() (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetAccessCourseRelationsStudents()
+	return p.courseGateway.GetAccessCourseRelationsStudents()
 }
 
 func (p *CourseUseCaseImpl) GetAccessCourseRelationsTeachers() (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetAccessCourseRelationsTeachers()
+	return p.courseGateway.GetAccessCourseRelationsTeachers()
 }
 
 func (p *CourseUseCaseImpl) GetAccessCourseRelationsUnitAdmins() (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetAccessCourseRelationsUnitAdmins()
+	return p.courseGateway.GetAccessCourseRelationsUnitAdmins()
 }
 
 func (p *CourseUseCaseImpl) GetAccessCourseRelationsRobboUnits() (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetAccessCourseRelationsRobboUnits()
+	return p.courseGateway.GetAccessCourseRelationsRobboUnits()
 }
 
 func (p *CourseUseCaseImpl) GetAccessCourseRelationsRobboGroups() (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetAccessCourseRelationsRobboGroups()
+	return p.courseGateway.GetAccessCourseRelationsRobboGroups()
 }
 
 func (p *CourseUseCaseImpl) GetAccessCourseRelationsByStudentId(studentId string) (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetAccessCourseRelationsByStudentId(studentId)
+	return p.courseGateway.GetAccessCourseRelationsByStudentId(studentId)
 }
 
 func (p *CourseUseCaseImpl) GetAccessCourseRelationsByTeacherId(teacherId string) (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetAccessCourseRelationsByTeacherId(teacherId)
+	return p.courseGateway.GetAccessCourseRelationsByTeacherId(teacherId)
 }
 
 func (p *CourseUseCaseImpl) GetAccessCourseRelationsByUnitAdminId(unitAdminId string) (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetAccessCourseRelationsByUnitAdminId(unitAdminId)
+	return p.courseGateway.GetAccessCourseRelationsByUnitAdminId(unitAdminId)
 }
 
 func (p *CourseUseCaseImpl) GetAccessCourseRelationsByRobboGroupId(robboGroupId string) (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetAccessCourseRelationsByRobboGroupId(robboGroupId)
+	return p.courseGateway.GetAccessCourseRelationsByRobboGroupId(robboGroupId)
 }
 
 func (p *CourseUseCaseImpl) GetAccessCourseRelationsByRobboUnitId(robboUnitId string) (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetAccessCourseRelationsByRobboUnitId(robboUnitId)
+	return p.courseGateway.GetAccessCourseRelationsByRobboUnitId(robboUnitId)
 }
 
 func (p *CourseUseCaseImpl) GetAccessCourseRelationsByCourseId(courseId string) (courseRelations []*models.CourseRelationCore, err error) {
-	return p.Gateway.GetAccessCourseRelationsByCourseId(courseId)
+	return p.courseGateway.GetAccessCourseRelationsByCourseId(courseId)
 }
 
 func (p *CourseUseCaseImpl) CreateAccessCourseRelationRobboGroup(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error) {
 	courseRelation.Parameter = "robbo_group"
-	return p.Gateway.CreateAccessCourseRelation(courseRelation)
+	return p.courseGateway.CreateAccessCourseRelation(courseRelation)
 }
 
 func (p *CourseUseCaseImpl) CreateAccessCourseRelationRobboUnit(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error) {
 	courseRelation.Parameter = "robbo_unit"
-	return p.Gateway.CreateAccessCourseRelation(courseRelation)
+	return p.courseGateway.CreateAccessCourseRelation(courseRelation)
 }
 
 func (p *CourseUseCaseImpl) CreateAccessCourseRelationStudent(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error) {
 	courseRelation.Parameter = "student"
-	return p.Gateway.CreateAccessCourseRelation(courseRelation)
+	return p.courseGateway.CreateAccessCourseRelation(courseRelation)
 }
 
 func (p *CourseUseCaseImpl) CreateAccessCourseRelationTeacher(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error) {
 	courseRelation.Parameter = "teacher"
-	return p.Gateway.CreateAccessCourseRelation(courseRelation)
+	return p.courseGateway.CreateAccessCourseRelation(courseRelation)
 }
 
 func (p *CourseUseCaseImpl) CreateAccessCourseRelationUnitAdmin(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error) {
 	courseRelation.Parameter = "unit_admin"
-	return p.Gateway.CreateAccessCourseRelation(courseRelation)
+	return p.courseGateway.CreateAccessCourseRelation(courseRelation)
 }
 
 func (p *CourseUseCaseImpl) DeleteAccessCourseRelationById(courseRelationId string) (id string, err error) {
-	return p.Gateway.DeleteAccessCourseRelationById(courseRelationId)
+	return p.courseGateway.DeleteAccessCourseRelationById(courseRelationId)
 }
 
 func (p *CourseUseCaseImpl) DeleteAccessCourseRelationsByStudentId(studentId string) (err error) {
-	return p.Gateway.DeleteAccessCourseRelationsByStudentId(studentId)
+	return p.courseGateway.DeleteAccessCourseRelationsByStudentId(studentId)
 }
 
 func (p *CourseUseCaseImpl) DeleteAccessCourseRelationsByTeacherId(teacherId string) (err error) {
-	return p.Gateway.DeleteAccessCourseRelationsByTeacherId(teacherId)
+	return p.courseGateway.DeleteAccessCourseRelationsByTeacherId(teacherId)
 }
 
 func (p *CourseUseCaseImpl) DeleteAccessCourseRelationsByUnitAdminId(unitAdminId string) (err error) {
-	return p.Gateway.DeleteAccessCourseRelationsByUnitAdminId(unitAdminId)
+	return p.courseGateway.DeleteAccessCourseRelationsByUnitAdminId(unitAdminId)
 }
 
 func (p *CourseUseCaseImpl) DeleteAccessCourseRelationsByRobboGroupId(robboGroupId string) (err error) {
-	return p.Gateway.DeleteAccessCourseRelationsByRobboGroupId(robboGroupId)
+	return p.courseGateway.DeleteAccessCourseRelationsByRobboGroupId(robboGroupId)
 }
 
 func (p *CourseUseCaseImpl) DeleteAccessCourseRelationsByRobboUnitId(robboUnitId string) (err error) {
-	return p.Gateway.DeleteAccessCourseRelationsByRobboUnitId(robboUnitId)
+	return p.courseGateway.DeleteAccessCourseRelationsByRobboUnitId(robboUnitId)
 }
 
 func (p *CourseUseCaseImpl) CreateCourse(course *models.CourseCore) (id string, err error) {
-	CourseId, err := p.Gateway.CreateCourse(course)
+	CourseId, err := p.courseGateway.CreateCourse(course)
 	if err != nil {
 		log.Println("Error create Course")
 		return "", err
@@ -127,7 +250,7 @@ func (p *CourseUseCaseImpl) CreateCourse(course *models.CourseCore) (id string, 
 	mediaCore := &models.CourseApiMediaCollectionCore{
 		CourseID: CourseId,
 	}
-	MediaId, err := p.Gateway.CreateCourseApiMediaCollection(mediaCore)
+	MediaId, err := p.courseGateway.CreateCourseApiMediaCollection(mediaCore)
 	if err != nil {
 		log.Println("Error create CourseApiMediaCollection")
 		return "", err
@@ -138,7 +261,7 @@ func (p *CourseUseCaseImpl) CreateCourse(course *models.CourseCore) (id string, 
 		UriAbsolute:                course.Media.BannerImage.UriAbsolute,
 		CourseApiMediaCollectionID: MediaId,
 	}
-	_, err = p.Gateway.CreateAbsoluteMedia(bannerImage)
+	_, err = p.courseGateway.CreateAbsoluteMedia(bannerImage)
 	if err != nil {
 		log.Println("Error create AbsoluteMedia")
 		return "", err
@@ -148,7 +271,7 @@ func (p *CourseUseCaseImpl) CreateCourse(course *models.CourseCore) (id string, 
 		Uri:                        course.Media.CourseImage.Uri,
 		CourseApiMediaCollectionID: MediaId,
 	}
-	_, err = p.Gateway.CreateMedia(courseImage)
+	_, err = p.courseGateway.CreateMedia(courseImage)
 	if err != nil {
 		log.Println("Error create Media")
 		return "", err
@@ -158,7 +281,7 @@ func (p *CourseUseCaseImpl) CreateCourse(course *models.CourseCore) (id string, 
 		Uri:                        course.Media.CourseVideo.Uri,
 		CourseApiMediaCollectionID: MediaId,
 	}
-	_, err = p.Gateway.CreateMedia(courseVideo)
+	_, err = p.courseGateway.CreateMedia(courseVideo)
 	if err != nil {
 		log.Println("Error create Media")
 		return "", err
@@ -170,7 +293,7 @@ func (p *CourseUseCaseImpl) CreateCourse(course *models.CourseCore) (id string, 
 		Large:                      course.Media.Image.Large,
 		CourseApiMediaCollectionID: MediaId,
 	}
-	_, err = p.Gateway.CreateImage(image)
+	_, err = p.courseGateway.CreateImage(image)
 	if err != nil {
 		log.Println("Error create Image")
 		return "", err
@@ -180,37 +303,37 @@ func (p *CourseUseCaseImpl) CreateCourse(course *models.CourseCore) (id string, 
 }
 
 func (p *CourseUseCaseImpl) UpdateCourse(course *models.CourseCore) (err error) {
-	err = p.Gateway.UpdateAbsoluteMedia(&course.Media.BannerImage)
+	err = p.courseGateway.UpdateAbsoluteMedia(&course.Media.BannerImage)
 	if err != nil {
 		log.Println("Error update AbsoluteMedia")
 		return
 	}
 
-	err = p.Gateway.UpdateMedia(&course.Media.CourseImage)
+	err = p.courseGateway.UpdateMedia(&course.Media.CourseImage)
 	if err != nil {
 		log.Println("Error update Media")
 		return
 	}
 
-	err = p.Gateway.UpdateMedia(&course.Media.CourseVideo)
+	err = p.courseGateway.UpdateMedia(&course.Media.CourseVideo)
 	if err != nil {
 		log.Println("Error update Media")
 		return
 	}
 
-	err = p.Gateway.UpdateImage(&course.Media.Image)
+	err = p.courseGateway.UpdateImage(&course.Media.Image)
 	if err != nil {
 		log.Println("Error update Image")
 		return
 	}
 
-	err = p.Gateway.UpdateCourseApiMediaCollection(&course.Media)
+	err = p.courseGateway.UpdateCourseApiMediaCollection(&course.Media)
 	if err != nil {
 		log.Println("Error update CourseApiMediaCollection")
 		return
 	}
 
-	err = p.Gateway.UpdateCourse(course)
+	err = p.courseGateway.UpdateCourse(course)
 	if err != nil {
 		log.Println("Error update Course")
 		return
@@ -220,31 +343,31 @@ func (p *CourseUseCaseImpl) UpdateCourse(course *models.CourseCore) (err error) 
 }
 
 func (p *CourseUseCaseImpl) DeleteCourse(courseId string) (err error) {
-	id, err := p.Gateway.DeleteCourse(courseId)
+	id, err := p.courseGateway.DeleteCourse(courseId)
 	if err != nil {
 		log.Println("Error delete Course")
 		return
 	}
 
-	courseApiMediaCollectionId, err := p.Gateway.DeleteCourseApiMediaCollection(id)
+	courseApiMediaCollectionId, err := p.courseGateway.DeleteCourseApiMediaCollection(id)
 	if err != nil {
 		log.Println("Error delete CourseApiMediaCollection")
 		return
 	}
 
-	err = p.Gateway.DeleteAbsoluteMedia(courseApiMediaCollectionId)
+	err = p.courseGateway.DeleteAbsoluteMedia(courseApiMediaCollectionId)
 	if err != nil {
 		log.Println("Error delete AbsoluteMedia")
 		return
 	}
 
-	err = p.Gateway.DeleteMedia(courseApiMediaCollectionId)
+	err = p.courseGateway.DeleteMedia(courseApiMediaCollectionId)
 	if err != nil {
 		log.Println("Error delete Media")
 		return
 	}
 
-	err = p.Gateway.DeleteImage(courseApiMediaCollectionId)
+	err = p.courseGateway.DeleteImage(courseApiMediaCollectionId)
 	if err != nil {
 		log.Println("Error delete Image")
 		return

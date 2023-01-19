@@ -260,21 +260,26 @@ type ComplexityRoot struct {
 		GetParentByID                          func(childComplexity int, parentID string) int
 		GetProjectPageByID                     func(childComplexity int, projectPageID string) int
 		GetRobboGroupByID                      func(childComplexity int, id string) int
+		GetRobboGroupsAdmittedToTheCourse      func(childComplexity int, courseID string, page *string, pageSize *string) int
 		GetRobboGroupsByAccessToken            func(childComplexity int, page string, pageSize string) int
 		GetRobboGroupsByRobboUnitID            func(childComplexity int, robboUnitID string) int
 		GetRobboGroupsByTeacherID              func(childComplexity int, teacherID string, page string, pageSize string) int
 		GetRobboGroupsByUnitAdminID            func(childComplexity int, unitAdminID string, page string, pageSize string) int
 		GetRobboUnitByID                       func(childComplexity int, id string) int
+		GetRobboUnitsAdmittedToTheCourse       func(childComplexity int, courseID string, page *string, pageSize *string) int
 		GetRobboUnitsByAccessToken             func(childComplexity int, page string, pageSize string) int
 		GetRobboUnitsByUnitAdminID             func(childComplexity int, unitAdminID string) int
 		GetStudentByID                         func(childComplexity int, studentID string) int
+		GetStudentsAdmittedToTheCourse         func(childComplexity int, courseID string, page *string, pageSize *string) int
 		GetStudentsByParentID                  func(childComplexity int, parentID string) int
 		GetStudentsByRobboGroup                func(childComplexity int, robboGroupID string) int
 		GetStudentsByRobboUnitID               func(childComplexity int, robboUnitID string) int
 		GetSuperAdminByID                      func(childComplexity int, superAdminID string) int
 		GetTeacherByID                         func(childComplexity int, teacherID string) int
+		GetTeachersAdmittedToTheCourse         func(childComplexity int, courseID string, page *string, pageSize *string) int
 		GetTeachersByRobboGroupID              func(childComplexity int, robboGroupID string) int
 		GetUnitAdminByID                       func(childComplexity int, unitAdminID string) int
+		GetUnitAdminsAdmittedToTheCourse       func(childComplexity int, courseID string, page *string, pageSize *string) int
 		GetUnitAdminsByRobboUnitID             func(childComplexity int, robboUnitID string) int
 		SearchGroupsByName                     func(childComplexity int, name string) int
 		SearchRobboUnitsByName                 func(childComplexity int, name string) int
@@ -418,6 +423,11 @@ type QueryResolver interface {
 	GetUnitAdminByID(ctx context.Context, unitAdminID string) (models.UnitAdminResult, error)
 	SearchUnitAdminsByEmail(ctx context.Context, email string, robboUnitID string) (models.UnitAdminsResult, error)
 	GetSuperAdminByID(ctx context.Context, superAdminID string) (models.SuperAdminResult, error)
+	GetStudentsAdmittedToTheCourse(ctx context.Context, courseID string, page *string, pageSize *string) (models.StudentsResult, error)
+	GetUnitAdminsAdmittedToTheCourse(ctx context.Context, courseID string, page *string, pageSize *string) (models.UnitAdminsResult, error)
+	GetTeachersAdmittedToTheCourse(ctx context.Context, courseID string, page *string, pageSize *string) (models.TeachersResult, error)
+	GetRobboGroupsAdmittedToTheCourse(ctx context.Context, courseID string, page *string, pageSize *string) (models.RobboGroupsResult, error)
+	GetRobboUnitsAdmittedToTheCourse(ctx context.Context, courseID string, page *string, pageSize *string) (models.RobboUnitsResult, error)
 	GetAccessCourseRelationsByCourseID(ctx context.Context, courseID string) (models.CourseRelationsResult, error)
 	GetAccessCourseRelationsByRobboUnitID(ctx context.Context, robboUnitID string) (models.CourseRelationsResult, error)
 	GetAccessCourseRelationsByRobboGroupID(ctx context.Context, robboGroupID string) (models.CourseRelationsResult, error)
@@ -1711,6 +1721,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetRobboGroupByID(childComplexity, args["id"].(string)), true
 
+	case "Query.GetRobboGroupsAdmittedToTheCourse":
+		if e.complexity.Query.GetRobboGroupsAdmittedToTheCourse == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetRobboGroupsAdmittedToTheCourse_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetRobboGroupsAdmittedToTheCourse(childComplexity, args["courseId"].(string), args["page"].(*string), args["pageSize"].(*string)), true
+
 	case "Query.GetRobboGroupsByAccessToken":
 		if e.complexity.Query.GetRobboGroupsByAccessToken == nil {
 			break
@@ -1771,6 +1793,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetRobboUnitByID(childComplexity, args["id"].(string)), true
 
+	case "Query.GetRobboUnitsAdmittedToTheCourse":
+		if e.complexity.Query.GetRobboUnitsAdmittedToTheCourse == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetRobboUnitsAdmittedToTheCourse_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetRobboUnitsAdmittedToTheCourse(childComplexity, args["courseId"].(string), args["page"].(*string), args["pageSize"].(*string)), true
+
 	case "Query.GetRobboUnitsByAccessToken":
 		if e.complexity.Query.GetRobboUnitsByAccessToken == nil {
 			break
@@ -1806,6 +1840,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetStudentByID(childComplexity, args["studentId"].(string)), true
+
+	case "Query.GetStudentsAdmittedToTheCourse":
+		if e.complexity.Query.GetStudentsAdmittedToTheCourse == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetStudentsAdmittedToTheCourse_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetStudentsAdmittedToTheCourse(childComplexity, args["courseId"].(string), args["page"].(*string), args["pageSize"].(*string)), true
 
 	case "Query.GetStudentsByParentId":
 		if e.complexity.Query.GetStudentsByParentID == nil {
@@ -1867,6 +1913,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetTeacherByID(childComplexity, args["teacherId"].(string)), true
 
+	case "Query.GetTeachersAdmittedToTheCourse":
+		if e.complexity.Query.GetTeachersAdmittedToTheCourse == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetTeachersAdmittedToTheCourse_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetTeachersAdmittedToTheCourse(childComplexity, args["courseId"].(string), args["page"].(*string), args["pageSize"].(*string)), true
+
 	case "Query.GetTeachersByRobboGroupId":
 		if e.complexity.Query.GetTeachersByRobboGroupID == nil {
 			break
@@ -1890,6 +1948,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetUnitAdminByID(childComplexity, args["unitAdminId"].(string)), true
+
+	case "Query.GetUnitAdminsAdmittedToTheCourse":
+		if e.complexity.Query.GetUnitAdminsAdmittedToTheCourse == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetUnitAdminsAdmittedToTheCourse_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetUnitAdminsAdmittedToTheCourse(childComplexity, args["courseId"].(string), args["page"].(*string), args["pageSize"].(*string)), true
 
 	case "Query.GetUnitAdminsByRobboUnitId":
 		if e.complexity.Query.GetUnitAdminsByRobboUnitID == nil {
@@ -2436,6 +2506,12 @@ extend type Mutation {
 }
 
 extend type Query {
+    GetStudentsAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): StudentsResult!
+    GetUnitAdminsAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): UnitAdminsResult!
+    GetTeachersAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): TeachersResult!
+    GetRobboGroupsAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): RobboGroupsResult!
+    GetRobboUnitsAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): RobboUnitsResult!
+
     GetAccessCourseRelationsByCourseId(courseId: String!): CourseRelationsResult!
     GetAccessCourseRelationsByRobboUnitId(robboUnitId: String!): CourseRelationsResult!
     GetAccessCourseRelationsByRobboGroupId(robboGroupId: String!): CourseRelationsResult!
@@ -3695,6 +3771,39 @@ func (ec *executionContext) field_Query_GetRobboGroupById_args(ctx context.Conte
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_GetRobboGroupsAdmittedToTheCourse_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["courseId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["courseId"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg2
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_GetRobboGroupsByAccessToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3815,6 +3924,39 @@ func (ec *executionContext) field_Query_GetRobboUnitById_args(ctx context.Contex
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_GetRobboUnitsAdmittedToTheCourse_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["courseId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["courseId"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg2
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_GetRobboUnitsByAccessToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3866,6 +4008,39 @@ func (ec *executionContext) field_Query_GetStudentById_args(ctx context.Context,
 		}
 	}
 	args["studentId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetStudentsAdmittedToTheCourse_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["courseId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["courseId"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg2
 	return args, nil
 }
 
@@ -3944,6 +4119,39 @@ func (ec *executionContext) field_Query_GetTeacherById_args(ctx context.Context,
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_GetTeachersAdmittedToTheCourse_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["courseId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["courseId"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg2
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_GetTeachersByRobboGroupId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3971,6 +4179,39 @@ func (ec *executionContext) field_Query_GetUnitAdminById_args(ctx context.Contex
 		}
 	}
 	args["unitAdminId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetUnitAdminsAdmittedToTheCourse_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["courseId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["courseId"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg2
 	return args, nil
 }
 
@@ -10603,6 +10844,281 @@ func (ec *executionContext) fieldContext_Query_GetSuperAdminById(ctx context.Con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_GetSuperAdminById_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetStudentsAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetStudentsAdmittedToTheCourse(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetStudentsAdmittedToTheCourse(rctx, fc.Args["courseId"].(string), fc.Args["page"].(*string), fc.Args["pageSize"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.StudentsResult)
+	fc.Result = res
+	return ec.marshalNStudentsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentsResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetStudentsAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type StudentsResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetStudentsAdmittedToTheCourse_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetUnitAdminsAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetUnitAdminsAdmittedToTheCourse(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetUnitAdminsAdmittedToTheCourse(rctx, fc.Args["courseId"].(string), fc.Args["page"].(*string), fc.Args["pageSize"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.UnitAdminsResult)
+	fc.Result = res
+	return ec.marshalNUnitAdminsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUnitAdminsResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetUnitAdminsAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UnitAdminsResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetUnitAdminsAdmittedToTheCourse_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetTeachersAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetTeachersAdmittedToTheCourse(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetTeachersAdmittedToTheCourse(rctx, fc.Args["courseId"].(string), fc.Args["page"].(*string), fc.Args["pageSize"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.TeachersResult)
+	fc.Result = res
+	return ec.marshalNTeachersResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐTeachersResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetTeachersAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TeachersResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetTeachersAdmittedToTheCourse_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetRobboGroupsAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetRobboGroupsAdmittedToTheCourse(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetRobboGroupsAdmittedToTheCourse(rctx, fc.Args["courseId"].(string), fc.Args["page"].(*string), fc.Args["pageSize"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.RobboGroupsResult)
+	fc.Result = res
+	return ec.marshalNRobboGroupsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupsResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetRobboGroupsAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type RobboGroupsResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetRobboGroupsAdmittedToTheCourse_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetRobboUnitsAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetRobboUnitsAdmittedToTheCourse(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetRobboUnitsAdmittedToTheCourse(rctx, fc.Args["courseId"].(string), fc.Args["page"].(*string), fc.Args["pageSize"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.RobboUnitsResult)
+	fc.Result = res
+	return ec.marshalNRobboUnitsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitsResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetRobboUnitsAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type RobboUnitsResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetRobboUnitsAdmittedToTheCourse_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -18929,6 +19445,121 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_GetSuperAdminById(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetStudentsAdmittedToTheCourse":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetStudentsAdmittedToTheCourse(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetUnitAdminsAdmittedToTheCourse":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetUnitAdminsAdmittedToTheCourse(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetTeachersAdmittedToTheCourse":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetTeachersAdmittedToTheCourse(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetRobboGroupsAdmittedToTheCourse":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetRobboGroupsAdmittedToTheCourse(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetRobboUnitsAdmittedToTheCourse":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetRobboUnitsAdmittedToTheCourse(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

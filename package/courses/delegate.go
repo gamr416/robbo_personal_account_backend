@@ -22,6 +22,13 @@ type Delegate interface {
 	CreateAccessCourseRelationUnitAdmin(courseRelation *models.CourseRelationHTTP) (newCourseRelation models.CourseRelationHTTP, err error)
 	CreateAccessCourseRelationRobboUnit(courseRelation *models.CourseRelationHTTP) (newCourseRelation models.CourseRelationHTTP, err error)
 	CreateAccessCourseRelationRobboGroup(courseRelation *models.CourseRelationHTTP) (newCourseRelation models.CourseRelationHTTP, err error)
+
+	GetStudentsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (students []*models.StudentHTTP, err error)
+	GetUnitAdminsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (unitAdmins []*models.UnitAdminHTTP, err error)
+	GetTeachersAdmittedToTheCourse(courseId string, page *string, pageSize *string) (teachers []*models.TeacherHTTP, err error)
+	GetRobboUnitsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (robboUnits []*models.RobboUnitHTTP, err error)
+	GetRobboGroupsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (robboGroups []*models.RobboGroupHTTP, err error)
+
 	DeleteAccessCourseRelationById(courseRelationId string) (id string, err error)
 	CreateCourse(course *models.CourseHTTP, courseId string) (id string, err error)
 	DeleteCourse(courseId string) (err error)

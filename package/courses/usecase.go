@@ -28,11 +28,13 @@ type UseCase interface {
 	DeleteAccessCourseRelationsByUnitAdminId(unitAdminId string) (err error)
 	DeleteAccessCourseRelationsByRobboGroupId(robboGroupId string) (err error)
 	DeleteAccessCourseRelationsByRobboUnitId(robboUnitId string) (err error)
+
 	CreateAccessCourseRelationRobboGroup(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error)
 	CreateAccessCourseRelationRobboUnit(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error)
 	CreateAccessCourseRelationStudent(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error)
 	CreateAccessCourseRelationTeacher(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error)
 	CreateAccessCourseRelationUnitAdmin(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error)
+
 	CreateCourse(course *models.CourseCore) (id string, err error)
 	DeleteCourse(courseId string) (err error)
 	UpdateCourse(course *models.CourseCore) (err error)

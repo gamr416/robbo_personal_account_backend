@@ -47,13 +47,10 @@ func (r *mutationResolver) CreateAccessCourseRelationRobboUnit(ctx context.Conte
 		err := errors.New("internal server error")
 		return &models.Error{Message: "internal server error"}, err
 	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := identityErr
-		return &models.Error{Message: err.Error()}, err
-	}
+	userRole := ginContext.Value("user_role").(models.Role)
+
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles)
 	if accessErr != nil {
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err

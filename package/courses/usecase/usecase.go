@@ -84,7 +84,7 @@ func (p *CourseUseCaseImpl) GetRobboGroupsAdmittedToTheCourse(courseId string, p
 	robboGroups []*models.RobboGroupCore,
 	err error,
 ) {
-	courseAccessRelations, getRelationsErr := p.courseGateway.GetAccessCourseRelations(courseId, "unit_admin")
+	courseAccessRelations, getRelationsErr := p.courseGateway.GetAccessCourseRelations(courseId, "robbo_group")
 	if getRelationsErr != nil {
 		err = getRelationsErr
 		return
@@ -191,14 +191,98 @@ func (p *CourseUseCaseImpl) GetAccessCourseRelationsByCourseId(courseId string) 
 	return p.courseGateway.GetAccessCourseRelationsByCourseId(courseId)
 }
 
-func (p *CourseUseCaseImpl) CreateAccessCourseRelationRobboGroup(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error) {
+func (p *CourseUseCaseImpl) CreateAccessCourseRelationRobboGroup(courseRelation *models.CourseRelationCore) (
+	newCourseRelation *models.CourseRelationCore,
+	err error,
+) {
+	//courseRelation.Parameter = "robbo_group"
+	//return p.courseGateway.CreateAccessCourseRelation(courseRelation)
+
+	// access for robbo group give access for teachers and students having relations with this robbo group (sorry my english)
 	courseRelation.Parameter = "robbo_group"
-	return p.courseGateway.CreateAccessCourseRelation(courseRelation)
+	newCourseRelation, createAccessCourseRelationErr := p.courseGateway.CreateAccessCourseRelation(courseRelation)
+	if createAccessCourseRelationErr != nil {
+		err = createAccessCourseRelationErr
+		return
+	}
+
+	// return relations between robbo group and teachers
+	teachersRobboGroupRelations, getTeachersRelationErr := p.robboGroupGateway.GetRelationByRobboGroupId(courseRelation.ObjectId)
+	if getTeachersRelationErr != nil {
+		err = getTeachersRelationErr
+		return
+	}
+
+	// return relations between robbo group and students
+	studentsRobboGroupRelations, getStudentsRelationErr := p.usersGateway.GetStudentsByRobboGroupId(courseRelation.ObjectId)
+	if getStudentsRelationErr != nil {
+		err = getStudentsRelationErr
+		return
+	}
+
+	// creating course access relations for unit admins
+	for _, teachersRobboGroupRelation := range teachersRobboGroupRelations {
+		newTeacherRelation := models.CourseRelationCore{
+			ObjectId:  teachersRobboGroupRelation.TeacherId,
+			Parameter: "teacher",
+			CourseId:  courseRelation.CourseId,
+		}
+		_, createRelationErr := p.courseGateway.CreateAccessCourseRelation(&newTeacherRelation)
+		if createRelationErr != nil {
+			err = createRelationErr
+			return
+		}
+	}
+
+	// creating course access relations for students
+	for _, studentsRobboGroupRelation := range studentsRobboGroupRelations {
+		newStudentRelation := models.CourseRelationCore{
+			ObjectId:  studentsRobboGroupRelation.UserCore.Id,
+			Parameter: "student",
+			CourseId:  courseRelation.CourseId,
+		}
+		_, createRelationErr := p.courseGateway.CreateAccessCourseRelation(&newStudentRelation)
+		if createRelationErr != nil {
+			err = createRelationErr
+			return
+		}
+	}
+	return
 }
 
-func (p *CourseUseCaseImpl) CreateAccessCourseRelationRobboUnit(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error) {
+func (p *CourseUseCaseImpl) CreateAccessCourseRelationRobboUnit(courseRelation *models.CourseRelationCore) (
+	newCourseRelation *models.CourseRelationCore,
+	err error,
+) {
+	// access for robbo unit give access for unit admin having relations with this robbo unit (sorry my english)
 	courseRelation.Parameter = "robbo_unit"
-	return p.courseGateway.CreateAccessCourseRelation(courseRelation)
+	newCourseRelation, createAccessCourseRelationErr := p.courseGateway.CreateAccessCourseRelation(courseRelation)
+	if createAccessCourseRelationErr != nil {
+		err = createAccessCourseRelationErr
+		return
+	}
+
+	// return relations between robbo unit and unit admins
+	unitAdminsRobboUnitRelations, getRelationErr := p.usersGateway.GetRelationByRobboUnitId(courseRelation.ObjectId)
+	if getRelationErr != nil {
+		err = getRelationErr
+		return
+	}
+
+	// creating course access relations for unit admins
+	for _, unitAdminsRobboUnitRelation := range unitAdminsRobboUnitRelations {
+		newUnitAdminRelation := models.CourseRelationCore{
+			ObjectId:  unitAdminsRobboUnitRelation.UnitAdminId,
+			Parameter: "unit_admin",
+			CourseId:  courseRelation.CourseId,
+		}
+		_, createRelationErr := p.courseGateway.CreateAccessCourseRelation(&newUnitAdminRelation)
+		if createRelationErr != nil {
+			err = createRelationErr
+			return
+		}
+	}
+	return
 }
 
 func (p *CourseUseCaseImpl) CreateAccessCourseRelationStudent(courseRelation *models.CourseRelationCore) (newCourseRelation *models.CourseRelationCore, err error) {

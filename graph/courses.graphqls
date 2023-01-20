@@ -147,7 +147,11 @@ extend type Query {
     GetAccessCourseRelationsTeachers: CourseRelationsResult!
     GetAccessCourseRelationsUnitAdmins: CourseRelationsResult!
     GetCourseContent(courseId: String!): CourseResult!
+
     GetCoursesByUser: CoursesResult!
+    GetCoursesByRobboUnitId(robboUnitId: String!, page: String, pageSize: String): CoursesResult!
+    GetCoursesByRobboGroupId(robboGroupId: String!, page: String, pageSize: String): CoursesResult!
+
     GetAllPublicCourses(pageNumber: String!): CoursesResult!
     GetEnrollments(username: String!): EnrollmentsResult!
 }

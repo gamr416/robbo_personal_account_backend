@@ -11,9 +11,62 @@ import (
 	"strconv"
 )
 
-type CourseDelegateImpl struct {
-	CoursesUseCase courses.UseCase
-	EdxUseCase     edx.UseCase
+func (p *CourseDelegateImpl) GetCoursesByRobboUnitId(
+	robboUnitId string,
+	page string,
+	pageSize string,
+) (coursesListHTTP *models.CoursesListHTTP, err error) {
+	courseAccessRelations, errGetRelations := p.CoursesUseCase.GetAccessCourseRelationsByRobboUnitId(robboUnitId)
+	if errGetRelations != nil {
+		return nil, errGetRelations
+	}
+	coursesListHTTP = &models.CoursesListHTTP{
+		Results:    []*models.CourseHTTP{},
+		Pagination: &models.Pagination{},
+	}
+	for _, courseAccessRelation := range courseAccessRelations {
+		var courseHTTP *models.CourseHTTP
+		body, err := p.EdxUseCase.GetCourseContent(courseAccessRelation.CourseId)
+		if err != nil {
+			return nil, courses.ErrBadRequest
+		}
+		err = json.Unmarshal(body, &courseHTTP)
+		fmt.Println(courseHTTP)
+		if err != nil {
+			return nil, courses.ErrInternalServerLevel
+		}
+		coursesListHTTP.Results = append(coursesListHTTP.Results, courseHTTP)
+	}
+	return coursesListHTTP, nil
+}
+
+func (p *CourseDelegateImpl) GetCoursesByRobboGroupId(robboGroupId string,
+	page string,
+	pageSize string,
+) (coursesListHTTP *models.CoursesListHTTP, err error) {
+	courseAccessRelations, errGetRelations := p.CoursesUseCase.GetAccessCourseRelationsByRobboGroupId(robboGroupId)
+	if errGetRelations != nil {
+		return nil, errGetRelations
+	}
+	coursesListHTTP = &models.CoursesListHTTP{
+		Results:    []*models.CourseHTTP{},
+		Pagination: &models.Pagination{},
+	}
+	for _, courseAccessRelation := range courseAccessRelations {
+		var courseHTTP *models.CourseHTTP
+		body, err := p.EdxUseCase.GetCourseContent(courseAccessRelation.CourseId)
+		if err != nil {
+			return nil, courses.ErrBadRequest
+		}
+		err = json.Unmarshal(body, &courseHTTP)
+		fmt.Println(courseHTTP)
+		if err != nil {
+			return nil, courses.ErrInternalServerLevel
+		}
+
+		coursesListHTTP.Results = append(coursesListHTTP.Results, courseHTTP)
+	}
+	return coursesListHTTP, nil
 }
 
 func (p *CourseDelegateImpl) GetUnitAdminsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (
@@ -109,20 +162,6 @@ func (p *CourseDelegateImpl) GetStudentsAdmittedToTheCourse(courseId string, pag
 	}
 
 	return
-}
-
-type CourseDelegateModule struct {
-	fx.Out
-	courses.Delegate
-}
-
-func SetupCourseDelegate(coursesUsecase courses.UseCase, edxUsecase edx.UseCase) CourseDelegateModule {
-	return CourseDelegateModule{
-		Delegate: &CourseDelegateImpl{
-			coursesUsecase,
-			edxUsecase,
-		},
-	}
 }
 
 func (p *CourseDelegateImpl) CreateAccessCourseRelationRobboGroup(courseRelation *models.CourseRelationHTTP) (newCourseRelation models.CourseRelationHTTP, err error) {
@@ -466,4 +505,23 @@ func (p *CourseDelegateImpl) Registration(userForm *edx.RegistrationForm) (err e
 		return courses.ErrBadRequest
 	}
 	return
+}
+
+type CourseDelegateImpl struct {
+	CoursesUseCase courses.UseCase
+	EdxUseCase     edx.UseCase
+}
+
+type CourseDelegateModule struct {
+	fx.Out
+	courses.Delegate
+}
+
+func SetupCourseDelegate(coursesUsecase courses.UseCase, edxUsecase edx.UseCase) CourseDelegateModule {
+	return CourseDelegateModule{
+		Delegate: &CourseDelegateImpl{
+			coursesUsecase,
+			edxUsecase,
+		},
+	}
 }

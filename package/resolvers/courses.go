@@ -669,24 +669,21 @@ func (r *queryResolver) GetCoursesByUser(ctx context.Context) (models.CoursesRes
 		err := errors.New("internal server error")
 		return &models.Error{Message: "internal server error"}, err
 	}
-	userId, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := identityErr
-		return &models.Error{Message: err.Error()}, err
-	}
-	allowedRoles := []models.Role{models.Student,
-		models.Parent,
+	userId := ginContext.Value("user_id").(string)
+	userRole := ginContext.Value("user_role").(models.Role)
+	allowedRoles := []models.Role{
+		models.Student,
 		models.FreeListener,
 		models.Teacher,
 		models.UnitAdmin,
 		models.SuperAdmin,
 	}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles)
 	if accessErr != nil {
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	courses, getCoursesByUserErr := r.coursesDelegate.GetCoursesByUser(userId, role)
+	courses, getCoursesByUserErr := r.coursesDelegate.GetCoursesByUser(userId, userRole)
 	if getCoursesByUserErr != nil {
 		err := getCoursesByUserErr
 		return &models.Error{Message: err.Error()}, err

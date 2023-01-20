@@ -402,16 +402,6 @@ func (p *CourseDelegateImpl) GetCoursesByUser(userId string, role models.Role) (
 		coursesListHTTP.Results = append(coursesListHTTP.Results, courseHTTP)
 	}
 	return coursesListHTTP, nil
-
-	//body, err := p.EdxUseCase.GetCoursesByUser()
-	//if err != nil {
-	//	return nil, courses.ErrBadRequest
-	//}
-	//err = json.Unmarshal(body, &coursesListHTTP)
-	//if err != nil {
-	//	return nil, courses.ErrInternalServerLevel
-	//}
-	//return coursesListHTTP, nil
 }
 
 func (p *CourseDelegateImpl) GetEnrollments(username string) (enrollmentsListHTTP *models.EnrollmentsListHTTP, err error) {

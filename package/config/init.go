@@ -16,7 +16,7 @@ func Init() error {
 func InitForTests() error {
 	viper.SetConfigName("config-test")
 	viper.SetConfigType("yml")
-	viper.AddConfigPath("./package/config")
+	viper.AddConfigPath("../../package/config")
 
 	err := viper.ReadInConfig()
 	return err

@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-func NewTestDockerClient() (testDockerClient dockertest.Pool) {
+func NewTestDockerClient() (testDockerClient dockertest.Pool, cleanerContainer func()) {
 	pool, poolErr := dockertest.NewPool("")
 	if poolErr != nil {
 		log.Fatalf("Could not construct pool: %s", poolErr)
@@ -16,7 +16,6 @@ func NewTestDockerClient() (testDockerClient dockertest.Pool) {
 	if err := pool.Client.Ping(); err != nil {
 		log.Fatalf("Could not connect to Docker: %s", err)
 	}
-
 	opts := dockertest.RunOptions{
 		Name:         viper.GetString("docker.containerName"),
 		Repository:   "postgres",
@@ -25,21 +24,28 @@ func NewTestDockerClient() (testDockerClient dockertest.Pool) {
 		ExposedPorts: []string{"5432"},
 		PortBindings: map[docker.Port][]docker.PortBinding{
 			"5432": {
-				{HostIP: "localhost", HostPort: "5433"},
+				{HostIP: "0.0.0.0", HostPort: "5433"},
 			},
 		},
 	}
 
-	_, err := pool.RunWithOptions(&opts,
+	resource, err := pool.RunWithOptions(&opts,
 		func(config *docker.HostConfig) {
 			config.AutoRemove = true
-			config.RestartPolicy = docker.RestartPolicy{
-				Name: "no",
-			}
+			config.RestartPolicy = docker.NeverRestart()
 		},
 	)
 	if err != nil {
 		log.Fatalf("Could not start resource: %s", err)
+	}
+
+	resource.Expire(100)
+	cleanerContainer = func() {
+		// purge the container
+		err = pool.Purge(resource)
+		if err != nil {
+			log.Panicf("Could not purge resource: %s", err)
+		}
 	}
 	return
 }

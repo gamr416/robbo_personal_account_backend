@@ -6,7 +6,8 @@ docker:
   environment: [
     "POSTGRES_DB=robbo_test_db",
     "POSTGRES_USER=robbo",
-    "POSTGRES_PASSWORD=robbo_pwd"
+    "POSTGRES_PASSWORD=robbo_pwd",
+    "listen_addresses = '*'"
   ]
 
 server:

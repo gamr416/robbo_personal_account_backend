@@ -37,10 +37,11 @@ func RunApp() {
 	).Run()
 }
 
-func TestInvokeWith(options ...fx.Option) *fx.App {
+func TestInvokeWith(options ...fx.Option) (*fx.App, func()) {
 	if err := config.InitForTests(); err != nil {
 		log.Fatalf("%s", err.Error())
 	}
+	var cleanerContainer func()
 	var di = []fx.Option{
 		fx.Provide(docker_client.NewTestDockerClient),
 		fx.Provide(logger.NewLogger),
@@ -50,16 +51,18 @@ func TestInvokeWith(options ...fx.Option) *fx.App {
 		fx.Provide(modules.SetupDelegate),
 		fx.Provide(modules.SetupHandler),
 		fx.Provide(modules.SetupGraphQLModule),
+		fx.Populate(&cleanerContainer),
 	}
 	for _, option := range options {
 		di = append(di, option)
 	}
-	return fx.New(di...)
+	return fx.New(di...), cleanerContainer
 }
 
-func RunTestApp() {
-	TestInvokeWith(
+func TestApp() (app *fx.App, cleanerContainer func()) {
+	app, cleanerContainer = TestInvokeWith(
 		//fx.Invoke(server.NewHttpServer),
 		fx.Invoke(server.NewServer),
-	).Run()
+	)
+	return
 }

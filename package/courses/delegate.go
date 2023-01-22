@@ -35,7 +35,7 @@ type Delegate interface {
 	UpdateCourse(course *models.CourseHTTP) (err error)
 	GetCourseContent(courseId string) (courseHTTP *models.CourseHTTP, err error)
 
-	GetCoursesByUser(userId string, role models.Role) (coursesListHTTP *models.CoursesListHTTP, err error)
+	GetCoursesByUser(userId string, role models.Role, page string, pageSize string) (coursesListHTTP *models.CoursesListHTTP, err error)
 	GetCoursesByRobboUnitId(robboUnitId string, page string, pageSize string) (coursesListHTTP *models.CoursesListHTTP, err error)
 	GetCoursesByRobboGroupId(robboGroupId string, page string, pageSize string) (coursesListHTTP *models.CoursesListHTTP, err error)
 

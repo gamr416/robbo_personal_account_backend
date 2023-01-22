@@ -156,7 +156,7 @@ func (h *Handler) GetCoursesByUser(c *gin.Context) {
 		return
 	}
 
-	coursesHTTP, err := h.coursesDelegate.GetCoursesByUser("", models.SuperAdmin)
+	coursesHTTP, err := h.coursesDelegate.GetCoursesByUser("", models.SuperAdmin, "", "")
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)

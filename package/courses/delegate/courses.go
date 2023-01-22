@@ -395,7 +395,7 @@ func (p *CourseDelegateImpl) GetCourseContent(courseId string) (courseHTTP *mode
 	return courseHTTP, nil
 }
 
-func (p *CourseDelegateImpl) GetCoursesByUser(userId string, role models.Role) (
+func (p *CourseDelegateImpl) GetCoursesByUser(userId string, role models.Role, page string, pageSize string) (
 	coursesListHTTP *models.CoursesListHTTP,
 	err error,
 ) {
@@ -430,7 +430,6 @@ func (p *CourseDelegateImpl) GetCoursesByUser(userId string, role models.Role) (
 			return nil, courses.ErrBadRequest
 		}
 		err = json.Unmarshal(body, &courseHTTP)
-		fmt.Println(courseHTTP)
 		if err != nil {
 			return nil, courses.ErrInternalServerLevel
 		}
@@ -440,6 +439,7 @@ func (p *CourseDelegateImpl) GetCoursesByUser(userId string, role models.Role) (
 		}
 		coursesListHTTP.Results = append(coursesListHTTP.Results, courseHTTP)
 	}
+	coursesListHTTP.CountRows = len(courseAccessRelations)
 	return coursesListHTTP, nil
 }
 

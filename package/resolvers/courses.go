@@ -6,6 +6,7 @@ package resolvers
 import (
 	"context"
 	"errors"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/utils"
 
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 )
@@ -664,7 +665,12 @@ func (r *queryResolver) GetCoursesByUser(ctx context.Context, page *string, page
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	courses, getCoursesByUserErr := r.coursesDelegate.GetCoursesByUser(userId, userRole)
+	courses, getCoursesByUserErr := r.coursesDelegate.GetCoursesByUser(
+		userId,
+		userRole,
+		utils.UseString(page),
+		utils.UseString(pageSize),
+	)
 	if getCoursesByUserErr != nil {
 		err := getCoursesByUserErr
 		return &models.Error{Message: err.Error()}, err
@@ -673,7 +679,12 @@ func (r *queryResolver) GetCoursesByUser(ctx context.Context, page *string, page
 }
 
 // GetCoursesByRobboUnitID is the resolver for the GetCoursesByRobboUnitId field.
-func (r *queryResolver) GetCoursesByRobboUnitID(ctx context.Context, robboUnitID string, page *string, pageSize *string) (models.CoursesResult, error) {
+func (r *queryResolver) GetCoursesByRobboUnitID(
+	ctx context.Context,
+	robboUnitID string,
+	page *string,
+	pageSize *string,
+) (models.CoursesResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")

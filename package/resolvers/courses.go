@@ -644,7 +644,7 @@ func (r *queryResolver) GetCourseContent(ctx context.Context, courseID string) (
 }
 
 // GetCoursesByUser is the resolver for the GetCoursesByUser field.
-func (r *queryResolver) GetCoursesByUser(ctx context.Context) (models.CoursesResult, error) {
+func (r *queryResolver) GetCoursesByUser(ctx context.Context, page *string, pageSize *string) (models.CoursesResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")

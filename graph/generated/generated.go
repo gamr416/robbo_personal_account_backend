@@ -94,6 +94,7 @@ type ComplexityRoot struct {
 	}
 
 	CoursesListHttp struct {
+		CountRows  func(childComplexity int) int
 		Pagination func(childComplexity int) int
 		Results    func(childComplexity int) int
 	}
@@ -258,7 +259,7 @@ type ComplexityRoot struct {
 		GetCourseContent                       func(childComplexity int, courseID string) int
 		GetCoursesByRobboGroupID               func(childComplexity int, robboGroupID string, page *string, pageSize *string) int
 		GetCoursesByRobboUnitID                func(childComplexity int, robboUnitID string, page *string, pageSize *string) int
-		GetCoursesByUser                       func(childComplexity int) int
+		GetCoursesByUser                       func(childComplexity int, page *string, pageSize *string) int
 		GetEnrollments                         func(childComplexity int, username string) int
 		GetIndividualStudentsByTeacherID       func(childComplexity int, teacherID string) int
 		GetPairsStudentParentsByAccessToken    func(childComplexity int) int
@@ -452,7 +453,7 @@ type QueryResolver interface {
 	GetAccessCourseRelationsTeachers(ctx context.Context) (models.CourseRelationsResult, error)
 	GetAccessCourseRelationsUnitAdmins(ctx context.Context) (models.CourseRelationsResult, error)
 	GetCourseContent(ctx context.Context, courseID string) (models.CourseResult, error)
-	GetCoursesByUser(ctx context.Context) (models.CoursesResult, error)
+	GetCoursesByUser(ctx context.Context, page *string, pageSize *string) (models.CoursesResult, error)
 	GetCoursesByRobboUnitID(ctx context.Context, robboUnitID string, page *string, pageSize *string) (models.CoursesResult, error)
 	GetCoursesByRobboGroupID(ctx context.Context, robboGroupID string, page *string, pageSize *string) (models.CoursesResult, error)
 	GetAllPublicCourses(ctx context.Context, pageNumber string) (models.CoursesResult, error)
@@ -727,6 +728,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CourseRelationHttpList.CourseRelations(childComplexity), true
+
+	case "CoursesListHttp.countRows":
+		if e.complexity.CoursesListHttp.CountRows == nil {
+			break
+		}
+
+		return e.complexity.CoursesListHttp.CountRows(childComplexity), true
 
 	case "CoursesListHttp.pagination":
 		if e.complexity.CoursesListHttp.Pagination == nil {
@@ -1716,7 +1724,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.GetCoursesByUser(childComplexity), true
+		args, err := ec.field_Query_GetCoursesByUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetCoursesByUser(childComplexity, args["page"].(*string), args["pageSize"].(*string)), true
 
 	case "Query.GetEnrollments":
 		if e.complexity.Query.GetEnrollments == nil {
@@ -2536,6 +2549,7 @@ type Pagination {
 type CoursesListHttp {
     results:    [CourseHttp!]!
     pagination: Pagination!
+    countRows: Int!
 }
 
 input NewAccessCourseRelationRobboGroup {
@@ -2614,7 +2628,7 @@ extend type Query {
     GetAccessCourseRelationsUnitAdmins: CourseRelationsResult!
     GetCourseContent(courseId: String!): CourseResult!
 
-    GetCoursesByUser: CoursesResult!
+    GetCoursesByUser(page: String, pageSize: String): CoursesResult!
     GetCoursesByRobboUnitId(robboUnitId: String!, page: String, pageSize: String): CoursesResult!
     GetCoursesByRobboGroupId(robboGroupId: String!, page: String, pageSize: String): CoursesResult!
 
@@ -3867,6 +3881,30 @@ func (ec *executionContext) field_Query_GetCoursesByRobboUnitId_args(ctx context
 		}
 	}
 	args["pageSize"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetCoursesByUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg1
 	return args, nil
 }
 
@@ -6220,6 +6258,50 @@ func (ec *executionContext) fieldContext_CoursesListHttp_pagination(ctx context.
 				return ec.fieldContext_Pagination_num_pages(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Pagination", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CoursesListHttp_countRows(ctx context.Context, field graphql.CollectedField, obj *models.CoursesListHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CoursesListHttp_countRows(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CountRows, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CoursesListHttp_countRows(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CoursesListHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -12061,7 +12143,7 @@ func (ec *executionContext) _Query_GetCoursesByUser(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetCoursesByUser(rctx)
+		return ec.resolvers.Query().GetCoursesByUser(rctx, fc.Args["page"].(*string), fc.Args["pageSize"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12087,6 +12169,17 @@ func (ec *executionContext) fieldContext_Query_GetCoursesByUser(ctx context.Cont
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type CoursesResult does not have child fields")
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetCoursesByUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -18543,6 +18636,13 @@ func (ec *executionContext) _CoursesListHttp(ctx context.Context, sel ast.Select
 		case "pagination":
 
 			out.Values[i] = ec._CoursesListHttp_pagination(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "countRows":
+
+			out.Values[i] = ec._CoursesListHttp_countRows(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++

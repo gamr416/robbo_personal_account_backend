@@ -6,6 +6,7 @@ package resolvers
 import (
 	"context"
 	"errors"
+
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
@@ -73,6 +74,12 @@ func (r *mutationResolver) Refresh(ctx context.Context) (models.SignInResult, er
 	}, nil
 }
 
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
 func getRefreshToken(c *gin.Context) (refreshToken string, err error) {
 	refreshToken = c.Value("refresh_token").(string)
 	if refreshToken == "" {

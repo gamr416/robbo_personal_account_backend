@@ -6,11 +6,11 @@ package resolvers
 import (
 	"context"
 	"errors"
-	"github.com/99designs/gqlgen/graphql"
-	"github.com/vektah/gqlparser/v2/gqlerror"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/skinnykaen/robbo_student_personal_account.git/graph/generated"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 // CreateStudent is the resolver for the createStudent field.

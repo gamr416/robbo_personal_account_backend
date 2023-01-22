@@ -144,6 +144,7 @@ func (CourseRelationHTTPList) IsCourseRelationsResult() {}
 type CoursesListHTTP struct {
 	Results    []*CourseHTTP `json:"results"`
 	Pagination *Pagination   `json:"pagination"`
+	CountRows  int           `json:"countRows"`
 }
 
 func (CoursesListHTTP) IsCoursesResult() {}

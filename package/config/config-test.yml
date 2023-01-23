@@ -9,6 +9,7 @@ docker:
     "POSTGRES_PASSWORD=robbo_pwd",
     "listen_addresses = '*'"
   ]
+  container_lifetime: 120 # 2 min
 
 server:
   address: "localhost:8001"

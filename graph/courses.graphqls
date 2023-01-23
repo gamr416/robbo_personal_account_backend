@@ -70,6 +70,7 @@ type Pagination {
 type CoursesListHttp {
     results:    [CourseHttp!]!
     pagination: Pagination!
+    countRows: Int!
 }
 
 input NewAccessCourseRelationRobboGroup {
@@ -129,6 +130,12 @@ extend type Mutation {
 }
 
 extend type Query {
+    GetStudentsAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): StudentsResult!
+    GetUnitAdminsAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): UnitAdminsResult!
+    GetTeachersAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): TeachersResult!
+    GetRobboGroupsAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): RobboGroupsResult!
+    GetRobboUnitsAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): RobboUnitsResult!
+
     GetAccessCourseRelationsByCourseId(courseId: String!): CourseRelationsResult!
     GetAccessCourseRelationsByRobboUnitId(robboUnitId: String!): CourseRelationsResult!
     GetAccessCourseRelationsByRobboGroupId(robboGroupId: String!): CourseRelationsResult!
@@ -141,7 +148,11 @@ extend type Query {
     GetAccessCourseRelationsTeachers: CourseRelationsResult!
     GetAccessCourseRelationsUnitAdmins: CourseRelationsResult!
     GetCourseContent(courseId: String!): CourseResult!
-    GetCoursesByUser: CoursesResult!
+
+    GetCoursesByUser(page: String, pageSize: String): CoursesResult!
+    GetCoursesByRobboUnitId(robboUnitId: String!, page: String, pageSize: String): CoursesResult!
+    GetCoursesByRobboGroupId(robboGroupId: String!, page: String, pageSize: String): CoursesResult!
+
     GetAllPublicCourses(pageNumber: String!): CoursesResult!
     GetEnrollments(username: String!): EnrollmentsResult!
 }

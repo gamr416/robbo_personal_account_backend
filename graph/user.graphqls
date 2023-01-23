@@ -144,6 +144,8 @@ type Mutation {
     UpdateTeacher(input: UpdateProfileInput!): TeacherResult!
     DeleteTeacher(teacherId: String!): DeletedTeacher!
     CreateParent(input: NewParent!): ParentResult!
+    SetTeacherForRobboGroup(teacherId: String!, robboGroupId: String!): TeachersResult!
+    DeleteTeacherForRobboGroup(teacherId: String!, robboGroupId: String!): TeachersResult!
     AddChildToParent(parentId: String!, childId: String!): StudentsResult!
     UpdateParent(input: UpdateProfileInput!): ParentResult!
     DeleteParent(parentId: String!): DeletedParent!
@@ -166,6 +168,7 @@ type Query {
     GetAllTeachers(page: String!, pageSize: String!): TeachersResult!
     GetTeacherById(teacherId: String!): TeacherResult!
     GetTeachersByRobboGroupId(robboGroupId: String!): TeachersResult!
+    SearchTeachersByEmail(email: String!): TeachersResult!
     GetAllParents(page: String!, pageSize: String!): ParentsResult!
     GetParentById(parentId: String!): ParentResult!
     GetAllUnitAdmins(page: String!, pageSize: String!): UnitAdminsResult!

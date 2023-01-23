@@ -22,12 +22,23 @@ type Delegate interface {
 	CreateAccessCourseRelationUnitAdmin(courseRelation *models.CourseRelationHTTP) (newCourseRelation models.CourseRelationHTTP, err error)
 	CreateAccessCourseRelationRobboUnit(courseRelation *models.CourseRelationHTTP) (newCourseRelation models.CourseRelationHTTP, err error)
 	CreateAccessCourseRelationRobboGroup(courseRelation *models.CourseRelationHTTP) (newCourseRelation models.CourseRelationHTTP, err error)
+
+	GetStudentsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (students []*models.StudentHTTP, err error)
+	GetUnitAdminsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (unitAdmins []*models.UnitAdminHTTP, err error)
+	GetTeachersAdmittedToTheCourse(courseId string, page *string, pageSize *string) (teachers []*models.TeacherHTTP, err error)
+	GetRobboUnitsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (robboUnits []*models.RobboUnitHTTP, err error)
+	GetRobboGroupsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (robboGroups []*models.RobboGroupHTTP, err error)
+
 	DeleteAccessCourseRelationById(courseRelationId string) (id string, err error)
 	CreateCourse(course *models.CourseHTTP, courseId string) (id string, err error)
 	DeleteCourse(courseId string) (err error)
 	UpdateCourse(course *models.CourseHTTP) (err error)
 	GetCourseContent(courseId string) (courseHTTP *models.CourseHTTP, err error)
-	GetCoursesByUser() (coursesListHTTP *models.CoursesListHTTP, err error)
+
+	GetCoursesByUser(userId string, role models.Role, page string, pageSize string) (coursesListHTTP *models.CoursesListHTTP, err error)
+	GetCoursesByRobboUnitId(robboUnitId string, page string, pageSize string) (coursesListHTTP *models.CoursesListHTTP, err error)
+	GetCoursesByRobboGroupId(robboGroupId string, page string, pageSize string) (coursesListHTTP *models.CoursesListHTTP, err error)
+
 	GetAllPublicCourses(pageNumber string) (coursesListHTTP *models.CoursesListHTTP, err error)
 	GetEnrollments(username string) (enrollmentListHTTP *models.EnrollmentsListHTTP, err error)
 	PostUnenroll(postUnenrollHTTP *models.PostEnrollmentHTTP) (err error)

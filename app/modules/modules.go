@@ -96,13 +96,18 @@ func SetupUseCase(gateway GatewayModule) UseCaseModule {
 		AuthUseCase:         authusecase.SetupAuthUseCase(gateway.UsersGateway),
 		CohortsUseCase:      chrtusecase.SetupCohortUseCase(gateway.CohortsGateway),
 		CoursePacketUseCase: coursePacketusecase.SetupCoursePacketUseCase(gateway.CoursePacketGateway),
-		CoursesUseCase:      crsusecase.SetupCourseUseCase(gateway.CoursesGateway),
-		EdxUseCase:          edxusecase.SetupEdxApiUseCase(),
-		ProjectPageUseCase:  ppageusecase.SetupProjectPageUseCase(gateway.ProjectPageGateway, gateway.ProjectsGateway),
-		ProjectsUseCase:     prjusecase.SetupProjectUseCase(gateway.ProjectsGateway),
-		RobboGroupUseCase:   robboGroupusecase.SetupRobboGroupUseCase(gateway.RobboGroupGateway, gateway.UsersGateway),
-		RobboUnitsUseCase:   robboUnitsusecase.SetupRobboUnitsUseCase(gateway.RobboUnitsGateway, gateway.UsersGateway),
-		UsersUseCase:        usersusecase.SetupUsersUseCase(gateway.UsersGateway, gateway.RobboGroupGateway),
+		CoursesUseCase: crsusecase.SetupCourseUseCase(
+			gateway.CoursesGateway,
+			gateway.UsersGateway,
+			gateway.RobboUnitsGateway,
+			gateway.RobboGroupGateway,
+		),
+		EdxUseCase:         edxusecase.SetupEdxApiUseCase(),
+		ProjectPageUseCase: ppageusecase.SetupProjectPageUseCase(gateway.ProjectPageGateway, gateway.ProjectsGateway),
+		ProjectsUseCase:    prjusecase.SetupProjectUseCase(gateway.ProjectsGateway),
+		RobboGroupUseCase:  robboGroupusecase.SetupRobboGroupUseCase(gateway.RobboGroupGateway, gateway.UsersGateway),
+		RobboUnitsUseCase:  robboUnitsusecase.SetupRobboUnitsUseCase(gateway.RobboUnitsGateway, gateway.UsersGateway),
+		UsersUseCase:       usersusecase.SetupUsersUseCase(gateway.UsersGateway, gateway.RobboGroupGateway),
 	}
 }
 
@@ -146,8 +151,12 @@ type HandlerModule struct {
 
 func SetupHandler(delegate DelegateModule) HandlerModule {
 	return HandlerModule{
-		ProjectsHandler:     prjhttp.NewProjectsHandler(delegate.AuthDelegate, delegate.ProjectsDelegate),
-		ProjectPageHandler:  ppagehttp.NewProjectPageHandler(delegate.AuthDelegate, delegate.ProjectsDelegate, delegate.ProjectPageDelegate),
+		ProjectsHandler: prjhttp.NewProjectsHandler(delegate.AuthDelegate, delegate.ProjectsDelegate),
+		ProjectPageHandler: ppagehttp.NewProjectPageHandler(
+			delegate.AuthDelegate,
+			delegate.ProjectsDelegate,
+			delegate.ProjectPageDelegate,
+		),
 		AuthHandler:         authhttp.NewAuthHandler(delegate.AuthDelegate),
 		CoursesHandler:      crshttp.NewCoursesHandler(delegate.AuthDelegate, delegate.CoursesDelegate),
 		CohortsHandler:      chrthttp.NewCohortsHandler(delegate.AuthDelegate, delegate.CohortsDelegate),

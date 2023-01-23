@@ -2,6 +2,7 @@ package delegate
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/edx"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
@@ -10,23 +11,157 @@ import (
 	"strconv"
 )
 
-type CourseDelegateImpl struct {
-	CoursesUseCase courses.UseCase
-	EdxUseCase     edx.UseCase
-}
-
-type CourseDelegateModule struct {
-	fx.Out
-	courses.Delegate
-}
-
-func SetupCourseDelegate(coursesUsecase courses.UseCase, edxUsecase edx.UseCase) CourseDelegateModule {
-	return CourseDelegateModule{
-		Delegate: &CourseDelegateImpl{
-			coursesUsecase,
-			edxUsecase,
-		},
+func (p *CourseDelegateImpl) GetCoursesByRobboUnitId(
+	robboUnitId string,
+	page string,
+	pageSize string,
+) (coursesListHTTP *models.CoursesListHTTP, err error) {
+	courseAccessRelations, errGetRelations := p.CoursesUseCase.GetAccessCourseRelationsByRobboUnitId(robboUnitId)
+	if errGetRelations != nil {
+		return nil, errGetRelations
 	}
+	coursesListHTTP = &models.CoursesListHTTP{
+		Results:    []*models.CourseHTTP{},
+		Pagination: &models.Pagination{},
+	}
+	for _, courseAccessRelation := range courseAccessRelations {
+		var courseHTTP *models.CourseHTTP
+		body, err := p.EdxUseCase.GetCourseContent(courseAccessRelation.CourseId)
+		if err != nil {
+			return nil, courses.ErrBadRequest
+		}
+		err = json.Unmarshal(body, &courseHTTP)
+		fmt.Println(courseHTTP)
+		if err != nil {
+			return nil, courses.ErrInternalServerLevel
+		}
+		coursesListHTTP.Results = append(coursesListHTTP.Results, courseHTTP)
+	}
+	return coursesListHTTP, nil
+}
+
+func (p *CourseDelegateImpl) GetCoursesByRobboGroupId(robboGroupId string,
+	page string,
+	pageSize string,
+) (coursesListHTTP *models.CoursesListHTTP, err error) {
+	courseAccessRelations, errGetRelations := p.CoursesUseCase.GetAccessCourseRelationsByRobboGroupId(robboGroupId)
+	if errGetRelations != nil {
+		return nil, errGetRelations
+	}
+	coursesListHTTP = &models.CoursesListHTTP{
+		Results:    []*models.CourseHTTP{},
+		Pagination: &models.Pagination{},
+	}
+	for _, courseAccessRelation := range courseAccessRelations {
+		var courseHTTP *models.CourseHTTP
+		body, err := p.EdxUseCase.GetCourseContent(courseAccessRelation.CourseId)
+		if err != nil {
+			return nil, courses.ErrBadRequest
+		}
+		err = json.Unmarshal(body, &courseHTTP)
+		fmt.Println(courseHTTP)
+		if err != nil {
+			return nil, courses.ErrInternalServerLevel
+		}
+
+		coursesListHTTP.Results = append(coursesListHTTP.Results, courseHTTP)
+	}
+	return coursesListHTTP, nil
+}
+
+func (p *CourseDelegateImpl) GetUnitAdminsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (
+	unitAdmins []*models.UnitAdminHTTP,
+	err error,
+) {
+	unitAdminsCore, getUnitAdminsErr := p.CoursesUseCase.GetUnitAdminsAdmittedToTheCourse(courseId, page, pageSize)
+	if getUnitAdminsErr != nil {
+		err = getUnitAdminsErr
+		return
+	}
+	for _, unitAdminCore := range unitAdminsCore {
+		unitAdminTemp := models.UnitAdminHTTP{
+			UserHTTP: &models.UserHTTP{},
+		}
+		unitAdminTemp.FromCore(unitAdminCore)
+		unitAdmins = append(unitAdmins, &unitAdminTemp)
+	}
+
+	return
+}
+
+func (p *CourseDelegateImpl) GetTeachersAdmittedToTheCourse(courseId string, page *string, pageSize *string) (teachers []*models.TeacherHTTP, err error) {
+	teachersCore, getTeachersErr := p.CoursesUseCase.GetTeachersAdmittedToTheCourse(courseId, page, pageSize)
+	if getTeachersErr != nil {
+		err = getTeachersErr
+		return
+	}
+	for _, teacherCore := range teachersCore {
+		teacherTemp := models.TeacherHTTP{
+			UserHTTP: &models.UserHTTP{},
+		}
+		teacherTemp.FromCore(teacherCore)
+		teachers = append(teachers, &teacherTemp)
+	}
+
+	return
+}
+
+func (p *CourseDelegateImpl) GetRobboUnitsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (
+	robboUnits []*models.RobboUnitHTTP,
+	err error,
+) {
+	robboUnitsCore, getRobboUnitsErr := p.CoursesUseCase.GetRobboUnitsAdmittedToTheCourse(courseId, page, pageSize)
+	if getRobboUnitsErr != nil {
+		err = getRobboUnitsErr
+		return
+	}
+	for _, robboUnitCore := range robboUnitsCore {
+		robboUnitTemp := models.RobboUnitHTTP{}
+		robboUnitTemp.FromCore(robboUnitCore)
+		robboUnits = append(robboUnits, &robboUnitTemp)
+	}
+
+	return
+}
+
+func (p *CourseDelegateImpl) GetRobboGroupsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (
+	robboGroups []*models.RobboGroupHTTP,
+	err error,
+) {
+	robboGroupsCore, getRobboGroupsErr := p.CoursesUseCase.GetRobboGroupsAdmittedToTheCourse(courseId, page, pageSize)
+	if getRobboGroupsErr != nil {
+		err = getRobboGroupsErr
+		return
+	}
+	for _, robboGroupCore := range robboGroupsCore {
+		robboGroupTemp := models.RobboGroupHTTP{}
+		robboGroupTemp.FromCore(robboGroupCore)
+		robboGroups = append(robboGroups, &robboGroupTemp)
+	}
+
+	return
+}
+
+func (p *CourseDelegateImpl) GetStudentsAdmittedToTheCourse(courseId string, page *string, pageSize *string) (
+	students []*models.StudentHTTP,
+	err error,
+) {
+	studentsCore, getStudentErr := p.CoursesUseCase.GetStudentsAdmittedToTheCourse(courseId, page, pageSize)
+	if getStudentErr != nil {
+		err = getStudentErr
+		return
+	}
+	for _, studentCore := range studentsCore {
+		studentTemp := models.StudentHTTP{
+			UserHTTP:     &models.UserHTTP{},
+			RobboUnitID:  "",
+			RobboGroupID: "",
+		}
+		studentTemp.FromCore(studentCore)
+		students = append(students, &studentTemp)
+	}
+
+	return
 }
 
 func (p *CourseDelegateImpl) CreateAccessCourseRelationRobboGroup(courseRelation *models.CourseRelationHTTP) (newCourseRelation models.CourseRelationHTTP, err error) {
@@ -260,15 +395,51 @@ func (p *CourseDelegateImpl) GetCourseContent(courseId string) (courseHTTP *mode
 	return courseHTTP, nil
 }
 
-func (p *CourseDelegateImpl) GetCoursesByUser() (coursesListHTTP *models.CoursesListHTTP, err error) {
-	body, err := p.EdxUseCase.GetCoursesByUser()
-	if err != nil {
-		return nil, courses.ErrBadRequest
+func (p *CourseDelegateImpl) GetCoursesByUser(userId string, role models.Role, page string, pageSize string) (
+	coursesListHTTP *models.CoursesListHTTP,
+	err error,
+) {
+	var courseAccessRelations []*models.CourseRelationCore
+	var errGetRelations error
+	switch role {
+	case models.Student:
+		courseAccessRelations, errGetRelations = p.CoursesUseCase.GetAccessCourseRelationsByStudentId(userId)
+	case models.Teacher:
+		courseAccessRelations, err = p.CoursesUseCase.GetAccessCourseRelationsByTeacherId(userId)
+	case models.UnitAdmin:
+		courseAccessRelations, err = p.CoursesUseCase.GetAccessCourseRelationsByUnitAdminId(userId)
+	case models.SuperAdmin:
+		body, err := p.EdxUseCase.GetCoursesByUser()
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+		err = json.Unmarshal(body, &coursesListHTTP)
+		if err != nil {
+			return nil, courses.ErrInternalServerLevel
+		}
+		return coursesListHTTP, nil
 	}
-	err = json.Unmarshal(body, &coursesListHTTP)
-	if err != nil {
-		return nil, courses.ErrInternalServerLevel
+	if errGetRelations != nil {
+		return nil, errGetRelations
 	}
+	for _, courseAccessRelation := range courseAccessRelations {
+		var courseHTTP *models.CourseHTTP
+		body, err := p.EdxUseCase.GetCourseContent(courseAccessRelation.CourseId)
+		if err != nil {
+			return nil, courses.ErrBadRequest
+		}
+		err = json.Unmarshal(body, &courseHTTP)
+		if err != nil {
+			return nil, courses.ErrInternalServerLevel
+		}
+		coursesListHTTP = &models.CoursesListHTTP{
+			Results:    []*models.CourseHTTP{},
+			Pagination: &models.Pagination{},
+		}
+		coursesListHTTP.Results = append(coursesListHTTP.Results, courseHTTP)
+	}
+	coursesListHTTP.CountRows = len(courseAccessRelations)
 	return coursesListHTTP, nil
 }
 
@@ -334,4 +505,23 @@ func (p *CourseDelegateImpl) Registration(userForm *edx.RegistrationForm) (err e
 		return courses.ErrBadRequest
 	}
 	return
+}
+
+type CourseDelegateImpl struct {
+	CoursesUseCase courses.UseCase
+	EdxUseCase     edx.UseCase
+}
+
+type CourseDelegateModule struct {
+	fx.Out
+	courses.Delegate
+}
+
+func SetupCourseDelegate(coursesUsecase courses.UseCase, edxUsecase edx.UseCase) CourseDelegateModule {
+	return CourseDelegateModule{
+		Delegate: &CourseDelegateImpl{
+			coursesUsecase,
+			edxUsecase,
+		},
+	}
 }

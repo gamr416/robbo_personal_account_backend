@@ -14,6 +14,7 @@ type Gateway interface {
 	GetAccessCourseRelationsByRobboGroupId(robboGroupId string) (courseRelations []*models.CourseRelationCore, err error)
 	GetAccessCourseRelationsByRobboUnitId(robboUnitId string) (courseRelations []*models.CourseRelationCore, err error)
 	GetAccessCourseRelationsByCourseId(courseId string) (courseRelations []*models.CourseRelationCore, err error)
+	GetAccessCourseRelations(courseId string, parameter string) (courseRelations []*models.CourseRelationCore, err error)
 	DeleteAccessCourseRelationsByStudentId(studentId string) (err error)
 	DeleteAccessCourseRelationsByTeacherId(teacherId string) (err error)
 	DeleteAccessCourseRelationsByUnitAdminId(unitAdminId string) (err error)

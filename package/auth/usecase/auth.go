@@ -194,7 +194,6 @@ func (a *AuthUseCaseImpl) ParseToken(token string, key []byte) (claims *models.U
 
 func (a *AuthUseCaseImpl) RefreshToken(token string) (newAccessToken string, err error) {
 	claims, err := a.ParseToken(token, a.refreshSigningKey)
-
 	if err != nil {
 		fmt.Println(err)
 		return "", err

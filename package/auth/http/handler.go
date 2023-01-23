@@ -60,9 +60,6 @@ func (h *Handler) SignIn(c *gin.Context) {
 
 	setRefreshToken(refreshToken, c)
 
-	refreshToken2, _ := c.Request.Cookie("token2")
-	fmt.Println(refreshToken2)
-
 	c.JSON(http.StatusOK, signInResponse{
 		AccessToken: accessToken,
 	})
@@ -171,7 +168,6 @@ func getRefreshToken(c *gin.Context) (refreshToken string, err error) {
 }
 
 func setRefreshToken(value string, c *gin.Context) {
-
 	c.SetCookie(
 		"refresh_token",
 		value,

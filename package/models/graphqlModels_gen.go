@@ -54,6 +54,10 @@ type RobboUnitsResult interface {
 	IsRobboUnitsResult()
 }
 
+type SignInResult interface {
+	IsSignInResult()
+}
+
 type StudentResult interface {
 	IsStudentResult()
 }
@@ -140,6 +144,7 @@ func (CourseRelationHTTPList) IsCourseRelationsResult() {}
 type CoursesListHTTP struct {
 	Results    []*CourseHTTP `json:"results"`
 	Pagination *Pagination   `json:"pagination"`
+	CountRows  int           `json:"countRows"`
 }
 
 func (CoursesListHTTP) IsCoursesResult() {}
@@ -196,6 +201,8 @@ type Error struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
+
+func (Error) IsSignInResult() {}
 
 func (Error) IsCourseRelationResult() {}
 
@@ -394,6 +401,18 @@ type RobboUnitHTTPList struct {
 }
 
 func (RobboUnitHTTPList) IsRobboUnitsResult() {}
+
+type SignInInput struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	UserRole int    `json:"userRole"`
+}
+
+type SingInResponse struct {
+	AccessToken string `json:"accessToken"`
+}
+
+func (SingInResponse) IsSignInResult() {}
 
 type StudentHTTP struct {
 	UserHTTP     *UserHTTP `json:"userHttp"`

@@ -94,6 +94,7 @@ type ComplexityRoot struct {
 	}
 
 	CoursesListHttp struct {
+		CountRows  func(childComplexity int) int
 		Pagination func(childComplexity int) int
 		Results    func(childComplexity int) int
 	}
@@ -182,10 +183,15 @@ type ComplexityRoot struct {
 		DeleteRobboUnit                      func(childComplexity int, robboUnitID string) int
 		DeleteStudent                        func(childComplexity int, studentID string) int
 		DeleteTeacher                        func(childComplexity int, teacherID string) int
+		DeleteTeacherForRobboGroup           func(childComplexity int, teacherID string, robboGroupID string) int
 		DeleteUnitAdmin                      func(childComplexity int, unitAdminID string) int
 		DeleteUnitAdminForRobboUnit          func(childComplexity int, unitAdminID string, robboUnitID string) int
+		Refresh                              func(childComplexity int) int
 		SetNewUnitAdminForRobboUnit          func(childComplexity int, unitAdminID string, robboUnitID string) int
 		SetRobboGroupIDForStudent            func(childComplexity int, studentID string, robboGroupID string, robboUnitID string) int
+		SetTeacherForRobboGroup              func(childComplexity int, teacherID string, robboGroupID string) int
+		SingIn                               func(childComplexity int, input models.SignInInput) int
+		SingOut                              func(childComplexity int) int
 		UpdateParent                         func(childComplexity int, input models.UpdateProfileInput) int
 		UpdateProjectPage                    func(childComplexity int, input models.UpdateProjectPage) int
 		UpdateRobboGroup                     func(childComplexity int, input models.UpdateRobboGroup) int
@@ -251,31 +257,40 @@ type ComplexityRoot struct {
 		GetAllTeachers                         func(childComplexity int, page string, pageSize string) int
 		GetAllUnitAdmins                       func(childComplexity int, page string, pageSize string) int
 		GetCourseContent                       func(childComplexity int, courseID string) int
-		GetCoursesByUser                       func(childComplexity int) int
+		GetCoursesByRobboGroupID               func(childComplexity int, robboGroupID string, page *string, pageSize *string) int
+		GetCoursesByRobboUnitID                func(childComplexity int, robboUnitID string, page *string, pageSize *string) int
+		GetCoursesByUser                       func(childComplexity int, page *string, pageSize *string) int
 		GetEnrollments                         func(childComplexity int, username string) int
 		GetIndividualStudentsByTeacherID       func(childComplexity int, teacherID string) int
 		GetPairsStudentParentsByAccessToken    func(childComplexity int) int
 		GetParentByID                          func(childComplexity int, parentID string) int
 		GetProjectPageByID                     func(childComplexity int, projectPageID string) int
 		GetRobboGroupByID                      func(childComplexity int, id string) int
+		GetRobboGroupsAdmittedToTheCourse      func(childComplexity int, courseID string, page *string, pageSize *string) int
 		GetRobboGroupsByAccessToken            func(childComplexity int, page string, pageSize string) int
 		GetRobboGroupsByRobboUnitID            func(childComplexity int, robboUnitID string) int
 		GetRobboGroupsByTeacherID              func(childComplexity int, teacherID string, page string, pageSize string) int
 		GetRobboGroupsByUnitAdminID            func(childComplexity int, unitAdminID string, page string, pageSize string) int
 		GetRobboUnitByID                       func(childComplexity int, id string) int
+		GetRobboUnitsAdmittedToTheCourse       func(childComplexity int, courseID string, page *string, pageSize *string) int
 		GetRobboUnitsByAccessToken             func(childComplexity int, page string, pageSize string) int
 		GetRobboUnitsByUnitAdminID             func(childComplexity int, unitAdminID string) int
 		GetStudentByID                         func(childComplexity int, studentID string) int
+		GetStudentsAdmittedToTheCourse         func(childComplexity int, courseID string, page *string, pageSize *string) int
 		GetStudentsByParentID                  func(childComplexity int, parentID string) int
 		GetStudentsByRobboGroup                func(childComplexity int, robboGroupID string) int
 		GetStudentsByRobboUnitID               func(childComplexity int, robboUnitID string) int
 		GetSuperAdminByID                      func(childComplexity int, superAdminID string) int
 		GetTeacherByID                         func(childComplexity int, teacherID string) int
+		GetTeachersAdmittedToTheCourse         func(childComplexity int, courseID string, page *string, pageSize *string) int
 		GetTeachersByRobboGroupID              func(childComplexity int, robboGroupID string) int
 		GetUnitAdminByID                       func(childComplexity int, unitAdminID string) int
+		GetUnitAdminsAdmittedToTheCourse       func(childComplexity int, courseID string, page *string, pageSize *string) int
 		GetUnitAdminsByRobboUnitID             func(childComplexity int, robboUnitID string) int
 		SearchGroupsByName                     func(childComplexity int, name string) int
+		SearchRobboUnitsByName                 func(childComplexity int, name string) int
 		SearchStudentsByEmail                  func(childComplexity int, email string, parentID string) int
+		SearchTeachersByEmail                  func(childComplexity int, email string) int
 		SearchUnitAdminsByEmail                func(childComplexity int, email string, robboUnitID string) int
 	}
 
@@ -302,6 +317,10 @@ type ComplexityRoot struct {
 	RobboUnitHttpList struct {
 		CountRows  func(childComplexity int) int
 		RobboUnits func(childComplexity int) int
+	}
+
+	SingInResponse struct {
+		AccessToken func(childComplexity int) int
 	}
 
 	StudentHttp struct {
@@ -368,6 +387,8 @@ type MutationResolver interface {
 	UpdateTeacher(ctx context.Context, input models.UpdateProfileInput) (models.TeacherResult, error)
 	DeleteTeacher(ctx context.Context, teacherID string) (*models.DeletedTeacher, error)
 	CreateParent(ctx context.Context, input models.NewParent) (models.ParentResult, error)
+	SetTeacherForRobboGroup(ctx context.Context, teacherID string, robboGroupID string) (models.TeachersResult, error)
+	DeleteTeacherForRobboGroup(ctx context.Context, teacherID string, robboGroupID string) (models.TeachersResult, error)
 	AddChildToParent(ctx context.Context, parentID string, childID string) (models.StudentsResult, error)
 	UpdateParent(ctx context.Context, input models.UpdateProfileInput) (models.ParentResult, error)
 	DeleteParent(ctx context.Context, parentID string) (*models.DeletedParent, error)
@@ -377,6 +398,9 @@ type MutationResolver interface {
 	SetNewUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (*models.Error, error)
 	DeleteUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (*models.Error, error)
 	UpdateSuperAdmin(ctx context.Context, input models.UpdateProfileInput) (models.SuperAdminResult, error)
+	SingIn(ctx context.Context, input models.SignInInput) (models.SignInResult, error)
+	SingOut(ctx context.Context) (*models.Error, error)
+	Refresh(ctx context.Context) (models.SignInResult, error)
 	CreateAccessCourseRelationRobboGroup(ctx context.Context, input models.NewAccessCourseRelationRobboGroup) (models.CourseRelationResult, error)
 	CreateAccessCourseRelationRobboUnit(ctx context.Context, input models.NewAccessCourseRelationRobboUnit) (models.CourseRelationResult, error)
 	CreateAccessCourseRelationStudent(ctx context.Context, input models.NewAccessCourseRelationStudent) (models.CourseRelationResult, error)
@@ -404,6 +428,7 @@ type QueryResolver interface {
 	GetAllTeachers(ctx context.Context, page string, pageSize string) (models.TeachersResult, error)
 	GetTeacherByID(ctx context.Context, teacherID string) (models.TeacherResult, error)
 	GetTeachersByRobboGroupID(ctx context.Context, robboGroupID string) (models.TeachersResult, error)
+	SearchTeachersByEmail(ctx context.Context, email string) (models.TeachersResult, error)
 	GetAllParents(ctx context.Context, page string, pageSize string) (models.ParentsResult, error)
 	GetParentByID(ctx context.Context, parentID string) (models.ParentResult, error)
 	GetAllUnitAdmins(ctx context.Context, page string, pageSize string) (models.UnitAdminsResult, error)
@@ -411,6 +436,11 @@ type QueryResolver interface {
 	GetUnitAdminByID(ctx context.Context, unitAdminID string) (models.UnitAdminResult, error)
 	SearchUnitAdminsByEmail(ctx context.Context, email string, robboUnitID string) (models.UnitAdminsResult, error)
 	GetSuperAdminByID(ctx context.Context, superAdminID string) (models.SuperAdminResult, error)
+	GetStudentsAdmittedToTheCourse(ctx context.Context, courseID string, page *string, pageSize *string) (models.StudentsResult, error)
+	GetUnitAdminsAdmittedToTheCourse(ctx context.Context, courseID string, page *string, pageSize *string) (models.UnitAdminsResult, error)
+	GetTeachersAdmittedToTheCourse(ctx context.Context, courseID string, page *string, pageSize *string) (models.TeachersResult, error)
+	GetRobboGroupsAdmittedToTheCourse(ctx context.Context, courseID string, page *string, pageSize *string) (models.RobboGroupsResult, error)
+	GetRobboUnitsAdmittedToTheCourse(ctx context.Context, courseID string, page *string, pageSize *string) (models.RobboUnitsResult, error)
 	GetAccessCourseRelationsByCourseID(ctx context.Context, courseID string) (models.CourseRelationsResult, error)
 	GetAccessCourseRelationsByRobboUnitID(ctx context.Context, robboUnitID string) (models.CourseRelationsResult, error)
 	GetAccessCourseRelationsByRobboGroupID(ctx context.Context, robboGroupID string) (models.CourseRelationsResult, error)
@@ -423,7 +453,9 @@ type QueryResolver interface {
 	GetAccessCourseRelationsTeachers(ctx context.Context) (models.CourseRelationsResult, error)
 	GetAccessCourseRelationsUnitAdmins(ctx context.Context) (models.CourseRelationsResult, error)
 	GetCourseContent(ctx context.Context, courseID string) (models.CourseResult, error)
-	GetCoursesByUser(ctx context.Context) (models.CoursesResult, error)
+	GetCoursesByUser(ctx context.Context, page *string, pageSize *string) (models.CoursesResult, error)
+	GetCoursesByRobboUnitID(ctx context.Context, robboUnitID string, page *string, pageSize *string) (models.CoursesResult, error)
+	GetCoursesByRobboGroupID(ctx context.Context, robboGroupID string, page *string, pageSize *string) (models.CoursesResult, error)
 	GetAllPublicCourses(ctx context.Context, pageNumber string) (models.CoursesResult, error)
 	GetEnrollments(ctx context.Context, username string) (models.EnrollmentsResult, error)
 	GetProjectPageByID(ctx context.Context, projectPageID string) (models.ProjectPageResult, error)
@@ -441,6 +473,7 @@ type QueryResolver interface {
 	GetAllRobboUnits(ctx context.Context, page string, pageSize string) (models.RobboUnitsResult, error)
 	GetRobboUnitsByUnitAdminID(ctx context.Context, unitAdminID string) (models.RobboUnitsResult, error)
 	GetRobboUnitsByAccessToken(ctx context.Context, page string, pageSize string) (models.RobboUnitsResult, error)
+	SearchRobboUnitsByName(ctx context.Context, name string) (models.RobboUnitsResult, error)
 }
 
 type executableSchema struct {
@@ -695,6 +728,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CourseRelationHttpList.CourseRelations(childComplexity), true
+
+	case "CoursesListHttp.countRows":
+		if e.complexity.CoursesListHttp.CountRows == nil {
+			break
+		}
+
+		return e.complexity.CoursesListHttp.CountRows(childComplexity), true
 
 	case "CoursesListHttp.pagination":
 		if e.complexity.CoursesListHttp.Pagination == nil {
@@ -1113,6 +1153,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteTeacher(childComplexity, args["teacherId"].(string)), true
 
+	case "Mutation.DeleteTeacherForRobboGroup":
+		if e.complexity.Mutation.DeleteTeacherForRobboGroup == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_DeleteTeacherForRobboGroup_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteTeacherForRobboGroup(childComplexity, args["teacherId"].(string), args["robboGroupId"].(string)), true
+
 	case "Mutation.DeleteUnitAdmin":
 		if e.complexity.Mutation.DeleteUnitAdmin == nil {
 			break
@@ -1137,6 +1189,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteUnitAdminForRobboUnit(childComplexity, args["unitAdminId"].(string), args["robboUnitId"].(string)), true
 
+	case "Mutation.Refresh":
+		if e.complexity.Mutation.Refresh == nil {
+			break
+		}
+
+		return e.complexity.Mutation.Refresh(childComplexity), true
+
 	case "Mutation.SetNewUnitAdminForRobboUnit":
 		if e.complexity.Mutation.SetNewUnitAdminForRobboUnit == nil {
 			break
@@ -1160,6 +1219,37 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SetRobboGroupIDForStudent(childComplexity, args["studentId"].(string), args["robboGroupId"].(string), args["robboUnitId"].(string)), true
+
+	case "Mutation.SetTeacherForRobboGroup":
+		if e.complexity.Mutation.SetTeacherForRobboGroup == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_SetTeacherForRobboGroup_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SetTeacherForRobboGroup(childComplexity, args["teacherId"].(string), args["robboGroupId"].(string)), true
+
+	case "Mutation.SingIn":
+		if e.complexity.Mutation.SingIn == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_SingIn_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SingIn(childComplexity, args["input"].(models.SignInInput)), true
+
+	case "Mutation.SingOut":
+		if e.complexity.Mutation.SingOut == nil {
+			break
+		}
+
+		return e.complexity.Mutation.SingOut(childComplexity), true
 
 	case "Mutation.UpdateParent":
 		if e.complexity.Mutation.UpdateParent == nil {
@@ -1605,12 +1695,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetCourseContent(childComplexity, args["courseId"].(string)), true
 
+	case "Query.GetCoursesByRobboGroupId":
+		if e.complexity.Query.GetCoursesByRobboGroupID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetCoursesByRobboGroupId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetCoursesByRobboGroupID(childComplexity, args["robboGroupId"].(string), args["page"].(*string), args["pageSize"].(*string)), true
+
+	case "Query.GetCoursesByRobboUnitId":
+		if e.complexity.Query.GetCoursesByRobboUnitID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetCoursesByRobboUnitId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetCoursesByRobboUnitID(childComplexity, args["robboUnitId"].(string), args["page"].(*string), args["pageSize"].(*string)), true
+
 	case "Query.GetCoursesByUser":
 		if e.complexity.Query.GetCoursesByUser == nil {
 			break
 		}
 
-		return e.complexity.Query.GetCoursesByUser(childComplexity), true
+		args, err := ec.field_Query_GetCoursesByUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetCoursesByUser(childComplexity, args["page"].(*string), args["pageSize"].(*string)), true
 
 	case "Query.GetEnrollments":
 		if e.complexity.Query.GetEnrollments == nil {
@@ -1679,6 +1798,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetRobboGroupByID(childComplexity, args["id"].(string)), true
 
+	case "Query.GetRobboGroupsAdmittedToTheCourse":
+		if e.complexity.Query.GetRobboGroupsAdmittedToTheCourse == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetRobboGroupsAdmittedToTheCourse_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetRobboGroupsAdmittedToTheCourse(childComplexity, args["courseId"].(string), args["page"].(*string), args["pageSize"].(*string)), true
+
 	case "Query.GetRobboGroupsByAccessToken":
 		if e.complexity.Query.GetRobboGroupsByAccessToken == nil {
 			break
@@ -1739,6 +1870,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetRobboUnitByID(childComplexity, args["id"].(string)), true
 
+	case "Query.GetRobboUnitsAdmittedToTheCourse":
+		if e.complexity.Query.GetRobboUnitsAdmittedToTheCourse == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetRobboUnitsAdmittedToTheCourse_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetRobboUnitsAdmittedToTheCourse(childComplexity, args["courseId"].(string), args["page"].(*string), args["pageSize"].(*string)), true
+
 	case "Query.GetRobboUnitsByAccessToken":
 		if e.complexity.Query.GetRobboUnitsByAccessToken == nil {
 			break
@@ -1774,6 +1917,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetStudentByID(childComplexity, args["studentId"].(string)), true
+
+	case "Query.GetStudentsAdmittedToTheCourse":
+		if e.complexity.Query.GetStudentsAdmittedToTheCourse == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetStudentsAdmittedToTheCourse_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetStudentsAdmittedToTheCourse(childComplexity, args["courseId"].(string), args["page"].(*string), args["pageSize"].(*string)), true
 
 	case "Query.GetStudentsByParentId":
 		if e.complexity.Query.GetStudentsByParentID == nil {
@@ -1835,6 +1990,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetTeacherByID(childComplexity, args["teacherId"].(string)), true
 
+	case "Query.GetTeachersAdmittedToTheCourse":
+		if e.complexity.Query.GetTeachersAdmittedToTheCourse == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetTeachersAdmittedToTheCourse_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetTeachersAdmittedToTheCourse(childComplexity, args["courseId"].(string), args["page"].(*string), args["pageSize"].(*string)), true
+
 	case "Query.GetTeachersByRobboGroupId":
 		if e.complexity.Query.GetTeachersByRobboGroupID == nil {
 			break
@@ -1858,6 +2025,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetUnitAdminByID(childComplexity, args["unitAdminId"].(string)), true
+
+	case "Query.GetUnitAdminsAdmittedToTheCourse":
+		if e.complexity.Query.GetUnitAdminsAdmittedToTheCourse == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetUnitAdminsAdmittedToTheCourse_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetUnitAdminsAdmittedToTheCourse(childComplexity, args["courseId"].(string), args["page"].(*string), args["pageSize"].(*string)), true
 
 	case "Query.GetUnitAdminsByRobboUnitId":
 		if e.complexity.Query.GetUnitAdminsByRobboUnitID == nil {
@@ -1883,6 +2062,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.SearchGroupsByName(childComplexity, args["name"].(string)), true
 
+	case "Query.SearchRobboUnitsByName":
+		if e.complexity.Query.SearchRobboUnitsByName == nil {
+			break
+		}
+
+		args, err := ec.field_Query_SearchRobboUnitsByName_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.SearchRobboUnitsByName(childComplexity, args["name"].(string)), true
+
 	case "Query.SearchStudentsByEmail":
 		if e.complexity.Query.SearchStudentsByEmail == nil {
 			break
@@ -1894,6 +2085,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.SearchStudentsByEmail(childComplexity, args["email"].(string), args["parentId"].(string)), true
+
+	case "Query.SearchTeachersByEmail":
+		if e.complexity.Query.SearchTeachersByEmail == nil {
+			break
+		}
+
+		args, err := ec.field_Query_SearchTeachersByEmail_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.SearchTeachersByEmail(childComplexity, args["email"].(string)), true
 
 	case "Query.SearchUnitAdminsByEmail":
 		if e.complexity.Query.SearchUnitAdminsByEmail == nil {
@@ -1997,6 +2200,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RobboUnitHttpList.RobboUnits(childComplexity), true
+
+	case "SingInResponse.accessToken":
+		if e.complexity.SingInResponse.AccessToken == nil {
+			break
+		}
+
+		return e.complexity.SingInResponse.AccessToken(childComplexity), true
 
 	case "StudentHttp.robboGroupId":
 		if e.complexity.StudentHttp.RobboGroupID == nil {
@@ -2185,6 +2395,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputNewStudent,
 		ec.unmarshalInputNewTeacher,
 		ec.unmarshalInputNewUnitAdmin,
+		ec.unmarshalInputSignInInput,
 		ec.unmarshalInputUpdateProfileInput,
 		ec.unmarshalInputUpdateProjectPage,
 		ec.unmarshalInputUpdateRobboGroup,
@@ -2249,6 +2460,23 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
+	{Name: "../auth.graphqls", Input: `input SignInInput {
+	email: String!
+	password: String!
+	userRole: Int!
+}
+
+type SingInResponse {
+	accessToken: String!
+}
+
+union SignInResult = Error | SingInResponse
+
+extend type Mutation {
+	SingIn(input: SignInInput!): SignInResult!
+	SingOut: Error
+	Refresh: SignInResult
+}`, BuiltIn: false},
 	{Name: "../courses.graphqls", Input: `type CourseHttp {
     id: String!
     blocks_url: String!
@@ -2321,6 +2549,7 @@ type Pagination {
 type CoursesListHttp {
     results:    [CourseHttp!]!
     pagination: Pagination!
+    countRows: Int!
 }
 
 input NewAccessCourseRelationRobboGroup {
@@ -2380,6 +2609,12 @@ extend type Mutation {
 }
 
 extend type Query {
+    GetStudentsAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): StudentsResult!
+    GetUnitAdminsAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): UnitAdminsResult!
+    GetTeachersAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): TeachersResult!
+    GetRobboGroupsAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): RobboGroupsResult!
+    GetRobboUnitsAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): RobboUnitsResult!
+
     GetAccessCourseRelationsByCourseId(courseId: String!): CourseRelationsResult!
     GetAccessCourseRelationsByRobboUnitId(robboUnitId: String!): CourseRelationsResult!
     GetAccessCourseRelationsByRobboGroupId(robboGroupId: String!): CourseRelationsResult!
@@ -2392,7 +2627,11 @@ extend type Query {
     GetAccessCourseRelationsTeachers: CourseRelationsResult!
     GetAccessCourseRelationsUnitAdmins: CourseRelationsResult!
     GetCourseContent(courseId: String!): CourseResult!
-    GetCoursesByUser: CoursesResult!
+
+    GetCoursesByUser(page: String, pageSize: String): CoursesResult!
+    GetCoursesByRobboUnitId(robboUnitId: String!, page: String, pageSize: String): CoursesResult!
+    GetCoursesByRobboGroupId(robboGroupId: String!, page: String, pageSize: String): CoursesResult!
+
     GetAllPublicCourses(pageNumber: String!): CoursesResult!
     GetEnrollments(username: String!): EnrollmentsResult!
 }`, BuiltIn: false},
@@ -2536,6 +2775,7 @@ extend type Query {
     GetAllRobboUnits(page: String!, pageSize: String!): RobboUnitsResult!
     GetRobboUnitsByUnitAdminId(unitAdminId: String!): RobboUnitsResult!
     GetRobboUnitsByAccessToken(page: String!, pageSize: String!): RobboUnitsResult!
+    SearchRobboUnitsByName(name: String!): RobboUnitsResult!
 }`, BuiltIn: false},
 	{Name: "../user.graphqls", Input: `type UserHttp {
     id: String!
@@ -2683,6 +2923,8 @@ type Mutation {
     UpdateTeacher(input: UpdateProfileInput!): TeacherResult!
     DeleteTeacher(teacherId: String!): DeletedTeacher!
     CreateParent(input: NewParent!): ParentResult!
+    SetTeacherForRobboGroup(teacherId: String!, robboGroupId: String!): TeachersResult!
+    DeleteTeacherForRobboGroup(teacherId: String!, robboGroupId: String!): TeachersResult!
     AddChildToParent(parentId: String!, childId: String!): StudentsResult!
     UpdateParent(input: UpdateProfileInput!): ParentResult!
     DeleteParent(parentId: String!): DeletedParent!
@@ -2705,6 +2947,7 @@ type Query {
     GetAllTeachers(page: String!, pageSize: String!): TeachersResult!
     GetTeacherById(teacherId: String!): TeacherResult!
     GetTeachersByRobboGroupId(robboGroupId: String!): TeachersResult!
+    SearchTeachersByEmail(email: String!): TeachersResult!
     GetAllParents(page: String!, pageSize: String!): ParentsResult!
     GetParentById(parentId: String!): ParentResult!
     GetAllUnitAdmins(page: String!, pageSize: String!): UnitAdminsResult!
@@ -3002,6 +3245,30 @@ func (ec *executionContext) field_Mutation_DeleteStudent_args(ctx context.Contex
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_DeleteTeacherForRobboGroup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["teacherId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teacherId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["teacherId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["robboGroupId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboGroupId"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["robboGroupId"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_DeleteTeacher_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3110,6 +3377,45 @@ func (ec *executionContext) field_Mutation_SetRobboGroupIdForStudent_args(ctx co
 		}
 	}
 	args["robboUnitId"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_SetTeacherForRobboGroup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["teacherId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teacherId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["teacherId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["robboGroupId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboGroupId"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["robboGroupId"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_SingIn_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.SignInInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNSignInInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐSignInInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -3512,6 +3818,96 @@ func (ec *executionContext) field_Query_GetCourseContent_args(ctx context.Contex
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_GetCoursesByRobboGroupId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["robboGroupId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboGroupId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["robboGroupId"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetCoursesByRobboUnitId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["robboUnitId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["robboUnitId"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetCoursesByUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_GetEnrollments_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3584,6 +3980,39 @@ func (ec *executionContext) field_Query_GetRobboGroupById_args(ctx context.Conte
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetRobboGroupsAdmittedToTheCourse_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["courseId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["courseId"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg2
 	return args, nil
 }
 
@@ -3707,6 +4136,39 @@ func (ec *executionContext) field_Query_GetRobboUnitById_args(ctx context.Contex
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_GetRobboUnitsAdmittedToTheCourse_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["courseId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["courseId"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg2
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_GetRobboUnitsByAccessToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3758,6 +4220,39 @@ func (ec *executionContext) field_Query_GetStudentById_args(ctx context.Context,
 		}
 	}
 	args["studentId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetStudentsAdmittedToTheCourse_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["courseId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["courseId"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg2
 	return args, nil
 }
 
@@ -3836,6 +4331,39 @@ func (ec *executionContext) field_Query_GetTeacherById_args(ctx context.Context,
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_GetTeachersAdmittedToTheCourse_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["courseId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["courseId"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg2
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_GetTeachersByRobboGroupId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3866,6 +4394,39 @@ func (ec *executionContext) field_Query_GetUnitAdminById_args(ctx context.Contex
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_GetUnitAdminsAdmittedToTheCourse_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["courseId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["courseId"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg2
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_GetUnitAdminsByRobboUnitId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3882,6 +4443,21 @@ func (ec *executionContext) field_Query_GetUnitAdminsByRobboUnitId_args(ctx cont
 }
 
 func (ec *executionContext) field_Query_SearchGroupsByName_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["name"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_SearchRobboUnitsByName_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -3917,6 +4493,21 @@ func (ec *executionContext) field_Query_SearchStudentsByEmail_args(ctx context.C
 		}
 	}
 	args["parentId"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_SearchTeachersByEmail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["email"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["email"] = arg0
 	return args, nil
 }
 
@@ -5672,6 +6263,50 @@ func (ec *executionContext) fieldContext_CoursesListHttp_pagination(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _CoursesListHttp_countRows(ctx context.Context, field graphql.CollectedField, obj *models.CoursesListHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CoursesListHttp_countRows(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CountRows, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CoursesListHttp_countRows(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CoursesListHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _DeletedCourseRelation_courseRelationId(ctx context.Context, field graphql.CollectedField, obj *models.DeletedCourseRelation) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_DeletedCourseRelation_courseRelationId(ctx, field)
 	if err != nil {
@@ -7191,6 +7826,116 @@ func (ec *executionContext) fieldContext_Mutation_CreateParent(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_SetTeacherForRobboGroup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_SetTeacherForRobboGroup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SetTeacherForRobboGroup(rctx, fc.Args["teacherId"].(string), fc.Args["robboGroupId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.TeachersResult)
+	fc.Result = res
+	return ec.marshalNTeachersResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐTeachersResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_SetTeacherForRobboGroup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TeachersResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_SetTeacherForRobboGroup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_DeleteTeacherForRobboGroup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_DeleteTeacherForRobboGroup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteTeacherForRobboGroup(rctx, fc.Args["teacherId"].(string), fc.Args["robboGroupId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.TeachersResult)
+	fc.Result = res
+	return ec.marshalNTeachersResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐTeachersResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_DeleteTeacherForRobboGroup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TeachersResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_DeleteTeacherForRobboGroup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_AddChildToParent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_AddChildToParent(ctx, field)
 	if err != nil {
@@ -7702,6 +8447,149 @@ func (ec *executionContext) fieldContext_Mutation_UpdateSuperAdmin(ctx context.C
 	if fc.Args, err = ec.field_Mutation_UpdateSuperAdmin_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_SingIn(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_SingIn(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SingIn(rctx, fc.Args["input"].(models.SignInInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.SignInResult)
+	fc.Result = res
+	return ec.marshalNSignInResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐSignInResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_SingIn(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type SignInResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_SingIn_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_SingOut(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_SingOut(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SingOut(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.Error)
+	fc.Result = res
+	return ec.marshalOError2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_SingOut(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "code":
+				return ec.fieldContext_Error_code(ctx, field)
+			case "message":
+				return ec.fieldContext_Error_message(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Error", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_Refresh(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_Refresh(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().Refresh(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(models.SignInResult)
+	fc.Result = res
+	return ec.marshalOSignInResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐSignInResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_Refresh(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type SignInResult does not have child fields")
+		},
 	}
 	return fc, nil
 }
@@ -9921,6 +10809,61 @@ func (ec *executionContext) fieldContext_Query_GetTeachersByRobboGroupId(ctx con
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_SearchTeachersByEmail(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_SearchTeachersByEmail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().SearchTeachersByEmail(rctx, fc.Args["email"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.TeachersResult)
+	fc.Result = res
+	return ec.marshalNTeachersResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐTeachersResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_SearchTeachersByEmail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TeachersResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_SearchTeachersByEmail_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_GetAllParents(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_GetAllParents(ctx, field)
 	if err != nil {
@@ -10300,6 +11243,281 @@ func (ec *executionContext) fieldContext_Query_GetSuperAdminById(ctx context.Con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_GetSuperAdminById_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetStudentsAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetStudentsAdmittedToTheCourse(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetStudentsAdmittedToTheCourse(rctx, fc.Args["courseId"].(string), fc.Args["page"].(*string), fc.Args["pageSize"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.StudentsResult)
+	fc.Result = res
+	return ec.marshalNStudentsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentsResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetStudentsAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type StudentsResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetStudentsAdmittedToTheCourse_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetUnitAdminsAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetUnitAdminsAdmittedToTheCourse(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetUnitAdminsAdmittedToTheCourse(rctx, fc.Args["courseId"].(string), fc.Args["page"].(*string), fc.Args["pageSize"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.UnitAdminsResult)
+	fc.Result = res
+	return ec.marshalNUnitAdminsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUnitAdminsResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetUnitAdminsAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UnitAdminsResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetUnitAdminsAdmittedToTheCourse_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetTeachersAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetTeachersAdmittedToTheCourse(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetTeachersAdmittedToTheCourse(rctx, fc.Args["courseId"].(string), fc.Args["page"].(*string), fc.Args["pageSize"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.TeachersResult)
+	fc.Result = res
+	return ec.marshalNTeachersResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐTeachersResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetTeachersAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TeachersResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetTeachersAdmittedToTheCourse_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetRobboGroupsAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetRobboGroupsAdmittedToTheCourse(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetRobboGroupsAdmittedToTheCourse(rctx, fc.Args["courseId"].(string), fc.Args["page"].(*string), fc.Args["pageSize"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.RobboGroupsResult)
+	fc.Result = res
+	return ec.marshalNRobboGroupsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupsResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetRobboGroupsAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type RobboGroupsResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetRobboGroupsAdmittedToTheCourse_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetRobboUnitsAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetRobboUnitsAdmittedToTheCourse(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetRobboUnitsAdmittedToTheCourse(rctx, fc.Args["courseId"].(string), fc.Args["page"].(*string), fc.Args["pageSize"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.RobboUnitsResult)
+	fc.Result = res
+	return ec.marshalNRobboUnitsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitsResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetRobboUnitsAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type RobboUnitsResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetRobboUnitsAdmittedToTheCourse_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -10925,7 +12143,7 @@ func (ec *executionContext) _Query_GetCoursesByUser(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetCoursesByUser(rctx)
+		return ec.resolvers.Query().GetCoursesByUser(rctx, fc.Args["page"].(*string), fc.Args["pageSize"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10951,6 +12169,127 @@ func (ec *executionContext) fieldContext_Query_GetCoursesByUser(ctx context.Cont
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type CoursesResult does not have child fields")
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetCoursesByUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetCoursesByRobboUnitId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetCoursesByRobboUnitId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetCoursesByRobboUnitID(rctx, fc.Args["robboUnitId"].(string), fc.Args["page"].(*string), fc.Args["pageSize"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.CoursesResult)
+	fc.Result = res
+	return ec.marshalNCoursesResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCoursesResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetCoursesByRobboUnitId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CoursesResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetCoursesByRobboUnitId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetCoursesByRobboGroupId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetCoursesByRobboGroupId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetCoursesByRobboGroupID(rctx, fc.Args["robboGroupId"].(string), fc.Args["page"].(*string), fc.Args["pageSize"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.CoursesResult)
+	fc.Result = res
+	return ec.marshalNCoursesResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCoursesResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetCoursesByRobboGroupId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CoursesResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetCoursesByRobboGroupId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -11879,6 +13218,61 @@ func (ec *executionContext) fieldContext_Query_GetRobboUnitsByAccessToken(ctx co
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_SearchRobboUnitsByName(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_SearchRobboUnitsByName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().SearchRobboUnitsByName(rctx, fc.Args["name"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.RobboUnitsResult)
+	fc.Result = res
+	return ec.marshalNRobboUnitsResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboUnitsResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_SearchRobboUnitsByName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type RobboUnitsResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_SearchRobboUnitsByName_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query___type(ctx, field)
 	if err != nil {
@@ -12602,6 +13996,50 @@ func (ec *executionContext) fieldContext_RobboUnitHttpList_countRows(ctx context
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SingInResponse_accessToken(ctx context.Context, field graphql.CollectedField, obj *models.SingInResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SingInResponse_accessToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AccessToken, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SingInResponse_accessToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SingInResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -16084,6 +17522,50 @@ func (ec *executionContext) unmarshalInputNewUnitAdmin(ctx context.Context, obj 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSignInInput(ctx context.Context, obj interface{}) (models.SignInInput, error) {
+	var it models.SignInInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"email", "password", "userRole"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "email":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			it.Email, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "password":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			it.Password, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "userRole":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userRole"))
+			it.UserRole, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateProfileInput(ctx context.Context, obj interface{}) (models.UpdateProfileInput, error) {
 	var it models.UpdateProfileInput
 	asMap := map[string]interface{}{}
@@ -16618,6 +18100,29 @@ func (ec *executionContext) _RobboUnitsResult(ctx context.Context, sel ast.Selec
 	}
 }
 
+func (ec *executionContext) _SignInResult(ctx context.Context, sel ast.SelectionSet, obj models.SignInResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case models.Error:
+		return ec._Error(ctx, sel, &obj)
+	case *models.Error:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Error(ctx, sel, obj)
+	case models.SingInResponse:
+		return ec._SingInResponse(ctx, sel, &obj)
+	case *models.SingInResponse:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SingInResponse(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _StudentResult(ctx context.Context, sel ast.SelectionSet, obj models.StudentResult) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -17135,6 +18640,13 @@ func (ec *executionContext) _CoursesListHttp(ctx context.Context, sel ast.Select
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "countRows":
+
+			out.Values[i] = ec._CoursesListHttp_countRows(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -17465,7 +18977,7 @@ func (ec *executionContext) _EnrollmentsListHttp(ctx context.Context, sel ast.Se
 	return out
 }
 
-var errorImplementors = []string{"Error", "CourseRelationResult", "CourseRelationsResult", "CourseResult", "CoursesResult", "EnrollmentsResult", "ProjectPageResult", "RobboGroupResult", "RobboGroupsResult", "RobboUnitResult", "RobboUnitsResult", "StudentResult", "StudentsResult", "ParentResult", "ParentsResult", "TeacherResult", "TeachersResult", "UnitAdminResult", "UnitAdminsResult", "SuperAdminResult", "PairsStudentParentsResult"}
+var errorImplementors = []string{"Error", "SignInResult", "CourseRelationResult", "CourseRelationsResult", "CourseResult", "CoursesResult", "EnrollmentsResult", "ProjectPageResult", "RobboGroupResult", "RobboGroupsResult", "RobboUnitResult", "RobboUnitsResult", "StudentResult", "StudentsResult", "ParentResult", "ParentsResult", "TeacherResult", "TeachersResult", "UnitAdminResult", "UnitAdminsResult", "SuperAdminResult", "PairsStudentParentsResult"}
 
 func (ec *executionContext) _Error(ctx context.Context, sel ast.SelectionSet, obj *models.Error) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, errorImplementors)
@@ -17675,6 +19187,24 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "SetTeacherForRobboGroup":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_SetTeacherForRobboGroup(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "DeleteTeacherForRobboGroup":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_DeleteTeacherForRobboGroup(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "AddChildToParent":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -17756,6 +19286,27 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "SingIn":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_SingIn(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "SingOut":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_SingOut(ctx, field)
+			})
+
+		case "Refresh":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_Refresh(ctx, field)
+			})
+
 		case "CreateAccessCourseRelationRobboGroup":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -18382,6 +19933,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "SearchTeachersByEmail":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_SearchTeachersByEmail(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "GetAllParents":
 			field := field
 
@@ -18530,6 +20104,121 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_GetSuperAdminById(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetStudentsAdmittedToTheCourse":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetStudentsAdmittedToTheCourse(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetUnitAdminsAdmittedToTheCourse":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetUnitAdminsAdmittedToTheCourse(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetTeachersAdmittedToTheCourse":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetTeachersAdmittedToTheCourse(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetRobboGroupsAdmittedToTheCourse":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetRobboGroupsAdmittedToTheCourse(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetRobboUnitsAdmittedToTheCourse":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetRobboUnitsAdmittedToTheCourse(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -18829,6 +20518,52 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_GetCoursesByUser(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetCoursesByRobboUnitId":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetCoursesByRobboUnitId(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetCoursesByRobboGroupId":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetCoursesByRobboGroupId(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -19233,6 +20968,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "SearchRobboUnitsByName":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_SearchRobboUnitsByName(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -19413,6 +21171,34 @@ func (ec *executionContext) _RobboUnitHttpList(ctx context.Context, sel ast.Sele
 		case "countRows":
 
 			out.Values[i] = ec._RobboUnitHttpList_countRows(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var singInResponseImplementors = []string{"SingInResponse", "SignInResult"}
+
+func (ec *executionContext) _SingInResponse(ctx context.Context, sel ast.SelectionSet, obj *models.SingInResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, singInResponseImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SingInResponse")
+		case "accessToken":
+
+			out.Values[i] = ec._SingInResponse_accessToken(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -20819,6 +22605,21 @@ func (ec *executionContext) marshalNRobboUnitsResult2githubᚗcomᚋskinnykaen�
 	return ec._RobboUnitsResult(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNSignInInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐSignInInput(ctx context.Context, v interface{}) (models.SignInInput, error) {
+	res, err := ec.unmarshalInputSignInInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNSignInResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐSignInResult(ctx context.Context, sel ast.SelectionSet, v models.SignInResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SignInResult(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -21498,6 +23299,13 @@ func (ec *executionContext) marshalOEnrollmentHttp2ᚕᚖgithubᚗcomᚋskinnyka
 	return ret
 }
 
+func (ec *executionContext) marshalOError2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐError(ctx context.Context, sel ast.SelectionSet, v *models.Error) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Error(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOImageHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐImageHTTP(ctx context.Context, sel ast.SelectionSet, v *models.ImageHTTP) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -21510,6 +23318,13 @@ func (ec *executionContext) marshalOMediaHttp2ᚖgithubᚗcomᚋskinnykaenᚋrob
 		return graphql.Null
 	}
 	return ec._MediaHttp(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOSignInResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐSignInResult(ctx context.Context, sel ast.SelectionSet, v models.SignInResult) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._SignInResult(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

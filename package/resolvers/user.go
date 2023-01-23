@@ -7,8 +7,10 @@ import (
 	"context"
 	"errors"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/skinnykaen/robbo_student_personal_account.git/graph/generated"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 // CreateStudent is the resolver for the createStudent field.
@@ -275,6 +277,56 @@ func (r *mutationResolver) CreateParent(ctx context.Context, input models.NewPar
 		return &models.Error{Message: err.Error()}, err
 	}
 	return newParent, nil
+}
+
+// SetTeacherForRobboGroup is the resolver for the SetTeacherForRobboGroup field.
+func (r *mutationResolver) SetTeacherForRobboGroup(ctx context.Context, teacherID string, robboGroupID string) (models.TeachersResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := errors.New("status unauthorized")
+		return &models.Error{Message: "status unauthorized"}, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return &models.Error{Message: "no access"}, err
+	}
+	err := r.robboGroupDelegate.SetTeacherForRobboGroup(teacherID, robboGroupID)
+	if err != nil {
+		return &models.Error{Message: "baq request"}, err
+	}
+	return &models.TeacherHTTPList{}, nil
+}
+
+// DeleteTeacherForRobboGroup is the resolver for the DeleteTeacherForRobboGroup field.
+func (r *mutationResolver) DeleteTeacherForRobboGroup(ctx context.Context, teacherID string, robboGroupID string) (models.TeachersResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := errors.New("status unauthorized")
+		return &models.Error{Message: "status unauthorized"}, err
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return &models.Error{Message: "no access"}, err
+	}
+	err := r.robboGroupDelegate.DeleteTeacherForRobboGroup(teacherID, robboGroupID)
+	if err != nil {
+		return &models.Error{Message: "baq request"}, err
+	}
+	return &models.TeacherHTTPList{}, nil
 }
 
 // AddChildToParent is the resolver for the addChildToParent field.
@@ -828,8 +880,8 @@ func (r *queryResolver) GetTeachersByRobboGroupID(ctx context.Context, robboGrou
 	}, nil
 }
 
-// GetAllParents is the resolver for the GetAllParents field.
-func (r *queryResolver) GetAllParents(ctx context.Context, page string, pageSize string) (models.ParentsResult, error) {
+// SearchTeachersByEmail is the resolver for the SearchTeachersByEmail field.
+func (r *queryResolver) SearchTeachersByEmail(ctx context.Context, email string) (models.TeachersResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -845,6 +897,36 @@ func (r *queryResolver) GetAllParents(ctx context.Context, page string, pageSize
 	if accessErr != nil {
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
+	}
+	teachers, searchTeachersByEmailErr := r.usersDelegate.SearchTeacherByEmail(email)
+	if searchTeachersByEmailErr != nil {
+		err := searchTeachersByEmailErr
+		return &models.Error{Message: err.Error()}, err
+	}
+	return &models.TeacherHTTPList{
+		Teachers: teachers,
+	}, nil
+}
+
+// GetAllParents is the resolver for the GetAllParents field.
+func (r *queryResolver) GetAllParents(ctx context.Context, page string, pageSize string) (models.ParentsResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
+	}
+	userRole := ginContext.Value("user_role").(models.Role)
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles)
+	if accessErr != nil {
+		err := accessErr
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: err.Error(),
+			Extensions: map[string]interface{}{
+				"code": "403",
+			},
+		}
 	}
 	parents, countRows, getAllParentsErr := r.usersDelegate.GetAllParent(page, pageSize)
 	if getAllParentsErr != nil {

@@ -12,6 +12,12 @@ type RobboUnitsUseCaseImpl struct {
 	usersGateway      users.Gateway
 }
 
+func (p *RobboUnitsUseCaseImpl) SearchRobboUnitsByName(name string) (robboUnits []*models.RobboUnitCore, err error) {
+	nameCondition := name + "%"
+	return p.robboUnitsGateway.SearchRobboUnitByName(nameCondition)
+
+}
+
 type RobboUnitsUseCaseModule struct {
 	fx.Out
 	robboUnits.UseCase

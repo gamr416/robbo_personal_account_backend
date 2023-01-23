@@ -20,8 +20,9 @@ func NewServer(lifecycle fx.Lifecycle, graphQLModule modules.GraphQLModule, hand
 		fx.Hook{
 			OnStart: func(ctx context.Context) (err error) {
 				router := SetupGinRouter(handlers)
+				router.Use(TokenAuthMiddleware())
 				router.GET("/", playgroundHandler())
-				router.POST("/query", TokenAuthMiddleware(), graphqlHandler(graphQLModule))
+				router.POST("/query", graphqlHandler(graphQLModule))
 
 				server := &http.Server{
 					Addr: viper.GetString("server.address"),
@@ -31,12 +32,14 @@ func NewServer(lifecycle fx.Lifecycle, graphQLModule modules.GraphQLModule, hand
 							AllowedOrigins:   []string{"http://0.0.0.0:3030", "http://0.0.0.0:8601", "http://localhost:3030"},
 							AllowCredentials: true,
 							AllowedMethods: []string{
-								http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions, http.MethodOptions,
+								http.MethodGet,
+								http.MethodPost,
+								http.MethodPut,
+								http.MethodDelete,
+								http.MethodOptions,
+								http.MethodOptions,
 							},
 							AllowedHeaders: []string{"*"},
-							//AllowedHeaders: []string{
-							//	"Origin", "X-Requested-With", "Content-Type", "Accept", "Set-Cookie", "Authorization",
-							//},
 						},
 					).Handler(router),
 					ReadTimeout:    10 * time.Second,
@@ -89,7 +92,8 @@ func graphqlHandler(graphQLModule modules.GraphQLModule) gin.HandlerFunc {
 	h := handler.NewDefaultServer(
 		generated.NewExecutableSchema(
 			generated.Config{
-				Resolvers: &graphQLModule.UsersResolver},
+				Resolvers: &graphQLModule.UsersResolver,
+			},
 		))
 
 	return func(c *gin.Context) {

@@ -16,6 +16,7 @@ const (
 	UnitAdmin
 	SuperAdmin
 	Anonymous
+	WithExpiredToken
 )
 
 type UserClaims struct {

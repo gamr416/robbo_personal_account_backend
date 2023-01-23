@@ -278,6 +278,22 @@ func (r *UsersGatewayImpl) UpdateTeacher(teacher *models.TeacherCore) (teacherUp
 	return
 }
 
+func (r *UsersGatewayImpl) SearchTeacherByEmail(email string) (teachers []models.TeacherCore, err error) {
+	var teachersDb []*models.TeacherDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Limit(10).Where("email LIKE ?", email).Find(&teachersDb).Error; err != nil {
+			err = auth.ErrUserNotFound
+			log.Println(err)
+			return
+		}
+		return
+	})
+	for _, teacherDb := range teachersDb {
+		teachers = append(teachers, teacherDb.ToCore())
+	}
+	return
+}
+
 func (r *UsersGatewayImpl) GetParent(email, password string) (parent *models.ParentCore, err error) {
 	var parentDb models.ParentDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
@@ -552,16 +568,17 @@ func (r *UsersGatewayImpl) SearchUnitAdminByEmail(email string, robboUnitId stri
 		return
 	})
 	for _, unitAdminDb := range unitAdminsDb {
-		var countRow int64
-		err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-			tx.Where("robbo_unit_id = ? AND unit_admin_id = ?", robboUnitId, unitAdminDb.ID).Model(&models.UnitAdminsRobboUnitsDB{}).Count(&countRow)
-			return
-		})
-		if countRow != 0 {
-			continue
-		}
+		//var countRow int64
+		//err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		//	tx.Where("robbo_unit_id = ? AND unit_admin_id = ?", robboUnitId, unitAdminDb.ID).Model(&models.UnitAdminsRobboUnitsDB{}).Count(&countRow)
+		//	return
+		//})
+		//if countRow != 0 {
+		//	continue
+		//}
 		unitAdmins = append(unitAdmins, unitAdminDb.ToCore())
 	}
+	//unitAdmins = append(unitAdmins, unitAdminDb.ToCore())
 	return
 }
 

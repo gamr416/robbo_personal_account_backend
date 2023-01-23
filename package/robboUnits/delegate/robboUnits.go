@@ -12,6 +12,19 @@ type RobboUnitsDelegateImpl struct {
 	robboUnits.UseCase
 }
 
+func (r RobboUnitsDelegateImpl) SearchRobboUnitsByName(name string) (robboUnits []*models.RobboUnitHTTP, err error) {
+	robboUnitsCore, err := r.UseCase.SearchRobboUnitsByName(name)
+	if err != nil {
+		return
+	}
+	for _, robboUnitCore := range robboUnitsCore {
+		robboUnitTemp := models.RobboUnitHTTP{}
+		robboUnitTemp.FromCore(robboUnitCore)
+		robboUnits = append(robboUnits, &robboUnitTemp)
+	}
+	return
+}
+
 type RobboUnitsDelegateModule struct {
 	fx.Out
 	robboUnits.Delegate

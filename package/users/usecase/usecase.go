@@ -138,7 +138,7 @@ func (p *UsersUseCaseImpl) GetStudentById(studentId string) (student *models.Stu
 }
 
 func (p *UsersUseCaseImpl) SearchStudentByEmail(email string, parentId string) (students []*models.StudentCore, err error) {
-	emailCondition := "%" + email + "%"
+	emailCondition := email + "%"
 	return p.usersGateway.SearchStudentsByEmail(emailCondition, parentId)
 }
 
@@ -266,9 +266,10 @@ func (p *UsersUseCaseImpl) DeleteTeacher(teacherId string) (err error) {
 	return
 }
 
-//func (p *UsersUseCaseImpl) GetParent(email, password string) (parent *models.ParentCore, err error) {
-//	return p.usersGateway.GetParent(email, password)
-//}
+func (p *UsersUseCaseImpl) SearchTeacherByEmail(email string) (teachers []models.TeacherCore, err error) {
+	emailCondition := email + "%"
+	return p.usersGateway.SearchTeacherByEmail(emailCondition)
+}
 
 func (p *UsersUseCaseImpl) GetParentById(parentId string) (parent *models.ParentCore, err error) {
 	return p.usersGateway.GetParentById(parentId)
@@ -360,7 +361,7 @@ func (p *UsersUseCaseImpl) DeleteUnitAdmin(unitAdminId string) (err error) {
 }
 
 func (p *UsersUseCaseImpl) SearchUnitAdminByEmail(email string, robboUnitId string) (unitAdmins []*models.UnitAdminCore, err error) {
-	emailCondition := "%" + email + "%"
+	emailCondition := email + "%"
 	return p.usersGateway.SearchUnitAdminByEmail(emailCondition, robboUnitId)
 }
 

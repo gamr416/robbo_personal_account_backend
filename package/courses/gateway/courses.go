@@ -14,6 +14,28 @@ type CoursesGatewayImpl struct {
 	PostgresClient *db_client.PostgresClient
 }
 
+func (r *CoursesGatewayImpl) GetAccessCourseRelations(courseId string, parameter string) (
+	courseRelations []*models.CourseRelationCore, err error,
+) {
+	var courseRelationsDb []*models.CourseRelationDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("parameter = ? AND course_id = ?", parameter, courseId).
+			Find(&courseRelationsDb).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	// TODO написать функцию которая принимает массив DBs и возвращает COREs во всех моделях
+	for _, courseRelationDb := range courseRelationsDb {
+		var courseRelationCore *models.CourseRelationCore
+
+		courseRelationCore = courseRelationDb.ToCore()
+		courseRelations = append(courseRelations, courseRelationCore)
+	}
+	return
+}
+
 type CoursesGatewayModule struct {
 	fx.Out
 	courses.Gateway

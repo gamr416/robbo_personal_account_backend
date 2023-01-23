@@ -7,7 +7,6 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
-	"log"
 )
 
 type RobboGroupGatewayImpl struct {
@@ -135,7 +134,6 @@ func (r *RobboGroupGatewayImpl) GetRobboGroupById(robboGroupId string) (robboGro
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Where("id = ?", robboGroupId).First(&robboGroupDB).Error; err != nil {
 			err = robboGroup.ErrRobboGroupNotFound
-			log.Println(err)
 			return
 		}
 		return

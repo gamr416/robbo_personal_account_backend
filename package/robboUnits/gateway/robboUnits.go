@@ -1,6 +1,7 @@
 package gateway
 
 import (
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboUnits"
@@ -11,6 +12,22 @@ import (
 
 type RobboUnitsGatewayImpl struct {
 	PostgresClient *db_client.PostgresClient
+}
+
+func (r *RobboUnitsGatewayImpl) SearchRobboUnitByName(name string) (robboUnitsCore []*models.RobboUnitCore, err error) {
+	var robboUnitsDb []*models.RobboUnitDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Limit(10).Where("name LIKE ?", name).Find(&robboUnitsDb).Error; err != nil {
+			err = auth.ErrUserNotFound
+			log.Println(err)
+			return
+		}
+		return
+	})
+	for _, robboUnitDb := range robboUnitsDb {
+		robboUnitsCore = append(robboUnitsCore, robboUnitDb.ToCore())
+	}
+	return
 }
 
 type RobboUnitsGatewayModule struct {

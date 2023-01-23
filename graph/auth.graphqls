@@ -1,0 +1,17 @@
+input SignInInput {
+	email: String!
+	password: String!
+	userRole: Int!
+}
+
+type SingInResponse {
+	accessToken: String!
+}
+
+union SignInResult = Error | SingInResponse
+
+extend type Mutation {
+	SingIn(input: SignInInput!): SignInResult!
+	SingOut: Error
+	Refresh: SignInResult
+}

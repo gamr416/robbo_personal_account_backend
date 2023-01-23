@@ -19,6 +19,7 @@ type Gateway interface {
 	GetTeacher(email, password string) (teacher models.TeacherCore, err error)
 	GetAllTeachers(page, pageSize int) (teachers []models.TeacherCore, countRows int64, err error)
 	GetTeacherById(teacherId string) (teacher models.TeacherCore, err error)
+	SearchTeacherByEmail(email string) (teachers []models.TeacherCore, err error)
 
 	CreateParent(parent *models.ParentCore) (newParent *models.ParentCore, err error)
 	UpdateParent(parent *models.ParentCore) (parentUpdated *models.ParentCore, err error)

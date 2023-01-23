@@ -8,7 +8,7 @@ auth:
   hash_salt: "hash_salt"
   access_signing_key: "access_signing_key"
   refresh_signing_key: "refresh_signing_key"
-  access_token_ttl: 300 # 5 min
+  access_token_ttl: 300 # 5 min 60*5
   refresh_token_ttl: 604800 # 7 day
 
 projectPage:

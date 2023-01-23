@@ -44,7 +44,7 @@ func NewServer(lifecycle fx.Lifecycle, graphQLModule modules.GraphQLModule, hand
 					MaxHeaderBytes: 1 << 20,
 				}
 
-				log.Printf("connect to http://localhost:%s/ for GraphQL playground", "8000")
+				log.Printf("connect to http://localhost:%s/ for GraphQL playground", viper.GetString("graphqlServer.port"))
 				go func() {
 					if err = server.ListenAndServe(); err != nil {
 						log.Fatalf("Failed to listen adn serve")

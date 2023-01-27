@@ -6,7 +6,9 @@ package resolvers
 import (
 	"context"
 	"errors"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/utils"
+	"strconv"
 
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 )
@@ -27,6 +29,18 @@ func (r *mutationResolver) CreateAccessCourseRelationRobboGroup(ctx context.Cont
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+
+	_, parseErr := strconv.ParseUint(input.CourseID, 10, 64)
+	if parseErr != nil {
+		err := courses.ErrIncorrectInputParam
+		return &models.Error{Message: err.Error()}, err
+	}
+
+	_, parseErr = strconv.ParseUint(input.RobboGroupID, 10, 64)
+	if parseErr != nil {
+		err := courses.ErrIncorrectInputParam
 		return &models.Error{Message: err.Error()}, err
 	}
 
@@ -55,6 +69,18 @@ func (r *mutationResolver) CreateAccessCourseRelationRobboUnit(ctx context.Conte
 	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles)
 	if accessErr != nil {
 		err := accessErr
+		return &models.Error{Message: err.Error()}, err
+	}
+
+	_, parseErr := strconv.ParseUint(input.CourseID, 10, 64)
+	if parseErr != nil {
+		err := courses.ErrIncorrectInputParam
+		return &models.Error{Message: err.Error()}, err
+	}
+
+	_, parseErr = strconv.ParseUint(input.RobboUnitID, 10, 64)
+	if parseErr != nil {
+		err := courses.ErrIncorrectInputParam
 		return &models.Error{Message: err.Error()}, err
 	}
 

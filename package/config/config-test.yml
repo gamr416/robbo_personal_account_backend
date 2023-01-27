@@ -9,7 +9,7 @@ docker:
     "POSTGRES_PASSWORD=robbo_pwd",
     "listen_addresses = '*'"
   ]
-  container_lifetime: 120 # 2 min
+  container_lifetime: 60 # 1 min
 
 server:
   address: "localhost:8001"
@@ -23,6 +23,7 @@ auth:
   refresh_signing_key: "refresh_signing_key"
   access_token_ttl: 300 # 5 min
   refresh_token_ttl: 604800 # 7 day
+  token_super_admin: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAiLCJyb2xlIjo1fQ.Ha3K9LpCV4AP_AJiY-Gt6WcyKn2pRGxXM0kA4eLR-nU"
 
 projectPage:
   scratchLink: "0.0.0.0:8601/"

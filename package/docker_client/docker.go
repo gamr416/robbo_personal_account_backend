@@ -39,7 +39,7 @@ func NewTestDockerClient() (testDockerClient dockertest.Pool, cleanerContainer f
 		log.Fatalf("Could not start resource: %s", err)
 	}
 
-	resource.Expire(viper.GetUint("container_lifetime"))
+	resource.Expire(viper.GetUint("docker.container_lifetime"))
 	cleanerContainer = func() {
 		// purge the container
 		err = pool.Purge(resource)

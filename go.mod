@@ -7,7 +7,6 @@ require (
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-playground/assert/v2 v2.0.1
-	github.com/graphql-go/graphql v0.8.0
 	github.com/hasura/go-graphql-client v0.8.1
 	github.com/jackc/pgconn v1.12.0
 	github.com/ory/dockertest/v3 v3.9.1

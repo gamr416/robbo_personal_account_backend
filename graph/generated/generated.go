@@ -287,8 +287,8 @@ type ComplexityRoot struct {
 		GetUnitAdminByID                       func(childComplexity int, unitAdminID string) int
 		GetUnitAdminsAdmittedToTheCourse       func(childComplexity int, courseID string, page *string, pageSize *string) int
 		GetUnitAdminsByRobboUnitID             func(childComplexity int, robboUnitID string) int
-		SearchGroupsByName                     func(childComplexity int, name string) int
-		SearchRobboUnitsByName                 func(childComplexity int, name string) int
+		SearchGroupsByName                     func(childComplexity int, name string, page string, pageSize string) int
+		SearchRobboUnitsByName                 func(childComplexity int, name string, page string, pageSize string) int
 		SearchStudentsByEmail                  func(childComplexity int, email string, parentID string) int
 		SearchTeachersByEmail                  func(childComplexity int, email string) int
 		SearchUnitAdminsByEmail                func(childComplexity int, email string, robboUnitID string) int
@@ -468,12 +468,12 @@ type QueryResolver interface {
 	GetAllRobboGroupsForUnitAdmin(ctx context.Context, page string, pageSize string) (models.RobboGroupsResult, error)
 	GetAllRobboGroups(ctx context.Context, page string, pageSize string) (models.RobboGroupsResult, error)
 	GetRobboGroupsByAccessToken(ctx context.Context, page string, pageSize string) (models.RobboGroupsResult, error)
-	SearchGroupsByName(ctx context.Context, name string) (models.RobboGroupsResult, error)
+	SearchGroupsByName(ctx context.Context, name string, page string, pageSize string) (models.RobboGroupsResult, error)
 	GetRobboUnitByID(ctx context.Context, id string) (models.RobboUnitResult, error)
 	GetAllRobboUnits(ctx context.Context, page string, pageSize string) (models.RobboUnitsResult, error)
 	GetRobboUnitsByUnitAdminID(ctx context.Context, unitAdminID string) (models.RobboUnitsResult, error)
 	GetRobboUnitsByAccessToken(ctx context.Context, page string, pageSize string) (models.RobboUnitsResult, error)
-	SearchRobboUnitsByName(ctx context.Context, name string) (models.RobboUnitsResult, error)
+	SearchRobboUnitsByName(ctx context.Context, name string, page string, pageSize string) (models.RobboUnitsResult, error)
 }
 
 type executableSchema struct {
@@ -2060,7 +2060,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.SearchGroupsByName(childComplexity, args["name"].(string)), true
+		return e.complexity.Query.SearchGroupsByName(childComplexity, args["name"].(string), args["page"].(string), args["pageSize"].(string)), true
 
 	case "Query.SearchRobboUnitsByName":
 		if e.complexity.Query.SearchRobboUnitsByName == nil {
@@ -2072,7 +2072,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.SearchRobboUnitsByName(childComplexity, args["name"].(string)), true
+		return e.complexity.Query.SearchRobboUnitsByName(childComplexity, args["name"].(string), args["page"].(string), args["pageSize"].(string)), true
 
 	case "Query.SearchStudentsByEmail":
 		if e.complexity.Query.SearchStudentsByEmail == nil {
@@ -2732,7 +2732,7 @@ extend type Query {
 	GetAllRobboGroups(page: String!, pageSize: String!): RobboGroupsResult!
 	# Ручка для Teacher для получения групп на которые он назначен
 	GetRobboGroupsByAccessToken(page: String!, pageSize: String!): RobboGroupsResult!
-	SearchGroupsByName(name: String!): RobboGroupsResult!
+	SearchGroupsByName(name: String!, page: String!, pageSize: String!): RobboGroupsResult!
 }`, BuiltIn: false},
 	{Name: "../robboUnit.graphqls", Input: `type RobboUnitHttp {
     id: String!
@@ -2775,7 +2775,7 @@ extend type Query {
     GetAllRobboUnits(page: String!, pageSize: String!): RobboUnitsResult!
     GetRobboUnitsByUnitAdminId(unitAdminId: String!): RobboUnitsResult!
     GetRobboUnitsByAccessToken(page: String!, pageSize: String!): RobboUnitsResult!
-    SearchRobboUnitsByName(name: String!): RobboUnitsResult!
+    SearchRobboUnitsByName(name: String!, page: String!, pageSize: String!): RobboUnitsResult!
 }`, BuiltIn: false},
 	{Name: "../user.graphqls", Input: `type UserHttp {
     id: String!
@@ -4454,6 +4454,24 @@ func (ec *executionContext) field_Query_SearchGroupsByName_args(ctx context.Cont
 		}
 	}
 	args["name"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg2
 	return args, nil
 }
 
@@ -4469,6 +4487,24 @@ func (ec *executionContext) field_Query_SearchRobboUnitsByName_args(ctx context.
 		}
 	}
 	args["name"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg2
 	return args, nil
 }
 
@@ -12957,7 +12993,7 @@ func (ec *executionContext) _Query_SearchGroupsByName(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().SearchGroupsByName(rctx, fc.Args["name"].(string))
+		return ec.resolvers.Query().SearchGroupsByName(rctx, fc.Args["name"].(string), fc.Args["page"].(string), fc.Args["pageSize"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13232,7 +13268,7 @@ func (ec *executionContext) _Query_SearchRobboUnitsByName(ctx context.Context, f
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().SearchRobboUnitsByName(rctx, fc.Args["name"].(string))
+		return ec.resolvers.Query().SearchRobboUnitsByName(rctx, fc.Args["name"].(string), fc.Args["page"].(string), fc.Args["pageSize"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

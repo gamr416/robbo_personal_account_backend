@@ -70,8 +70,23 @@ func (r *RobboGroupDelegateImpl) GetAllRobboGroups(page, pageSize string) (
 	return
 }
 
-func (r *RobboGroupDelegateImpl) SearchRobboGroupByName(name string) (robboGroups []*models.RobboGroupHTTP, err error) {
-	robboGroupsCore, err := r.UseCase.SearchRobboGroupsByTitle(name)
+func (r *RobboGroupDelegateImpl) SearchRobboGroupByName(name, page, pageSize string) (
+	robboGroups []*models.RobboGroupHTTP,
+	countRows int,
+	err error,
+) {
+	pageInt32, _ := strconv.ParseInt(page, 10, 32)
+	pageSizeInt32, _ := strconv.ParseInt(pageSize, 10, 32)
+
+	robboGroupsCore, countRowsInt64, err := r.UseCase.SearchRobboGroupsByTitle(
+		name,
+		int(pageInt32),
+		int(pageSizeInt32),
+	)
+	if err != nil {
+		return
+	}
+	countRows = int(countRowsInt64)
 	for _, robboGroupCore := range robboGroupsCore {
 		var robboGroupTemp models.RobboGroupHTTP
 		robboGroupTemp.FromCore(robboGroupCore)

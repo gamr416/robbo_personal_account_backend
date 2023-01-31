@@ -16,5 +16,5 @@ type Gateway interface {
 	DeleteRelationByTeacherId(teacherId string) (err error)
 	GetRelationByRobboGroupId(robboGroupId string) (relations []*models.TeachersRobboGroupsCore, err error)
 	GetRelationByTeacherId(teacherId string, page, pageSize int) (relations []*models.TeachersRobboGroupsCore, countRows int64, err error)
-	SearchRobboGroupsByTitle(title string) (robboGroupsCore []*models.RobboGroupCore, err error)
+	SearchRobboGroupsByTitle(title string, page, pageSize int) (robboGroupsCore []*models.RobboGroupCore, countRows int64, err error)
 }

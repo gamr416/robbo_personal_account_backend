@@ -12,11 +12,23 @@ type RobboUnitsDelegateImpl struct {
 	robboUnits.UseCase
 }
 
-func (r RobboUnitsDelegateImpl) SearchRobboUnitsByName(name string) (robboUnits []*models.RobboUnitHTTP, err error) {
-	robboUnitsCore, err := r.UseCase.SearchRobboUnitsByName(name)
+func (r RobboUnitsDelegateImpl) SearchRobboUnitsByName(name, page, pageSize string) (
+	robboUnits []*models.RobboUnitHTTP,
+	countRows int,
+	err error,
+) {
+	pageInt32, _ := strconv.ParseInt(page, 10, 32)
+	pageSizeInt32, _ := strconv.ParseInt(pageSize, 10, 32)
+
+	robboUnitsCore, countRowsInt64, err := r.UseCase.SearchRobboUnitsByName(
+		name,
+		int(pageInt32),
+		int(pageSizeInt32),
+	)
 	if err != nil {
 		return
 	}
+	countRows = int(countRowsInt64)
 	for _, robboUnitCore := range robboUnitsCore {
 		robboUnitTemp := models.RobboUnitHTTP{}
 		robboUnitTemp.FromCore(robboUnitCore)
@@ -38,14 +50,14 @@ func SetupRobboUnitsDelegate(usecase robboUnits.UseCase) RobboUnitsDelegateModul
 	}
 }
 
-func (r RobboUnitsDelegateImpl) GetAllRobboUnit(page, pageSize string) (
+func (r RobboUnitsDelegateImpl) GetAllRobboUnits(page, pageSize string) (
 	robboUnits []*models.RobboUnitHTTP,
 	countRows int,
 	err error,
 ) {
 	pageInt32, _ := strconv.ParseInt(page, 10, 32)
 	pageSizeInt32, _ := strconv.ParseInt(pageSize, 10, 32)
-	robboUnitsCore, countRowsInt64, getRobboUnitsErr := r.UseCase.GetAllRobboUnit(
+	robboUnitsCore, countRowsInt64, getRobboUnitsErr := r.UseCase.GetAllRobboUnits(
 		int(pageInt32),
 		int(pageSizeInt32),
 	)

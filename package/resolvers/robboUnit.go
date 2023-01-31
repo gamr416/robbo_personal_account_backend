@@ -147,7 +147,7 @@ func (r *queryResolver) GetAllRobboUnits(ctx context.Context, page string, pageS
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	robboUnits, countRows, getAllRobboUnitErr := r.robboUnitsDelegate.GetAllRobboUnit(page, pageSize)
+	robboUnits, countRows, getAllRobboUnitErr := r.robboUnitsDelegate.GetAllRobboUnits(page, pageSize)
 	if getAllRobboUnitErr != nil {
 		err := getAllRobboUnitErr
 		return &models.Error{Message: err.Error()}, err
@@ -217,7 +217,7 @@ func (r *queryResolver) GetRobboUnitsByAccessToken(ctx context.Context, page str
 }
 
 // SearchRobboUnitsByName is the resolver for the SearchRobboUnitsByName field.
-func (r *queryResolver) SearchRobboUnitsByName(ctx context.Context, name string) (models.RobboUnitsResult, error) {
+func (r *queryResolver) SearchRobboUnitsByName(ctx context.Context, name string, page string, pageSize string) (models.RobboUnitsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -234,12 +234,13 @@ func (r *queryResolver) SearchRobboUnitsByName(ctx context.Context, name string)
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	robboUnits, searchTeachersByEmailErr := r.robboUnitsDelegate.SearchRobboUnitsByName(name)
+	robboUnits, countRows, searchTeachersByEmailErr := r.robboUnitsDelegate.SearchRobboUnitsByName(name, page, pageSize)
 	if searchTeachersByEmailErr != nil {
 		err := searchTeachersByEmailErr
 		return &models.Error{Message: err.Error()}, err
 	}
 	return &models.RobboUnitHTTPList{
 		RobboUnits: robboUnits,
+		CountRows:  countRows,
 	}, nil
 }

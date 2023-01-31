@@ -1,7 +1,6 @@
 package gateway
 
 import (
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboUnits"
@@ -14,14 +13,19 @@ type RobboUnitsGatewayImpl struct {
 	PostgresClient *db_client.PostgresClient
 }
 
-func (r *RobboUnitsGatewayImpl) SearchRobboUnitByName(name string) (robboUnitsCore []*models.RobboUnitCore, err error) {
+func (r *RobboUnitsGatewayImpl) SearchRobboUnitByName(name string, page, pageSize int) (
+	robboUnitsCore []*models.RobboUnitCore,
+	countRows int64,
+	err error,
+) {
 	var robboUnitsDb []*models.RobboUnitDB
+	offset := (page - 1) * pageSize
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Limit(10).Where("name LIKE ?", name).Find(&robboUnitsDb).Error; err != nil {
-			err = auth.ErrUserNotFound
+		if err = tx.Limit(pageSize).Offset(offset).Where("name LIKE ?", name).Find(&robboUnitsDb).Error; err != nil {
 			log.Println(err)
 			return
 		}
+		tx.Model(&models.RobboUnitDB{}).Count(&countRows)
 		return
 	})
 	for _, robboUnitDb := range robboUnitsDb {
@@ -63,7 +67,7 @@ func (r *RobboUnitsGatewayImpl) DeleteRobboUnit(robboUnitId string) (err error) 
 	return
 }
 
-func (r *RobboUnitsGatewayImpl) GetAllRobboUnit(page, pageSize int) (
+func (r *RobboUnitsGatewayImpl) GetAllRobboUnits(page, pageSize int) (
 	robboUnitsCore []*models.RobboUnitCore,
 	countRows int64,
 	err error,

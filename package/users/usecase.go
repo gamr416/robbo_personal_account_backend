@@ -24,7 +24,7 @@ type UseCase interface {
 	DeleteTeacher(teacherId string) (err error)
 	GetTeacherByRobboGroupId(robboGroupId string) (teachers []*models.TeacherCore, err error)
 	GetTeachersByStudentId(studentId string) (teachers []*models.TeacherCore, err error)
-	SearchTeacherByEmail(email string) (teachers []models.TeacherCore, err error)
+	SearchTeacherByEmail(email string, page, pageSize int) (teachers []models.TeacherCore, countRows int64, err error)
 
 	GetParentById(parentId string) (parent *models.ParentCore, err error)
 	GetAllParent(page, pageSize int) (parents []*models.ParentCore, countRows int64, err error)

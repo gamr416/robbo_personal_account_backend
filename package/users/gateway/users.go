@@ -278,14 +278,20 @@ func (r *UsersGatewayImpl) UpdateTeacher(teacher *models.TeacherCore) (teacherUp
 	return
 }
 
-func (r *UsersGatewayImpl) SearchTeacherByEmail(email string) (teachers []models.TeacherCore, err error) {
+func (r *UsersGatewayImpl) SearchTeacherByEmail(email string, page, pageSize int) (
+	teachers []models.TeacherCore,
+	countRows int64,
+	err error,
+) {
 	var teachersDb []*models.TeacherDB
+	offset := (page - 1) * pageSize
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Limit(10).Where("email LIKE ?", email).Find(&teachersDb).Error; err != nil {
+		if err = tx.Limit(pageSize).Offset(offset).Where("email LIKE ?", email).Find(&teachersDb).Error; err != nil {
 			err = auth.ErrUserNotFound
 			log.Println(err)
 			return
 		}
+		tx.Model(&models.TeacherDB{}).Count(&countRows)
 		return
 	})
 	for _, teacherDb := range teachersDb {

@@ -290,7 +290,7 @@ type ComplexityRoot struct {
 		SearchGroupsByName                     func(childComplexity int, name string, page string, pageSize string) int
 		SearchRobboUnitsByName                 func(childComplexity int, name string, page string, pageSize string) int
 		SearchStudentsByEmail                  func(childComplexity int, email string, parentID string) int
-		SearchTeachersByEmail                  func(childComplexity int, email string) int
+		SearchTeachersByEmail                  func(childComplexity int, email string, page string, pageSize string) int
 		SearchUnitAdminsByEmail                func(childComplexity int, email string, robboUnitID string) int
 	}
 
@@ -428,7 +428,7 @@ type QueryResolver interface {
 	GetAllTeachers(ctx context.Context, page string, pageSize string) (models.TeachersResult, error)
 	GetTeacherByID(ctx context.Context, teacherID string) (models.TeacherResult, error)
 	GetTeachersByRobboGroupID(ctx context.Context, robboGroupID string) (models.TeachersResult, error)
-	SearchTeachersByEmail(ctx context.Context, email string) (models.TeachersResult, error)
+	SearchTeachersByEmail(ctx context.Context, email string, page string, pageSize string) (models.TeachersResult, error)
 	GetAllParents(ctx context.Context, page string, pageSize string) (models.ParentsResult, error)
 	GetParentByID(ctx context.Context, parentID string) (models.ParentResult, error)
 	GetAllUnitAdmins(ctx context.Context, page string, pageSize string) (models.UnitAdminsResult, error)
@@ -2096,7 +2096,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.SearchTeachersByEmail(childComplexity, args["email"].(string)), true
+		return e.complexity.Query.SearchTeachersByEmail(childComplexity, args["email"].(string), args["page"].(string), args["pageSize"].(string)), true
 
 	case "Query.SearchUnitAdminsByEmail":
 		if e.complexity.Query.SearchUnitAdminsByEmail == nil {
@@ -2947,7 +2947,7 @@ type Query {
     GetAllTeachers(page: String!, pageSize: String!): TeachersResult!
     GetTeacherById(teacherId: String!): TeacherResult!
     GetTeachersByRobboGroupId(robboGroupId: String!): TeachersResult!
-    SearchTeachersByEmail(email: String!): TeachersResult!
+    SearchTeachersByEmail(email: String!, page: String!, pageSize: String!): TeachersResult!
     GetAllParents(page: String!, pageSize: String!): ParentsResult!
     GetParentById(parentId: String!): ParentResult!
     GetAllUnitAdmins(page: String!, pageSize: String!): UnitAdminsResult!
@@ -4544,6 +4544,24 @@ func (ec *executionContext) field_Query_SearchTeachersByEmail_args(ctx context.C
 		}
 	}
 	args["email"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg2
 	return args, nil
 }
 
@@ -10859,7 +10877,7 @@ func (ec *executionContext) _Query_SearchTeachersByEmail(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().SearchTeachersByEmail(rctx, fc.Args["email"].(string))
+		return ec.resolvers.Query().SearchTeachersByEmail(rctx, fc.Args["email"].(string), fc.Args["page"].(string), fc.Args["pageSize"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

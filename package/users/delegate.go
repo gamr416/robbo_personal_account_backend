@@ -29,7 +29,7 @@ type Delegate interface {
 	DeleteTeacher(teacherId string) (err error)
 	GetTeacherByRobboGroupId(robboGroupId string) (teachers []*models.TeacherHTTP, err error)
 	GetTeachersByStudentId(studentId string) (teachers []*models.TeacherHTTP, err error)
-	SearchTeacherByEmail(email string) (teachers []*models.TeacherHTTP, err error)
+	SearchTeacherByEmail(email, page, pageSize string) (teachers []*models.TeacherHTTP, countRows int, err error)
 
 	CreateParent(parentHTTP *models.ParentHTTP) (newParent *models.ParentHTTP, err error)
 	UpdateParent(parentHTTP *models.ParentHTTP) (parentUpdated *models.ParentHTTP, err error)

@@ -318,11 +318,22 @@ func (p *UsersDelegateImpl) DeleteTeacher(teacherId string) (err error) {
 	return p.UseCase.DeleteTeacher(teacherId)
 }
 
-func (p *UsersDelegateImpl) SearchTeacherByEmail(email string) (teachers []*models.TeacherHTTP, err error) {
-	teachersCore, err := p.UseCase.SearchTeacherByEmail(email)
+func (p *UsersDelegateImpl) SearchTeacherByEmail(email, page, pageSize string) (
+	teachers []*models.TeacherHTTP,
+	countRows int,
+	err error,
+) {
+	pageInt32, _ := strconv.ParseInt(page, 10, 32)
+	pageSizeInt32, _ := strconv.ParseInt(pageSize, 10, 32)
+	teachersCore, countRowsInt64, err := p.UseCase.SearchTeacherByEmail(
+		email,
+		int(pageInt32),
+		int(pageSizeInt32),
+	)
 	if err != nil {
 		return
 	}
+	countRows = int(countRowsInt64)
 	for _, teacherCore := range teachersCore {
 		teacherTemp := models.TeacherHTTP{
 			UserHTTP: &models.UserHTTP{},

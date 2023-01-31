@@ -881,7 +881,7 @@ func (r *queryResolver) GetTeachersByRobboGroupID(ctx context.Context, robboGrou
 }
 
 // SearchTeachersByEmail is the resolver for the SearchTeachersByEmail field.
-func (r *queryResolver) SearchTeachersByEmail(ctx context.Context, email string) (models.TeachersResult, error) {
+func (r *queryResolver) SearchTeachersByEmail(ctx context.Context, email string, page string, pageSize string) (models.TeachersResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -898,13 +898,14 @@ func (r *queryResolver) SearchTeachersByEmail(ctx context.Context, email string)
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	teachers, searchTeachersByEmailErr := r.usersDelegate.SearchTeacherByEmail(email)
+	teachers, countRows, searchTeachersByEmailErr := r.usersDelegate.SearchTeacherByEmail(email, page, pageSize)
 	if searchTeachersByEmailErr != nil {
 		err := searchTeachersByEmailErr
 		return &models.Error{Message: err.Error()}, err
 	}
 	return &models.TeacherHTTPList{
-		Teachers: teachers,
+		Teachers:  teachers,
+		CountRows: countRows,
 	}, nil
 }
 

@@ -266,9 +266,13 @@ func (p *UsersUseCaseImpl) DeleteTeacher(teacherId string) (err error) {
 	return
 }
 
-func (p *UsersUseCaseImpl) SearchTeacherByEmail(email string) (teachers []models.TeacherCore, err error) {
+func (p *UsersUseCaseImpl) SearchTeacherByEmail(email string, page, pageSize int) (
+	teachers []models.TeacherCore,
+	countRows int64,
+	err error,
+) {
 	emailCondition := email + "%"
-	return p.usersGateway.SearchTeacherByEmail(emailCondition)
+	return p.usersGateway.SearchTeacherByEmail(emailCondition, page, pageSize)
 }
 
 func (p *UsersUseCaseImpl) GetParentById(parentId string) (parent *models.ParentCore, err error) {

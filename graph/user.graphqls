@@ -168,7 +168,7 @@ type Query {
     GetAllTeachers(page: String!, pageSize: String!): TeachersResult!
     GetTeacherById(teacherId: String!): TeacherResult!
     GetTeachersByRobboGroupId(robboGroupId: String!): TeachersResult!
-    SearchTeachersByEmail(email: String!): TeachersResult!
+    SearchTeachersByEmail(email: String!, page: String!, pageSize: String!): TeachersResult!
     GetAllParents(page: String!, pageSize: String!): ParentsResult!
     GetParentById(parentId: String!): ParentResult!
     GetAllUnitAdmins(page: String!, pageSize: String!): UnitAdminsResult!

@@ -6,6 +6,7 @@ package resolvers
 import (
 	"context"
 	"errors"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/utils"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/skinnykaen/robbo_student_personal_account.git/graph/generated"
@@ -77,6 +78,7 @@ func (r *mutationResolver) UpdateStudent(ctx context.Context, input models.Updat
 			Lastname:   input.Lastname,
 			Middlename: input.Middlename,
 			Nickname:   input.Nickname,
+			Role:       0,
 		},
 	}
 	studentUpdated, updateStudentErr := r.usersDelegate.UpdateStudent(updateStudentInput)
@@ -191,7 +193,7 @@ func (r *mutationResolver) UpdateTeacher(ctx context.Context, input models.Updat
 		err := identityErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin, models.Teacher}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := accessErr
@@ -205,6 +207,7 @@ func (r *mutationResolver) UpdateTeacher(ctx context.Context, input models.Updat
 			Lastname:   input.Lastname,
 			Middlename: input.Middlename,
 			Nickname:   input.Nickname,
+			Role:       1,
 		},
 	}
 	teacherUpdated, updateTeacherErr := r.usersDelegate.UpdateTeacher(updateTeacherInput)
@@ -367,7 +370,7 @@ func (r *mutationResolver) UpdateParent(ctx context.Context, input models.Update
 		err := identityErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin, models.Parent}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := accessErr
@@ -381,6 +384,7 @@ func (r *mutationResolver) UpdateParent(ctx context.Context, input models.Update
 			Lastname:   input.Lastname,
 			Middlename: input.Middlename,
 			Nickname:   input.Nickname,
+			Role:       2,
 		},
 	}
 	parentUpdated, updateParentErr := r.usersDelegate.UpdateParent(updateParentInput)
@@ -480,6 +484,7 @@ func (r *mutationResolver) UpdateUnitAdmin(ctx context.Context, input models.Upd
 			Lastname:   input.Lastname,
 			Middlename: input.Middlename,
 			Nickname:   input.Nickname,
+			Role:       4,
 		},
 	}
 	unitAdminUpdated, updateUnitAdminErr := r.usersDelegate.UpdateUnitAdmin(updateUnitAdminInput)
@@ -593,6 +598,7 @@ func (r *mutationResolver) UpdateSuperAdmin(ctx context.Context, input models.Up
 			Lastname:   input.Lastname,
 			Middlename: input.Middlename,
 			Nickname:   input.Nickname,
+			Role:       5,
 		},
 	}
 	superAdminUpdated, updateSuperAdminErr := r.usersDelegate.UpdateSuperAdmin(updateSuperAdminInput)
@@ -1103,6 +1109,69 @@ func (r *queryResolver) GetSuperAdminByID(ctx context.Context, superAdminID stri
 	return &superAdmin, nil
 }
 
+// GetUser is the resolver for the GetUser field.
+func (r *queryResolver) GetUser(ctx context.Context, peekUserID *string, peekUserRole *int) (models.GetUserResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: "internal server error",
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
+	}
+	var userId string
+	var userRole models.Role
+	if utils.UseString(peekUserID) == "" || peekUserID == nil {
+		userId = ginContext.Value("user_id").(string)
+		userRole = ginContext.Value("user_role").(models.Role)
+	} else {
+		userId = *peekUserID
+		userRole = models.Role(*peekUserRole)
+	}
+	switch userRole {
+	case models.Student:
+		student, getStudentErr := r.usersDelegate.GetStudentById(userId)
+		if getStudentErr != nil {
+			return nil, getStudentErr
+		}
+		return student, nil
+	case models.Teacher:
+		teacher, getTeacherErr := r.usersDelegate.GetTeacherById(userId)
+		if getTeacherErr != nil {
+			return nil, getTeacherErr
+		}
+		return teacher, nil
+	case models.Parent:
+		parent, getParentErr := r.usersDelegate.GetParentById(userId)
+		if getParentErr != nil {
+			return nil, getParentErr
+		}
+		return parent, nil
+	case models.UnitAdmin:
+		unitAdmin, getUnitAdminErr := r.usersDelegate.GetUnitAdminById(userId)
+		if getUnitAdminErr != nil {
+			return nil, getUnitAdminErr
+		}
+		return unitAdmin, nil
+	case models.SuperAdmin:
+		superAdmin, getSuperAdminErr := r.usersDelegate.GetSuperAdminById(userId)
+		if getSuperAdminErr != nil {
+			return nil, getSuperAdminErr
+		}
+		return superAdmin, nil
+	default:
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: "internal server error",
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
+	}
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
@@ -1112,12 +1181,6 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
 func (r *mutationResolver) CreateStudentTeacherRelation(ctx context.Context, studentID string, teacherID string) (models.StudentResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {

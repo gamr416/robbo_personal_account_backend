@@ -22,6 +22,10 @@ type EnrollmentsResult interface {
 	IsEnrollmentsResult()
 }
 
+type GetUserResult interface {
+	IsGetUserResult()
+}
+
 type PairsStudentParentsResult interface {
 	IsPairsStudentParentsResult()
 }
@@ -342,6 +346,8 @@ type ParentHTTP struct {
 
 func (ParentHTTP) IsParentResult() {}
 
+func (ParentHTTP) IsGetUserResult() {}
+
 type ParentHTTPList struct {
 	Parents   []*ParentHTTP `json:"parents"`
 	CountRows int           `json:"countRows"`
@@ -422,6 +428,8 @@ type StudentHTTP struct {
 
 func (StudentHTTP) IsStudentResult() {}
 
+func (StudentHTTP) IsGetUserResult() {}
+
 type StudentHTTPList struct {
 	Students  []*StudentHTTP `json:"students"`
 	CountRows int            `json:"countRows"`
@@ -446,11 +454,15 @@ type SuperAdminHTTP struct {
 
 func (SuperAdminHTTP) IsSuperAdminResult() {}
 
+func (SuperAdminHTTP) IsGetUserResult() {}
+
 type TeacherHTTP struct {
 	UserHTTP *UserHTTP `json:"userHttp"`
 }
 
 func (TeacherHTTP) IsTeacherResult() {}
+
+func (TeacherHTTP) IsGetUserResult() {}
 
 type TeacherHTTPList struct {
 	Teachers  []*TeacherHTTP `json:"teachers"`
@@ -464,6 +476,8 @@ type UnitAdminHTTP struct {
 }
 
 func (UnitAdminHTTP) IsUnitAdminResult() {}
+
+func (UnitAdminHTTP) IsGetUserResult() {}
 
 type UnitAdminHTTPList struct {
 	UnitAdmins []*UnitAdminHTTP `json:"unitAdmins"`

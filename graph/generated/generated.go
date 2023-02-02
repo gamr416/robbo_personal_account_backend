@@ -287,6 +287,7 @@ type ComplexityRoot struct {
 		GetUnitAdminByID                       func(childComplexity int, unitAdminID string) int
 		GetUnitAdminsAdmittedToTheCourse       func(childComplexity int, courseID string, page *string, pageSize *string) int
 		GetUnitAdminsByRobboUnitID             func(childComplexity int, robboUnitID string) int
+		GetUser                                func(childComplexity int, peekUserID *string, peekUserRole *int) int
 		SearchGroupsByName                     func(childComplexity int, name string) int
 		SearchRobboUnitsByName                 func(childComplexity int, name string) int
 		SearchStudentsByEmail                  func(childComplexity int, email string, parentID string) int
@@ -436,6 +437,7 @@ type QueryResolver interface {
 	GetUnitAdminByID(ctx context.Context, unitAdminID string) (models.UnitAdminResult, error)
 	SearchUnitAdminsByEmail(ctx context.Context, email string, robboUnitID string) (models.UnitAdminsResult, error)
 	GetSuperAdminByID(ctx context.Context, superAdminID string) (models.SuperAdminResult, error)
+	GetUser(ctx context.Context, peekUserID *string, peekUserRole *int) (models.GetUserResult, error)
 	GetStudentsAdmittedToTheCourse(ctx context.Context, courseID string, page *string, pageSize *string) (models.StudentsResult, error)
 	GetUnitAdminsAdmittedToTheCourse(ctx context.Context, courseID string, page *string, pageSize *string) (models.UnitAdminsResult, error)
 	GetTeachersAdmittedToTheCourse(ctx context.Context, courseID string, page *string, pageSize *string) (models.TeachersResult, error)
@@ -2050,6 +2052,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetUnitAdminsByRobboUnitID(childComplexity, args["robboUnitId"].(string)), true
 
+	case "Query.GetUser":
+		if e.complexity.Query.GetUser == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetUser(childComplexity, args["peekUserId"].(*string), args["peekUserRole"].(*int)), true
+
 	case "Query.SearchGroupsByName":
 		if e.complexity.Query.SearchGroupsByName == nil {
 			break
@@ -2914,6 +2928,8 @@ union UnitAdminsResult = UnitAdminHttpList | Error
 union SuperAdminResult = SuperAdminHttp | Error
 union PairsStudentParentsResult = StudentParentsHttpList | Error
 
+union GetUserResult = StudentHttp | ParentHttp | TeacherHttp | UnitAdminHttp | SuperAdminHttp
+
 type Mutation {
     CreateStudent(input: NewStudent!): StudentResult!
     UpdateStudent(input: UpdateProfileInput!): StudentResult!
@@ -2955,6 +2971,8 @@ type Query {
     GetUnitAdminById(unitAdminId: String!): UnitAdminResult!
     SearchUnitAdminsByEmail(email: String!, robboUnitId: String!): UnitAdminsResult!
     GetSuperAdminById(superAdminId: String!): SuperAdminResult!
+
+    GetUser(peekUserId: String, peekUserRole: Int): GetUserResult!
 }
 
 scalar Timestamp
@@ -4439,6 +4457,30 @@ func (ec *executionContext) field_Query_GetUnitAdminsByRobboUnitId_args(ctx cont
 		}
 	}
 	args["robboUnitId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["peekUserId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("peekUserId"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["peekUserId"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["peekUserRole"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("peekUserRole"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["peekUserRole"] = arg1
 	return args, nil
 }
 
@@ -11249,6 +11291,61 @@ func (ec *executionContext) fieldContext_Query_GetSuperAdminById(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_GetUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetUser(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetUser(rctx, fc.Args["peekUserId"].(*string), fc.Args["peekUserRole"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.GetUserResult)
+	fc.Result = res
+	return ec.marshalNGetUserResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐGetUserResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type GetUserResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_GetStudentsAdmittedToTheCourse(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_GetStudentsAdmittedToTheCourse(ctx, field)
 	if err != nil {
@@ -17909,6 +18006,50 @@ func (ec *executionContext) _EnrollmentsResult(ctx context.Context, sel ast.Sele
 	}
 }
 
+func (ec *executionContext) _GetUserResult(ctx context.Context, sel ast.SelectionSet, obj models.GetUserResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case models.StudentHTTP:
+		return ec._StudentHttp(ctx, sel, &obj)
+	case *models.StudentHTTP:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._StudentHttp(ctx, sel, obj)
+	case models.ParentHTTP:
+		return ec._ParentHttp(ctx, sel, &obj)
+	case *models.ParentHTTP:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ParentHttp(ctx, sel, obj)
+	case models.TeacherHTTP:
+		return ec._TeacherHttp(ctx, sel, &obj)
+	case *models.TeacherHTTP:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeacherHttp(ctx, sel, obj)
+	case models.UnitAdminHTTP:
+		return ec._UnitAdminHttp(ctx, sel, &obj)
+	case *models.UnitAdminHTTP:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._UnitAdminHttp(ctx, sel, obj)
+	case models.SuperAdminHTTP:
+		return ec._SuperAdminHttp(ctx, sel, &obj)
+	case *models.SuperAdminHTTP:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SuperAdminHttp(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _PairsStudentParentsResult(ctx context.Context, sel ast.SelectionSet, obj models.PairsStudentParentsResult) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -19502,7 +19643,7 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
-var parentHttpImplementors = []string{"ParentHttp", "ParentResult"}
+var parentHttpImplementors = []string{"ParentHttp", "ParentResult", "GetUserResult"}
 
 func (ec *executionContext) _ParentHttp(ctx context.Context, sel ast.SelectionSet, obj *models.ParentHTTP) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, parentHttpImplementors)
@@ -20104,6 +20245,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_GetSuperAdminById(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetUser":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetUser(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -21214,7 +21378,7 @@ func (ec *executionContext) _SingInResponse(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var studentHttpImplementors = []string{"StudentHttp", "StudentResult"}
+var studentHttpImplementors = []string{"StudentHttp", "StudentResult", "GetUserResult"}
 
 func (ec *executionContext) _StudentHttp(ctx context.Context, sel ast.SelectionSet, obj *models.StudentHTTP) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, studentHttpImplementors)
@@ -21354,7 +21518,7 @@ func (ec *executionContext) _StudentParentsHttpList(ctx context.Context, sel ast
 	return out
 }
 
-var superAdminHttpImplementors = []string{"SuperAdminHttp", "SuperAdminResult"}
+var superAdminHttpImplementors = []string{"SuperAdminHttp", "SuperAdminResult", "GetUserResult"}
 
 func (ec *executionContext) _SuperAdminHttp(ctx context.Context, sel ast.SelectionSet, obj *models.SuperAdminHTTP) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, superAdminHttpImplementors)
@@ -21382,7 +21546,7 @@ func (ec *executionContext) _SuperAdminHttp(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var teacherHttpImplementors = []string{"TeacherHttp", "TeacherResult"}
+var teacherHttpImplementors = []string{"TeacherHttp", "TeacherResult", "GetUserResult"}
 
 func (ec *executionContext) _TeacherHttp(ctx context.Context, sel ast.SelectionSet, obj *models.TeacherHTTP) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teacherHttpImplementors)
@@ -21445,7 +21609,7 @@ func (ec *executionContext) _TeacherHttpList(ctx context.Context, sel ast.Select
 	return out
 }
 
-var unitAdminHttpImplementors = []string{"UnitAdminHttp", "UnitAdminResult"}
+var unitAdminHttpImplementors = []string{"UnitAdminHttp", "UnitAdminResult", "GetUserResult"}
 
 func (ec *executionContext) _UnitAdminHttp(ctx context.Context, sel ast.SelectionSet, obj *models.UnitAdminHTTP) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, unitAdminHttpImplementors)
@@ -22227,6 +22391,16 @@ func (ec *executionContext) marshalNError2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_s
 		return graphql.Null
 	}
 	return ec._Error(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNGetUserResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐGetUserResult(ctx context.Context, sel ast.SelectionSet, v models.GetUserResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GetUserResult(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
@@ -23311,6 +23485,22 @@ func (ec *executionContext) marshalOImageHttp2ᚖgithubᚗcomᚋskinnykaenᚋrob
 		return graphql.Null
 	}
 	return ec._ImageHttp(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt(*v)
+	return res
 }
 
 func (ec *executionContext) marshalOMediaHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐMediaHTTP(ctx context.Context, sel ast.SelectionSet, v *models.MediaHTTP) graphql.Marshaler {

@@ -135,6 +135,8 @@ union UnitAdminsResult = UnitAdminHttpList | Error
 union SuperAdminResult = SuperAdminHttp | Error
 union PairsStudentParentsResult = StudentParentsHttpList | Error
 
+union GetUserResult = StudentHttp | ParentHttp | TeacherHttp | UnitAdminHttp | SuperAdminHttp
+
 type Mutation {
     CreateStudent(input: NewStudent!): StudentResult!
     UpdateStudent(input: UpdateProfileInput!): StudentResult!
@@ -176,6 +178,8 @@ type Query {
     GetUnitAdminById(unitAdminId: String!): UnitAdminResult!
     SearchUnitAdminsByEmail(email: String!, robboUnitId: String!): UnitAdminsResult!
     GetSuperAdminById(superAdminId: String!): SuperAdminResult!
+
+    GetUser(peekUserId: String, peekUserRole: Int): GetUserResult!
 }
 
 scalar Timestamp

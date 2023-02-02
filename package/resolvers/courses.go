@@ -6,9 +6,9 @@ package resolvers
 import (
 	"context"
 	"errors"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/utils"
 
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/utils"
 )
 
 // CreateCourseRelationGroup is the resolver for the CreateCourseRelationGroup field.
@@ -679,12 +679,7 @@ func (r *queryResolver) GetCoursesByUser(ctx context.Context, page *string, page
 }
 
 // GetCoursesByRobboUnitID is the resolver for the GetCoursesByRobboUnitId field.
-func (r *queryResolver) GetCoursesByRobboUnitID(
-	ctx context.Context,
-	robboUnitID string,
-	page *string,
-	pageSize *string,
-) (models.CoursesResult, error) {
+func (r *queryResolver) GetCoursesByRobboUnitID(ctx context.Context, robboUnitID string, page *string, pageSize *string) (models.CoursesResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")

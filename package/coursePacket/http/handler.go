@@ -52,7 +52,7 @@ func (h *Handler) UpdateCoursePacket(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -94,7 +94,7 @@ func (h *Handler) CreateCoursePacket(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -125,7 +125,7 @@ func (h *Handler) GetCoursePacketById(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -153,7 +153,7 @@ func (h *Handler) GetAllCoursePackets(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -178,7 +178,7 @@ func (h *Handler) DeleteCoursePacket(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)

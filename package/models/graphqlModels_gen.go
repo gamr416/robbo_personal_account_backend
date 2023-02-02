@@ -218,6 +218,12 @@ func (Error) IsCoursesResult() {}
 
 func (Error) IsEnrollmentsResult() {}
 
+func (Error) IsParentsResult() {}
+
+func (Error) IsParentResult() {}
+
+func (Error) IsPairsStudentParentsResult() {}
+
 func (Error) IsProjectPageResult() {}
 
 func (Error) IsRobboGroupResult() {}
@@ -232,10 +238,6 @@ func (Error) IsStudentResult() {}
 
 func (Error) IsStudentsResult() {}
 
-func (Error) IsParentResult() {}
-
-func (Error) IsParentsResult() {}
-
 func (Error) IsTeacherResult() {}
 
 func (Error) IsTeachersResult() {}
@@ -245,8 +247,6 @@ func (Error) IsUnitAdminResult() {}
 func (Error) IsUnitAdminsResult() {}
 
 func (Error) IsSuperAdminResult() {}
-
-func (Error) IsPairsStudentParentsResult() {}
 
 type ImageHTTP struct {
 	ID    string `json:"id"`

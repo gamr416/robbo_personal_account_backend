@@ -1,12 +1,19 @@
 package delegate
 
 import (
+	"context"
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/spf13/viper"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 	"go.uber.org/fx"
 	"strings"
+)
+
+const (
+	authorizationHeader = "Authorization"
 )
 
 type AuthDelegateImpl struct {
@@ -33,62 +40,58 @@ func (s *AuthDelegateImpl) SignUp(userHttp *models.UserHTTP) (accessToken, refre
 	return s.UseCase.SignUp(&userCore)
 }
 
-//func (s *AuthDelegateImpl) ParseToken(token string, key []byte) (claims *models.UserClaims, err error) {
-//	return s.UseCase.ParseToken(token, key)
-//}
-
 func (s *AuthDelegateImpl) RefreshToken(refreshToken string) (newAccessToken string, err error) {
 	return s.UseCase.RefreshToken(refreshToken)
 }
 
-const (
-	authorizationHeader = "Authorization"
-)
-
 func (s *AuthDelegateImpl) UserIdentity(c *gin.Context) (id string, role models.Role, err error) {
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {
-		return "", models.Anonymous, auth.ErrTokenNotFound
+		return "", models.Anonymous, &gqlerror.Error{
+			Path:    graphql.GetPath(c),
+			Message: auth.ErrTokenNotFound.Error(),
+			Extensions: map[string]interface{}{
+				"code": "401",
+			},
+		}
 	}
 
 	headerParts := strings.Split(header, " ")
 	if len(headerParts) != 2 {
-		return "", models.Anonymous, auth.ErrTokenNotFound
-		return
+		return "", models.Anonymous, &gqlerror.Error{
+			Path:    graphql.GetPath(c),
+			Message: auth.ErrTokenNotFound.Error(),
+			Extensions: map[string]interface{}{
+				"code": "401",
+			},
+		}
 	}
 
-	claims, err := s.UseCase.ParseToken(headerParts[1], []byte(viper.GetString("auth.access_signing_key")))
+	claims, parseTokenErr := s.UseCase.ParseToken(headerParts[1], []byte(viper.GetString("auth.access_signing_key")))
 	if err != nil {
-		return "", models.Anonymous, auth.ErrInvalidAccessToken
+		return "", models.Anonymous, &gqlerror.Error{
+			Path:    graphql.GetPath(c),
+			Message: parseTokenErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "401",
+			},
+		}
 	}
 	return claims.Id, claims.Role, nil
 }
 
-func (s *AuthDelegateImpl) UserAccess(currentRole models.Role, roles []models.Role) (err error) {
+func (s *AuthDelegateImpl) UserAccess(currentRole models.Role, roles []models.Role, ctx context.Context) (err error) {
 	for _, role := range roles {
 		if currentRole == role {
 			return nil
 		}
 	}
-	err = auth.ErrNotAccess
+	err = &gqlerror.Error{
+		Path:    graphql.GetPath(ctx),
+		Message: auth.ErrNotAccess.Error(),
+		Extensions: map[string]interface{}{
+			"code": "403",
+		},
+	}
 	return
 }
-
-//func (s *AuthDelegateImpl) UserIdentityGraphQL(c *context.Context) (id string, role models.Role, err error) {
-//	header := c.(authorizationHeader)
-//	if header == "" {
-//		return "", models.Anonymous, auth.ErrTokenNotFound
-//	}
-//
-//	headerParts := strings.Split(header, " ")
-//	if len(headerParts) != 2 {
-//		return "", models.Anonymous, auth.ErrTokenNotFound
-//		return
-//	}
-//
-//	claims, err := s.UseCase.ParseToken(headerParts[1], []byte(viper.GetString("auth.access_signing_key")))
-//	if err != nil {
-//		return "", models.Anonymous, auth.ErrInvalidAccessToken
-//	}
-//	return claims.Id, claims.Role, nil
-//}

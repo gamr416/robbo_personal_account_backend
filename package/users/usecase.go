@@ -9,7 +9,7 @@ type UseCase interface {
 	GetStudentsByRobboGroupId(robboGroupId string) (students []*models.StudentCore, err error)
 	GetStudentsByRobboUnitId(robboUnitId string) (students []*models.StudentCore, err error)
 	GetStudentsByTeacherId(teacherId string) (students []*models.StudentCore, err error)
-	SearchStudentByEmail(email string, parentId string) (students []*models.StudentCore, err error)
+	SearchStudentByEmail(email string, page, pageSize int) (students []*models.StudentCore, countRows int64, err error)
 	CreateStudent(student *models.StudentCore, parentId string) (newStudent *models.StudentCore, err error)
 	DeleteStudent(studentId string) (err error)
 	UpdateStudent(student *models.StudentCore) (studentUpdated *models.StudentCore, err error)
@@ -43,7 +43,7 @@ type UseCase interface {
 	CreateUnitAdmin(unitAdmin *models.UnitAdminCore) (newUnitAdmin *models.UnitAdminCore, err error)
 	UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (unitAdminUpdated *models.UnitAdminCore, err error)
 	DeleteUnitAdmin(unitAdminId string) (err error)
-	SearchUnitAdminByEmail(email string, robboUnitId string) (unitAdmins []*models.UnitAdminCore, err error)
+	SearchUnitAdminByEmail(email string, page, pageSize int) (unitAdmins []*models.UnitAdminCore, countRows int64, err error)
 
 	GetSuperAdminById(superAdminId string) (superAdmin *models.SuperAdminCore, err error)
 	UpdateSuperAdmin(superAdmin *models.SuperAdminCore) (superAdminUpdated *models.SuperAdminCore, err error)

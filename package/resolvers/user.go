@@ -770,7 +770,7 @@ func (r *queryResolver) GetStudentsByRobboUnitID(ctx context.Context, robboUnitI
 }
 
 // SearchStudentsByEmail is the resolver for the SearchStudentsByEmail field.
-func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string, parentID string) (models.StudentsResult, error) {
+func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string, page string, pageSize string) (models.StudentsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -787,13 +787,14 @@ func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string,
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	students, searchStudentByEmailErr := r.usersDelegate.SearchStudentByEmail(email, parentID)
+	students, countRows, searchStudentByEmailErr := r.usersDelegate.SearchStudentByEmail(email, page, pageSize)
 	if searchStudentByEmailErr != nil {
 		err := searchStudentByEmailErr
 		return &models.Error{Message: err.Error()}, err
 	}
 	return &models.StudentHTTPList{
-		Students: students,
+		Students:  students,
+		CountRows: countRows,
 	}, nil
 }
 
@@ -1051,7 +1052,7 @@ func (r *queryResolver) GetUnitAdminByID(ctx context.Context, unitAdminID string
 }
 
 // SearchUnitAdminsByEmail is the resolver for the SearchUnitAdminsByEmail field.
-func (r *queryResolver) SearchUnitAdminsByEmail(ctx context.Context, email string, robboUnitID string) (models.UnitAdminsResult, error) {
+func (r *queryResolver) SearchUnitAdminsByEmail(ctx context.Context, email string, page string, pageSize string) (models.UnitAdminsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -1068,13 +1069,14 @@ func (r *queryResolver) SearchUnitAdminsByEmail(ctx context.Context, email strin
 		err := accessErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	unitAdmins, searchUnitAdminByEmailErr := r.usersDelegate.SearchUnitAdminByEmail(email, robboUnitID)
+	unitAdmins, countRows, searchUnitAdminByEmailErr := r.usersDelegate.SearchUnitAdminByEmail(email, page, pageSize)
 	if searchUnitAdminByEmailErr != nil {
 		err := searchUnitAdminByEmailErr
 		return &models.Error{Message: err.Error()}, err
 	}
 	return &models.UnitAdminHTTPList{
 		UnitAdmins: unitAdmins,
+		CountRows:  countRows,
 	}, nil
 }
 

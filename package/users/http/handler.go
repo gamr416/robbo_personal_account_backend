@@ -58,7 +58,7 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 		users.POST("/student", h.CreateStudent)
 		users.DELETE("/student/:studentId", h.DeleteStudent)
 		users.GET("/student/:studentId", h.GetStudentById)
-		users.GET("/student/search/:parentId/:studentEmail", h.SearchStudentByEmail)
+		users.GET("/student/search/:studentEmail", h.SearchStudentByEmail)
 		users.GET("/students/:parentId", h.GetStudentByParentId)
 		users.GET("/student/byTeacherId/:teacherId", h.GetStudentsByTeacherId)
 		users.PUT("/student", h.UpdateStudent)
@@ -91,7 +91,7 @@ func (h *Handler) InitUsersRoutes(router *gin.Engine) {
 		users.GET("/unitAdmin/:unitAdminId", h.GetUnitAdminByID)
 		users.GET("/unitAdmins/:robboUnitId", h.GetUnitAdminsByRobboUnitId)
 		users.GET("/unitAdmins", h.GetAllUnitAdmins)
-		users.GET("/unitAdmin/search/:robboUnitId/:unitAdminEmail", h.SearchUnitAdminByEmail)
+		users.GET("/unitAdmin/search/:unitAdminEmail", h.SearchUnitAdminByEmail)
 		users.POST("/unitAdmin/setRelation", h.SetNewUnitAdminForRobboUnit)
 		users.POST("/unitAdmin/deleteRelation", h.DeleteUnitAdminForRobboUnit)
 
@@ -179,8 +179,7 @@ func (h *Handler) SearchStudentByEmail(c *gin.Context) {
 		return
 	}
 	studentEmail := c.Param("studentEmail")
-	parentId := c.Param("parentId")
-	students, err := h.usersDelegate.SearchStudentByEmail(studentEmail, parentId)
+	students, _, err := h.usersDelegate.SearchStudentByEmail(studentEmail, "0", "0")
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
@@ -1262,8 +1261,7 @@ func (h *Handler) SearchUnitAdminByEmail(c *gin.Context) {
 		return
 	}
 	unitAdminEmail := c.Param("unitAdminEmail")
-	robboUnitId := c.Param("robboUnitId")
-	unitAdmins, err := h.usersDelegate.SearchUnitAdminByEmail(unitAdminEmail, robboUnitId)
+	unitAdmins, _, err := h.usersDelegate.SearchUnitAdminByEmail(unitAdminEmail, "0", "0")
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)

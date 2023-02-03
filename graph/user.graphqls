@@ -164,7 +164,7 @@ type Query {
     GetStudentById(studentId: String!): StudentResult!
     GetStudentsByRobboGroup(robboGroupId: String!): StudentsResult!
     GetStudentsByRobboUnitId(robboUnitId: String!): StudentsResult!
-    SearchStudentsByEmail(email: String!, parentId: String!): StudentsResult!
+    SearchStudentsByEmail(email: String!, page: String!, pageSize: String!): StudentsResult!
     GetAllTeachers(page: String!, pageSize: String!): TeachersResult!
     GetTeacherById(teacherId: String!): TeacherResult!
     GetTeachersByRobboGroupId(robboGroupId: String!): TeachersResult!
@@ -174,7 +174,7 @@ type Query {
     GetAllUnitAdmins(page: String!, pageSize: String!): UnitAdminsResult!
     GetUnitAdminsByRobboUnitId(robboUnitId: String!): UnitAdminsResult!
     GetUnitAdminById(unitAdminId: String!): UnitAdminResult!
-    SearchUnitAdminsByEmail(email: String!, robboUnitId: String!): UnitAdminsResult!
+    SearchUnitAdminsByEmail(email: String!, page: String!, pageSize: String!): UnitAdminsResult!
     GetSuperAdminById(superAdminId: String!): SuperAdminResult!
 }
 

@@ -68,37 +68,24 @@ func (r *UsersGatewayImpl) GetStudent(email, password string) (student *models.S
 	return
 }
 
-func (r *UsersGatewayImpl) SearchStudentsByEmail(email string, parentId string) (students []*models.StudentCore, err error) {
+func (r *UsersGatewayImpl) SearchStudentsByEmail(email string, page, pageSize int) (
+	students []*models.StudentCore,
+	countRows int64,
+	err error,
+) {
 	var studentsDb []*models.StudentDB
+	offset := (page - 1) * pageSize
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Limit(10).Where("email LIKE ?", email).Find(&studentsDb).Error; err != nil {
+		if err = tx.Limit(pageSize).Offset(offset).Where("email LIKE ?", email).Find(&studentsDb).Error; err != nil {
 			err = auth.ErrUserNotFound
 			log.Println(err)
 			return
 		}
+		tx.Model(&models.StudentDB{}).Count(&countRows)
 		return
 	})
 
-	//student = studentsDb.ToCore()
 	for _, studentDb := range studentsDb {
-		var countRow int64
-		err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-			tx.Where("parent_id = ? AND child_id = ?", parentId, studentDb.ID).Model(&models.ChildrenOfParentDB{}).Count(&countRow)
-			return
-		})
-		if countRow != 0 {
-			continue
-		}
-
-		var countParents int64
-		err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-			tx.Where("child_id = ?", studentDb.ID).Model(&models.ChildrenOfParentDB{}).Count(&countParents)
-			return
-		})
-		if countParents >= 2 {
-			continue
-		}
-
 		students = append(students, studentDb.ToCore())
 	}
 	return
@@ -563,28 +550,25 @@ func (r *UsersGatewayImpl) UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (uni
 	return
 }
 
-func (r *UsersGatewayImpl) SearchUnitAdminByEmail(email string, robboUnitId string) (unitAdmins []*models.UnitAdminCore, err error) {
+func (r *UsersGatewayImpl) SearchUnitAdminByEmail(email string, page, pageSize int) (
+	unitAdmins []*models.UnitAdminCore,
+	countRows int64,
+	err error,
+) {
 	var unitAdminsDb []*models.UnitAdminDB
+	offset := (page - 1) * pageSize
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Limit(10).Where("email LIKE ?", email).Find(&unitAdminsDb).Error; err != nil {
+		if err = tx.Limit(pageSize).Offset(offset).Where("email LIKE ?", email).Find(&unitAdminsDb).Error; err != nil {
 			err = auth.ErrUserNotFound
 			log.Println(err)
 			return
 		}
+		tx.Model(&models.UnitAdminDB{}).Count(&countRows)
 		return
 	})
 	for _, unitAdminDb := range unitAdminsDb {
-		//var countRow int64
-		//err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		//	tx.Where("robbo_unit_id = ? AND unit_admin_id = ?", robboUnitId, unitAdminDb.ID).Model(&models.UnitAdminsRobboUnitsDB{}).Count(&countRow)
-		//	return
-		//})
-		//if countRow != 0 {
-		//	continue
-		//}
 		unitAdmins = append(unitAdmins, unitAdminDb.ToCore())
 	}
-	//unitAdmins = append(unitAdmins, unitAdminDb.ToCore())
 	return
 }
 

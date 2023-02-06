@@ -52,7 +52,7 @@ func (h *Handler) UpdateCourse(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -93,7 +93,7 @@ func (h *Handler) CreateCourse(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -123,7 +123,7 @@ func (h *Handler) GetCourseContent(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.Student, models.FreeListener, models.Teacher, models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -149,7 +149,7 @@ func (h *Handler) GetCoursesByUser(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.Student, models.Parent, models.FreeListener, models.Teacher, models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -174,7 +174,7 @@ func (h *Handler) GetAllPublicCourses(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.Student, models.Parent, models.FreeListener, models.Teacher, models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -201,7 +201,7 @@ func (h *Handler) GetEnrollments(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -228,7 +228,7 @@ func (h *Handler) DeleteCourse(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)

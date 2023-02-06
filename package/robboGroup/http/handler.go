@@ -54,7 +54,7 @@ func (h *Handler) CreateRobboGroup(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -93,7 +93,7 @@ func (h *Handler) GetAllRobboGroups(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -119,7 +119,7 @@ func (h *Handler) GetRobboGroupById(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -147,7 +147,7 @@ func (h *Handler) GetRobboGroupsByUnitAdminId(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -175,7 +175,7 @@ func (h *Handler) GetRobboGroupsByRobboUnitId(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -202,7 +202,7 @@ func (h *Handler) UpdateRobboGroup(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -235,7 +235,7 @@ func (h *Handler) DeleteRobboGroup(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -265,7 +265,7 @@ func (h *Handler) SetTeacherForRobboGroup(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -300,7 +300,7 @@ func (h *Handler) DeleteTeacherForRobboGroup(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)

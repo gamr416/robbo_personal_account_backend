@@ -6,6 +6,8 @@ package resolvers
 import (
 	"context"
 	"errors"
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 )
@@ -14,19 +16,13 @@ import (
 func (r *mutationResolver) CreateRobboGroup(ctx context.Context, input models.NewRobboGroup) (models.RobboGroupResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.Error{Message: "internal server error"}, err
+		return nil, getGinContextErr
 	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := identityErr
-		return &models.Error{Message: err.Error()}, err
-	}
+	userRole := ginContext.Value("user_role").(models.Role)
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {
-		err := accessErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, accessErr
 	}
 
 	robboGroupHttp := models.RobboGroupHTTP{
@@ -46,19 +42,14 @@ func (r *mutationResolver) CreateRobboGroup(ctx context.Context, input models.Ne
 func (r *mutationResolver) UpdateRobboGroup(ctx context.Context, input models.UpdateRobboGroup) (models.RobboGroupResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.Error{Message: "internal server error"}, err
+		return nil, getGinContextErr
 	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := identityErr
-		return &models.Error{Message: err.Error()}, err
-	}
+	userRole := ginContext.Value("user_role").(models.Role)
+
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {
-		err := accessErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, accessErr
 	}
 
 	updateRobboGroupInput := &models.RobboGroupHTTP{
@@ -69,8 +60,13 @@ func (r *mutationResolver) UpdateRobboGroup(ctx context.Context, input models.Up
 
 	robboGroupUpdated, updateRobboGroupErr := r.robboGroupDelegate.UpdateRobboGroup(updateRobboGroupInput)
 	if updateRobboGroupErr != nil {
-		err := updateRobboGroupErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: updateRobboGroupErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 	return &robboGroupUpdated, nil
 }
@@ -82,22 +78,22 @@ func (r *mutationResolver) DeleteRobboGroup(ctx context.Context, robboGroupID st
 		err := errors.New("internal server error")
 		return &models.DeletedRobboGroup{RobboGroupID: ""}, err
 	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := errors.New("status unauthorized")
-		return &models.DeletedRobboGroup{RobboGroupID: ""}, err
-	}
+	userRole := ginContext.Value("user_role").(models.Role)
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return &models.DeletedRobboGroup{RobboGroupID: ""}, err
+		return nil, accessErr
 	}
 
 	deleteRobboGroupErr := r.robboGroupDelegate.DeleteRobboGroup(robboGroupID)
 	if deleteRobboGroupErr != nil {
-		err := errors.New("baq request")
-		return &models.DeletedRobboGroup{RobboGroupID: ""}, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: deleteRobboGroupErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 	return &models.DeletedRobboGroup{RobboGroupID: robboGroupID}, nil
 }
@@ -106,24 +102,25 @@ func (r *mutationResolver) DeleteRobboGroup(ctx context.Context, robboGroupID st
 func (r *queryResolver) GetRobboGroupByID(ctx context.Context, id string) (models.RobboGroupResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.Error{Message: "internal server error"}, err
+		return nil, getGinContextErr
 	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := identityErr
-		return &models.Error{Message: err.Error()}, err
-	}
+	userRole := ginContext.Value("user_role").(models.Role)
+
 	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {
-		err := accessErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, accessErr
 	}
+
 	robboGroup, getRobboGroupByIdErr := r.robboGroupDelegate.GetRobboGroupById(id)
 	if getRobboGroupByIdErr != nil {
-		err := getRobboGroupByIdErr
-		return nil, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getRobboGroupByIdErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 	return &robboGroup, nil
 }
@@ -132,24 +129,25 @@ func (r *queryResolver) GetRobboGroupByID(ctx context.Context, id string) (model
 func (r *queryResolver) GetRobboGroupsByTeacherID(ctx context.Context, teacherID string, page string, pageSize string) (models.RobboGroupsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.Error{Message: "internal server error"}, err
+		return nil, getGinContextErr
 	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := identityErr
-		return &models.Error{Message: err.Error()}, err
-	}
+	userRole := ginContext.Value("user_role").(models.Role)
 	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {
-		err := accessErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, accessErr
 	}
-	robboGroups, countRows, getRobboGroupsByTeacherIdErr := r.robboGroupDelegate.GetRobboGroupsByTeacherId(teacherID, page, pageSize)
+
+	robboGroups, countRows, getRobboGroupsByTeacherIdErr := r.robboGroupDelegate.
+		GetRobboGroupsByTeacherId(teacherID, page, pageSize)
 	if getRobboGroupsByTeacherIdErr != nil {
-		err := getRobboGroupsByTeacherIdErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getRobboGroupsByTeacherIdErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 	return &models.RobboGroupHTTPList{
 		RobboGroups: robboGroups,
@@ -161,24 +159,24 @@ func (r *queryResolver) GetRobboGroupsByTeacherID(ctx context.Context, teacherID
 func (r *queryResolver) GetRobboGroupsByRobboUnitID(ctx context.Context, robboUnitID string) (models.RobboGroupsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.Error{Message: "internal server error"}, err
+		return nil, getGinContextErr
 	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := identityErr
-		return &models.Error{Message: err.Error()}, err
-	}
+	userRole := ginContext.Value("user_role").(models.Role)
 	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {
-		err := accessErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, accessErr
 	}
+
 	robboGroups, getRobboGroupsByRobboUnitIdErr := r.robboGroupDelegate.GetRobboGroupsByRobboUnitId(robboUnitID)
 	if getRobboGroupsByRobboUnitIdErr != nil {
-		err := getRobboGroupsByRobboUnitIdErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getRobboGroupsByRobboUnitIdErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 	return &models.RobboGroupHTTPList{
 		RobboGroups: robboGroups,
@@ -189,24 +187,25 @@ func (r *queryResolver) GetRobboGroupsByRobboUnitID(ctx context.Context, robboUn
 func (r *queryResolver) GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdminID string, page string, pageSize string) (models.RobboGroupsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.Error{Message: "internal server error"}, err
+		return nil, getGinContextErr
 	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := identityErr
-		return &models.Error{Message: err.Error()}, err
-	}
+	userRole := ginContext.Value("user_role").(models.Role)
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {
-		err := accessErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, accessErr
 	}
-	robboGroups, countRows, getRobboGroupsByUnitAdminIdErr := r.robboGroupDelegate.GetRobboGroupsByUnitAdminId(unitAdminID, page, pageSize)
+
+	robboGroups, countRows, getRobboGroupsByUnitAdminIdErr := r.robboGroupDelegate.
+		GetRobboGroupsByUnitAdminId(unitAdminID, page, pageSize)
 	if getRobboGroupsByUnitAdminIdErr != nil {
-		err := getRobboGroupsByUnitAdminIdErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getRobboGroupsByUnitAdminIdErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 	return &models.RobboGroupHTTPList{
 		RobboGroups: robboGroups,
@@ -218,25 +217,26 @@ func (r *queryResolver) GetRobboGroupsByUnitAdminID(ctx context.Context, unitAdm
 func (r *queryResolver) GetAllRobboGroupsForUnitAdmin(ctx context.Context, page string, pageSize string) (models.RobboGroupsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.Error{Message: "internal server error"}, err
+		return nil, getGinContextErr
 	}
-	id, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := identityErr
-		return &models.Error{Message: err.Error()}, err
-	}
+	userId := ginContext.Value("user_id").(string)
+	userRole := ginContext.Value("user_role").(models.Role)
 	allowedRoles := []models.Role{models.UnitAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {
-		err := accessErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, accessErr
 	}
 
-	robboGroups, countRows, getAllRobboGroups := r.robboGroupDelegate.GetRobboGroupsByUnitAdminId(id, page, pageSize)
+	robboGroups, countRows, getAllRobboGroups := r.robboGroupDelegate.
+		GetRobboGroupsByUnitAdminId(userId, page, pageSize)
 	if getAllRobboGroups != nil {
-		err := getAllRobboGroups
-		return &models.Error{Message: err.Error()}, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getAllRobboGroups.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 	return &models.RobboGroupHTTPList{
 		RobboGroups: robboGroups,
@@ -248,25 +248,24 @@ func (r *queryResolver) GetAllRobboGroupsForUnitAdmin(ctx context.Context, page 
 func (r *queryResolver) GetAllRobboGroups(ctx context.Context, page string, pageSize string) (models.RobboGroupsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.Error{Message: "internal server error"}, err
+		return nil, getGinContextErr
 	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := identityErr
-		return &models.Error{Message: err.Error()}, err
-	}
+	userRole := ginContext.Value("user_role").(models.Role)
 	allowedRoles := []models.Role{models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {
-		err := accessErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, accessErr
 	}
 
 	robboGroups, countRows, getAllRobboGroups := r.robboGroupDelegate.GetAllRobboGroups(page, pageSize)
 	if getAllRobboGroups != nil {
-		err := getAllRobboGroups
-		return &models.Error{Message: err.Error()}, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getAllRobboGroups.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 	return &models.RobboGroupHTTPList{
 		RobboGroups: robboGroups,
@@ -278,25 +277,26 @@ func (r *queryResolver) GetAllRobboGroups(ctx context.Context, page string, page
 func (r *queryResolver) GetRobboGroupsByAccessToken(ctx context.Context, page string, pageSize string) (models.RobboGroupsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.Error{Message: "internal server error"}, err
+		return nil, getGinContextErr
 	}
-	userId, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := identityErr
-		return &models.Error{Message: err.Error()}, err
-	}
-	//todo: add admins
-	allowedRoles := []models.Role{models.Teacher}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	userId := ginContext.Value("user_id").(string)
+	userRole := ginContext.Value("user_role").(models.Role)
+	allowedRoles := []models.Role{models.Teacher, models.SuperAdmin, models.UnitAdmin}
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {
-		err := accessErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, accessErr
 	}
-	robboGroups, countRows, getRobboGroupsByTeacherIdErr := r.robboGroupDelegate.GetRobboGroupsByTeacherId(userId, page, pageSize)
+
+	robboGroups, countRows, getRobboGroupsByTeacherIdErr := r.robboGroupDelegate.
+		GetRobboGroupsByTeacherId(userId, page, pageSize)
 	if getRobboGroupsByTeacherIdErr != nil {
-		err := getRobboGroupsByTeacherIdErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getRobboGroupsByTeacherIdErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 	return &models.RobboGroupHTTPList{
 		RobboGroups: robboGroups,
@@ -308,24 +308,24 @@ func (r *queryResolver) GetRobboGroupsByAccessToken(ctx context.Context, page st
 func (r *queryResolver) SearchGroupsByName(ctx context.Context, name string) (models.RobboGroupsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.Error{Message: "internal server error"}, err
+		return nil, getGinContextErr
 	}
-	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		err := identityErr
-		return &models.Error{Message: err.Error()}, err
-	}
+	userRole := ginContext.Value("user_role").(models.Role)
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {
-		err := accessErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, accessErr
 	}
+
 	robboGroups, searchRobboGroupByNameErr := r.robboGroupDelegate.SearchRobboGroupByName(name)
 	if searchRobboGroupByNameErr != nil {
-		err := searchRobboGroupByNameErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: searchRobboGroupByNameErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 	return &models.RobboGroupHTTPList{
 		RobboGroups: robboGroups,

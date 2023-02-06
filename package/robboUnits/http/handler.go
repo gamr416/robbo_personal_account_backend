@@ -49,7 +49,7 @@ func (h *Handler) CreateRobboUnit(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -85,7 +85,7 @@ func (h *Handler) GetRobboUnitById(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -112,7 +112,7 @@ func (h *Handler) GetAllRobboUnits(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -138,7 +138,7 @@ func (h *Handler) GetRobboUnitsByUnitAdminId(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.UnitAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -164,7 +164,7 @@ func (h *Handler) UpdateRobboUnit(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -199,7 +199,7 @@ func (h *Handler) DeleteRobboUnit(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)

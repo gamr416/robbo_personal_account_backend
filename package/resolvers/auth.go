@@ -17,12 +17,17 @@ import (
 func (r *mutationResolver) SingIn(ctx context.Context, input models.SignInInput) (models.SignInResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.Error{Message: "internal server error"}, err
+		return nil, getGinContextErr
 	}
 	accessToken, refreshToken, err := r.authDelegate.SignIn(input.Email, input.Password, uint(input.UserRole))
 	if err != nil {
-		return &models.Error{Message: err.Error()}, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: err.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 	setRefreshToken(refreshToken, ginContext)
 	return &models.SingInResponse{
@@ -34,8 +39,7 @@ func (r *mutationResolver) SingIn(ctx context.Context, input models.SignInInput)
 func (r *mutationResolver) SingOut(ctx context.Context) (*models.Error, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.Error{Message: "internal server error"}, err
+		return nil, getGinContextErr
 	}
 	setRefreshToken("", ginContext)
 	return &models.Error{}, nil
@@ -45,8 +49,7 @@ func (r *mutationResolver) SingOut(ctx context.Context) (*models.Error, error) {
 func (r *mutationResolver) Refresh(ctx context.Context) (models.SignInResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.Error{Message: "internal server error"}, err
+		return nil, getGinContextErr
 	}
 	refreshToken, err := getRefreshToken(ginContext)
 	if err != nil {

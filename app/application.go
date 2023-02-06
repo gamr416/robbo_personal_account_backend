@@ -60,7 +60,6 @@ func TestInvokeWith(options ...fx.Option) (*fx.App, func()) {
 
 func TestApp() (app *fx.App, cleanerContainer func()) {
 	app, cleanerContainer = TestInvokeWith(
-		//fx.Invoke(server.NewHttpServer),
 		fx.Invoke(server.NewServer),
 	)
 	return

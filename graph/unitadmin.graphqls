@@ -1,0 +1,40 @@
+union UnitAdminResult = UnitAdminHttp | Error
+union UnitAdminsResult = UnitAdminHttpList | Error
+
+input NewUnitAdmin {
+	email: String!
+	password: String!
+	nickname: String!
+	firstname: String!
+	lastname: String!
+	middlename: String!
+}
+
+type UnitAdminHttpList {
+	unitAdmins: [UnitAdminHttp!]!
+	countRows: Int!
+}
+
+type UnitAdminHttp {
+	userHttp: UserHttp!
+}
+
+type DeletedUnitAdmin {
+	unitAdminId: String!
+}
+
+extend type Query {
+	GetAllUnitAdmins(page: String!, pageSize: String!): UnitAdminsResult!
+	GetUnitAdminsByRobboUnitId(robboUnitId: String!): UnitAdminsResult!
+	GetUnitAdminById(unitAdminId: String!): UnitAdminResult!
+	SearchUnitAdminsByEmail(email: String!, robboUnitId: String!): UnitAdminsResult!
+
+}
+
+extend type Mutation {
+	CreateUnitAdmin(input: NewUnitAdmin!): UnitAdminResult!
+	UpdateUnitAdmin(input: UpdateProfileInput!): UnitAdminResult!
+	DeleteUnitAdmin(unitAdminId: String!): DeletedUnitAdmin!
+	SetNewUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): Error!
+	DeleteUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): Error!
+}

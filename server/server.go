@@ -55,7 +55,7 @@ func NewServer(lifecycle fx.Lifecycle, graphQLModule modules.GraphQLModule, hand
 
 				log.Printf("connect to http://localhost:%s/ for GraphQL playground", viper.GetString("graphqlServer.port"))
 				go func() {
-					if err = server.ListenAndServeTLS("cert.pem", "key.pem"); err != nil {
+					if err = server.ListenAndServe(); err != nil {
 						log.Fatalf("Failed to listen and serve: %s", err)
 					}
 				}()
@@ -77,7 +77,7 @@ func SetupGinRouter(handlers modules.HandlerModule) *gin.Engine {
 	handlers.AuthHandler.InitAuthRoutes(router)
 	//handlers.ProjectsHandler.InitProjectRoutes(router)
 	//handlers.ProjectPageHandler.InitProjectRoutes(router)
-	//handlers.CoursesHandler.InitCourseRoutes(router)
+	handlers.CoursesHandler.InitCourseRoutes(router)
 	//handlers.CohortsHandler.InitCohortRoutes(router)
 	//handlers.UsersHandler.InitUsersRoutes(router)
 	//handlers.RobboUnitsHandler.InitRobboUnitsRoutes(router)

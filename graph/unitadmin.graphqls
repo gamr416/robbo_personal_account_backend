@@ -27,8 +27,7 @@ extend type Query {
 	GetAllUnitAdmins(page: String!, pageSize: String!): UnitAdminsResult!
 	GetUnitAdminsByRobboUnitId(robboUnitId: String!): UnitAdminsResult!
 	GetUnitAdminById(unitAdminId: String!): UnitAdminResult!
-	SearchUnitAdminsByEmail(email: String!, robboUnitId: String!): UnitAdminsResult!
-
+	SearchUnitAdminsByEmail(email: String!, page: String!, pageSize: String!): UnitAdminsResult!
 }
 
 extend type Mutation {

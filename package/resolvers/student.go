@@ -5,6 +5,7 @@ package resolvers
 
 import (
 	"context"
+
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/vektah/gqlparser/v2/gqlerror"
@@ -357,7 +358,7 @@ func (r *queryResolver) GetIndividualStudentsByTeacherID(ctx context.Context, te
 }
 
 // SearchStudentsByEmail is the resolver for the SearchStudentsByEmail field.
-func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string, parentID string) (models.StudentsResult, error) {
+func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string, page string, pageSize string) (models.StudentsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		return nil, getGinContextErr
@@ -369,7 +370,7 @@ func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string,
 		return nil, accessErr
 	}
 
-	students, searchStudentByEmailErr := r.usersDelegate.SearchStudentByEmail(email, parentID)
+	students, countRows, searchStudentByEmailErr := r.usersDelegate.SearchStudentByEmail(email, page, pageSize)
 	if searchStudentByEmailErr != nil {
 		return nil, &gqlerror.Error{
 			Path:    graphql.GetPath(ctx),
@@ -380,6 +381,7 @@ func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string,
 		}
 	}
 	return &models.StudentHTTPList{
-		Students: students,
+		Students:  students,
+		CountRows: countRows,
 	}, nil
 }

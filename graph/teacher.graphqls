@@ -29,7 +29,7 @@ extend type Query  {
 	GetTeacherById(teacherId: String!): TeacherResult!
 	GetTeachersByStudentId(studentId: String!): TeachersResult!
 	GetTeachersByRobboGroupId(robboGroupId: String!): TeachersResult!
-	SearchTeachersByEmail(email: String!): TeachersResult!
+	SearchTeachersByEmail(email: String!, page: String!, pageSize: String!): TeachersResult!
 }
 
 extend type Mutation {

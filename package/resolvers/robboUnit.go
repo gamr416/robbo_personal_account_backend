@@ -5,10 +5,10 @@ package resolvers
 
 import (
 	"context"
-	"github.com/99designs/gqlgen/graphql"
-	"github.com/vektah/gqlparser/v2/gqlerror"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 // CreateRobboUnit is the resolver for the CreateRobboUnit field.
@@ -134,7 +134,7 @@ func (r *queryResolver) GetAllRobboUnits(ctx context.Context, page string, pageS
 		return nil, accessErr
 	}
 
-	robboUnits, countRows, getAllRobboUnitErr := r.robboUnitsDelegate.GetAllRobboUnit(page, pageSize)
+	robboUnits, countRows, getAllRobboUnitErr := r.robboUnitsDelegate.GetAllRobboUnits(page, pageSize)
 	if getAllRobboUnitErr != nil {
 		return nil, &gqlerror.Error{
 			Path:    graphql.GetPath(ctx),

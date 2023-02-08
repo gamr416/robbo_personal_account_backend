@@ -5,10 +5,10 @@ package resolvers
 
 import (
 	"context"
-	"github.com/99designs/gqlgen/graphql"
-	"github.com/vektah/gqlparser/v2/gqlerror"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 // CreateProjectPage is the resolver for the CreateProjectPage field.

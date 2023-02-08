@@ -5,10 +5,10 @@ package resolvers
 
 import (
 	"context"
-	"github.com/99designs/gqlgen/graphql"
-	"github.com/vektah/gqlparser/v2/gqlerror"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 // CreateUnitAdmin is the resolver for the createUnitAdmin field.
@@ -248,7 +248,7 @@ func (r *queryResolver) GetUnitAdminByID(ctx context.Context, unitAdminID string
 }
 
 // SearchUnitAdminsByEmail is the resolver for the SearchUnitAdminsByEmail field.
-func (r *queryResolver) SearchUnitAdminsByEmail(ctx context.Context, email string, robboUnitID string) (models.UnitAdminsResult, error) {
+func (r *queryResolver) SearchUnitAdminsByEmail(ctx context.Context, email string, page string, pageSize string) (models.UnitAdminsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		return nil, getGinContextErr
@@ -260,7 +260,7 @@ func (r *queryResolver) SearchUnitAdminsByEmail(ctx context.Context, email strin
 		return nil, accessErr
 	}
 
-	unitAdmins, searchUnitAdminByEmailErr := r.usersDelegate.SearchUnitAdminByEmail(email, robboUnitID)
+	unitAdmins, countRows, searchUnitAdminByEmailErr := r.usersDelegate.SearchUnitAdminByEmail(email, page, pageSize)
 	if searchUnitAdminByEmailErr != nil {
 		return nil, &gqlerror.Error{
 			Path:    graphql.GetPath(ctx),
@@ -272,5 +272,6 @@ func (r *queryResolver) SearchUnitAdminsByEmail(ctx context.Context, email strin
 	}
 	return &models.UnitAdminHTTPList{
 		UnitAdmins: unitAdmins,
+		CountRows:  countRows,
 	}, nil
 }

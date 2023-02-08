@@ -19,8 +19,8 @@ extend type Query {
 	GetStudentsByRobboUnitId(robboUnitId: String!): StudentsResult!
 	GetStudentsByTeacherId(teacherId: String!): StudentsResult!
 	GetIndividualStudentsByTeacherId(teacherId: String!): StudentsResult!
-	SearchStudentsByEmail(email: String!, parentId: String!): StudentsResult!
-	}
+	SearchStudentsByEmail(email: String!, page: String!, pageSize: String!): StudentsResult!
+}
 
 extend type Mutation {
 	CreateStudent(input: NewStudent!): StudentResult!

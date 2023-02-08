@@ -1,0 +1,66 @@
+union ParentsResult = ParentHttpList  | Error
+union ParentResult = ParentHttp  | Error
+
+
+input NewParent {
+	email: String!
+	password: String!
+	nickname: String!
+	firstname: String!
+	lastname: String!
+	middlename: String!
+}
+
+type StudentHttp {
+	userHttp: UserHttp!
+	robboGroupId: String!
+	robboUnitId: String!
+}
+
+type DeletedStudent {
+	studentId: String!
+}
+
+type StudentHttpList {
+	students: [StudentHttp!]!
+	countRows: Int!
+}
+
+type StudentParentsHttp {
+	student: StudentHttp!
+	parents: [ParentHttp!]!
+}
+
+type StudentParentsHttpList {
+	pairsStudentParents: [StudentParentsHttp!]!
+}
+
+type ParentHttp {
+	userHttp: UserHttp!
+	children: [StudentHttp!]!
+}
+
+type DeletedParent {
+	parentId: String!
+}
+
+type ParentHttpList {
+	parents: [ParentHttp!]!
+	countRows: Int!
+}
+
+union PairsStudentParentsResult = StudentParentsHttpList | Error
+
+extend type Mutation {
+	CreateParent(input: NewParent!): ParentResult!
+	UpdateParent(input: UpdateProfileInput!): ParentResult!
+	AddChildToParent(parentId: String!, childId: String!): StudentsResult!
+	DeleteParent(parentId: String!): DeletedParent!
+
+}
+
+extend type Query {
+	GetAllParents(page: String!, pageSize: String!): ParentsResult!
+	GetParentById(parentId: String!): ParentResult!
+	GetPairsStudentParentsByAccessToken: PairsStudentParentsResult!
+}

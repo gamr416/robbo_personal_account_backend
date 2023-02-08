@@ -22,6 +22,10 @@ type EnrollmentsResult interface {
 	IsEnrollmentsResult()
 }
 
+type GetUserResult interface {
+	IsGetUserResult()
+}
+
 type PairsStudentParentsResult interface {
 	IsPairsStudentParentsResult()
 }
@@ -214,6 +218,12 @@ func (Error) IsCoursesResult() {}
 
 func (Error) IsEnrollmentsResult() {}
 
+func (Error) IsParentsResult() {}
+
+func (Error) IsParentResult() {}
+
+func (Error) IsPairsStudentParentsResult() {}
+
 func (Error) IsProjectPageResult() {}
 
 func (Error) IsRobboGroupResult() {}
@@ -228,10 +238,6 @@ func (Error) IsStudentResult() {}
 
 func (Error) IsStudentsResult() {}
 
-func (Error) IsParentResult() {}
-
-func (Error) IsParentsResult() {}
-
 func (Error) IsTeacherResult() {}
 
 func (Error) IsTeachersResult() {}
@@ -241,8 +247,6 @@ func (Error) IsUnitAdminResult() {}
 func (Error) IsUnitAdminsResult() {}
 
 func (Error) IsSuperAdminResult() {}
-
-func (Error) IsPairsStudentParentsResult() {}
 
 type ImageHTTP struct {
 	ID    string `json:"id"`
@@ -342,6 +346,8 @@ type ParentHTTP struct {
 
 func (ParentHTTP) IsParentResult() {}
 
+func (ParentHTTP) IsGetUserResult() {}
+
 type ParentHTTPList struct {
 	Parents   []*ParentHTTP `json:"parents"`
 	CountRows int           `json:"countRows"`
@@ -422,6 +428,8 @@ type StudentHTTP struct {
 
 func (StudentHTTP) IsStudentResult() {}
 
+func (StudentHTTP) IsGetUserResult() {}
+
 type StudentHTTPList struct {
 	Students  []*StudentHTTP `json:"students"`
 	CountRows int            `json:"countRows"`
@@ -446,11 +454,15 @@ type SuperAdminHTTP struct {
 
 func (SuperAdminHTTP) IsSuperAdminResult() {}
 
+func (SuperAdminHTTP) IsGetUserResult() {}
+
 type TeacherHTTP struct {
 	UserHTTP *UserHTTP `json:"userHttp"`
 }
 
 func (TeacherHTTP) IsTeacherResult() {}
+
+func (TeacherHTTP) IsGetUserResult() {}
 
 type TeacherHTTPList struct {
 	Teachers  []*TeacherHTTP `json:"teachers"`
@@ -464,6 +476,8 @@ type UnitAdminHTTP struct {
 }
 
 func (UnitAdminHTTP) IsUnitAdminResult() {}
+
+func (UnitAdminHTTP) IsGetUserResult() {}
 
 type UnitAdminHTTPList struct {
 	UnitAdmins []*UnitAdminHTTP `json:"unitAdmins"`

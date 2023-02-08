@@ -136,19 +136,7 @@ extend type Query {
     GetRobboGroupsAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): RobboGroupsResult!
     GetRobboUnitsAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): RobboUnitsResult!
 
-    GetAccessCourseRelationsByCourseId(courseId: String!): CourseRelationsResult!
-    GetAccessCourseRelationsByRobboUnitId(robboUnitId: String!): CourseRelationsResult!
-    GetAccessCourseRelationsByRobboGroupId(robboGroupId: String!): CourseRelationsResult!
-    GetAccessCourseRelationsByStudentId(studentId: String!): CourseRelationsResult!
-    GetAccessCourseRelationsByTeacherId(teacherId: String!): CourseRelationsResult!
-    GetAccessCourseRelationsByUnitAdminId(unitAdminId: String!): CourseRelationsResult!
-    GetAccessCourseRelationsRobboUnits: CourseRelationsResult!
-    GetAccessCourseRelationsRobboGroups: CourseRelationsResult!
-    GetAccessCourseRelationsStudents: CourseRelationsResult!
-    GetAccessCourseRelationsTeachers: CourseRelationsResult!
-    GetAccessCourseRelationsUnitAdmins: CourseRelationsResult!
     GetCourseContent(courseId: String!): CourseResult!
-
     GetCoursesByUser(page: String, pageSize: String): CoursesResult!
     GetCoursesByRobboUnitId(robboUnitId: String!, page: String, pageSize: String): CoursesResult!
     GetCoursesByRobboGroupId(robboGroupId: String!, page: String, pageSize: String): CoursesResult!

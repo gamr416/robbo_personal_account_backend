@@ -52,7 +52,7 @@ func (h *Handler) CreateProjectPage(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -85,7 +85,7 @@ func (h *Handler) GetProjectPageById(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -117,7 +117,7 @@ func (h *Handler) GetAllProjectPageByUserId(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -148,7 +148,7 @@ func (h *Handler) UpdateProjectPage(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -181,7 +181,7 @@ func (h *Handler) DeleteProjectPage(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)

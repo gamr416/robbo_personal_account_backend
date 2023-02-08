@@ -10,30 +10,6 @@ type UserHttp {
     createdAt: Timestamp!
 }
 
-type StudentHttp {
-    userHttp: UserHttp!
-    robboGroupId: String!
-    robboUnitId: String!
-}
-
-type DeletedStudent {
-    studentId: String!
-}
-
-type StudentHttpList {
-    students: [StudentHttp!]!
-    countRows: Int!
-}
-
-type StudentParentsHttp {
-    student: StudentHttp!
-    parents: [ParentHttp!]!
-}
-
-type StudentParentsHttpList {
-    pairsStudentParents: [StudentParentsHttp!]!
-}
-
 input UpdateProfileInput {
     id: String!
     email: String!
@@ -43,139 +19,22 @@ input UpdateProfileInput {
     middlename: String!
 }
 
-type ParentHttp {
-    userHttp: UserHttp!
-    children: [StudentHttp!]!
-}
-
-type DeletedParent {
-    parentId: String!
-}
-
-type ParentHttpList {
-    parents: [ParentHttp!]!
-    countRows: Int!
-}
-
-type TeacherHttp {
-    userHttp: UserHttp!
-}
-
-type DeletedTeacher {
-    teacherId: String!
-}
-
-type TeacherHttpList {
-    teachers: [TeacherHttp!]!
-    countRows: Int!
-}
-
-type UnitAdminHttp {
-    userHttp: UserHttp!
-}
-
-type DeletedUnitAdmin {
-    unitAdminId: String!
-}
-
-type UnitAdminHttpList {
-    unitAdmins: [UnitAdminHttp!]!
-    countRows: Int!
-}
-
 type SuperAdminHttp {
     userHttp: UserHttp!
 }
 
-input NewParent {
-    email: String!
-    password: String!
-    nickname: String!
-    firstname: String!
-    lastname: String!
-    middlename: String!
-}
-
-input NewStudent {
-    email: String!
-    password: String!
-    nickname: String!
-    firstname: String!
-    lastname: String!
-    middlename: String!
-    parentId: String!
-}
-
-input NewTeacher {
-    email: String!
-    password: String!
-    nickname: String!
-    firstname: String!
-    lastname: String!
-    middlename: String!
-}
-
-input NewUnitAdmin {
-    email: String!
-    password: String!
-    nickname: String!
-    firstname: String!
-    lastname: String!
-    middlename: String!
-}
-
-union StudentResult = StudentHttp | Error
-union StudentsResult = StudentHttpList | Error
-union ParentResult = ParentHttp  | Error
-union ParentsResult = ParentHttpList  | Error
-union TeacherResult = TeacherHttp  | Error
-union TeachersResult =  TeacherHttpList | Error
-union UnitAdminResult = UnitAdminHttp | Error
-union UnitAdminsResult = UnitAdminHttpList | Error
 union SuperAdminResult = SuperAdminHttp | Error
-union PairsStudentParentsResult = StudentParentsHttpList | Error
+
+
+union GetUserResult = StudentHttp | ParentHttp | TeacherHttp | UnitAdminHttp | SuperAdminHttp
 
 type Mutation {
-    CreateStudent(input: NewStudent!): StudentResult!
-    UpdateStudent(input: UpdateProfileInput!): StudentResult!
-    DeleteStudent(studentId: String!): DeletedStudent!
-    SetRobboGroupIdForStudent(studentId: String!, robboGroupId: String!, robboUnitId: String!): Error!
-    CreateTeacher(input: NewTeacher!): TeacherResult!
-    UpdateTeacher(input: UpdateProfileInput!): TeacherResult!
-    DeleteTeacher(teacherId: String!): DeletedTeacher!
-    CreateParent(input: NewParent!): ParentResult!
-    SetTeacherForRobboGroup(teacherId: String!, robboGroupId: String!): TeachersResult!
-    DeleteTeacherForRobboGroup(teacherId: String!, robboGroupId: String!): TeachersResult!
-    AddChildToParent(parentId: String!, childId: String!): StudentsResult!
-    UpdateParent(input: UpdateProfileInput!): ParentResult!
-    DeleteParent(parentId: String!): DeletedParent!
-    CreateUnitAdmin(input: NewUnitAdmin!): UnitAdminResult!
-    UpdateUnitAdmin(input: UpdateProfileInput!): UnitAdminResult!
-    DeleteUnitAdmin(unitAdminId: String!): DeletedUnitAdmin!
-    SetNewUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): Error!
-    DeleteUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): Error!
     UpdateSuperAdmin(input: UpdateProfileInput!): SuperAdminResult!
 }
 
 type Query {
-    GetPairsStudentParentsByAccessToken: PairsStudentParentsResult!
-    GetIndividualStudentsByTeacherId(teacherId: String!): StudentsResult!
-    GetStudentsByParentId(parentId: String!): StudentsResult!
-    GetStudentById(studentId: String!): StudentResult!
-    GetStudentsByRobboGroup(robboGroupId: String!): StudentsResult!
-    GetStudentsByRobboUnitId(robboUnitId: String!): StudentsResult!
-    SearchStudentsByEmail(email: String!, page: String!, pageSize: String!): StudentsResult!
-    GetAllTeachers(page: String!, pageSize: String!): TeachersResult!
-    GetTeacherById(teacherId: String!): TeacherResult!
-    GetTeachersByRobboGroupId(robboGroupId: String!): TeachersResult!
-    SearchTeachersByEmail(email: String!, page: String!, pageSize: String!): TeachersResult!
-    GetAllParents(page: String!, pageSize: String!): ParentsResult!
-    GetParentById(parentId: String!): ParentResult!
-    GetAllUnitAdmins(page: String!, pageSize: String!): UnitAdminsResult!
-    GetUnitAdminsByRobboUnitId(robboUnitId: String!): UnitAdminsResult!
-    GetUnitAdminById(unitAdminId: String!): UnitAdminResult!
-    SearchUnitAdminsByEmail(email: String!, page: String!, pageSize: String!): UnitAdminsResult!
-    GetSuperAdminById(superAdminId: String!): SuperAdminResult!
+     GetSuperAdminById(superAdminId: String!): SuperAdminResult!
+     GetUser(peekUserId: String, peekUserRole: Int): GetUserResult!
 }
 
 scalar Timestamp

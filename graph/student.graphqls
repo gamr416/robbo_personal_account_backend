@@ -1,0 +1,32 @@
+union StudentResult = StudentHttp | Error
+union StudentsResult = StudentHttpList | Error
+
+input NewStudent {
+	email: String!
+	password: String!
+	nickname: String!
+	firstname: String!
+	lastname: String!
+	middlename: String!
+	parentId: String!
+}
+
+
+extend type Query {
+	GetStudentsByParentId(parentId: String!): StudentsResult!
+	GetStudentById(studentId: String!): StudentResult!
+	GetStudentsByRobboGroup(robboGroupId: String!): StudentsResult!
+	GetStudentsByRobboUnitId(robboUnitId: String!): StudentsResult!
+	GetStudentsByTeacherId(teacherId: String!): StudentsResult!
+	GetIndividualStudentsByTeacherId(teacherId: String!): StudentsResult!
+	SearchStudentsByEmail(email: String!, parentId: String!): StudentsResult!
+	}
+
+extend type Mutation {
+	CreateStudent(input: NewStudent!): StudentResult!
+	UpdateStudent(input: UpdateProfileInput!): StudentResult!
+	DeleteStudent(studentId: String!): DeletedStudent!
+	SetRobboGroupIdForStudent(studentId: String!, robboGroupId: String!, robboUnitId: String!): Error
+	CreateStudentTeacherRelation(studentId: String!, teacherId: String!): StudentResult!
+	DeleteStudentTeacherRelation(studentId: String!, teacherId: String!): StudentResult!
+}

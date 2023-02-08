@@ -49,7 +49,7 @@ func (h *Handler) CreateCohort(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -96,7 +96,7 @@ func (h *Handler) AddStudent(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)

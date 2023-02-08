@@ -5,7 +5,8 @@ package resolvers
 
 import (
 	"context"
-	"errors"
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 )
@@ -14,24 +15,25 @@ import (
 func (r *mutationResolver) CreateProjectPage(ctx context.Context) (models.ProjectPageResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.Error{Message: "internal server error"}, err
+		return nil, getGinContextErr
 	}
-	userId, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := userIdentityErr
-		return &models.Error{Message: err.Error()}, err
-	}
+	userId := ginContext.Value("user_id").(string)
+	userRole := ginContext.Value("user_role").(models.Role)
 	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {
-		err := accessErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, accessErr
 	}
+
 	newProjectPage, createProjectPageErr := r.projectPageDelegate.CreateProjectPage(userId)
 	if createProjectPageErr != nil {
-		err := createProjectPageErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: createProjectPageErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 	return &newProjectPage, nil
 }
@@ -40,20 +42,15 @@ func (r *mutationResolver) CreateProjectPage(ctx context.Context) (models.Projec
 func (r *mutationResolver) UpdateProjectPage(ctx context.Context, input models.UpdateProjectPage) (models.ProjectPageResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.Error{Message: "internal server error"}, err
+		return nil, getGinContextErr
 	}
-	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := userIdentityErr
-		return &models.Error{Message: err.Error()}, err
-	}
+	userRole := ginContext.Value("user_role").(models.Role)
 	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {
-		err := accessErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, accessErr
 	}
+
 	updateProjectPageInput := &models.ProjectPageHTTP{
 		ProjectID:     input.ProjectID,
 		ProjectPageID: input.ProjectPageID,
@@ -65,8 +62,13 @@ func (r *mutationResolver) UpdateProjectPage(ctx context.Context, input models.U
 
 	updateProjectPage, updateProjectPageErr := r.projectPageDelegate.UpdateProjectPage(updateProjectPageInput)
 	if updateProjectPageErr != nil {
-		err := updateProjectPageErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: updateProjectPageErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 	return updateProjectPage, nil
 }
@@ -75,24 +77,24 @@ func (r *mutationResolver) UpdateProjectPage(ctx context.Context, input models.U
 func (r *mutationResolver) DeleteProjectPage(ctx context.Context, projectID string) (*models.DeletedProjectPage, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.DeletedProjectPage{ProjectPageID: ""}, err
+		return nil, getGinContextErr
 	}
-	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		return &models.DeletedProjectPage{ProjectPageID: ""}, err
-	}
+	userRole := ginContext.Value("user_role").(models.Role)
 	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return &models.DeletedProjectPage{ProjectPageID: ""}, err
+		return nil, accessErr
 	}
+
 	deleteProjectPageErr := r.projectPageDelegate.DeleteProjectPage(projectID)
 	if deleteProjectPageErr != nil {
-		err := errors.New("baq request")
-		return &models.DeletedProjectPage{ProjectPageID: ""}, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: deleteProjectPageErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 	return &models.DeletedProjectPage{ProjectPageID: projectID}, nil
 }
@@ -101,24 +103,24 @@ func (r *mutationResolver) DeleteProjectPage(ctx context.Context, projectID stri
 func (r *queryResolver) GetProjectPageByID(ctx context.Context, projectPageID string) (models.ProjectPageResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.Error{Message: "internal server error"}, err
+		return nil, getGinContextErr
 	}
-	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := userIdentityErr
-		return &models.Error{Message: err.Error()}, err
-	}
+	userRole := ginContext.Value("user_role").(models.Role)
 	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {
-		err := accessErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, accessErr
 	}
+
 	projectPageHttp, getProjectPageByIdErr := r.projectPageDelegate.GetProjectPageById(projectPageID)
 	if getProjectPageByIdErr != nil {
-		err := getProjectPageByIdErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getProjectPageByIdErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 	return &projectPageHttp, nil
 }
@@ -127,24 +129,24 @@ func (r *queryResolver) GetProjectPageByID(ctx context.Context, projectPageID st
 func (r *queryResolver) GetAllProjectPagesByUserID(ctx context.Context, userID string) (models.ProjectPageResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.Error{Message: "internal server error"}, err
+		return nil, getGinContextErr
 	}
-	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := userIdentityErr
-		return &models.Error{Message: err.Error()}, err
-	}
+	userRole := ginContext.Value("user_role").(models.Role)
 	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {
-		err := accessErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, accessErr
 	}
+
 	projectPages, getAllProjectPagesErr := r.projectPageDelegate.GetAllProjectPagesByUserId(userID)
 	if getAllProjectPagesErr != nil {
-		err := getAllProjectPagesErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getAllProjectPagesErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 	return &models.ProjectPageHTTPList{
 		ProjectPages: projectPages,
@@ -155,24 +157,25 @@ func (r *queryResolver) GetAllProjectPagesByUserID(ctx context.Context, userID s
 func (r *queryResolver) GetAllProjectPagesByAccessToken(ctx context.Context) (models.ProjectPageResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return &models.Error{Message: "internal server error"}, err
+		return nil, getGinContextErr
 	}
-	userId, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := userIdentityErr
-		return &models.Error{Message: err.Error()}, err
-	}
+	userId := ginContext.Value("user_id").(string)
+	userRole := ginContext.Value("user_role").(models.Role)
 	allowedRoles := []models.Role{models.Student, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {
-		err := accessErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, accessErr
 	}
+
 	projectPages, getAllProjectPagesErr := r.projectPageDelegate.GetAllProjectPagesByUserId(userId)
 	if getAllProjectPagesErr != nil {
-		err := getAllProjectPagesErr
-		return &models.Error{Message: err.Error()}, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getAllProjectPagesErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 	return &models.ProjectPageHTTPList{
 		ProjectPages: projectPages,

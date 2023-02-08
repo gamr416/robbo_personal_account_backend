@@ -29,7 +29,13 @@ func NewServer(lifecycle fx.Lifecycle, graphQLModule modules.GraphQLModule, hand
 					Handler: cors.New(
 						// TODO make config
 						cors.Options{
-							AllowedOrigins:   []string{"http://0.0.0.0:3030", "http://0.0.0.0:8601", "http://localhost:3030"},
+							AllowedOrigins: []string{
+								"http://0.0.0.0:3030",
+								"http://0.0.0.0:3000",
+								"http://0.0.0.0:8601",
+								"http://localhost:3030",
+								"http://localhost:3000",
+							},
 							AllowCredentials: true,
 							AllowedMethods: []string{
 								http.MethodGet,
@@ -69,14 +75,14 @@ func SetupGinRouter(handlers modules.HandlerModule) *gin.Engine {
 		GinContextToContextMiddleware(),
 	)
 	handlers.AuthHandler.InitAuthRoutes(router)
-	handlers.ProjectsHandler.InitProjectRoutes(router)
-	handlers.ProjectPageHandler.InitProjectRoutes(router)
-	handlers.CoursesHandler.InitCourseRoutes(router)
-	handlers.CohortsHandler.InitCohortRoutes(router)
-	handlers.UsersHandler.InitUsersRoutes(router)
-	handlers.RobboUnitsHandler.InitRobboUnitsRoutes(router)
-	handlers.RobboGroupHandler.InitRobboGroupRoutes(router)
-	handlers.CoursePacketHandler.InitCoursePacketRoutes(router)
+	//handlers.ProjectsHandler.InitProjectRoutes(router)
+	//handlers.ProjectPageHandler.InitProjectRoutes(router)
+	//handlers.CoursesHandler.InitCourseRoutes(router)
+	//handlers.CohortsHandler.InitCohortRoutes(router)
+	//handlers.UsersHandler.InitUsersRoutes(router)
+	//handlers.RobboUnitsHandler.InitRobboUnitsRoutes(router)
+	//handlers.RobboGroupHandler.InitRobboGroupRoutes(router)
+	//handlers.CoursePacketHandler.InitCoursePacketRoutes(router)
 	return router
 }
 

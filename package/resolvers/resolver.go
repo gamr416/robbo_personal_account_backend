@@ -2,7 +2,7 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
@@ -10,6 +10,7 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboUnits"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 // This file will not be regenerated automatically.
@@ -31,14 +32,24 @@ type QueryResolver struct{ *Resolver }
 func GinContextFromContext(ctx context.Context) (*gin.Context, error) {
 	ginContext := ctx.Value("GinContextKey")
 	if ginContext == nil {
-		err := fmt.Errorf("could not retrieve gin.Context")
-		return nil, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: "internal server error",
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 
 	gc, ok := ginContext.(*gin.Context)
 	if !ok {
-		err := fmt.Errorf("gin.Context has wrong type")
-		return nil, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: "gin.Context has wrong type",
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 	return gc, nil
 }

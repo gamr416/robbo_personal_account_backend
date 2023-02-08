@@ -305,7 +305,7 @@ func (r *queryResolver) GetRobboGroupsByAccessToken(ctx context.Context, page st
 }
 
 // SearchGroupsByName is the resolver for the SearchGroupsByName field.
-func (r *queryResolver) SearchGroupsByName(ctx context.Context, name string) (models.RobboGroupsResult, error) {
+func (r *queryResolver) SearchGroupsByName(ctx context.Context, name string, page string, pageSize string) (models.RobboGroupsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		return nil, getGinContextErr
@@ -316,8 +316,8 @@ func (r *queryResolver) SearchGroupsByName(ctx context.Context, name string) (mo
 	if accessErr != nil {
 		return nil, accessErr
 	}
+	robboGroups, countRows, searchRobboGroupByNameErr := r.robboGroupDelegate.SearchRobboGroupByName(name, page, pageSize)
 
-	robboGroups, searchRobboGroupByNameErr := r.robboGroupDelegate.SearchRobboGroupByName(name)
 	if searchRobboGroupByNameErr != nil {
 		return nil, &gqlerror.Error{
 			Path:    graphql.GetPath(ctx),
@@ -329,5 +329,6 @@ func (r *queryResolver) SearchGroupsByName(ctx context.Context, name string) (mo
 	}
 	return &models.RobboGroupHTTPList{
 		RobboGroups: robboGroups,
+		CountRows:   countRows,
 	}, nil
 }

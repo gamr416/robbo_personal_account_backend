@@ -137,9 +137,13 @@ func (p *UsersUseCaseImpl) GetStudentById(studentId string) (student *models.Stu
 	return p.usersGateway.GetStudentById(studentId)
 }
 
-func (p *UsersUseCaseImpl) SearchStudentByEmail(email string, parentId string) (students []*models.StudentCore, err error) {
+func (p *UsersUseCaseImpl) SearchStudentByEmail(email string, page, pageSize int) (
+	students []*models.StudentCore,
+	countRows int64,
+	err error,
+) {
 	emailCondition := email + "%"
-	return p.usersGateway.SearchStudentsByEmail(emailCondition, parentId)
+	return p.usersGateway.SearchStudentsByEmail(emailCondition, page, pageSize)
 }
 
 func (p *UsersUseCaseImpl) GetStudentByParentId(parentId string) (students []*models.StudentCore, err error) {
@@ -266,9 +270,13 @@ func (p *UsersUseCaseImpl) DeleteTeacher(teacherId string) (err error) {
 	return
 }
 
-func (p *UsersUseCaseImpl) SearchTeacherByEmail(email string) (teachers []models.TeacherCore, err error) {
+func (p *UsersUseCaseImpl) SearchTeacherByEmail(email string, page, pageSize int) (
+	teachers []models.TeacherCore,
+	countRows int64,
+	err error,
+) {
 	emailCondition := email + "%"
-	return p.usersGateway.SearchTeacherByEmail(emailCondition)
+	return p.usersGateway.SearchTeacherByEmail(emailCondition, page, pageSize)
 }
 
 func (p *UsersUseCaseImpl) GetParentById(parentId string) (parent *models.ParentCore, err error) {
@@ -360,9 +368,13 @@ func (p *UsersUseCaseImpl) DeleteUnitAdmin(unitAdminId string) (err error) {
 	return p.usersGateway.DeleteUnitAdmin(unitAdminId)
 }
 
-func (p *UsersUseCaseImpl) SearchUnitAdminByEmail(email string, robboUnitId string) (unitAdmins []*models.UnitAdminCore, err error) {
+func (p *UsersUseCaseImpl) SearchUnitAdminByEmail(email string, page, pageSize int) (
+	unitAdmins []*models.UnitAdminCore,
+	countRows int64,
+	err error,
+) {
 	emailCondition := email + "%"
-	return p.usersGateway.SearchUnitAdminByEmail(emailCondition, robboUnitId)
+	return p.usersGateway.SearchUnitAdminByEmail(emailCondition, page, pageSize)
 }
 
 func (p *UsersUseCaseImpl) GetUnitAdminByRobboUnitId(robboUnitId string) (unitAdmins []*models.UnitAdminCore, err error) {

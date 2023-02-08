@@ -179,11 +179,22 @@ func (p *UsersDelegateImpl) GetStudentById(studentId string) (student *models.St
 	return
 }
 
-func (p *UsersDelegateImpl) SearchStudentByEmail(email string, parentId string) (students []*models.StudentHTTP, err error) {
-	studentsCore, err := p.UseCase.SearchStudentByEmail(email, parentId)
+func (p *UsersDelegateImpl) SearchStudentByEmail(email, page, pageSize string) (
+	students []*models.StudentHTTP,
+	countRows int,
+	err error,
+) {
+	pageInt32, _ := strconv.ParseInt(page, 10, 32)
+	pageSizeInt32, _ := strconv.ParseInt(pageSize, 10, 32)
+	studentsCore, countRowsInt64, err := p.UseCase.SearchStudentByEmail(
+		email,
+		int(pageInt32),
+		int(pageSizeInt32),
+	)
 	if err != nil {
 		return
 	}
+	countRows = int(countRowsInt64)
 	for _, studentCore := range studentsCore {
 		studentTemp := models.StudentHTTP{
 			UserHTTP:     &models.UserHTTP{},
@@ -318,11 +329,22 @@ func (p *UsersDelegateImpl) DeleteTeacher(teacherId string) (err error) {
 	return p.UseCase.DeleteTeacher(teacherId)
 }
 
-func (p *UsersDelegateImpl) SearchTeacherByEmail(email string) (teachers []*models.TeacherHTTP, err error) {
-	teachersCore, err := p.UseCase.SearchTeacherByEmail(email)
+func (p *UsersDelegateImpl) SearchTeacherByEmail(email, page, pageSize string) (
+	teachers []*models.TeacherHTTP,
+	countRows int,
+	err error,
+) {
+	pageInt32, _ := strconv.ParseInt(page, 10, 32)
+	pageSizeInt32, _ := strconv.ParseInt(pageSize, 10, 32)
+	teachersCore, countRowsInt64, err := p.UseCase.SearchTeacherByEmail(
+		email,
+		int(pageInt32),
+		int(pageSizeInt32),
+	)
 	if err != nil {
 		return
 	}
+	countRows = int(countRowsInt64)
 	for _, teacherCore := range teachersCore {
 		teacherTemp := models.TeacherHTTP{
 			UserHTTP: &models.UserHTTP{},
@@ -518,11 +540,22 @@ func (p *UsersDelegateImpl) DeleteUnitAdmin(unitAdminId string) (err error) {
 	return p.UseCase.DeleteUnitAdmin(unitAdminId)
 }
 
-func (p *UsersDelegateImpl) SearchUnitAdminByEmail(email string, robboUnitId string) (unitAdmins []*models.UnitAdminHTTP, err error) {
-	unitAdminsCore, err := p.UseCase.SearchUnitAdminByEmail(email, robboUnitId)
+func (p *UsersDelegateImpl) SearchUnitAdminByEmail(email, page, pageSize string) (
+	unitAdmins []*models.UnitAdminHTTP,
+	countRows int,
+	err error,
+) {
+	pageInt32, _ := strconv.ParseInt(page, 10, 32)
+	pageSizeInt32, _ := strconv.ParseInt(pageSize, 10, 32)
+	unitAdminsCore, countRowsInt64, err := p.UseCase.SearchUnitAdminByEmail(
+		email,
+		int(pageInt32),
+		int(pageSizeInt32),
+	)
 	if err != nil {
 		return
 	}
+	countRows = int(countRowsInt64)
 	for _, unitAdminCore := range unitAdminsCore {
 		unitAdminHttpTemp := models.UnitAdminHTTP{
 			UserHTTP: &models.UserHTTP{},

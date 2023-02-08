@@ -28,14 +28,21 @@ func (r *RobboGroupGatewayImpl) UpdateRobboGroup(robboGroupCore *models.RobboGro
 	return
 }
 
-func (r *RobboGroupGatewayImpl) SearchRobboGroupsByTitle(title string) (robboGroupsCore []*models.RobboGroupCore, err error) {
+func (r *RobboGroupGatewayImpl) SearchRobboGroupsByTitle(title string, page, pageSize int) (
+	robboGroupsCore []*models.RobboGroupCore,
+	countRows int64,
+	err error,
+) {
 	var robboGroupsDB []*models.RobboGroupDB
+	offset := (page - 1) * pageSize
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Limit(10).Where("name LIKE ?", title).Find(&robboGroupsDB).Error; err != nil {
+		if err = tx.Limit(pageSize).Offset(offset).Where("name LIKE ?", title).Find(&robboGroupsDB).Error; err != nil {
 			return
 		}
+		tx.Model(&models.RobboGroupDB{}).Count(&countRows)
 		return
 	})
+
 	for _, robboGroupDB := range robboGroupsDB {
 		robboGroupsCore = append(robboGroupsCore, robboGroupDB.ToCore())
 	}

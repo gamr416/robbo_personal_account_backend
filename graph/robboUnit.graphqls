@@ -39,5 +39,5 @@ extend type Query {
     GetAllRobboUnits(page: String!, pageSize: String!): RobboUnitsResult!
     GetRobboUnitsByUnitAdminId(unitAdminId: String!): RobboUnitsResult!
     GetRobboUnitsByAccessToken(page: String!, pageSize: String!): RobboUnitsResult!
-    SearchRobboUnitsByName(name: String!): RobboUnitsResult!
+    SearchRobboUnitsByName(name: String!, page: String!, pageSize: String!): RobboUnitsResult!
 }

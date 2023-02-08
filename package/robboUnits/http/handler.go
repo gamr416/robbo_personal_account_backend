@@ -118,7 +118,7 @@ func (h *Handler) GetAllRobboUnits(c *gin.Context) {
 		ErrorHandling(accessErr, c)
 		return
 	}
-	robboUnits, _, err := h.robboUnitsDelegate.GetAllRobboUnit("0", "0")
+	robboUnits, _, err := h.robboUnitsDelegate.GetAllRobboUnits("0", "0")
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)

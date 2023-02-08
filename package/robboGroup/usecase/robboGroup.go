@@ -95,9 +95,9 @@ func (r *RobboGroupUseCaseImpl) UpdateRobboGroup(robboGroup *models.RobboGroupCo
 	return r.robboGroupGateway.UpdateRobboGroup(robboGroup)
 }
 
-func (r *RobboGroupUseCaseImpl) SearchRobboGroupsByTitle(title string) (robboGroups []*models.RobboGroupCore, err error) {
+func (r *RobboGroupUseCaseImpl) SearchRobboGroupsByTitle(title string, page, pageSize int) (robboGroups []*models.RobboGroupCore, countRows int64, err error) {
 	titleCondition := "%" + title + "%"
-	return r.robboGroupGateway.SearchRobboGroupsByTitle(titleCondition)
+	return r.robboGroupGateway.SearchRobboGroupsByTitle(titleCondition, page, pageSize)
 }
 
 func (r *RobboGroupUseCaseImpl) SetTeacherForRobboGroup(teacherId, robboGroupId string) (err error) {

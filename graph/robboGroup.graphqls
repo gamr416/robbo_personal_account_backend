@@ -49,5 +49,5 @@ extend type Query {
 	GetAllRobboGroups(page: String!, pageSize: String!): RobboGroupsResult!
 	# Ручка для Teacher для получения групп на которые он назначен
 	GetRobboGroupsByAccessToken(page: String!, pageSize: String!): RobboGroupsResult!
-	SearchGroupsByName(name: String!): RobboGroupsResult!
+	SearchGroupsByName(name: String!, page: String!, pageSize: String!): RobboGroupsResult!
 }

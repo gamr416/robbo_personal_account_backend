@@ -13,6 +13,5 @@ type UseCase interface {
 	GetRobboGroupsByTeacherId(teacherId string, page, pageSize int) (robboGroups []*models.RobboGroupCore, countRows int64, err error)
 	SetTeacherForRobboGroup(teacherId, robboGroupId string) (err error)
 	DeleteTeacherForRobboGroup(teacherId, robboGroupId string) (err error)
-
-	SearchRobboGroupsByTitle(title string) (robboGroups []*models.RobboGroupCore, err error)
+	SearchRobboGroupsByTitle(title string, page, pageSize int) (robboGroups []*models.RobboGroupCore, countRows int64, err error)
 }

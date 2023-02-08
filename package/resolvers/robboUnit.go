@@ -211,7 +211,7 @@ func (r *queryResolver) GetRobboUnitsByAccessToken(ctx context.Context, page str
 }
 
 // SearchRobboUnitsByName is the resolver for the SearchRobboUnitsByName field.
-func (r *queryResolver) SearchRobboUnitsByName(ctx context.Context, name string) (models.RobboUnitsResult, error) {
+func (r *queryResolver) SearchRobboUnitsByName(ctx context.Context, name string, page string, pageSize string) (models.RobboUnitsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		return nil, getGinContextErr
@@ -222,8 +222,8 @@ func (r *queryResolver) SearchRobboUnitsByName(ctx context.Context, name string)
 	if accessErr != nil {
 		return nil, accessErr
 	}
+	robboUnits, countRows, searchTeachersByEmailErr := r.robboUnitsDelegate.SearchRobboUnitsByName(name, page, pageSize)
 
-	robboUnits, searchTeachersByEmailErr := r.robboUnitsDelegate.SearchRobboUnitsByName(name)
 	if searchTeachersByEmailErr != nil {
 		return nil, &gqlerror.Error{
 			Path:    graphql.GetPath(ctx),
@@ -235,5 +235,6 @@ func (r *queryResolver) SearchRobboUnitsByName(ctx context.Context, name string)
 	}
 	return &models.RobboUnitHTTPList{
 		RobboUnits: robboUnits,
+		CountRows:  countRows,
 	}, nil
 }

@@ -6,7 +6,7 @@ import (
 
 type Delegate interface {
 	GetIndividualStudentsByTeacherId(teacherId string) (students []*models.StudentHTTP, err error)
-	SearchStudentByEmail(email string, parentId string) (students []*models.StudentHTTP, err error)
+	SearchStudentByEmail(email, page, pageSize string) (students []*models.StudentHTTP, countRows int, err error)
 	CreateStudent(student *models.StudentHTTP, parentId string) (newStudent *models.StudentHTTP, err error)
 	UpdateStudent(student *models.StudentHTTP) (studentUpdated *models.StudentHTTP, err error)
 	DeleteStudent(studentId string) (err error)
@@ -29,7 +29,7 @@ type Delegate interface {
 	DeleteTeacher(teacherId string) (err error)
 	GetTeacherByRobboGroupId(robboGroupId string) (teachers []*models.TeacherHTTP, err error)
 	GetTeachersByStudentId(studentId string) (teachers []*models.TeacherHTTP, err error)
-	SearchTeacherByEmail(email string) (teachers []*models.TeacherHTTP, err error)
+	SearchTeacherByEmail(email, page, pageSize string) (teachers []*models.TeacherHTTP, countRows int, err error)
 
 	CreateParent(parentHTTP *models.ParentHTTP) (newParent *models.ParentHTTP, err error)
 	UpdateParent(parentHTTP *models.ParentHTTP) (parentUpdated *models.ParentHTTP, err error)
@@ -47,7 +47,7 @@ type Delegate interface {
 	DeleteUnitAdmin(unitAdminId string) (err error)
 	GetUnitAdminById(unitAdminId string) (unitAdmin models.UnitAdminHTTP, err error)
 	GetAllUnitAdmins(page, pageSize string) (unitAdmins []*models.UnitAdminHTTP, countRows int, err error)
-	SearchUnitAdminByEmail(email string, robboUnitId string) (unitAdmins []*models.UnitAdminHTTP, err error)
+	SearchUnitAdminByEmail(email, page, pageSize string) (unitAdmins []*models.UnitAdminHTTP, countRows int, err error)
 	GetUnitAdminByRobboUnitId(robboUnitId string) (unitAdmins []*models.UnitAdminHTTP, err error)
 
 	GetSuperAdminById(superAdminId string) (superAdmin models.SuperAdminHTTP, err error)

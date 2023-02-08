@@ -4,7 +4,7 @@ import "github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 
 type Gateway interface {
 	GetStudent(email, password string) (student *models.StudentCore, err error)
-	SearchStudentsByEmail(email string, parentId string) (students []*models.StudentCore, err error)
+	SearchStudentsByEmail(email string, page, pageSize int) (students []*models.StudentCore, countRows int64, err error)
 	AddStudentToRobboGroup(studentId, robboGroupId, robboUnitId string) (err error)
 	CreateStudent(student *models.StudentCore) (newStudent *models.StudentCore, err error)
 	UpdateStudent(student *models.StudentCore) (studentUpdated *models.StudentCore, err error)
@@ -19,7 +19,7 @@ type Gateway interface {
 	GetTeacher(email, password string) (teacher models.TeacherCore, err error)
 	GetAllTeachers(page, pageSize int) (teachers []models.TeacherCore, countRows int64, err error)
 	GetTeacherById(teacherId string) (teacher models.TeacherCore, err error)
-	SearchTeacherByEmail(email string) (teachers []models.TeacherCore, err error)
+	SearchTeacherByEmail(email string, page, pageSize int) (teachers []models.TeacherCore, countRows int64, err error)
 
 	CreateParent(parent *models.ParentCore) (newParent *models.ParentCore, err error)
 	UpdateParent(parent *models.ParentCore) (parentUpdated *models.ParentCore, err error)
@@ -40,7 +40,7 @@ type Gateway interface {
 	GetUnitAdmin(email, password string) (unitAdmin *models.UnitAdminCore, err error)
 	GetAllUnitAdmins(page, pageSize int) (unitAdmins []*models.UnitAdminCore, countRows int64, err error)
 	GetUnitAdminById(unitAdminId string) (unitAdmin *models.UnitAdminCore, err error)
-	SearchUnitAdminByEmail(email string, robboUnitId string) (unitAdmins []*models.UnitAdminCore, err error)
+	SearchUnitAdminByEmail(email string, page, pageSize int) (unitAdmins []*models.UnitAdminCore, countRows int64, err error)
 
 	UpdateSuperAdmin(superAdmin *models.SuperAdminCore) (superAdminUpdated *models.SuperAdminCore, err error)
 	DeleteSuperAdmin(superAdminId string) (err error)

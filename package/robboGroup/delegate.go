@@ -13,5 +13,5 @@ type Delegate interface {
 	GetRobboGroupsByTeacherId(teacherId, page, pageSize string) (robboGroups []*models.RobboGroupHTTP, countRows int, err error)
 	SetTeacherForRobboGroup(teacherId, robboGroupId string) (err error)
 	DeleteTeacherForRobboGroup(teacherId, robboGroupId string) (err error)
-	SearchRobboGroupByName(name string) (robboGroups []*models.RobboGroupHTTP, err error)
+	SearchRobboGroupByName(name, page, pageSize string) (robboGroups []*models.RobboGroupHTTP, countRows int, err error)
 }

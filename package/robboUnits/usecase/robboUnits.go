@@ -12,9 +12,13 @@ type RobboUnitsUseCaseImpl struct {
 	usersGateway      users.Gateway
 }
 
-func (p *RobboUnitsUseCaseImpl) SearchRobboUnitsByName(name string) (robboUnits []*models.RobboUnitCore, err error) {
+func (p *RobboUnitsUseCaseImpl) SearchRobboUnitsByName(name string, page, pageSize int) (
+	robboUnits []*models.RobboUnitCore,
+	countRows int64,
+	err error,
+) {
 	nameCondition := name + "%"
-	return p.robboUnitsGateway.SearchRobboUnitByName(nameCondition)
+	return p.robboUnitsGateway.SearchRobboUnitByName(nameCondition, page, pageSize)
 
 }
 
@@ -40,8 +44,8 @@ func (p *RobboUnitsUseCaseImpl) DeleteRobboUnit(robboUnitId string) (err error) 
 	return p.robboUnitsGateway.DeleteRobboUnit(robboUnitId)
 }
 
-func (p *RobboUnitsUseCaseImpl) GetAllRobboUnit(page, pageSize int) (robboUnits []*models.RobboUnitCore, countRows int64, err error) {
-	return p.robboUnitsGateway.GetAllRobboUnit(page, pageSize)
+func (p *RobboUnitsUseCaseImpl) GetAllRobboUnits(page, pageSize int) (robboUnits []*models.RobboUnitCore, countRows int64, err error) {
+	return p.robboUnitsGateway.GetAllRobboUnits(page, pageSize)
 }
 
 func (p *RobboUnitsUseCaseImpl) GetRobboUnitById(robboUnitId string) (robboUnit *models.RobboUnitCore, err error) {

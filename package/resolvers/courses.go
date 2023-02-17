@@ -5,10 +5,7 @@ package resolvers
 
 import (
 	"context"
-	"strconv"
-
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/utils"
 	"github.com/vektah/gqlparser/v2/gqlerror"
@@ -27,17 +24,17 @@ func (r *mutationResolver) CreateAccessCourseRelationRobboGroup(ctx context.Cont
 		return nil, accessErr
 	}
 
-	_, parseErr := strconv.ParseUint(input.CourseID, 10, 64)
-	if parseErr != nil {
-		err := courses.ErrIncorrectInputParam
-		return &models.Error{Message: err.Error()}, err
-	}
-
-	_, parseErr = strconv.ParseUint(input.RobboGroupID, 10, 64)
-	if parseErr != nil {
-		err := courses.ErrIncorrectInputParam
-		return &models.Error{Message: err.Error()}, err
-	}
+	//_, parseErr := strconv.ParseUint(input.CourseID, 10, 64)
+	//if parseErr != nil {
+	//	err := courses.ErrIncorrectInputParam
+	//	return &models.Error{Message: err.Error()}, err
+	//}
+	//
+	//_, parseErr = strconv.ParseUint(input.RobboGroupID, 10, 64)
+	//if parseErr != nil {
+	//	err := courses.ErrIncorrectInputParam
+	//	return &models.Error{Message: err.Error()}, err
+	//}
 
 	courseRelation := &models.CourseRelationHTTP{
 		CourseID: input.CourseID,
@@ -402,7 +399,7 @@ func (r *queryResolver) GetCoursesByUser(ctx context.Context, page *string, page
 	}
 
 	courses, getCoursesByUserErr := r.coursesDelegate.
-		GetCoursesByUser(userId, userRole, utils.UseString(page), utils.UseString(pageSize))
+		GetCoursesByUser(userId, userRole, "1", "10")
 	if getCoursesByUserErr != nil {
 		return nil, &gqlerror.Error{
 			Path:    graphql.GetPath(ctx),
@@ -428,7 +425,8 @@ func (r *queryResolver) GetCoursesByRobboUnitID(ctx context.Context, robboUnitID
 		return nil, accessErr
 	}
 
-	courses, getCoursesByUserErr := r.coursesDelegate.GetCoursesByRobboUnitId(robboUnitID, *page, *pageSize)
+	courses, getCoursesByUserErr := r.coursesDelegate.
+		GetCoursesByRobboUnitId(robboUnitID, utils.UseString(page), utils.UseString(pageSize))
 	if getCoursesByUserErr != nil {
 		return nil, &gqlerror.Error{
 			Path:    graphql.GetPath(ctx),
@@ -458,7 +456,8 @@ func (r *queryResolver) GetCoursesByRobboGroupID(ctx context.Context, robboGroup
 		return nil, accessErr
 	}
 
-	courses, getCoursesByUserErr := r.coursesDelegate.GetCoursesByRobboGroupId(robboGroupID, *page, *pageSize)
+	courses, getCoursesByUserErr := r.coursesDelegate.
+		GetCoursesByRobboGroupId(robboGroupID, utils.UseString(page), utils.UseString(pageSize))
 	if getCoursesByUserErr != nil {
 		return nil, &gqlerror.Error{
 			Path:    graphql.GetPath(ctx),

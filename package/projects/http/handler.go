@@ -1,6 +1,7 @@
 package http
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
@@ -30,7 +31,7 @@ func (h *Handler) InitProjectRoutes(router *gin.Engine) {
 	{
 		project.POST("/", h.CreateProject)
 		project.GET("/:projectId", h.GetProject)
-		project.PUT("/:projectId", h.UpdateProject)
+		project.POST(":projectId", h.UpdateProject)
 		project.DELETE("/", h.DeleteProject)
 	}
 }
@@ -78,10 +79,10 @@ func (h *Handler) GetProject(c *gin.Context) {
 		return
 	}
 
-	//var jsonMap map[string]interface{}
-	//json.Unmarshal([]byte(project.Json), &jsonMap)
+	var jsonMap map[string]interface{}
+	json.Unmarshal([]byte(project.Json), &jsonMap)
 
-	c.JSON(http.StatusOK, project.Json)
+	c.JSON(http.StatusOK, jsonMap)
 }
 
 func (h *Handler) UpdateProject(c *gin.Context) {

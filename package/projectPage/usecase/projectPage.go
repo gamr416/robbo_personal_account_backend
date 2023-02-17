@@ -70,6 +70,7 @@ const emptyProjectJson = "{\"targets\":[{\"isStage\":true,\"name\":\"Stage\",\"v
 func (p *ProjectPageUseCaseImpl) CreateProjectPage(authorId string) (newProjectPage *models.ProjectPageCore, err error) {
 	project := models.ProjectCore{}
 	project.AuthorId = authorId
+	//json.Unmarshal(project.Json, emptyProjectJson2)
 	project.Json = emptyProjectJson2
 	project.Name = "Untitled"
 

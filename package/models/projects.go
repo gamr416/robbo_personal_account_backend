@@ -10,6 +10,7 @@ type ProjectCore struct {
 	Name     string
 	AuthorId string
 	Json     string
+	//Json []byte
 }
 
 type ProjectDB struct {
@@ -25,6 +26,7 @@ type ProjectHTTP struct {
 	Name     string `json:"name"`
 	AuthorId string `json:"authorId"`
 	Json     string `json:"json"`
+	//Json []byte `json:"json"`
 }
 
 func (em *ProjectDB) ToCore() *ProjectCore {
@@ -33,6 +35,7 @@ func (em *ProjectDB) ToCore() *ProjectCore {
 		Name:     em.Name,
 		AuthorId: em.AuthorId,
 		Json:     em.Json,
+		//Json: []byte(em.Json),
 	}
 }
 
@@ -42,6 +45,7 @@ func (em *ProjectDB) FromCore(project *ProjectCore) {
 	em.Name = project.Name
 	em.AuthorId = project.AuthorId
 	em.Json = project.Json
+	//json.Unmarshal(project.Json, em.Json)
 }
 
 func (ht *ProjectHTTP) ToCore() *ProjectCore {

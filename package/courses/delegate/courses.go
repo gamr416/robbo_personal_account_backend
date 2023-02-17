@@ -436,6 +436,7 @@ func (p *CourseDelegateImpl) GetCoursesByUser(userId string, role models.Role, p
 		coursesListHTTP = &models.CoursesListHTTP{
 			Results:    []*models.CourseHTTP{},
 			Pagination: &models.Pagination{},
+			CountRows:  0,
 		}
 		coursesListHTTP.Results = append(coursesListHTTP.Results, courseHTTP)
 	}

@@ -68,12 +68,23 @@ func (h *Handler) CreateProject(c *gin.Context) {
 }
 
 func (h *Handler) GetProject(c *gin.Context) {
+	userId, userRole, userIdentityErr := h.authDelegate.UserIdentity(c)
+	fmt.Println(userId)
+	fmt.Println(userRole)
+	if userIdentityErr != nil {
+		c.AbortWithError(http.StatusUnauthorized, userIdentityErr)
+	}
+	allowedRoles := []models.Role{models.Student}
+	accessErr := h.authDelegate.UserAccess(userRole, allowedRoles, c)
+	if accessErr != nil {
+		c.AbortWithError(http.StatusUnauthorized, accessErr)
+	}
 	projectId := c.Param("projectId")
 	if projectId == "" {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	project, err := h.projectsDelegate.GetProjectById(projectId)
+	project, err := h.projectsDelegate.GetProjectById(projectId, userId)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return

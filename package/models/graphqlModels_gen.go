@@ -42,6 +42,10 @@ type ProjectPageResult interface {
 	IsProjectPageResult()
 }
 
+type ProjectPagesResult interface {
+	IsProjectPagesResult()
+}
+
 type RobboGroupResult interface {
 	IsRobboGroupResult()
 }
@@ -226,6 +230,8 @@ func (Error) IsPairsStudentParentsResult() {}
 
 func (Error) IsProjectPageResult() {}
 
+func (Error) IsProjectPagesResult() {}
+
 func (Error) IsRobboGroupResult() {}
 
 func (Error) IsRobboGroupsResult() {}
@@ -371,9 +377,10 @@ func (ProjectPageHTTP) IsProjectPageResult() {}
 
 type ProjectPageHTTPList struct {
 	ProjectPages []*ProjectPageHTTP `json:"projectPages"`
+	CountRows    int                `json:"countRows"`
 }
 
-func (ProjectPageHTTPList) IsProjectPageResult() {}
+func (ProjectPageHTTPList) IsProjectPagesResult() {}
 
 type RobboGroupHTTP struct {
 	ID           string         `json:"id"`

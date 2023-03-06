@@ -70,7 +70,6 @@ const emptyProjectJson = "{\"targets\":[{\"isStage\":true,\"name\":\"Stage\",\"v
 func (p *ProjectPageUseCaseImpl) CreateProjectPage(authorId string) (newProjectPage *models.ProjectPageCore, err error) {
 	project := models.ProjectCore{}
 	project.AuthorId = authorId
-	//json.Unmarshal(project.Json, emptyProjectJson2)
 	project.Json = emptyProjectJson2
 	project.Name = "Untitled"
 
@@ -92,7 +91,10 @@ func (p *ProjectPageUseCaseImpl) CreateProjectPage(authorId string) (newProjectP
 	return
 }
 
-func (p *ProjectPageUseCaseImpl) UpdateProjectPage(projectPage *models.ProjectPageCore) (projectPageUpdated *models.ProjectPageCore, err error) {
+func (p *ProjectPageUseCaseImpl) UpdateProjectPage(projectPage *models.ProjectPageCore) (
+	projectPageUpdated *models.ProjectPageCore,
+	err error,
+) {
 	return p.projectPageGateway.UpdateProjectPage(projectPage)
 }
 
@@ -104,21 +106,28 @@ func (p *ProjectPageUseCaseImpl) DeleteProjectPage(projectId string) (err error)
 	return p.projectPageGateway.DeleteProjectPage(projectId)
 }
 
-func (p *ProjectPageUseCaseImpl) GetAllProjectPageByUserId(authorId string) (projectPages []*models.ProjectPageCore, err error) {
-	projects, err := p.projectGateway.GetProjectsByAuthorId(authorId)
-	if err != nil {
+func (p *ProjectPageUseCaseImpl) GetAllProjectPageByUserId(authorId string, page, pageSize int) (
+	projectPages []*models.ProjectPageCore,
+	countRows int64,
+	err error,
+) {
+	projects, countRows, getProjectsErr := p.projectGateway.GetProjectsByAuthorId(authorId, page, pageSize)
+	if getProjectsErr != nil {
 		return
 	}
 	for _, project := range projects {
 		projectPage, errGetProjectPageById := p.projectPageGateway.GetProjectPageByProjectId(project.ID)
 		if errGetProjectPageById != nil {
-			return []*models.ProjectPageCore{}, errGetProjectPageById
+			return []*models.ProjectPageCore{}, 0, errGetProjectPageById
 		}
 		projectPages = append(projectPages, projectPage)
 	}
 	return
 }
 
-func (p *ProjectPageUseCaseImpl) GetProjectPageById(projectPageId string) (projectPage *models.ProjectPageCore, err error) {
+func (p *ProjectPageUseCaseImpl) GetProjectPageById(projectPageId string) (
+	projectPage *models.ProjectPageCore,
+	err error,
+) {
 	return p.projectPageGateway.GetProjectPageById(projectPageId)
 }

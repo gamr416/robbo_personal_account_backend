@@ -8,6 +8,9 @@ input NewTeacher {
 	firstname: String!
 	lastname: String!
 	middlename: String!
+	parentId: String
+	robboUnitId: String
+	robboGroupId: String
 }
 
 type TeacherHttp {

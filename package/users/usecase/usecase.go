@@ -177,7 +177,9 @@ func (p *UsersUseCaseImpl) CreateStudent(student *models.StudentCore, parentId s
 		ChildId:  newStudent.Id,
 		ParentId: parentId,
 	}
-	err = p.usersGateway.CreateStudentParentRelation(relation)
+	if parentId != "" {
+		err = p.usersGateway.CreateStudentParentRelation(relation)
+	}
 	return
 }
 

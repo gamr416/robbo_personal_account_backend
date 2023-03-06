@@ -2592,6 +2592,9 @@ input NewParent {
 	firstname: String!
 	lastname: String!
 	middlename: String!
+	parentId: String
+	robboUnitId: String
+	robboGroupId: String
 }
 
 type StudentHttp {
@@ -2797,7 +2800,9 @@ input NewStudent {
 	firstname: String!
 	lastname: String!
 	middlename: String!
-	parentId: String!
+	parentId: String
+	robboUnitId: String
+	robboGroupId: String
 }
 
 
@@ -2829,6 +2834,9 @@ input NewTeacher {
 	firstname: String!
 	lastname: String!
 	middlename: String!
+	parentId: String
+	robboUnitId: String
+	robboGroupId: String
 }
 
 type TeacherHttp {
@@ -2870,6 +2878,9 @@ input NewUnitAdmin {
 	firstname: String!
 	lastname: String!
 	middlename: String!
+	parentId: String
+	robboUnitId: String
+	robboGroupId: String
 }
 
 type UnitAdminHttpList {
@@ -17061,7 +17072,7 @@ func (ec *executionContext) unmarshalInputNewParent(ctx context.Context, obj int
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"email", "password", "nickname", "firstname", "lastname", "middlename"}
+	fieldsInOrder := [...]string{"email", "password", "nickname", "firstname", "lastname", "middlename", "parentId", "robboUnitId", "robboGroupId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -17113,6 +17124,30 @@ func (ec *executionContext) unmarshalInputNewParent(ctx context.Context, obj int
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("middlename"))
 			it.Middlename, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "parentId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("parentId"))
+			it.ParentID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "robboUnitId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
+			it.RobboUnitID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "robboGroupId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboGroupId"))
+			it.RobboGroupID, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -17201,7 +17236,7 @@ func (ec *executionContext) unmarshalInputNewStudent(ctx context.Context, obj in
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"email", "password", "nickname", "firstname", "lastname", "middlename", "parentId"}
+	fieldsInOrder := [...]string{"email", "password", "nickname", "firstname", "lastname", "middlename", "parentId", "robboUnitId", "robboGroupId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -17260,7 +17295,23 @@ func (ec *executionContext) unmarshalInputNewStudent(ctx context.Context, obj in
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("parentId"))
-			it.ParentID, err = ec.unmarshalNString2string(ctx, v)
+			it.ParentID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "robboUnitId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
+			it.RobboUnitID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "robboGroupId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboGroupId"))
+			it.RobboGroupID, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -17277,7 +17328,7 @@ func (ec *executionContext) unmarshalInputNewTeacher(ctx context.Context, obj in
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"email", "password", "nickname", "firstname", "lastname", "middlename"}
+	fieldsInOrder := [...]string{"email", "password", "nickname", "firstname", "lastname", "middlename", "parentId", "robboUnitId", "robboGroupId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -17329,6 +17380,30 @@ func (ec *executionContext) unmarshalInputNewTeacher(ctx context.Context, obj in
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("middlename"))
 			it.Middlename, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "parentId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("parentId"))
+			it.ParentID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "robboUnitId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
+			it.RobboUnitID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "robboGroupId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboGroupId"))
+			it.RobboGroupID, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -17345,7 +17420,7 @@ func (ec *executionContext) unmarshalInputNewUnitAdmin(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"email", "password", "nickname", "firstname", "lastname", "middlename"}
+	fieldsInOrder := [...]string{"email", "password", "nickname", "firstname", "lastname", "middlename", "parentId", "robboUnitId", "robboGroupId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -17397,6 +17472,30 @@ func (ec *executionContext) unmarshalInputNewUnitAdmin(ctx context.Context, obj 
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("middlename"))
 			it.Middlename, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "parentId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("parentId"))
+			it.ParentID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "robboUnitId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
+			it.RobboUnitID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "robboGroupId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboGroupId"))
+			it.RobboGroupID, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}

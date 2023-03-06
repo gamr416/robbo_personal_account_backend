@@ -8,7 +8,9 @@ input NewStudent {
 	firstname: String!
 	lastname: String!
 	middlename: String!
-	parentId: String!
+	parentId: String
+	robboUnitId: String
+	robboGroupId: String
 }
 
 

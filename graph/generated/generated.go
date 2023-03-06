@@ -234,13 +234,14 @@ type ComplexityRoot struct {
 	}
 
 	ProjectPageHttpList struct {
+		CountRows    func(childComplexity int) int
 		ProjectPages func(childComplexity int) int
 	}
 
 	Query struct {
 		GetAllParents                       func(childComplexity int, page string, pageSize string) int
-		GetAllProjectPagesByAccessToken     func(childComplexity int) int
-		GetAllProjectPagesByUserID          func(childComplexity int, userID string) int
+		GetAllProjectPagesByAccessToken     func(childComplexity int, page string, pageSize string) int
+		GetAllProjectPagesByUserID          func(childComplexity int, userID string, page string, pageSize string) int
 		GetAllPublicCourses                 func(childComplexity int, pageNumber string) int
 		GetAllRobboGroups                   func(childComplexity int, page string, pageSize string) int
 		GetAllRobboGroupsForUnitAdmin       func(childComplexity int, page string, pageSize string) int
@@ -431,8 +432,8 @@ type QueryResolver interface {
 	GetParentByID(ctx context.Context, parentID string) (models.ParentResult, error)
 	GetPairsStudentParentsByAccessToken(ctx context.Context) (models.PairsStudentParentsResult, error)
 	GetProjectPageByID(ctx context.Context, projectPageID string) (models.ProjectPageResult, error)
-	GetAllProjectPagesByUserID(ctx context.Context, userID string) (models.ProjectPageResult, error)
-	GetAllProjectPagesByAccessToken(ctx context.Context) (models.ProjectPageResult, error)
+	GetAllProjectPagesByUserID(ctx context.Context, userID string, page string, pageSize string) (models.ProjectPagesResult, error)
+	GetAllProjectPagesByAccessToken(ctx context.Context, page string, pageSize string) (models.ProjectPagesResult, error)
 	GetRobboGroupByID(ctx context.Context, id string) (models.RobboGroupResult, error)
 	GetRobboGroupsByTeacherID(ctx context.Context, teacherID string, page string, pageSize string) (models.RobboGroupsResult, error)
 	GetRobboGroupsByRobboUnitID(ctx context.Context, robboUnitID string) (models.RobboGroupsResult, error)
@@ -1103,7 +1104,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteProjectPage(childComplexity, args["projectId"].(string)), true
+		return e.complexity.Mutation.DeleteProjectPage(childComplexity, args["projectID"].(string)), true
 
 	case "Mutation.DeleteRobboGroup":
 		if e.complexity.Mutation.DeleteRobboGroup == nil {
@@ -1478,6 +1479,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ProjectPageHttp.Title(childComplexity), true
 
+	case "ProjectPageHttpList.countRows":
+		if e.complexity.ProjectPageHttpList.CountRows == nil {
+			break
+		}
+
+		return e.complexity.ProjectPageHttpList.CountRows(childComplexity), true
+
 	case "ProjectPageHttpList.projectPages":
 		if e.complexity.ProjectPageHttpList.ProjectPages == nil {
 			break
@@ -1502,19 +1510,24 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.GetAllProjectPagesByAccessToken(childComplexity), true
-
-	case "Query.GetAllProjectPagesByUserId":
-		if e.complexity.Query.GetAllProjectPagesByUserID == nil {
-			break
-		}
-
-		args, err := ec.field_Query_GetAllProjectPagesByUserId_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetAllProjectPagesByAccessToken_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.GetAllProjectPagesByUserID(childComplexity, args["userId"].(string)), true
+		return e.complexity.Query.GetAllProjectPagesByAccessToken(childComplexity, args["page"].(string), args["pageSize"].(string)), true
+
+	case "Query.GetAllProjectPagesByUserID":
+		if e.complexity.Query.GetAllProjectPagesByUserID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetAllProjectPagesByUserID_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetAllProjectPagesByUserID(childComplexity, args["userID"].(string), args["page"].(string), args["pageSize"].(string)), true
 
 	case "Query.GetAllPublicCourses":
 		if e.complexity.Query.GetAllPublicCourses == nil {
@@ -1689,7 +1702,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetProjectPageByID(childComplexity, args["projectPageId"].(string)), true
+		return e.complexity.Query.GetProjectPageByID(childComplexity, args["projectPageID"].(string)), true
 
 	case "Query.GetRobboGroupById":
 		if e.complexity.Query.GetRobboGroupByID == nil {
@@ -2579,6 +2592,9 @@ input NewParent {
 	firstname: String!
 	lastname: String!
 	middlename: String!
+	parentId: String
+	robboUnitId: String
+	robboGroupId: String
 }
 
 type StudentHttp {
@@ -2635,46 +2651,48 @@ extend type Query {
 	GetPairsStudentParentsByAccessToken: PairsStudentParentsResult!
 }`, BuiltIn: false},
 	{Name: "../projectPage.graphqls", Input: `type ProjectPageHttp {
-    projectPageId: String!
-    lastModified: String!
-    projectId: String!
-    instruction: String!
-    notes: String!
-    preview: String!
-    linkScratch: String!
-    title: String!
-    isShared: Boolean!
+	projectPageId: String!
+	lastModified: String!
+	projectId: String!
+	instruction: String!
+	notes: String!
+	preview: String!
+	linkScratch: String!
+	title: String!
+	isShared: Boolean!
 }
 
 type ProjectPageHttpList {
-    projectPages: [ProjectPageHttp!]!
+	projectPages: [ProjectPageHttp!]!
+	countRows: Int!
 }
 
 type DeletedProjectPage {
-    projectPageId: String!
+	projectPageId: String!
 }
 
 input UpdateProjectPage {
-    projectId: String!
-    projectPageId: String!
-    instruction: String!
-    notes: String!
-    title: String!
-    isShared: Boolean!
+	projectId: String!
+	projectPageId: String!
+	instruction: String!
+	notes: String!
+	title: String!
+	isShared: Boolean!
 }
 
-union ProjectPageResult = ProjectPageHttp | ProjectPageHttpList | Error
+union ProjectPageResult = ProjectPageHttp | Error
+union ProjectPagesResult = ProjectPageHttpList | Error
 
 extend type Mutation {
-    CreateProjectPage: ProjectPageResult!
-    UpdateProjectPage(input: UpdateProjectPage!): ProjectPageResult!
-    DeleteProjectPage(projectId: String!): DeletedProjectPage!
+	CreateProjectPage: ProjectPageResult!
+	UpdateProjectPage(input: UpdateProjectPage!): ProjectPageResult!
+	DeleteProjectPage(projectID: String!): DeletedProjectPage!
 }
 
 extend type Query {
-    GetProjectPageById(projectPageId: String!): ProjectPageResult!
-    GetAllProjectPagesByUserId(userId: String!): ProjectPageResult!
-    GetAllProjectPagesByAccessToken: ProjectPageResult!
+	GetProjectPageById(projectPageID: String!): ProjectPageResult!
+	GetAllProjectPagesByUserID(userID: String!, page: String!, pageSize: String!): ProjectPagesResult!
+	GetAllProjectPagesByAccessToken(page: String!, pageSize: String!): ProjectPagesResult!
 }`, BuiltIn: false},
 	{Name: "../robboGroup.graphqls", Input: `type RobboGroupHttp {
 	id: String!
@@ -2782,7 +2800,9 @@ input NewStudent {
 	firstname: String!
 	lastname: String!
 	middlename: String!
-	parentId: String!
+	parentId: String
+	robboUnitId: String
+	robboGroupId: String
 }
 
 
@@ -2814,6 +2834,9 @@ input NewTeacher {
 	firstname: String!
 	lastname: String!
 	middlename: String!
+	parentId: String
+	robboUnitId: String
+	robboGroupId: String
 }
 
 type TeacherHttp {
@@ -2855,6 +2878,9 @@ input NewUnitAdmin {
 	firstname: String!
 	lastname: String!
 	middlename: String!
+	parentId: String
+	robboUnitId: String
+	robboGroupId: String
 }
 
 type UnitAdminHttpList {
@@ -3179,14 +3205,14 @@ func (ec *executionContext) field_Mutation_DeleteProjectPage_args(ctx context.Co
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["projectId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
+	if tmp, ok := rawArgs["projectID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectID"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["projectId"] = arg0
+	args["projectID"] = arg0
 	return args, nil
 }
 
@@ -3577,18 +3603,60 @@ func (ec *executionContext) field_Query_GetAllParents_args(ctx context.Context, 
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_GetAllProjectPagesByUserId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_GetAllProjectPagesByAccessToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["userId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["userId"] = arg0
+	args["page"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetAllProjectPagesByUserID_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["userID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userID"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["userID"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg2
 	return args, nil
 }
 
@@ -3881,14 +3949,14 @@ func (ec *executionContext) field_Query_GetProjectPageById_args(ctx context.Cont
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["projectPageId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectPageId"))
+	if tmp, ok := rawArgs["projectPageID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectPageID"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["projectPageId"] = arg0
+	args["projectPageID"] = arg0
 	return args, nil
 }
 
@@ -8291,7 +8359,7 @@ func (ec *executionContext) _Mutation_DeleteProjectPage(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteProjectPage(rctx, fc.Args["projectId"].(string))
+		return ec.resolvers.Mutation().DeleteProjectPage(rctx, fc.Args["projectID"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10427,6 +10495,50 @@ func (ec *executionContext) fieldContext_ProjectPageHttpList_projectPages(ctx co
 	return fc, nil
 }
 
+func (ec *executionContext) _ProjectPageHttpList_countRows(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTPList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectPageHttpList_countRows(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CountRows, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProjectPageHttpList_countRows(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProjectPageHttpList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_GetSuperAdminById(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_GetSuperAdminById(ctx, field)
 	if err != nil {
@@ -11310,7 +11422,7 @@ func (ec *executionContext) _Query_GetProjectPageById(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetProjectPageByID(rctx, fc.Args["projectPageId"].(string))
+		return ec.resolvers.Query().GetProjectPageByID(rctx, fc.Args["projectPageID"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11351,8 +11463,8 @@ func (ec *executionContext) fieldContext_Query_GetProjectPageById(ctx context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_GetAllProjectPagesByUserId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_GetAllProjectPagesByUserId(ctx, field)
+func (ec *executionContext) _Query_GetAllProjectPagesByUserID(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetAllProjectPagesByUserID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -11365,7 +11477,7 @@ func (ec *executionContext) _Query_GetAllProjectPagesByUserId(ctx context.Contex
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetAllProjectPagesByUserID(rctx, fc.Args["userId"].(string))
+		return ec.resolvers.Query().GetAllProjectPagesByUserID(rctx, fc.Args["userID"].(string), fc.Args["page"].(string), fc.Args["pageSize"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11377,19 +11489,19 @@ func (ec *executionContext) _Query_GetAllProjectPagesByUserId(ctx context.Contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.ProjectPageResult)
+	res := resTmp.(models.ProjectPagesResult)
 	fc.Result = res
-	return ec.marshalNProjectPageResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPageResult(ctx, field.Selections, res)
+	return ec.marshalNProjectPagesResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPagesResult(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_GetAllProjectPagesByUserId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_GetAllProjectPagesByUserID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ProjectPageResult does not have child fields")
+			return nil, errors.New("field of type ProjectPagesResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -11399,7 +11511,7 @@ func (ec *executionContext) fieldContext_Query_GetAllProjectPagesByUserId(ctx co
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_GetAllProjectPagesByUserId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_GetAllProjectPagesByUserID_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -11420,7 +11532,7 @@ func (ec *executionContext) _Query_GetAllProjectPagesByAccessToken(ctx context.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetAllProjectPagesByAccessToken(rctx)
+		return ec.resolvers.Query().GetAllProjectPagesByAccessToken(rctx, fc.Args["page"].(string), fc.Args["pageSize"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11432,9 +11544,9 @@ func (ec *executionContext) _Query_GetAllProjectPagesByAccessToken(ctx context.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.ProjectPageResult)
+	res := resTmp.(models.ProjectPagesResult)
 	fc.Result = res
-	return ec.marshalNProjectPageResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPageResult(ctx, field.Selections, res)
+	return ec.marshalNProjectPagesResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPagesResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetAllProjectPagesByAccessToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -11444,8 +11556,19 @@ func (ec *executionContext) fieldContext_Query_GetAllProjectPagesByAccessToken(c
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ProjectPageResult does not have child fields")
+			return nil, errors.New("field of type ProjectPagesResult does not have child fields")
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetAllProjectPagesByAccessToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -16949,7 +17072,7 @@ func (ec *executionContext) unmarshalInputNewParent(ctx context.Context, obj int
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"email", "password", "nickname", "firstname", "lastname", "middlename"}
+	fieldsInOrder := [...]string{"email", "password", "nickname", "firstname", "lastname", "middlename", "parentId", "robboUnitId", "robboGroupId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -17001,6 +17124,30 @@ func (ec *executionContext) unmarshalInputNewParent(ctx context.Context, obj int
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("middlename"))
 			it.Middlename, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "parentId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("parentId"))
+			it.ParentID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "robboUnitId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
+			it.RobboUnitID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "robboGroupId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboGroupId"))
+			it.RobboGroupID, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -17089,7 +17236,7 @@ func (ec *executionContext) unmarshalInputNewStudent(ctx context.Context, obj in
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"email", "password", "nickname", "firstname", "lastname", "middlename", "parentId"}
+	fieldsInOrder := [...]string{"email", "password", "nickname", "firstname", "lastname", "middlename", "parentId", "robboUnitId", "robboGroupId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -17148,7 +17295,23 @@ func (ec *executionContext) unmarshalInputNewStudent(ctx context.Context, obj in
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("parentId"))
-			it.ParentID, err = ec.unmarshalNString2string(ctx, v)
+			it.ParentID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "robboUnitId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
+			it.RobboUnitID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "robboGroupId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboGroupId"))
+			it.RobboGroupID, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -17165,7 +17328,7 @@ func (ec *executionContext) unmarshalInputNewTeacher(ctx context.Context, obj in
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"email", "password", "nickname", "firstname", "lastname", "middlename"}
+	fieldsInOrder := [...]string{"email", "password", "nickname", "firstname", "lastname", "middlename", "parentId", "robboUnitId", "robboGroupId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -17217,6 +17380,30 @@ func (ec *executionContext) unmarshalInputNewTeacher(ctx context.Context, obj in
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("middlename"))
 			it.Middlename, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "parentId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("parentId"))
+			it.ParentID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "robboUnitId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
+			it.RobboUnitID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "robboGroupId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboGroupId"))
+			it.RobboGroupID, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -17233,7 +17420,7 @@ func (ec *executionContext) unmarshalInputNewUnitAdmin(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"email", "password", "nickname", "firstname", "lastname", "middlename"}
+	fieldsInOrder := [...]string{"email", "password", "nickname", "firstname", "lastname", "middlename", "parentId", "robboUnitId", "robboGroupId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -17285,6 +17472,30 @@ func (ec *executionContext) unmarshalInputNewUnitAdmin(ctx context.Context, obj 
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("middlename"))
 			it.Middlename, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "parentId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("parentId"))
+			it.ParentID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "robboUnitId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboUnitId"))
+			it.RobboUnitID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "robboGroupId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("robboGroupId"))
+			it.RobboGroupID, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -17805,6 +18016,22 @@ func (ec *executionContext) _ProjectPageResult(ctx context.Context, sel ast.Sele
 			return graphql.Null
 		}
 		return ec._ProjectPageHttp(ctx, sel, obj)
+	case models.Error:
+		return ec._Error(ctx, sel, &obj)
+	case *models.Error:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Error(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _ProjectPagesResult(ctx context.Context, sel ast.SelectionSet, obj models.ProjectPagesResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
 	case models.ProjectPageHTTPList:
 		return ec._ProjectPageHttpList(ctx, sel, &obj)
 	case *models.ProjectPageHTTPList:
@@ -18793,7 +19020,7 @@ func (ec *executionContext) _EnrollmentsListHttp(ctx context.Context, sel ast.Se
 	return out
 }
 
-var errorImplementors = []string{"Error", "SignInResult", "CourseRelationResult", "CourseRelationsResult", "CourseResult", "CoursesResult", "EnrollmentsResult", "ParentsResult", "ParentResult", "PairsStudentParentsResult", "ProjectPageResult", "RobboGroupResult", "RobboGroupsResult", "RobboUnitResult", "RobboUnitsResult", "StudentResult", "StudentsResult", "TeacherResult", "TeachersResult", "UnitAdminResult", "UnitAdminsResult", "SuperAdminResult"}
+var errorImplementors = []string{"Error", "SignInResult", "CourseRelationResult", "CourseRelationsResult", "CourseResult", "CoursesResult", "EnrollmentsResult", "ParentsResult", "ParentResult", "PairsStudentParentsResult", "ProjectPageResult", "ProjectPagesResult", "RobboGroupResult", "RobboGroupsResult", "RobboUnitResult", "RobboUnitsResult", "StudentResult", "StudentsResult", "TeacherResult", "TeachersResult", "UnitAdminResult", "UnitAdminsResult", "SuperAdminResult"}
 
 func (ec *executionContext) _Error(ctx context.Context, sel ast.SelectionSet, obj *models.Error) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, errorImplementors)
@@ -19487,7 +19714,7 @@ func (ec *executionContext) _ProjectPageHttp(ctx context.Context, sel ast.Select
 	return out
 }
 
-var projectPageHttpListImplementors = []string{"ProjectPageHttpList", "ProjectPageResult"}
+var projectPageHttpListImplementors = []string{"ProjectPageHttpList", "ProjectPagesResult"}
 
 func (ec *executionContext) _ProjectPageHttpList(ctx context.Context, sel ast.SelectionSet, obj *models.ProjectPageHTTPList) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, projectPageHttpListImplementors)
@@ -19500,6 +19727,13 @@ func (ec *executionContext) _ProjectPageHttpList(ctx context.Context, sel ast.Se
 		case "projectPages":
 
 			out.Values[i] = ec._ProjectPageHttpList_projectPages(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "countRows":
+
+			out.Values[i] = ec._ProjectPageHttpList_countRows(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -19925,7 +20159,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "GetAllProjectPagesByUserId":
+		case "GetAllProjectPagesByUserID":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -19934,7 +20168,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_GetAllProjectPagesByUserId(ctx, field)
+				res = ec._Query_GetAllProjectPagesByUserID(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -22102,6 +22336,16 @@ func (ec *executionContext) marshalNProjectPageResult2githubᚗcomᚋskinnykaen�
 		return graphql.Null
 	}
 	return ec._ProjectPageResult(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNProjectPagesResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPagesResult(ctx context.Context, sel ast.SelectionSet, v models.ProjectPagesResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ProjectPagesResult(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNRobboGroupHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐRobboGroupHTTPᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.RobboGroupHTTP) graphql.Marshaler {

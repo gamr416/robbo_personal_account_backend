@@ -42,6 +42,10 @@ type ProjectPageResult interface {
 	IsProjectPageResult()
 }
 
+type ProjectPagesResult interface {
+	IsProjectPagesResult()
+}
+
 type RobboGroupResult interface {
 	IsRobboGroupResult()
 }
@@ -226,6 +230,8 @@ func (Error) IsPairsStudentParentsResult() {}
 
 func (Error) IsProjectPageResult() {}
 
+func (Error) IsProjectPagesResult() {}
+
 func (Error) IsRobboGroupResult() {}
 
 func (Error) IsRobboGroupsResult() {}
@@ -286,12 +292,15 @@ type NewAccessCourseRelationUnitAdmin struct {
 }
 
 type NewParent struct {
-	Email      string `json:"email"`
-	Password   string `json:"password"`
-	Nickname   string `json:"nickname"`
-	Firstname  string `json:"firstname"`
-	Lastname   string `json:"lastname"`
-	Middlename string `json:"middlename"`
+	Email        string  `json:"email"`
+	Password     string  `json:"password"`
+	Nickname     string  `json:"nickname"`
+	Firstname    string  `json:"firstname"`
+	Lastname     string  `json:"lastname"`
+	Middlename   string  `json:"middlename"`
+	ParentID     *string `json:"parentId"`
+	RobboUnitID  *string `json:"robboUnitId"`
+	RobboGroupID *string `json:"robboGroupId"`
 }
 
 type NewRobboGroup struct {
@@ -305,31 +314,39 @@ type NewRobboUnit struct {
 }
 
 type NewStudent struct {
-	Email      string `json:"email"`
-	Password   string `json:"password"`
-	Nickname   string `json:"nickname"`
-	Firstname  string `json:"firstname"`
-	Lastname   string `json:"lastname"`
-	Middlename string `json:"middlename"`
-	ParentID   string `json:"parentId"`
+	Email        string  `json:"email"`
+	Password     string  `json:"password"`
+	Nickname     string  `json:"nickname"`
+	Firstname    string  `json:"firstname"`
+	Lastname     string  `json:"lastname"`
+	Middlename   string  `json:"middlename"`
+	ParentID     *string `json:"parentId"`
+	RobboUnitID  *string `json:"robboUnitId"`
+	RobboGroupID *string `json:"robboGroupId"`
 }
 
 type NewTeacher struct {
-	Email      string `json:"email"`
-	Password   string `json:"password"`
-	Nickname   string `json:"nickname"`
-	Firstname  string `json:"firstname"`
-	Lastname   string `json:"lastname"`
-	Middlename string `json:"middlename"`
+	Email        string  `json:"email"`
+	Password     string  `json:"password"`
+	Nickname     string  `json:"nickname"`
+	Firstname    string  `json:"firstname"`
+	Lastname     string  `json:"lastname"`
+	Middlename   string  `json:"middlename"`
+	ParentID     *string `json:"parentId"`
+	RobboUnitID  *string `json:"robboUnitId"`
+	RobboGroupID *string `json:"robboGroupId"`
 }
 
 type NewUnitAdmin struct {
-	Email      string `json:"email"`
-	Password   string `json:"password"`
-	Nickname   string `json:"nickname"`
-	Firstname  string `json:"firstname"`
-	Lastname   string `json:"lastname"`
-	Middlename string `json:"middlename"`
+	Email        string  `json:"email"`
+	Password     string  `json:"password"`
+	Nickname     string  `json:"nickname"`
+	Firstname    string  `json:"firstname"`
+	Lastname     string  `json:"lastname"`
+	Middlename   string  `json:"middlename"`
+	ParentID     *string `json:"parentId"`
+	RobboUnitID  *string `json:"robboUnitId"`
+	RobboGroupID *string `json:"robboGroupId"`
 }
 
 type Pagination struct {
@@ -371,9 +388,10 @@ func (ProjectPageHTTP) IsProjectPageResult() {}
 
 type ProjectPageHTTPList struct {
 	ProjectPages []*ProjectPageHTTP `json:"projectPages"`
+	CountRows    int                `json:"countRows"`
 }
 
-func (ProjectPageHTTPList) IsProjectPageResult() {}
+func (ProjectPageHTTPList) IsProjectPagesResult() {}
 
 type RobboGroupHTTP struct {
 	ID           string         `json:"id"`

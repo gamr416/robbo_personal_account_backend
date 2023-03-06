@@ -5,6 +5,7 @@ package resolvers
 
 import (
 	"context"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/utils"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
@@ -34,9 +35,11 @@ func (r *mutationResolver) CreateStudent(ctx context.Context, input models.NewSt
 			Nickname:   input.Nickname,
 			Role:       0,
 		},
+		RobboUnitID:  utils.UseString(input.RobboUnitID),
+		RobboGroupID: utils.UseString(input.RobboGroupID),
 	}
 
-	newStudent, createStudentErr := r.usersDelegate.CreateStudent(&studentInput, input.ParentID)
+	newStudent, createStudentErr := r.usersDelegate.CreateStudent(&studentInput, *input.ParentID)
 	if createStudentErr != nil {
 		return nil, &gqlerror.Error{
 			Path:    graphql.GetPath(ctx),

@@ -124,7 +124,7 @@ func (h *Handler) GetAllProjectPageByUserId(c *gin.Context) {
 		return
 	}
 
-	projectPages, err := h.projectPageDelegate.GetAllProjectPagesByUserId(userId)
+	projectPages, _, err := h.projectPageDelegate.GetAllProjectPagesByUserId(userId, "1", "10")
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)

@@ -126,7 +126,7 @@ func (r *queryResolver) GetProjectPageByID(ctx context.Context, projectPageID st
 }
 
 // GetAllProjectPagesByUserID is the resolver for the GetAllProjectPagesByUserID field.
-func (r *queryResolver) GetAllProjectPagesByUserID(ctx context.Context, userID string) (models.ProjectPageResult, error) {
+func (r *queryResolver) GetAllProjectPagesByUserID(ctx context.Context, userID string, page string, pageSize string) (models.ProjectPagesResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		return nil, getGinContextErr
@@ -138,7 +138,8 @@ func (r *queryResolver) GetAllProjectPagesByUserID(ctx context.Context, userID s
 		return nil, accessErr
 	}
 
-	projectPages, getAllProjectPagesErr := r.projectPageDelegate.GetAllProjectPagesByUserId(userID)
+	projectPages, countRows, getAllProjectPagesErr := r.projectPageDelegate.
+		GetAllProjectPagesByUserId(userID, page, pageSize)
 	if getAllProjectPagesErr != nil {
 		return nil, &gqlerror.Error{
 			Path:    graphql.GetPath(ctx),
@@ -150,11 +151,12 @@ func (r *queryResolver) GetAllProjectPagesByUserID(ctx context.Context, userID s
 	}
 	return &models.ProjectPageHTTPList{
 		ProjectPages: projectPages,
+		CountRows:    countRows,
 	}, nil
 }
 
 // GetAllProjectPagesByAccessToken is the resolver for the GetAllProjectPagesByAccessToken field.
-func (r *queryResolver) GetAllProjectPagesByAccessToken(ctx context.Context) (models.ProjectPageResult, error) {
+func (r *queryResolver) GetAllProjectPagesByAccessToken(ctx context.Context, page string, pageSize string) (models.ProjectPagesResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		return nil, getGinContextErr
@@ -167,7 +169,8 @@ func (r *queryResolver) GetAllProjectPagesByAccessToken(ctx context.Context) (mo
 		return nil, accessErr
 	}
 
-	projectPages, getAllProjectPagesErr := r.projectPageDelegate.GetAllProjectPagesByUserId(userId)
+	projectPages, countRows, getAllProjectPagesErr := r.projectPageDelegate.
+		GetAllProjectPagesByUserId(userId, page, pageSize)
 	if getAllProjectPagesErr != nil {
 		return nil, &gqlerror.Error{
 			Path:    graphql.GetPath(ctx),
@@ -179,5 +182,6 @@ func (r *queryResolver) GetAllProjectPagesByAccessToken(ctx context.Context) (mo
 	}
 	return &models.ProjectPageHTTPList{
 		ProjectPages: projectPages,
+		CountRows:    countRows,
 	}, nil
 }

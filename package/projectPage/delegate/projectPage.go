@@ -5,6 +5,7 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage"
 	"go.uber.org/fx"
 	"log"
+	"strconv"
 )
 
 type ProjectPageDelegateImpl struct {
@@ -58,11 +59,22 @@ func (p *ProjectPageDelegateImpl) GetProjectPageById(projectPageId string) (proj
 	return
 }
 
-func (p *ProjectPageDelegateImpl) GetAllProjectPagesByUserId(authorId string) (projectPages []*models.ProjectPageHTTP, err error) {
-	projectPagesCore, err := p.UseCase.GetAllProjectPageByUserId(authorId)
+func (p *ProjectPageDelegateImpl) GetAllProjectPagesByUserId(authorId, page, pageSize string) (
+	projectPages []*models.ProjectPageHTTP,
+	countRows int,
+	err error,
+) {
+	pageInt32, _ := strconv.ParseInt(page, 10, 32)
+	pageSizeInt32, _ := strconv.ParseInt(pageSize, 10, 32)
+	projectPagesCore, countRowsInt64, err := p.UseCase.GetAllProjectPageByUserId(
+		authorId,
+		int(pageInt32),
+		int(pageSizeInt32),
+	)
 	if err != nil {
 		return
 	}
+	countRows = int(countRowsInt64)
 	for _, projectPageCore := range projectPagesCore {
 		var projectPageHttp models.ProjectPageHTTP
 		projectPageHttp.FromCore(projectPageCore)

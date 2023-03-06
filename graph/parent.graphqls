@@ -9,6 +9,9 @@ input NewParent {
 	firstname: String!
 	lastname: String!
 	middlename: String!
+	parentId: String
+	robboUnitId: String
+	robboGroupId: String
 }
 
 type StudentHttp {

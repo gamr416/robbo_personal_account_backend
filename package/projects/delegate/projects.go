@@ -1,6 +1,7 @@
 package delegate
 
 import (
+	"fmt"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/projects"
 	"go.uber.org/fx"
@@ -35,8 +36,9 @@ func (p *ProjectDelegateImpl) UpdateProject(project *models.ProjectHTTP) (err er
 	return p.UseCase.UpdateProject(projectCore)
 }
 
-func (p *ProjectDelegateImpl) GetProjectById(projectId string) (project models.ProjectHTTP, err error) {
-	projectCore, err := p.UseCase.GetProjectById(projectId)
+func (p *ProjectDelegateImpl) GetProjectById(projectId, userId string) (project models.ProjectHTTP, err error) {
+	projectCore, err := p.UseCase.GetProjectById(projectId, userId)
+	fmt.Print(projectCore)
 	project.FromCore(projectCore)
 	return
 }

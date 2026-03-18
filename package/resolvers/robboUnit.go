@@ -34,6 +34,13 @@ func (r *mutationResolver) CreateRobboUnit(ctx context.Context, input models.New
 		err := createRobboUnitErr
 		return &models.Error{Message: err.Error()}, err
 	}
+
+	// Auto-link UnitAdmin with the new RoboUnit
+	if userRole == models.UnitAdmin {
+		userId := ginContext.Value("user_id").(string)
+		r.usersDelegate.SetNewUnitAdminForRobboUnit(userId, newRobboUnit.ID)
+	}
+
 	return &newRobboUnit, nil
 }
 

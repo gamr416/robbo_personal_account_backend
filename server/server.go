@@ -2,6 +2,10 @@ package server
 
 import (
 	"context"
+	"log"
+	"net/http"
+	"time"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
@@ -10,9 +14,6 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/graph/generated"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
-	"log"
-	"net/http"
-	"time"
 )
 
 func NewServer(lifecycle fx.Lifecycle, graphQLModule modules.GraphQLModule, handlers modules.HandlerModule) {
@@ -23,6 +24,10 @@ func NewServer(lifecycle fx.Lifecycle, graphQLModule modules.GraphQLModule, hand
 				router.Use(TokenAuthMiddleware())
 				router.GET("/", playgroundHandler())
 				router.POST("/query", graphqlHandler(graphQLModule))
+				router.Static("/frontend", "./frontend")
+				router.GET("/frontend", func(c *gin.Context) {
+					c.File("./frontend/index.html")
+				})
 
 				server := &http.Server{
 					Addr: viper.GetString("server.address"),
@@ -35,6 +40,7 @@ func NewServer(lifecycle fx.Lifecycle, graphQLModule modules.GraphQLModule, hand
 								"http://0.0.0.0:8601",
 								"http://localhost:3030",
 								"http://localhost:3000",
+								"http://localhost:8080",
 							},
 							AllowCredentials: true,
 							AllowedMethods: []string{

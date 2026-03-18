@@ -1,14 +1,14 @@
 FROM golang:latest
 
-WORKDIR /robbo_student_personal_account
+WORKDIR /app
 
 COPY go.mod ./
 COPY go.sum ./
 RUN go mod download
 
 COPY . .
-RUN go build -o robbo_student_personal_account
+RUN go build -o robbo_server
 
 EXPOSE 8080
 
-CMD [ "/robbo_student_personal_account" ]
+CMD [ "/app/robbo_server" ]

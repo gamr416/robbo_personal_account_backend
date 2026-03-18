@@ -10,23 +10,30 @@ services:
       - POSTGRES_PASSWORD=robbo_pwd
       - POSTGRES_DB=robbo_db
     volumes:
-      - postgres_data:/usr/lib/postgresql
+      - postgres_data:/var/lib/postgresql/data
     networks:
-      postgres:
+      - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U robbo -d robbo_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
   app:
-#    container_name: golang_container
     build: .
     environment:
       - DEBUG=false
+      - POSTGRES_HOST=postgres
       - POSTGRES_USER=robbo
       - POSTGRES_PASSWORD=robbo_pwd
       - POSTGRES_DB=robbo_db
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     ports:
       - 8080:8080
     networks:
-      postgres:
+      - postgres
 volumes:
   postgres_data: {}
 networks:

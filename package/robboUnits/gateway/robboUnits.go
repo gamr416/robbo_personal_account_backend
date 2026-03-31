@@ -25,7 +25,7 @@ func (r *RobboUnitsGatewayImpl) SearchRobboUnitByName(name string, page, pageSiz
 			log.Println(err)
 			return
 		}
-		tx.Model(&models.RobboUnitDB{}).Count(&countRows)
+		tx.Model(&models.RobboUnitDB{}).Where("name LIKE ?", name).Count(&countRows)
 		return
 	})
 	for _, robboUnitDb := range robboUnitsDb {

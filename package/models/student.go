@@ -30,8 +30,8 @@ func (em *StudentDB) FromCore(student *StudentCore) {
 	robboGroupId, _ := strconv.ParseUint(student.RobboGroupId, 10, 64)
 	em.UserDB.FromCore(&student.UserCore)
 	em.ID = uint(id)
-	em.RobboGroupId = uint(robboUnitId)
-	em.RobboUnitId = uint(robboGroupId)
+	em.RobboGroupId = uint(robboGroupId)
+	em.RobboUnitId = uint(robboUnitId)
 }
 
 func (ht *StudentHTTP) ToCore() *StudentCore {

@@ -78,7 +78,7 @@ type getProjectPageResponse struct {
 
 func (h *Handler) GetProjectPageById(c *gin.Context) {
 	log.Println("Get Project Page By ID")
-	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	userId, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
@@ -92,7 +92,7 @@ func (h *Handler) GetProjectPageById(c *gin.Context) {
 		return
 	}
 	projectPageId := c.Param("projectPageId")
-	projectPage, err := h.projectPageDelegate.GetProjectPageById(projectPageId)
+	projectPage, err := h.projectPageDelegate.GetProjectPageById(projectPageId, userId)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
@@ -141,7 +141,7 @@ type updateProjectPageInput struct {
 
 func (h *Handler) UpdateProjectPage(c *gin.Context) {
 	log.Println("Update Project Page")
-	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	userId, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
@@ -163,7 +163,7 @@ func (h *Handler) UpdateProjectPage(c *gin.Context) {
 		return
 	}
 	log.Println(inp)
-	_, err := h.projectPageDelegate.UpdateProjectPage(inp.ProjectPage)
+	_, err := h.projectPageDelegate.UpdateProjectPage(inp.ProjectPage, userId)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)

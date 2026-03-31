@@ -2,13 +2,13 @@ package usecase
 
 import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboUnits"
+	robboUnitsPkg "github.com/skinnykaen/robbo_student_personal_account.git/package/robboUnits"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
 	"go.uber.org/fx"
 )
 
 type RobboUnitsUseCaseImpl struct {
-	robboUnitsGateway robboUnits.Gateway
+	robboUnitsGateway robboUnitsPkg.Gateway
 	usersGateway      users.Gateway
 }
 
@@ -24,10 +24,10 @@ func (p *RobboUnitsUseCaseImpl) SearchRobboUnitsByName(name string, page, pageSi
 
 type RobboUnitsUseCaseModule struct {
 	fx.Out
-	robboUnits.UseCase
+	robboUnitsPkg.UseCase
 }
 
-func SetupRobboUnitsUseCase(robboUnitsGateway robboUnits.Gateway, usersGateway users.Gateway) RobboUnitsUseCaseModule {
+func SetupRobboUnitsUseCase(robboUnitsGateway robboUnitsPkg.Gateway, usersGateway users.Gateway) RobboUnitsUseCaseModule {
 	return RobboUnitsUseCaseModule{
 		UseCase: &RobboUnitsUseCaseImpl{
 			robboUnitsGateway,
@@ -66,10 +66,16 @@ func (p *RobboUnitsUseCaseImpl) GetRobboUnitsByUnitAdminId(unitAdminId string, p
 	for _, relation := range relations {
 		robboUnit, getRobboUnitErr := p.robboUnitsGateway.GetRobboUnitById(relation.RobboUnitId)
 		if getRobboUnitErr != nil {
+			// Soft-deleted robbo units keep relations; skip them for UnitAdmin listings.
+			if getRobboUnitErr == robboUnitsPkg.ErrRobboUnitNotFound {
+				continue
+			}
 			return []*models.RobboUnitCore{}, 0, getRobboUnitErr
 		}
 		robboUnits = append(robboUnits, robboUnit)
 	}
+	// Keep countRows consistent with actual returned list for the access-token query path.
+	countRows = int64(len(robboUnits))
 	return
 }
 

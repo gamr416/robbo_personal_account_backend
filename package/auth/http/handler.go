@@ -173,7 +173,7 @@ func setRefreshToken(value string, c *gin.Context) {
 		value,
 		60*60*24*7,
 		"/",
-		"0.0.0.0",
+		"",
 		false,
 		false,
 	)

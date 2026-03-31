@@ -91,10 +91,17 @@ func (p *ProjectPageUseCaseImpl) CreateProjectPage(authorId string) (newProjectP
 	return
 }
 
-func (p *ProjectPageUseCaseImpl) UpdateProjectPage(projectPage *models.ProjectPageCore) (
+func (p *ProjectPageUseCaseImpl) UpdateProjectPage(projectPage *models.ProjectPageCore, authorId string) (
 	projectPageUpdated *models.ProjectPageCore,
 	err error,
 ) {
+	// Проверяем, что проект принадлежит текущему пользователю.
+	// projectGateway.GetProjectById вернет ошибку, если нет доступа.
+	_, err = p.projectGateway.GetProjectById(projectPage.ProjectId, authorId)
+	if err != nil {
+		return nil, err
+	}
+
 	return p.projectPageGateway.UpdateProjectPage(projectPage)
 }
 
@@ -125,9 +132,20 @@ func (p *ProjectPageUseCaseImpl) GetAllProjectPageByUserId(authorId string, page
 	return
 }
 
-func (p *ProjectPageUseCaseImpl) GetProjectPageById(projectPageId string) (
+func (p *ProjectPageUseCaseImpl) GetProjectPageById(projectPageId string, authorId string) (
 	projectPage *models.ProjectPageCore,
 	err error,
 ) {
-	return p.projectPageGateway.GetProjectPageById(projectPageId)
+	projectPage, err = p.projectPageGateway.GetProjectPageById(projectPageId)
+	if err != nil {
+		return nil, err
+	}
+
+	// Проверяем, что проект страницы принадлежит пользователю.
+	_, err = p.projectGateway.GetProjectById(projectPage.ProjectId, authorId)
+	if err != nil {
+		return nil, err
+	}
+
+	return projectPage, nil
 }

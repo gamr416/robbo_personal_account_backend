@@ -82,7 +82,7 @@ func (r *UsersGatewayImpl) SearchStudentsByEmail(email string, page, pageSize in
 			log.Println(err)
 			return
 		}
-		tx.Model(&models.StudentDB{}).Count(&countRows)
+		tx.Model(&models.StudentDB{}).Where("email LIKE ?", email).Count(&countRows)
 		return
 	})
 

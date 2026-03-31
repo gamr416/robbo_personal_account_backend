@@ -1,9 +1,9 @@
 package gateway
 
 import (
-	"errors"
 	"fmt"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/projects"
 	"go.uber.org/fx"
@@ -52,7 +52,7 @@ func (r *ProjectsGatewayImpl) GetProjectById(projectId, userId string) (project 
 	if project.AuthorId == userId {
 		return
 	} else {
-		return nil, errors.New("NO access")
+		return nil, auth.ErrNotAccess
 	}
 }
 

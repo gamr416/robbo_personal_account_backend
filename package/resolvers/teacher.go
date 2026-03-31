@@ -137,7 +137,20 @@ func (r *mutationResolver) SetTeacherForRobboGroup(ctx context.Context, teacherI
 			},
 		}
 	}
-	return &models.TeacherHTTPList{}, nil
+	teachers, getTeachersErr := r.usersDelegate.GetTeacherByRobboGroupId(robboGroupID)
+	if getTeachersErr != nil {
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getTeachersErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
+	}
+	return &models.TeacherHTTPList{
+		Teachers:  teachers,
+		CountRows: len(teachers),
+	}, nil
 }
 
 // DeleteTeacherForRobboGroup is the resolver for the DeleteTeacherForRobboGroup field.
@@ -163,7 +176,20 @@ func (r *mutationResolver) DeleteTeacherForRobboGroup(ctx context.Context, teach
 			},
 		}
 	}
-	return &models.TeacherHTTPList{}, nil
+	teachers, getTeachersErr := r.usersDelegate.GetTeacherByRobboGroupId(robboGroupID)
+	if getTeachersErr != nil {
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getTeachersErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
+	}
+	return &models.TeacherHTTPList{
+		Teachers:  teachers,
+		CountRows: len(teachers),
+	}, nil
 }
 
 // GetAllTeachers is the resolver for the GetAllTeachers field.

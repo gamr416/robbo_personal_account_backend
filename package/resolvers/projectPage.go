@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
@@ -44,6 +45,7 @@ func (r *mutationResolver) UpdateProjectPage(ctx context.Context, input models.U
 	if getGinContextErr != nil {
 		return nil, getGinContextErr
 	}
+	userId := ginContext.Value("user_id").(string)
 	userRole := ginContext.Value("user_role").(models.Role)
 	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
@@ -60,8 +62,17 @@ func (r *mutationResolver) UpdateProjectPage(ctx context.Context, input models.U
 		IsShared:      input.IsShared,
 	}
 
-	updateProjectPage, updateProjectPageErr := r.projectPageDelegate.UpdateProjectPage(updateProjectPageInput)
+	updateProjectPage, updateProjectPageErr := r.projectPageDelegate.UpdateProjectPage(updateProjectPageInput, userId)
 	if updateProjectPageErr != nil {
+		if updateProjectPageErr == auth.ErrNotAccess {
+			return nil, &gqlerror.Error{
+				Path:    graphql.GetPath(ctx),
+				Message: updateProjectPageErr.Error(),
+				Extensions: map[string]interface{}{
+					"code": "403",
+				},
+			}
+		}
 		return nil, &gqlerror.Error{
 			Path:    graphql.GetPath(ctx),
 			Message: updateProjectPageErr.Error(),
@@ -105,6 +116,7 @@ func (r *queryResolver) GetProjectPageByID(ctx context.Context, projectPageID st
 	if getGinContextErr != nil {
 		return nil, getGinContextErr
 	}
+	userId := ginContext.Value("user_id").(string)
 	userRole := ginContext.Value("user_role").(models.Role)
 	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
@@ -112,8 +124,17 @@ func (r *queryResolver) GetProjectPageByID(ctx context.Context, projectPageID st
 		return nil, accessErr
 	}
 
-	projectPageHttp, getProjectPageByIdErr := r.projectPageDelegate.GetProjectPageById(projectPageID)
+	projectPageHttp, getProjectPageByIdErr := r.projectPageDelegate.GetProjectPageById(projectPageID, userId)
 	if getProjectPageByIdErr != nil {
+		if getProjectPageByIdErr == auth.ErrNotAccess {
+			return nil, &gqlerror.Error{
+				Path:    graphql.GetPath(ctx),
+				Message: getProjectPageByIdErr.Error(),
+				Extensions: map[string]interface{}{
+					"code": "403",
+				},
+			}
+		}
 		return nil, &gqlerror.Error{
 			Path:    graphql.GetPath(ctx),
 			Message: getProjectPageByIdErr.Error(),

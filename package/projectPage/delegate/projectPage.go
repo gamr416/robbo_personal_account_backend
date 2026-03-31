@@ -39,9 +39,9 @@ func (p *ProjectPageDelegateImpl) DeleteProjectPage(projectId string) (err error
 	return p.UseCase.DeleteProjectPage(projectId)
 }
 
-func (p *ProjectPageDelegateImpl) UpdateProjectPage(projectPage *models.ProjectPageHTTP) (projectPageUpdated models.ProjectPageHTTP, err error) {
+func (p *ProjectPageDelegateImpl) UpdateProjectPage(projectPage *models.ProjectPageHTTP, authorId string) (projectPageUpdated models.ProjectPageHTTP, err error) {
 	projectPageCore := projectPage.ToCore()
-	projectPageUpdatedCore, err := p.UseCase.UpdateProjectPage(projectPageCore)
+	projectPageUpdatedCore, err := p.UseCase.UpdateProjectPage(projectPageCore, authorId)
 	if err != nil {
 		log.Println(err)
 		return
@@ -50,8 +50,8 @@ func (p *ProjectPageDelegateImpl) UpdateProjectPage(projectPage *models.ProjectP
 	return
 }
 
-func (p *ProjectPageDelegateImpl) GetProjectPageById(projectPageId string) (projectPage models.ProjectPageHTTP, err error) {
-	projectPageCore, err := p.UseCase.GetProjectPageById(projectPageId)
+func (p *ProjectPageDelegateImpl) GetProjectPageById(projectPageId string, authorId string) (projectPage models.ProjectPageHTTP, err error) {
+	projectPageCore, err := p.UseCase.GetProjectPageById(projectPageId, authorId)
 	if err != nil {
 		return
 	}

@@ -39,7 +39,7 @@ func (r *RobboGroupGatewayImpl) SearchRobboGroupsByTitle(title string, page, pag
 		if err = tx.Limit(pageSize).Offset(offset).Where("name LIKE ?", title).Find(&robboGroupsDB).Error; err != nil {
 			return
 		}
-		tx.Model(&models.RobboGroupDB{}).Count(&countRows)
+		tx.Model(&models.RobboGroupDB{}).Where("name LIKE ?", title).Count(&countRows)
 		return
 	})
 

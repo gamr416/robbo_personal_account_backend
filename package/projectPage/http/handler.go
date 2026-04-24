@@ -174,7 +174,7 @@ func (h *Handler) UpdateProjectPage(c *gin.Context) {
 
 func (h *Handler) DeleteProjectPage(c *gin.Context) {
 	log.Println("Delete Project Page")
-	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	userId, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
@@ -189,7 +189,7 @@ func (h *Handler) DeleteProjectPage(c *gin.Context) {
 	}
 	projectId := c.Param("projectId")
 
-	err := h.projectPageDelegate.DeleteProjectPage(projectId)
+	err := h.projectPageDelegate.DeleteProjectPage(projectId, userId)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)

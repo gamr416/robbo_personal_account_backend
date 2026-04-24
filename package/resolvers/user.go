@@ -63,14 +63,16 @@ func (r *queryResolver) GetSuperAdminByID(ctx context.Context, superAdminID stri
 	}
 
 	superAdmin, getSuperAdminByIdErr := r.usersDelegate.GetSuperAdminById(superAdminID)
-	return nil, &gqlerror.Error{
-		Path:    graphql.GetPath(ctx),
-		Message: getSuperAdminByIdErr.Error(),
-		Extensions: map[string]interface{}{
-			"code": "500",
-		},
+	if getSuperAdminByIdErr != nil {
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getSuperAdminByIdErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
-	return &superAdmin, nil
+	return superAdmin, nil
 }
 
 // GetUser is the resolver for the GetUser field.
@@ -81,10 +83,25 @@ func (r *queryResolver) GetUser(ctx context.Context, peekUserID *string, peekUse
 	}
 	var userId string
 	var userRole models.Role
+	callerRole := ginContext.Value("user_role").(models.Role)
 	if utils.UseString(peekUserID) == "" || peekUserID == nil {
 		userId = ginContext.Value("user_id").(string)
-		userRole = ginContext.Value("user_role").(models.Role)
+		userRole = callerRole
 	} else {
+		allowedPeekRoles := []models.Role{models.SuperAdmin, models.UnitAdmin}
+		peekAccessErr := r.authDelegate.UserAccess(callerRole, allowedPeekRoles, ctx)
+		if peekAccessErr != nil {
+			return nil, peekAccessErr
+		}
+		if peekUserRole == nil {
+			return nil, &gqlerror.Error{
+				Path:    graphql.GetPath(ctx),
+				Message: "peekUserRole is required when peekUserId is set",
+				Extensions: map[string]interface{}{
+					"code": "400",
+				},
+			}
+		}
 		userId = *peekUserID
 		userRole = models.Role(*peekUserRole)
 	}
@@ -119,6 +136,14 @@ func (r *queryResolver) GetUser(ctx context.Context, peekUserID *string, peekUse
 			return nil, getSuperAdminErr
 		}
 		return superAdmin, nil
+	case models.FreeListener:
+		freeListener, getFreeListenerErr := r.usersDelegate.GetFreeListenerById(userId)
+		if getFreeListenerErr != nil {
+			return nil, getFreeListenerErr
+		}
+		return &models.FreeListenerHTTP{
+			UserHTTP: &freeListener.UserHTTP,
+		}, nil
 	default:
 		return nil, &gqlerror.Error{
 			Path:    graphql.GetPath(ctx),
@@ -128,6 +153,46 @@ func (r *queryResolver) GetUser(ctx context.Context, peekUserID *string, peekUse
 			},
 		}
 	}
+}
+
+// UpdateFreeListener is the resolver for the updateFreeListener field.
+func (r *mutationResolver) UpdateFreeListener(ctx context.Context, input models.UpdateProfileInput) (models.FreeListenerResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		return nil, getGinContextErr
+	}
+	userRole := ginContext.Value("user_role").(models.Role)
+	allowedRoles := []models.Role{models.FreeListener, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
+	if accessErr != nil {
+		return nil, accessErr
+	}
+
+	updateInput := &models.FreeListenerHttp{
+		UserHTTP: models.UserHTTP{
+			ID:         input.ID,
+			Email:      input.Email,
+			Firstname:  input.Firstname,
+			Lastname:   input.Lastname,
+			Middlename: input.Middlename,
+			Nickname:   input.Nickname,
+			Role:       int(models.FreeListener),
+		},
+	}
+
+	updated, updateErr := r.usersDelegate.UpdateFreeListener(updateInput)
+	if updateErr != nil {
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: updateErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
+	}
+	return &models.FreeListenerHTTP{
+		UserHTTP: &updated.UserHTTP,
+	}, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

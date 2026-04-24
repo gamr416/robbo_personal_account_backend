@@ -72,14 +72,25 @@ func (r *ProjectPageGatewayImpl) DeleteProjectPage(projectId string) (err error)
 	return
 }
 
-func (r *ProjectPageGatewayImpl) UpdateProjectPage(projectPage *models.ProjectPageCore) (projectPageUpdated *models.ProjectPageCore, err error) {
-	projectPageDb := models.ProjectPageDB{}
-	projectPageDb.FromCore(projectPage)
-
+func (r *ProjectPageGatewayImpl) UpdateProjectPage(core *models.ProjectPageCore) (projectPageUpdated *models.ProjectPageCore, err error) {
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Model(&projectPageDb).Where("project_id = ?", projectPageDb.ProjectId).Updates(projectPageDb).Error
-		return
+		updates := map[string]interface{}{
+			"instruction": core.Instruction,
+			"notes":       core.Notes,
+			"title":       core.Title,
+			"is_shared":   core.IsShared,
+		}
+		res := tx.Model(&models.ProjectPageDB{}).Where("id = ?", core.ProjectPageId).Updates(updates)
+		if res.Error != nil {
+			return res.Error
+		}
+		if res.RowsAffected == 0 {
+			return projectPage.ErrPageNotFound
+		}
+		return nil
 	})
-	projectPageUpdated = projectPageDb.ToCore()
-	return
+	if err != nil {
+		return nil, err
+	}
+	return r.GetProjectPageById(core.ProjectPageId)
 }

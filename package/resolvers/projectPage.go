@@ -97,7 +97,8 @@ func (r *mutationResolver) DeleteProjectPage(ctx context.Context, projectID stri
 		return nil, accessErr
 	}
 
-	deleteProjectPageErr := r.projectPageDelegate.DeleteProjectPage(projectID)
+	userId := ginContext.Value("user_id").(string)
+	deleteProjectPageErr := r.projectPageDelegate.DeleteProjectPage(projectID, userId)
 	if deleteProjectPageErr != nil {
 		return nil, &gqlerror.Error{
 			Path:    graphql.GetPath(ctx),

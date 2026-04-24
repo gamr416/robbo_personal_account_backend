@@ -142,7 +142,7 @@ func (h *Handler) GetCourseContent(c *gin.Context) {
 
 func (h *Handler) GetCoursesByUser(c *gin.Context) {
 	log.Println("Get Courses By User")
-	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+	userId, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
@@ -156,7 +156,9 @@ func (h *Handler) GetCoursesByUser(c *gin.Context) {
 		return
 	}
 
-	coursesHTTP, err := h.coursesDelegate.GetCoursesByUser("", models.SuperAdmin, "", "")
+	page := c.DefaultQuery("page", "1")
+	pageSize := c.DefaultQuery("pageSize", "10")
+	coursesHTTP, err := h.coursesDelegate.GetCoursesByUser(userId, role, page, pageSize)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)

@@ -402,41 +402,52 @@ func (p *CourseDelegateImpl) GetCoursesByUser(userId string, role models.Role, p
 	var courseAccessRelations []*models.CourseRelationCore
 	var errGetRelations error
 	switch role {
-	case models.Student:
+	case models.Student, models.FreeListener:
 		courseAccessRelations, errGetRelations = p.CoursesUseCase.GetAccessCourseRelationsByStudentId(userId)
 	case models.Teacher:
-		courseAccessRelations, err = p.CoursesUseCase.GetAccessCourseRelationsByTeacherId(userId)
+		courseAccessRelations, errGetRelations = p.CoursesUseCase.GetAccessCourseRelationsByTeacherId(userId)
 	case models.UnitAdmin:
-		courseAccessRelations, err = p.CoursesUseCase.GetAccessCourseRelationsByUnitAdminId(userId)
+		courseAccessRelations, errGetRelations = p.CoursesUseCase.GetAccessCourseRelationsByUnitAdminId(userId)
 	case models.SuperAdmin:
-		body, err := p.EdxUseCase.GetCoursesByUser()
-		if err != nil {
-			fmt.Println(err)
-			return nil, err
+		body, edxErr := p.EdxUseCase.GetCoursesByUser()
+		if edxErr != nil {
+			fmt.Println(edxErr)
+			return nil, edxErr
 		}
 		err = json.Unmarshal(body, &coursesListHTTP)
 		if err != nil {
 			return nil, courses.ErrInternalServerLevel
 		}
 		return coursesListHTTP, nil
+	case models.Parent:
+		return &models.CoursesListHTTP{
+			Results:    []*models.CourseHTTP{},
+			Pagination: &models.Pagination{},
+			CountRows:  0,
+		}, nil
+	default:
+		return &models.CoursesListHTTP{
+			Results:    []*models.CourseHTTP{},
+			Pagination: &models.Pagination{},
+			CountRows:  0,
+		}, nil
 	}
 	if errGetRelations != nil {
 		return nil, errGetRelations
 	}
+	coursesListHTTP = &models.CoursesListHTTP{
+		Results:    []*models.CourseHTTP{},
+		Pagination: &models.Pagination{},
+	}
 	for _, courseAccessRelation := range courseAccessRelations {
 		var courseHTTP *models.CourseHTTP
-		body, err := p.EdxUseCase.GetCourseContent(courseAccessRelation.CourseId)
-		if err != nil {
+		body, getErr := p.EdxUseCase.GetCourseContent(courseAccessRelation.CourseId)
+		if getErr != nil {
 			return nil, courses.ErrBadRequest
 		}
 		err = json.Unmarshal(body, &courseHTTP)
 		if err != nil {
 			return nil, courses.ErrInternalServerLevel
-		}
-		coursesListHTTP = &models.CoursesListHTTP{
-			Results:    []*models.CourseHTTP{},
-			Pagination: &models.Pagination{},
-			CountRows:  0,
 		}
 		coursesListHTTP.Results = append(coursesListHTTP.Results, courseHTTP)
 	}

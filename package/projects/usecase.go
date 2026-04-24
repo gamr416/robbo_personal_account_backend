@@ -6,5 +6,5 @@ type UseCase interface {
 	CreateProject(project *models.ProjectCore) (id string, err error)
 	DeleteProject()
 	GetProjectById(projectId, userId string) (project *models.ProjectCore, err error)
-	UpdateProject(project *models.ProjectCore) (err error)
+	UpdateProject(project *models.ProjectCore, userId string) (err error)
 }

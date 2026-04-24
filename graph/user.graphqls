@@ -23,13 +23,19 @@ type SuperAdminHttp {
     userHttp: UserHttp!
 }
 
+type FreeListenerHttp {
+    userHttp: UserHttp!
+}
+
 union SuperAdminResult = SuperAdminHttp | Error
 
+union FreeListenerResult = FreeListenerHttp | Error
 
-union GetUserResult = StudentHttp | ParentHttp | TeacherHttp | UnitAdminHttp | SuperAdminHttp
+union GetUserResult = StudentHttp | ParentHttp | TeacherHttp | UnitAdminHttp | SuperAdminHttp | FreeListenerHttp
 
 type Mutation {
     UpdateSuperAdmin(input: UpdateProfileInput!): SuperAdminResult!
+    UpdateFreeListener(input: UpdateProfileInput!): FreeListenerResult!
 }
 
 type Query {

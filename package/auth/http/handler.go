@@ -2,11 +2,13 @@ package http
 
 import (
 	"fmt"
+	"log"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
-	"log"
-	"net/http"
+	"github.com/spf13/viper"
 )
 
 type Handler struct {
@@ -174,7 +176,7 @@ func setRefreshToken(value string, c *gin.Context) {
 		60*60*24*7,
 		"/",
 		"",
-		false,
-		false,
+		viper.GetBool("auth.refresh_cookie_secure"),
+		true,
 	)
 }

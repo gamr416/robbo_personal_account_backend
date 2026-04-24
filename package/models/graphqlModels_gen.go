@@ -22,6 +22,10 @@ type EnrollmentsResult interface {
 	IsEnrollmentsResult()
 }
 
+type FreeListenerResult interface {
+	IsFreeListenerResult()
+}
+
 type GetUserResult interface {
 	IsGetUserResult()
 }
@@ -253,6 +257,16 @@ func (Error) IsUnitAdminResult() {}
 func (Error) IsUnitAdminsResult() {}
 
 func (Error) IsSuperAdminResult() {}
+
+func (Error) IsFreeListenerResult() {}
+
+type FreeListenerHTTP struct {
+	UserHTTP *UserHTTP `json:"userHttp"`
+}
+
+func (FreeListenerHTTP) IsFreeListenerResult() {}
+
+func (FreeListenerHTTP) IsGetUserResult() {}
 
 type ImageHTTP struct {
 	ID    string `json:"id"`

@@ -1,3 +1,8 @@
+# Явное имя проекта: иначе при сборке из этой папки Docker берёт имя каталога
+# (robbo_personal_account_backend) и тег образа app становится другим, чем у уже
+# запущенного стека с docker compose -p rpa2 (образ rpa2-app) — новый код не попадает в контейнер.
+name: rpa2
+
 services:
   postgres:
     restart: always
@@ -20,13 +25,22 @@ services:
       retries: 5
       start_period: 10s
   app:
-    build: .
+    build:
+      context: .
+      network: host
     environment:
       - DEBUG=false
       - POSTGRES_HOST=postgres
       - POSTGRES_USER=robbo
       - POSTGRES_PASSWORD=robbo_pwd
       - POSTGRES_DB=robbo_db
+      - AUTH_HASH_SALT=hash_salt
+      - AUTH_ACCESS_SIGNING_KEY=access_signing_key
+      - AUTH_REFRESH_SIGNING_KEY=refresh_signing_key
+      - AUTH_REFRESH_COOKIE_SECURE=false
+      - API_TOKEN=GiafmKI2tyt9pyXDpEVYto0Ar2qmOS
+      - API_CLIENT_ID=uYSlyzAlmR2dEuukRWkqjcYjK6BplIYyXo8SawJl
+      - API_CLIENT_SECRET=vWXLUQf9KsOFtl5RhxkNozjIVV3gWZDcUERpLXd8ypAtrHmiCo1tLG0N9TV4ryIgnOcZZt3Cnc4oUXLUpfacXB3ocSBJCIJAK5cax6xm9ElhBjHlc6dKPE8rd72lZWQM
     depends_on:
       postgres:
         condition: service_healthy
@@ -35,7 +49,8 @@ services:
     networks:
       - postgres
 volumes:
-  postgres_data: {}
+  postgres_data:
+    name: robbo_personal_account_backend_postgres_data
 networks:
   postgres:
     driver: bridge

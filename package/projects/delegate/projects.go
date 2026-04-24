@@ -31,9 +31,9 @@ func (p *ProjectDelegateImpl) DeleteProject() {
 
 }
 
-func (p *ProjectDelegateImpl) UpdateProject(project *models.ProjectHTTP) (err error) {
+func (p *ProjectDelegateImpl) UpdateProject(project *models.ProjectHTTP, userId string) (err error) {
 	projectCore := project.ToCore()
-	return p.UseCase.UpdateProject(projectCore)
+	return p.UseCase.UpdateProject(projectCore, userId)
 }
 
 func (p *ProjectDelegateImpl) GetProjectById(projectId, userId string) (project models.ProjectHTTP, err error) {

@@ -3,12 +3,13 @@ package http
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/projects"
-	"io/ioutil"
-	"net/http"
 )
 
 type Handler struct {
@@ -31,7 +32,7 @@ func (h *Handler) InitProjectRoutes(router *gin.Engine) {
 	{
 		project.POST("/", h.CreateProject)
 		project.GET("/:projectId", h.GetProject)
-		project.POST(":projectId", h.UpdateProject)
+		project.POST("/:projectId", h.UpdateProject)
 		project.DELETE("/", h.DeleteProject)
 	}
 }
@@ -40,12 +41,21 @@ type testResponse struct {
 	Id string `json:"id"`
 }
 
-// TODO нет защиты, так как запрос идет с robboscratchweb без токена. для dev сервера пока можно убрать эти ручки
-
 func (h *Handler) CreateProject(c *gin.Context) {
 	fmt.Println("Create Project")
-	jsonDataBytes, err := ioutil.ReadAll(c.Request.Body)
+	userId, userRole, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, userIdentityErr.Error())
+		return
+	}
+	allowedRoles := []models.Role{models.Student}
+	accessErr := h.authDelegate.UserAccess(userRole, allowedRoles, c)
+	if accessErr != nil {
+		c.AbortWithStatusJSON(http.StatusForbidden, accessErr.Error())
+		return
+	}
 
+	jsonDataBytes, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		fmt.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -54,6 +64,8 @@ func (h *Handler) CreateProject(c *gin.Context) {
 
 	projectHTTP := models.ProjectHTTP{}
 	projectHTTP.Json = string(jsonDataBytes)
+	projectHTTP.AuthorId = userId
+
 	projectId, err := h.projectsDelegate.CreateProject(&projectHTTP)
 	fmt.Println(projectId)
 
@@ -73,11 +85,13 @@ func (h *Handler) GetProject(c *gin.Context) {
 	fmt.Println(userRole)
 	if userIdentityErr != nil {
 		c.AbortWithError(http.StatusUnauthorized, userIdentityErr)
+		return
 	}
 	allowedRoles := []models.Role{models.Student}
 	accessErr := h.authDelegate.UserAccess(userRole, allowedRoles, c)
 	if accessErr != nil {
-		c.AbortWithError(http.StatusUnauthorized, accessErr)
+		c.AbortWithStatusJSON(http.StatusForbidden, accessErr.Error())
+		return
 	}
 	projectId := c.Param("projectId")
 	if projectId == "" {
@@ -98,8 +112,19 @@ func (h *Handler) GetProject(c *gin.Context) {
 
 func (h *Handler) UpdateProject(c *gin.Context) {
 	fmt.Println("Update Project")
-	jsonDataBytes, err := ioutil.ReadAll(c.Request.Body)
+	userId, userRole, userIdentityErr := h.authDelegate.UserIdentity(c)
+	if userIdentityErr != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, userIdentityErr.Error())
+		return
+	}
+	allowedRoles := []models.Role{models.Student}
+	accessErr := h.authDelegate.UserAccess(userRole, allowedRoles, c)
+	if accessErr != nil {
+		c.AbortWithStatusJSON(http.StatusForbidden, accessErr.Error())
+		return
+	}
 
+	jsonDataBytes, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		fmt.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -110,11 +135,16 @@ func (h *Handler) UpdateProject(c *gin.Context) {
 
 	projectHTTP := models.ProjectHTTP{}
 	projectHTTP.ID = projectId
+	projectHTTP.AuthorId = userId
 	projectHTTP.Json = string(jsonDataBytes)
 
-	err = h.projectsDelegate.UpdateProject(&projectHTTP)
+	err = h.projectsDelegate.UpdateProject(&projectHTTP, userId)
 
 	if err != nil {
+		if err == auth.ErrNotAccess {
+			c.AbortWithStatusJSON(http.StatusForbidden, err.Error())
+			return
+		}
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}

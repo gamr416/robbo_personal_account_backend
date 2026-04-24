@@ -18,11 +18,12 @@ graphqlServer:
   port: "8081"
 
 auth:
-  hash_salt: "hash_salt"
-  access_signing_key: "access_signing_key"
-  refresh_signing_key: "refresh_signing_key"
+  hash_salt: "test_hash_salt"
+  access_signing_key: "test_access_signing_key"
+  refresh_signing_key: "test_refresh_signing_key"
   access_token_ttl: 300 # 5 min
   refresh_token_ttl: 604800 # 7 day
+  refresh_cookie_secure: false
   token_super_admin: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAiLCJyb2xlIjo1fQ.Ha3K9LpCV4AP_AJiY-Gt6WcyKn2pRGxXM0kA4eLR-nU"
 
 projectPage:
@@ -42,9 +43,8 @@ api_urls:
   getLogin: "https://edx-test.ru/login"
   getRegistration: "https://edx-test.ru/register?next=%2F"
 
-
 api:
-  token: "GiafmKI2tyt9pyXDpEVYto0Ar2qmOS"
+  token: "test_api_token"
   token_expiration_time: 0
-  client_id: "uYSlyzAlmR2dEuukRWkqjcYjK6BplIYyXo8SawJl"
-  client_secret: "vWXLUQf9KsOFtl5RhxkNozjIVV3gWZDcUERpLXd8ypAtrHmiCo1tLG0N9TV4ryIgnOcZZt3Cnc4oUXLUpfacXB3ocSBJCIJAK5cax6xm9ElhBjHlc6dKPE8rd72lZWQM"
+  client_id: "test_client_id"
+  client_secret: "test_client_secret"

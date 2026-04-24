@@ -150,6 +150,10 @@ type ComplexityRoot struct {
 		Message func(childComplexity int) int
 	}
 
+	FreeListenerHttp struct {
+		UserHTTP func(childComplexity int) int
+	}
+
 	ImageHttp struct {
 		ID    func(childComplexity int) int
 		Large func(childComplexity int) int
@@ -194,6 +198,7 @@ type ComplexityRoot struct {
 		SetTeacherForRobboGroup              func(childComplexity int, teacherID string, robboGroupID string) int
 		SingIn                               func(childComplexity int, input models.SignInInput) int
 		SingOut                              func(childComplexity int) int
+		UpdateFreeListener                   func(childComplexity int, input models.UpdateProfileInput) int
 		UpdateParent                         func(childComplexity int, input models.UpdateProfileInput) int
 		UpdateProjectPage                    func(childComplexity int, input models.UpdateProjectPage) int
 		UpdateRobboGroup                     func(childComplexity int, input models.UpdateRobboGroup) int
@@ -375,6 +380,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	UpdateSuperAdmin(ctx context.Context, input models.UpdateProfileInput) (models.SuperAdminResult, error)
+	UpdateFreeListener(ctx context.Context, input models.UpdateProfileInput) (models.FreeListenerResult, error)
 	SingIn(ctx context.Context, input models.SignInInput) (models.SignInResult, error)
 	SingOut(ctx context.Context) (*models.Error, error)
 	Refresh(ctx context.Context) (models.SignInResult, error)
@@ -865,6 +871,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Error.Message(childComplexity), true
 
+	case "FreeListenerHttp.userHttp":
+		if e.complexity.FreeListenerHttp.UserHTTP == nil {
+			break
+		}
+
+		return e.complexity.FreeListenerHttp.UserHTTP(childComplexity), true
+
 	case "ImageHttp.id":
 		if e.complexity.ImageHttp.ID == nil {
 			break
@@ -1263,6 +1276,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SingOut(childComplexity), true
+
+	case "Mutation.UpdateFreeListener":
+		if e.complexity.Mutation.UpdateFreeListener == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_UpdateFreeListener_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateFreeListener(childComplexity, args["input"].(models.UpdateProfileInput)), true
 
 	case "Mutation.UpdateParent":
 		if e.complexity.Mutation.UpdateParent == nil {
@@ -2935,13 +2960,19 @@ type SuperAdminHttp {
     userHttp: UserHttp!
 }
 
+type FreeListenerHttp {
+    userHttp: UserHttp!
+}
+
 union SuperAdminResult = SuperAdminHttp | Error
 
+union FreeListenerResult = FreeListenerHttp | Error
 
-union GetUserResult = StudentHttp | ParentHttp | TeacherHttp | UnitAdminHttp | SuperAdminHttp
+union GetUserResult = StudentHttp | ParentHttp | TeacherHttp | UnitAdminHttp | SuperAdminHttp | FreeListenerHttp
 
 type Mutation {
     UpdateSuperAdmin(input: UpdateProfileInput!): SuperAdminResult!
+    UpdateFreeListener(input: UpdateProfileInput!): FreeListenerResult!
 }
 
 type Query {
@@ -3451,6 +3482,21 @@ func (ec *executionContext) field_Mutation_SingIn_args(ctx context.Context, rawA
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNSignInInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐSignInInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_UpdateFreeListener_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.UpdateProfileInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUpdateProfileInput2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUpdateProfileInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7226,6 +7272,70 @@ func (ec *executionContext) fieldContext_Error_message(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _FreeListenerHttp_userHttp(ctx context.Context, field graphql.CollectedField, obj *models.FreeListenerHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FreeListenerHttp_userHttp(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserHTTP, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.UserHTTP)
+	fc.Result = res
+	return ec.marshalNUserHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐUserHTTP(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FreeListenerHttp_userHttp(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FreeListenerHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_UserHttp_id(ctx, field)
+			case "email":
+				return ec.fieldContext_UserHttp_email(ctx, field)
+			case "password":
+				return ec.fieldContext_UserHttp_password(ctx, field)
+			case "role":
+				return ec.fieldContext_UserHttp_role(ctx, field)
+			case "nickname":
+				return ec.fieldContext_UserHttp_nickname(ctx, field)
+			case "firstname":
+				return ec.fieldContext_UserHttp_firstname(ctx, field)
+			case "lastname":
+				return ec.fieldContext_UserHttp_lastname(ctx, field)
+			case "middlename":
+				return ec.fieldContext_UserHttp_middlename(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_UserHttp_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UserHttp", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ImageHttp_id(ctx context.Context, field graphql.CollectedField, obj *models.ImageHTTP) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ImageHttp_id(ctx, field)
 	if err != nil {
@@ -7539,6 +7649,61 @@ func (ec *executionContext) fieldContext_Mutation_UpdateSuperAdmin(ctx context.C
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_UpdateSuperAdmin_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_UpdateFreeListener(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_UpdateFreeListener(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateFreeListener(rctx, fc.Args["input"].(models.UpdateProfileInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.FreeListenerResult)
+	fc.Result = res
+	return ec.marshalNFreeListenerResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐFreeListenerResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_UpdateFreeListener(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type FreeListenerResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_UpdateFreeListener_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -17892,6 +18057,29 @@ func (ec *executionContext) _EnrollmentsResult(ctx context.Context, sel ast.Sele
 	}
 }
 
+func (ec *executionContext) _FreeListenerResult(ctx context.Context, sel ast.SelectionSet, obj models.FreeListenerResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case models.FreeListenerHTTP:
+		return ec._FreeListenerHttp(ctx, sel, &obj)
+	case *models.FreeListenerHTTP:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._FreeListenerHttp(ctx, sel, obj)
+	case models.Error:
+		return ec._Error(ctx, sel, &obj)
+	case *models.Error:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Error(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _GetUserResult(ctx context.Context, sel ast.SelectionSet, obj models.GetUserResult) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -17931,6 +18119,13 @@ func (ec *executionContext) _GetUserResult(ctx context.Context, sel ast.Selectio
 			return graphql.Null
 		}
 		return ec._SuperAdminHttp(ctx, sel, obj)
+	case models.FreeListenerHTTP:
+		return ec._FreeListenerHttp(ctx, sel, &obj)
+	case *models.FreeListenerHTTP:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._FreeListenerHttp(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -19020,7 +19215,7 @@ func (ec *executionContext) _EnrollmentsListHttp(ctx context.Context, sel ast.Se
 	return out
 }
 
-var errorImplementors = []string{"Error", "SignInResult", "CourseRelationResult", "CourseRelationsResult", "CourseResult", "CoursesResult", "EnrollmentsResult", "ParentsResult", "ParentResult", "PairsStudentParentsResult", "ProjectPageResult", "ProjectPagesResult", "RobboGroupResult", "RobboGroupsResult", "RobboUnitResult", "RobboUnitsResult", "StudentResult", "StudentsResult", "TeacherResult", "TeachersResult", "UnitAdminResult", "UnitAdminsResult", "SuperAdminResult"}
+var errorImplementors = []string{"Error", "SignInResult", "CourseRelationResult", "CourseRelationsResult", "CourseResult", "CoursesResult", "EnrollmentsResult", "ParentsResult", "ParentResult", "PairsStudentParentsResult", "ProjectPageResult", "ProjectPagesResult", "RobboGroupResult", "RobboGroupsResult", "RobboUnitResult", "RobboUnitsResult", "StudentResult", "StudentsResult", "TeacherResult", "TeachersResult", "UnitAdminResult", "UnitAdminsResult", "SuperAdminResult", "FreeListenerResult"}
 
 func (ec *executionContext) _Error(ctx context.Context, sel ast.SelectionSet, obj *models.Error) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, errorImplementors)
@@ -19040,6 +19235,34 @@ func (ec *executionContext) _Error(ctx context.Context, sel ast.SelectionSet, ob
 		case "message":
 
 			out.Values[i] = ec._Error_message(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var freeListenerHttpImplementors = []string{"FreeListenerHttp", "FreeListenerResult", "GetUserResult"}
+
+func (ec *executionContext) _FreeListenerHttp(ctx context.Context, sel ast.SelectionSet, obj *models.FreeListenerHTTP) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, freeListenerHttpImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("FreeListenerHttp")
+		case "userHttp":
+
+			out.Values[i] = ec._FreeListenerHttp_userHttp(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -19162,6 +19385,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_UpdateSuperAdmin(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "UpdateFreeListener":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_UpdateFreeListener(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -22098,6 +22330,16 @@ func (ec *executionContext) marshalNError2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_s
 		return graphql.Null
 	}
 	return ec._Error(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNFreeListenerResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐFreeListenerResult(ctx context.Context, sel ast.SelectionSet, v models.FreeListenerResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._FreeListenerResult(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNGetUserResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐGetUserResult(ctx context.Context, sel ast.SelectionSet, v models.GetUserResult) graphql.Marshaler {

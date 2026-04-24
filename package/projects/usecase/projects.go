@@ -27,7 +27,11 @@ func (p *ProjectUseCaseImpl) CreateProject(project *models.ProjectCore) (id stri
 	return p.Gateway.CreateProject(project)
 }
 
-func (p *ProjectUseCaseImpl) UpdateProject(project *models.ProjectCore) (err error) {
+func (p *ProjectUseCaseImpl) UpdateProject(project *models.ProjectCore, userId string) (err error) {
+	_, err = p.GetProjectById(project.ID, userId)
+	if err != nil {
+		return err
+	}
 	return p.Gateway.UpdateProject(project)
 }
 

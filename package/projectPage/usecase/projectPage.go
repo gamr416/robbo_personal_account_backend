@@ -95,17 +95,26 @@ func (p *ProjectPageUseCaseImpl) UpdateProjectPage(projectPage *models.ProjectPa
 	projectPageUpdated *models.ProjectPageCore,
 	err error,
 ) {
-	// Проверяем, что проект принадлежит текущему пользователю.
-	// projectGateway.GetProjectById вернет ошибку, если нет доступа.
-	_, err = p.projectGateway.GetProjectById(projectPage.ProjectId, authorId)
+	existing, err := p.projectPageGateway.GetProjectPageById(projectPage.ProjectPageId)
 	if err != nil {
 		return nil, err
 	}
+	// Права по фактической связке страницы с проектом в БД, а не по projectId из тела запроса
+	// (иначе при рассинхроне URL/состояния UPDATE не попадает в строку, а API всё равно отвечает 200).
+	_, err = p.projectGateway.GetProjectById(existing.ProjectId, authorId)
+	if err != nil {
+		return nil, err
+	}
+	projectPage.ProjectId = existing.ProjectId
 
 	return p.projectPageGateway.UpdateProjectPage(projectPage)
 }
 
-func (p *ProjectPageUseCaseImpl) DeleteProjectPage(projectId string) (err error) {
+func (p *ProjectPageUseCaseImpl) DeleteProjectPage(projectId string, authorId string) (err error) {
+	_, err = p.projectGateway.GetProjectById(projectId, authorId)
+	if err != nil {
+		return err
+	}
 	err = p.projectGateway.DeleteProject(projectId)
 	if err != nil {
 		return
